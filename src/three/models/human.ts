@@ -16,123 +16,150 @@ export interface OrganDef {
 import { ORGAN_LIST } from './humanList'
 export { ORGAN_LIST }
 
-const mirror = (x: number): number[] => [-x, x]
+const mx = (k: number, p: V3): V3 => [p[0] * k, p[1], p[2]]
 
-function coil(): V3[] {
-  const pts: V3[] = []
-  const rows = 6
-  for (let k = 0; k < rows; k++) {
-    const y = 2.5 - k * 0.1
-    const dir = k % 2 === 0 ? 1 : -1
-    const z = 0.06 + (k % 2) * 0.05
-    pts.push([-0.4 * dir, y, z], [-0.12 * dir, y + 0.03, z + 0.03], [0.12 * dir, y - 0.02, z], [0.4 * dir, y, z + 0.02])
-  }
-  return pts
-}
+/** Spine of one arm, shoulder to wrist, relaxed and angled slightly out and forward with a soft elbow. */
+const ARM: V3[] = [[0.62, 5.16, 0], [1.0, 4.96, 0], [1.17, 4.5, 0.0], [1.34, 4.0, 0.03], [1.5, 3.58, 0.17], [1.64, 3.15, 0.3]]
+const ARM_R = [0.3, 0.3, 0.235, 0.185, 0.155, 0.1]
+const LEG: V3[] = [[0.32, 3.12, 0], [0.34, 2.45, 0.02], [0.36, 1.75, 0.05], [0.35, 1.05, 0.0], [0.33, 0.45, -0.01], [0.33, 0.2, 0]]
+const LEG_R = [0.4, 0.35, 0.26, 0.24, 0.15, 0.12]
 
+/** The sensory and organ shapes, authored directly in body space (feet at y = 0, facing +z). */
 function build(id: string): THREE.BufferGeometry {
   const b = new Builder()
   switch (id) {
     case 'brain':
-      for (const x of mirror(0.17)) b.sphere(0.3, { p: [x, 4.58, -0.02], s: [1, 0.82, 1.1] }, 10, 8)
-      b.sphere(0.17, { p: [0, 4.34, -0.27], s: [1.3, 0.8, 1] }).cyl(0.07, 0.09, 0.22, { p: [0, 4.18, -0.12] })
+      for (const k of [-1, 1]) {
+        b.ell([k * 0.15, 6.36, 0.0], [0.19, 0.2, 0.3], '#fff', [0, 0, 0], 28, 18)
+          .ell([k * 0.17, 6.4, 0.17], [0.17, 0.17, 0.14], '#fff', [0, 0, 0], 20, 14)
+          .ell([k * 0.22, 6.22, -0.02], [0.12, 0.1, 0.22], '#fff', [0, 0, k * 0.2], 20, 14)
+          .ell([k * 0.14, 6.42, -0.17], [0.15, 0.15, 0.14], '#fff', [0, 0, 0], 20, 14)
+      }
+      b.ell([0, 6.14, -0.27], [0.19, 0.09, 0.11], '#fff', [0, 0, 0], 20, 14).limb([[0, 6.2, -0.1], [0, 6.0, -0.1], [0, 5.84, -0.08]], [0.07, 0.055, 0.04], {}, { radial: 10 })
       break
     case 'heart':
-      b.sphere(0.27, { p: [0.16, 3.32, 0.12], s: [1, 1.1, 0.9] }, 10, 8)
-        .cone(0.25, 0.45, { p: [0.2, 3.02, 0.12], r: [0, 0, Math.PI + 0.35] })
-        .cyl(0.07, 0.07, 0.34, { p: [0.04, 3.62, 0.08], r: [0, 0, 0.2] })
-        .cyl(0.07, 0.07, 0.34, { p: [0.3, 3.6, 0.1], r: [0, 0, -0.25] })
+      b.limb([[0.06, 4.62, 0.12], [0.15, 4.4, 0.14], [0.26, 4.15, 0.15]], [[0.3, 0.25], [0.3, 0.26], [0.07, 0.07]], {}, { radial: 18 })
+        .ell([-0.05, 4.66, 0.06], [0.15, 0.13, 0.13], '#fff', [0, 0, 0.3])
+        .limb([[0.04, 4.7, 0.1], [0.04, 4.95, 0.1], [-0.08, 5.07, 0.08], [-0.2, 5.0, 0.06]], 0.075, {}, { radial: 12 })
+        .limb([[0.2, 4.68, 0.2], [0.26, 4.9, 0.18], [0.3, 4.96, 0.1]], 0.06, {}, { radial: 10 })
       break
     case 'lungs':
-      for (const x of mirror(0.56)) {
-        const sx = x < 0 ? 1.05 : 0.92
-        b.sphere(0.3, { p: [x, 3.78, 0], s: [0.9 * sx, 1.3, 0.9] }, 9, 7).sphere(0.32, { p: [x, 3.3, 0.02], s: [sx, 1.25, 0.9] }, 9, 7)
+      for (const k of [-1, 1]) {
+        const w = k < 0 ? 1 : 0.9
+        b.limb([[k * 0.38, 4.3, 0.04], [k * 0.4, 4.7, 0.04], [k * 0.3, 5.15, 0.02]], [[0.3 * w, 0.26], [0.3 * w, 0.27], [0.12, 0.13]], {}, { radial: 18, seg: 8 })
       }
-      b.cyl(0.07, 0.07, 0.55, { p: [0, 3.85, 0] }).cyl(0.05, 0.05, 0.6, { p: [-0.25, 3.45, 0], r: [0, 0, 1.1] })
-        .cyl(0.05, 0.05, 0.6, { p: [0.25, 3.45, 0], r: [0, 0, -1.1] })
+      b.limb([[0, 5.5, 0.0], [0, 5.2, 0.0], [0, 4.92, 0.0]], 0.065, {}, { radial: 10 })
+        .limb([[0, 4.92, 0], [-0.1, 4.78, 0], [-0.22, 4.62, 0]], 0.05, {}, { radial: 8 })
+        .limb([[0, 4.92, 0], [0.1, 4.78, 0], [0.22, 4.62, 0]], 0.05, {}, { radial: 8 })
       break
     case 'liver':
-      b.sphere(0.5, { p: [-0.36, 2.96, 0.1], s: [1.2, 0.55, 0.62], r: [0, 0, 0.14] }, 10, 8).sphere(0.4, { p: [0.04, 2.9, 0.16], s: [1, 0.55, 0.7] })
+      b.limb([[-0.58, 3.82, 0.1], [-0.3, 3.88, 0.12], [0.02, 3.8, 0.15], [0.3, 3.68, 0.15]], [[0.2, 0.2], [0.28, 0.27], [0.22, 0.2], [0.08, 0.08]], {}, { radial: 18, seg: 8 })
+        .ell([-0.12, 3.64, 0.24], [0.1, 0.07, 0.07], '#fff', [0, 0, 0.3])
       break
     case 'stomach':
-      b.sphere(0.3, { p: [0.36, 2.88, 0.12], s: [1, 1.2, 0.75], r: [0, 0, -0.7] }, 10, 8)
-        .cyl(0.07, 0.07, 0.55, { p: [0.14, 3.32, 0.08], r: [0, 0, -0.35] })
-        .cyl(0.08, 0.08, 0.4, { p: [-0.02, 2.66, 0.12], r: [0, 0, Math.PI / 2] })
+      b.limb([[0.1, 4.02, 0.14], [0.32, 3.9, 0.17], [0.46, 3.66, 0.18], [0.38, 3.4, 0.18], [0.14, 3.34, 0.17], [-0.05, 3.4, 0.15]], [0.07, 0.19, 0.26, 0.2, 0.1, 0.07], {}, { radial: 16, seg: 8 })
+        .limb([[0.0, 4.55, 0.02], [0.06, 4.28, 0.06], [0.1, 4.04, 0.13]], 0.05, {}, { radial: 8 })
       break
     case 'pancreas':
-      b.capsule(0.1, 0.55, { p: [0.12, 2.62, -0.04], r: [0, 0, Math.PI / 2 + 0.12], s: [1, 1, 1.35] }, 8)
+      b.limb([[-0.34, 3.2, 0.04], [-0.1, 3.3, 0.06], [0.2, 3.34, 0.07], [0.48, 3.42, 0.04]], [[0.1, 0.1], [0.12, 0.09], [0.1, 0.08], [0.15, 0.12]], {}, { radial: 14, seg: 8 })
       break
-    case 'small-intestine':
-      b.tube(coil(), 0.08, {}, 140, 6)
+    case 'small-intestine': {
+      const pts: V3[] = []
+      const rows = 5
+      for (let k = 0; k < rows; k++) {
+        const y = 3.42 - k * 0.14
+        const dir = k % 2 === 0 ? 1 : -1
+        pts.push([-0.3 * dir, y, 0.2], [-0.05 * dir, y + 0.03, 0.24], [0.2 * dir, y - 0.02, 0.2], [0.34 * dir, y - 0.01, 0.22])
+        // Rounded turn at the end of each pass so the tube never folds onto itself.
+        if (k < rows - 1) pts.push([0.42 * dir, y - 0.07, 0.22])
+      }
+      b.limb(pts, 0.062, {}, { radial: 10, seg: 5 })
       break
+    }
     case 'large-intestine':
-      b.tube(
-        [[-0.56, 1.92, 0.02], [-0.58, 2.3, 0.02], [-0.5, 2.62, 0.02], [-0.2, 2.72, 0.02], [0.2, 2.72, 0.02], [0.5, 2.62, 0.02], [0.58, 2.3, 0.02], [0.56, 1.92, 0.02], [0.38, 1.76, 0.04], [0.14, 1.82, 0.04], [0, 1.9, 0.04]],
-        0.1,
+      b.limb(
+        [[-0.44, 2.94, 0.1], [-0.5, 3.2, 0.1], [-0.5, 3.5, 0.1], [-0.36, 3.64, 0.1], [0, 3.58, 0.12], [0.36, 3.64, 0.1], [0.5, 3.5, 0.1], [0.5, 3.2, 0.1], [0.44, 2.98, 0.1], [0.28, 2.9, 0.12], [0.08, 2.96, 0.12]],
+        [0.1, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.1, 0.09, 0.075],
         {},
-        90,
-        7,
+        { radial: 12, seg: 6 },
       )
       break
     case 'kidneys':
-      for (const x of mirror(0.42)) b.sphere(0.22, { p: [x, 2.78, -0.3], s: [0.72, 1.15, 0.65], r: [0, 0, x < 0 ? 0.25 : -0.25] }, 9, 7)
+      for (const k of [-1, 1]) b.ell([k * 0.4, 3.66 + (k > 0 ? 0.06 : 0), -0.22], [0.13, 0.25, 0.12], '#fff', [0, 0, k * 0.22], 16, 12)
       break
     case 'bladder':
-      b.sphere(0.21, { p: [0, 1.76, 0.1], s: [1.05, 0.95, 0.9] }, 9, 7).cone(0.1, 0.22, { p: [0, 1.56, 0.1], r: [0, 0, Math.PI] })
+      b.limb([[0, 2.82, 0.1], [0, 2.98, 0.1], [0, 3.14, 0.1]], [[0.1, 0.1], [0.18, 0.16], [0.06, 0.06]], {}, { radial: 14 })
       break
     case 'eyes':
-      for (const x of mirror(0.22)) b.sphere(0.11, { p: [x, 4.56, 0.54] }, 8, 6)
+      for (const k of [-1, 1]) {
+        b.ell([k * 0.2, 6.18, 0.33], [0.1, 0.1, 0.1], '#fff', [0, 0, 0], 16, 12).ell([k * 0.2, 6.18, 0.425], [0.05, 0.05, 0.03], '#241c14', [0, 0, 0], 12, 8).limb([[k * 0.19, 6.2, 0.24], [k * 0.12, 6.16, 0.0], [k * 0.05, 6.1, -0.18]], 0.03, {}, { radial: 8 })
+      }
       break
     case 'ears':
-      for (const x of mirror(0.62)) b.sphere(0.13, { p: [x, 4.44, 0], s: [0.55, 1.1, 0.85] }, 8, 6)
+      for (const k of [-1, 1]) {
+        b.ell([k * 0.29, 6.12, 0.0], [0.07, 0.13, 0.11], '#fff', [0, 0, 0], 12, 10).limb([[k * 0.37, 6.1, 0.0], [k * 0.26, 6.1, 0.0], [k * 0.12, 6.08, 0.02]], 0.035, {}, { radial: 8 })
+        b.torus(0.055, 0.025, { p: [k * 0.26, 6.2, 0.0], r: [0, Math.PI / 2, 0] }, 8, 14, Math.PI * 1.5)
+      }
       break
     case 'nose':
-      b.cone(0.11, 0.24, { p: [0, 4.4, 0.62], r: [Math.PI / 2, 0, 0] }, 8)
+      b.limb([[0, 6.14, 0.22], [0, 6.04, 0.42], [0, 5.97, 0.53]], [[0.05, 0.05], [0.07, 0.07], [0.09, 0.08]], {}, { radial: 12 })
+        .ell([-0.065, 5.95, 0.5], [0.055, 0.045, 0.06], '#fff', [0, 0, 0], 10, 8)
+        .ell([0.065, 5.95, 0.5], [0.055, 0.045, 0.06], '#fff', [0, 0, 0], 10, 8)
       break
     case 'tongue':
-      b.capsule(0.07, 0.2, { p: [0, 4.2, 0.54], r: [0, 0, Math.PI / 2], s: [1, 0.6, 1.3] }, 6)
+      b.limb([[0, 5.88, -0.04], [0, 5.86, 0.16], [0, 5.87, 0.34]], [[0.1, 0.05], [0.12, 0.055], [0.08, 0.045]], {}, { radial: 12 })
       break
   }
-  return b.build()
+  const geo = b.build()
+  if (id === 'brain') foldBrain(geo)
+  return geo
+}
+
+/** Darkens vertex colors along winding grooves so the two lobes read as a folded cortex. */
+function foldBrain(geo: THREE.BufferGeometry): void {
+  const pos = geo.getAttribute('position')
+  const col = geo.getAttribute('color') as THREE.BufferAttribute
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i)
+    const y = pos.getY(i)
+    const z = pos.getZ(i)
+    const v = Math.sin(x * 46 + 2.2 * Math.sin(y * 27 + z * 15)) * Math.sin(z * 38 + 1.8 * Math.sin(x * 19 + y * 23))
+    const g = 0.66 + 0.34 * smoothstep(-0.55, 0.45, v)
+    col.setXYZ(i, g, g, g)
+  }
+}
+
+const smoothstep = (a: number, b: number, x: number): number => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
+  return t * t * (3 - 2 * t)
 }
 
 /**
- * Whole body outer shell. A clean stylized adult: neck, sloped shoulders, tapered limbs, hands and feet.
- * Feet at y = 0, about 6.5 units tall, facing +z. Torso organs sit in the 3.0 to 5.3 band, head organs in the head.
+ * Whole body outer shell. A smooth stylized adult built from tapered tubes: neck, sloped shoulders, relaxed arms
+ * with a soft elbow bend, a sculpted head (jaw, brow, nose, no ears), legs and feet. Feet at y = 0, about 6.6 units
+ * tall, facing +z. Torso organs sit between 2.8 and 5.3, head organs inside the skull.
  */
 function buildSkin(): THREE.BufferGeometry {
   const b = new Builder()
-  // Trunk as one lathe (smooth), squashed front to back.
-  b.lathe(
-    [[0.0, 3.0], [0.42, 3.03], [0.66, 3.12], [0.78, 3.34], [0.78, 3.7], [0.75, 4.0], [0.76, 4.3], [0.82, 4.62], [0.88, 4.9], [0.94, 5.08], [0.8, 5.22], [0.46, 5.3], [0.22, 5.36], [0.0, 5.4]],
-    { s: [1, 1, 0.62] },
-    28,
+  // Trunk: pelvis, waist, ribcage, shoulders, neck, one smooth sweep.
+  b.limb(
+    [[0, 3.25, 0.0], [0, 3.8, 0.0], [0, 4.5, 0.0], [0, 5.1, 0.0], [0, 5.34, 0.01], [0, 5.55, 0.03], [0, 5.78, 0.06]],
+    [[0.6, 0.42], [0.55, 0.39], [0.7, 0.47], [0.9, 0.43], [0.7, 0.36], [0.34, 0.3], [0.28, 0.27]],
+    {},
+    { radial: 24, seg: 7 },
   )
-  // Neck and head: a longer jaw under a rounder skull so the head reads as a face, not a ball.
-  b.cyl(0.19, 0.23, 0.5, { p: [0, 5.52, 0.03] }, 16)
-    .sphere(0.5, { p: [0, 6.02, 0], s: [1.02, 1.0, 1.1] }, 24, 18)
-    .sphere(0.38, { p: [0, 5.74, 0.13], s: [0.98, 0.9, 0.92] }, 18, 12)
+  // Head: jaw tapers to a chin, cranium is deeper than it is wide, face leans forward.
+  b.limb([[0, 5.88, 0.15], [0, 6.02, 0.08], [0, 6.22, 0.04], [0, 6.36, -0.01]], [[0.18, 0.21], [0.35, 0.39], [0.41, 0.47], [0.37, 0.45]], {}, { radial: 24, seg: 7, cap: 5 })
+  // Nose bridge and brow ridge: small features so the face reads without becoming a mask.
+  b.limb([[0, 6.2, 0.4], [0, 6.07, 0.5], [0, 5.99, 0.6]], [[0.045, 0.05], [0.07, 0.07], [0.085, 0.075]], {}, { radial: 12, seg: 6 })
+  b.limb([[-0.31, 6.27, 0.3], [-0.16, 6.3, 0.41], [0, 6.3, 0.44], [0.16, 6.3, 0.41], [0.31, 6.27, 0.3]], 0.06, {}, { radial: 10, seg: 6 })
   for (const k of [-1, 1]) {
-    const x = k * 0.97
-    // Arm: shoulder cap, upper arm, elbow, forearm, hand with four fingers and a thumb.
-    b.sphere(0.27, { p: [x, 5.0, 0], s: [1, 1.05, 1] }, 16, 12)
-      .seg([x, 5.0, 0], [k * 1.1, 4.0, 0.02], 0.22, undefined, 0.17, 14)
-      .sphere(0.17, { p: [k * 1.1, 4.0, 0.02] }, 12, 10)
-      .seg([k * 1.1, 4.0, 0.02], [k * 1.24, 3.1, 0.08], 0.16, undefined, 0.11, 14)
-      .sphere(0.115, { p: [k * 1.24, 3.1, 0.08] }, 12, 10)
-      .sphere(0.13, { p: [k * 1.26, 2.95, 0.09], s: [0.62, 1.0, 0.36] }, 12, 10)
-    for (let f = 0; f < 4; f++) {
-      const fx = k * (1.26 + (f - 1.5) * 0.045)
-      b.capsule(0.032, 0.17 - Math.abs(f - 1.5) * 0.015, { p: [fx, 2.74 - Math.abs(f - 1.5) * 0.008, 0.1], r: [0.08, 0, k * -0.03] }, 6)
-    }
-    b.capsule(0.036, 0.13, { p: [k * 1.38, 2.9, 0.13], r: [0.3, 0, k * 0.7] }, 6)
-    // Leg: thigh, knee, shin, ankle, foot.
-    const lx = k * 0.4
-    b.seg([lx, 3.12, 0], [k * 0.42, 1.7, 0.02], 0.34, undefined, 0.21, 16)
-      .sphere(0.21, { p: [k * 0.42, 1.7, 0.02] }, 12, 10)
-      .seg([k * 0.42, 1.7, 0.02], [k * 0.42, 0.3, 0], 0.2, undefined, 0.12, 14)
-      .sphere(0.115, { p: [k * 0.42, 0.28, 0] }, 10, 8)
-      .sphere(0.17, { p: [k * 0.42, 0.11, 0.2], s: [0.82, 0.62, 2.4] }, 14, 10)
+    b.limb(ARM.map((p) => mx(k, p)), ARM_R, {}, { radial: 14, seg: 6 })
+    // Hand: flat palm and fingers with a thumb tucked forward.
+    b.limb([[k * 1.64, 3.15, 0.3], [k * 1.7, 2.96, 0.35], [k * 1.74, 2.72, 0.39], [k * 1.76, 2.5, 0.41]], [[0.1, 0.06], [0.125, 0.06], [0.12, 0.05], [0.05, 0.035]], {}, { radial: 12, seg: 5 })
+    b.limb([[k * 1.62, 3.02, 0.36], [k * 1.54, 2.9, 0.46], [k * 1.52, 2.76, 0.52]], [0.05, 0.042, 0.03], {}, { radial: 8, seg: 5 })
+    b.limb(LEG.map((p) => mx(k, p)), LEG_R, {}, { radial: 16, seg: 6 })
+    b.limb([[k * 0.35, 0.17, -0.12], [k * 0.36, 0.13, 0.22], [k * 0.37, 0.1, 0.62]], [[0.13, 0.11], [0.15, 0.1], [0.12, 0.06]], {}, { radial: 12, seg: 6 })
   }
   return b.build()
 }
@@ -140,29 +167,13 @@ function buildSkin(): THREE.BufferGeometry {
 /** General muscle bulk shown on the figure when an item asks about muscles. */
 function buildMuscles(): THREE.BufferGeometry {
   const b = new Builder()
+  b.ell([0, 4.78, 0.28], [0.7, 0.34, 0.2], '#fff', [0, 0, 0], 20, 12)
   for (const k of [-1, 1]) {
-    b.sphere(0.3, { p: [k * 0.98, 5.0, 0.02], s: [1, 1.1, 1.05] }, 12, 10)
-      .seg([k * 1.0, 4.85, 0.05], [k * 1.1, 4.1, 0.05], 0.2, undefined, 0.15, 12)
-      .seg([k * 1.1, 3.9, 0.06], [k * 1.22, 3.2, 0.09], 0.17, undefined, 0.11, 12)
-      .seg([k * 0.4, 2.95, 0.06], [k * 0.42, 1.95, 0.08], 0.33, undefined, 0.23, 12)
-      .seg([k * 0.42, 1.5, 0.05], [k * 0.42, 0.55, 0.04], 0.2, undefined, 0.13, 12)
-      .sphere(0.4, { p: [k * 0.4, 4.78, 0.3], s: [1, 0.62, 0.38] }, 12, 8)
-      .sphere(0.3, { p: [k * 0.32, 4.1, 0.34], s: [1, 1.05, 0.3] }, 10, 8)
+    b.ell([k * 0.95, 5.02, 0.02], [0.33, 0.34, 0.31], '#fff')
+    b.limb(ARM.slice(0, 4).map((p) => mx(k, p)), ARM_R.slice(0, 4).map((r) => r * 1.14), {}, { radial: 12, seg: 5 })
+    b.limb(LEG.slice(0, 5).map((p) => mx(k, p)), LEG_R.slice(0, 5).map((r) => r * 1.12), {}, { radial: 14, seg: 5 })
   }
   return b.build()
-}
-
-const HEAD_ORGANS = new Set(['brain', 'eyes', 'ears', 'nose', 'tongue'])
-
-/**
- * The organ shapes were authored for a short chunky body. This maps them onto the natural proportion body:
- * torso organs are narrowed and lifted into the trunk, head organs are moved up into the head.
- */
-function adapt(id: string, geo: THREE.BufferGeometry) {
-  const m = new THREE.Matrix4()
-  if (HEAD_ORGANS.has(id)) m.makeTranslation(0, 1.46, 0).multiply(new THREE.Matrix4().makeScale(0.92, 1, 0.9))
-  else m.makeTranslation(0, 1.872, 0).multiply(new THREE.Matrix4().makeScale(0.78, 0.8, 0.9))
-  geo.applyMatrix4(m)
 }
 
 let cache: { organs: Map<string, OrganDef>; skin: THREE.BufferGeometry; muscles: THREE.BufferGeometry; box: Box } | null = null
@@ -174,7 +185,6 @@ export function humanModel() {
   for (const o of ORGAN_LIST) {
     if (o.id === 'skin') continue
     const geo = build(o.id)
-    adapt(o.id, geo)
     const center = recenter(geo)
     organs.set(o.id, { ...o, center, geo })
   }
@@ -191,4 +201,4 @@ export function humanModel() {
   return cache
 }
 
-export const BODY_CENTER: V3 = [0, 3.25, 0]
+export const BODY_CENTER: V3 = [0, 3.3, 0]

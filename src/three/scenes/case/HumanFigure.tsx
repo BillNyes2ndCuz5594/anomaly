@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import * as THREE from 'three/webgpu'
 import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
-import { depthOnlyMaterial, tintedHolo } from '../../materials/tinted'
+import { depthOnlyMaterial, humanShell, organMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
 import { pointerHandlers } from './common'
 
@@ -23,9 +23,10 @@ const SKIN_TINT = '#3ee6ff'
 
 function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganDef; mode: HumanFigureProps['mode']; highlighted: boolean; dimOthers: boolean; reduced: boolean }) {
   const ref = useRef<THREE.Mesh>(null)
-  const mat = useMemo(() => tintedHolo(def.tint, 0.6, true, false), [def.tint])
+  const mat = useMemo(() => organMaterial(def.tint), [def.tint])
   const base = useMemo(() => new THREE.Color(def.tint), [def.tint])
-  const cur = useRef(1)
+  const glow = useRef(0.45)
+  const body = useRef(1)
   const flashN = useRef(0)
   const flashT = useRef(-10)
   useEffect(() => () => mat.dispose(), [mat])
@@ -38,8 +39,9 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
     const mesh = ref.current
     if (!mesh) return
     const now = state.clock.elapsedTime
-    let target = 1
-    let opacity = 0.62
+    const wave = reduced ? 0 : Math.sin(now * 6.5)
+    let g = 0.45
+    let dim = 1
     let pulse = 1
     let shake = 0
     if (mode === 'lab') {
@@ -50,52 +52,46 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
       }
       const age = now - flashT.current
       if (fx.hover === def.id) {
-        target = 2.1
-        opacity = 0.95
-        pulse = 1.05
+        g = 1.5 + wave * 0.45
+        pulse = 1.06 + wave * 0.03
       }
       if (fx.lit.includes(def.id)) {
-        target = Math.max(target, 1.6)
-        opacity = Math.max(opacity, 0.85)
+        g = Math.max(g, 1.2 + wave * 0.3)
+        pulse = Math.max(pulse, 1.03 + wave * 0.02)
       }
       if (fx.flash && fx.flash.id === def.id && age < 1.3) {
         const k = 1 - age / 1.3
         if (fx.flash.ok) {
-          target = Math.max(target, 1.6 + 2.6 * k)
-          opacity = 1
+          g = Math.max(g, 1.6 + 2.4 * k)
           pulse = 1 + 0.16 * Math.sin(Math.min(age, 1.0) * Math.PI * 3) * k + 0.06
         } else if (age < 0.5) {
           shake = Math.sin(age * 60) * 0.045 * (1 - age / 0.5)
         }
       }
-    } else if (dimOthers) {
+    } else if (mode === 'visual' && dimOthers) {
       if (highlighted) {
-        target = 2.2 + (reduced ? 0 : Math.sin(now * 3) * 0.35)
-        opacity = 1
-        pulse = reduced ? 1 : 1 + Math.sin(now * 3) * 0.035
+        g = 1.5 + Math.sin(now * 3) * 0.5 * (reduced ? 0 : 1)
+        pulse = reduced ? 1 : 1 + Math.sin(now * 3) * 0.04
       } else {
-        target = 0.45
-        opacity = 0.2
+        g = 0.05
+        dim = 0.32
       }
-    } else {
-      target = 1
-      opacity = 0.62
+    } else if (mode === 'briefing' && !reduced) {
+      g = 0.5 + Math.sin(now * 1.6 + def.center[1] * 2) * 0.12
     }
-    cur.current += (target - cur.current) * Math.min(1, dt * 10)
-    mat.color.copy(base).multiplyScalar(cur.current)
-    mat.opacity = opacity
+    // The heart keeps a gentle idle beat.
+    if (def.id === 'heart' && !reduced) pulse *= 1 + 0.03 * Math.pow(Math.sin(now * 5) * 0.5 + 0.5, 4)
+    const f = Math.min(1, dt * 10)
+    glow.current += (g - glow.current) * f
+    body.current += (dim - body.current) * f
+    mat.color.copy(base).multiplyScalar(body.current)
+    mat.emissive.copy(base).multiplyScalar(glow.current)
     mesh.scale.setScalar(pulse)
     mesh.position.x = def.center[0] + shake
   })
 
   return (
-    <mesh
-      ref={ref}
-      geometry={def.geo}
-      position={def.center}
-      userData={{ part: def.id, prio: 1 }}
-      {...(hand ?? {})}
-    >
+    <mesh ref={ref} geometry={def.geo} position={def.center} userData={{ part: def.id, prio: 1 }} {...(hand ?? {})}>
       <primitive object={mat} attach="material" />
     </mesh>
   )
@@ -108,7 +104,7 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
 export default function HumanFigure({ mode, highlight = [], spin = false, reduced = false, showMuscles = false, scale = 1, children }: HumanFigureProps) {
   const group = useRef<THREE.Group>(null)
   const model = useMemo(() => humanModel(), [])
-  const skinMat = useMemo(() => tintedHolo(SKIN_TINT, 0.5, false), [])
+  const skinMat = useMemo(() => humanShell(SKIN_TINT, 0.9), [])
   const depthMat = useMemo(() => depthOnlyMaterial(), [])
   const muscleMat = useMemo(() => tintedHolo('#E69F00', 0.9, true, false), [])
   const skinBase = useMemo(() => new THREE.Color(SKIN_TINT), [])
@@ -125,7 +121,7 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
     },
     [skinMat, muscleMat, depthMat],
   )
-  const dimOthers = mode === 'visual'
+  const dimOthers = mode === 'visual' && highlight.length > 0
   const muscles = showMuscles || highlight.includes('muscles')
   const skinHand = useMemo(() => (mode === 'lab' ? pointerHandlers(useFx.getState().setHover, () => useFx.getState().pick) : null), [mode])
 
@@ -142,13 +138,17 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
         g.rotation.y += dt * 0.32 * speed.current
       }
     }
-    let target = mode === 'visual' ? (highlight.length === 0 ? 0.9 : 0.75) : 0.8
-    let op = mode === 'visual' ? (highlight.length === 0 ? 0.55 : 0.3) : 0.42
+    let target = 1
+    let op = mode === 'visual' ? (highlight.length === 0 ? 0.9 : 0.6) : 0.9
+    if (mode === 'visual' && highlight.includes('skin')) {
+      target = 1.7 + (reduced ? 0 : Math.sin(state.clock.elapsedTime * 3) * 0.4)
+      op = 1
+    }
     if (mode === 'lab') {
       const fx = useFx.getState()
       if (fx.hover === 'skin' || fx.lit.includes('skin')) {
-        target = 2
-        op = 0.8
+        target = 1.9
+        op = 1
       }
       if (fx.flash?.id === 'skin') {
         if (fx.flash.n !== skinFlashN.current) {
@@ -157,8 +157,8 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
         }
         const age = state.clock.elapsedTime - skinFlashT.current
         if (fx.flash.ok && age < 1.3) {
-          target = Math.max(target, 1.6 + 2.6 * (1 - age / 1.3))
-          op = 0.85
+          target = Math.max(target, 1.6 + 2.4 * (1 - age / 1.3))
+          op = 1
         }
       }
     }
@@ -170,10 +170,10 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
 
   return (
     <group ref={group} scale={scale}>
-      <mesh geometry={model.skin}>
+      <mesh geometry={model.skin} renderOrder={1}>
         <primitive object={depthMat} attach="material" />
       </mesh>
-      <mesh geometry={model.skin} userData={{ part: 'skin', prio: 0 }} {...(skinHand ?? {})}>
+      <mesh geometry={model.skin} renderOrder={2} userData={{ part: 'skin', prio: 0 }} {...(skinHand ?? {})}>
         <primitive object={skinMat} attach="material" />
       </mesh>
       {muscles ? (
