@@ -1,8 +1,8 @@
 import * as THREE from 'three/webgpu'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
-import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, lerpHex, mottle, paintWith, recenter, smooth, spineAt, type V3 } from './builder'
+import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, mottle, recenter, smooth, spineAt, type V3 } from './builder'
 
-import { alignX, bassModel, DARK, crabModel, eye, fin, frogModel, gatorModel, manateeModel, mirrorZ, pantherModel, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
+import { alignX, bassModel, DARK, crabModel, eye, frogModel, gatorModel, grasshopperModel, manateeModel, mirrorZ, owlModel, pantherModel, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
 
 // ---------- Lab B: dog-like mammal and flowering tree ----------
 
@@ -247,49 +247,15 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
     case 'florida-panther':
       pantherModel(b)
       break
-    case 'barred-owl': {
-      const feather = paintWith(countershade('#6f5b45', '#d9ccb0', -0.1, 0.5), (t, cs, _sn, out) => {
-        // pale bars across the chest, spots on the back
-        const front = smooth(0.0, 0.5, -cs)
-        const bar = smooth(0.0, 0.3, 0.5 - Math.abs(((t * 11) % 1) - 0.5)) * front
-        lerpHex(out, '#e6dcc2', 0)
-        lerpHex(out, '#5b4a37', bar * 0.5 * smooth(0.2, 0.9, t))
-      })
-      b.limb([[0, 0.35, 0], [0, 1.15, 0], [0.03, 1.95, 0]], [[0.3, 0.3], [0.6, 0.7], [0.5, 0.6]], {}, { paint: feather, radial: 24, seg: 10, cap: 6 })
-      // head, facial discs, beak, eyes
-      b.ell([0.06, 2.22, 0], [0.5, 0.45, 0.58], '#85705a', [0, 0, 0], 24, 16)
-      for (const k of mirrorZ) {
-        b.ell([0.4, 2.24, k * 0.26], [0.13, 0.34, 0.3], '#d8cbb0', [0, k * 0.1, 0], 18, 12)
-        eye(b, [0.5, 2.28, k * 0.25], 0.105, [0.7, 0.1, k * 0.5], '#2a2018')
-        // folded wing and a pale scapular edge
-        b.limb([[0.0, 1.75, k * 0.6], [-0.15, 1.15, k * 0.68], [-0.3, 0.6, k * 0.55], [-0.5, 0.2, k * 0.4]], [[0.4, 0.1], [0.42, 0.11], [0.28, 0.08], [0.06, 0.03]], { c: '#6a5842' }, { radial: 12, seg: 6, cap: 5 })
-        b.limb([[0.15, 0.4, k * 0.22], [0.16, 0.18, k * 0.22]], 0.07, { c: '#d8b44a' }, { radial: 8, seg: 3, cap: 3 })
-        b.ell([0.3, 0.06, k * 0.22], [0.22, 0.05, 0.12], '#d8b44a', [0, 0, 0], 10, 6)
-      }
-      b.limb([[0.6, 2.18, 0], [0.74, 2.12, 0], [0.8, 2.02, 0]], [0.075, 0.06, 0.02], { c: '#e2b84c' }, { radial: 10, seg: 4, cap: 4 })
-      fin(b, [[-0.35, 0.7, 0], [-0.55, 0.35, 0], [-0.75, 0.05, 0]], [0.32, 0.27, 0.06], 0.06, '#5f4e3a', 'xy')
+    case 'barred-owl':
+      owlModel(b)
       break
-    }
     case 'american-alligator':
       gatorModel(b)
       break
-    case 'grasshopper': {
-      const green = paintWith(countershade('#8cc03a', '#d5e48a', -0.1, 0.5), (_t, _cs, sn, out) => lerpHex(out, '#e7e07a', smooth(0, 0.15, 0.1 - Math.abs(sn - 0.4)) * 0.8))
-      b.limb([[-1.3, 0.78, 0], [-0.5, 0.8, 0], [0.3, 0.8, 0], [0.7, 0.82, 0]], [[0.06, 0.06], [0.16, 0.18], [0.18, 0.2], [0.14, 0.15]], {}, { paint: green, radial: 14, seg: 8, cap: 5 })
-      b.ell([1.0, 0.83, 0], [0.26, 0.28, 0.22], '#86b838', [0, 0, 0], 16, 12)
-      b.ell([0.95, 0.66, 0], [0.18, 0.1, 0.14], '#c6d86e', [0, 0, 0], 10, 8)
-      for (const k of mirrorZ) {
-        eye(b, [1.05, 0.95, k * 0.15], 0.1, [0.4, 0.3, k], '#e6d46e')
-        b.limb([[1.15, 1.05, k * 0.06], [1.5, 1.5, k * 0.25], [1.9, 1.75, k * 0.4]], [0.025, 0.02, 0.012], { c: '#3a4a20' }, { radial: 6, seg: 5, cap: 2 })
-        fin(b, [[0.4, 1.0, k * 0.1], [-0.4, 1.02, k * 0.18], [-1.1, 0.92, k * 0.2], [-1.5, 0.82, k * 0.18]], [0.1, 0.13, 0.1, 0.02], 0.015, '#b3d56a', 'xz')
-        // big jumping hind leg: heavy femur, thin tibia, foot
-        b.limb([[-0.15, 0.7, k * 0.2], [-0.6, 1.2, k * 0.34], [-1.3, 0.6, k * 0.36]], [0.1, 0.11, 0.045], { c: '#7da82e' }, { radial: 10, seg: 6, cap: 4 })
-        b.limb([[-1.3, 0.6, k * 0.36], [-1.55, 0.25, k * 0.38], [-1.45, 0.05, k * 0.38]], [0.04, 0.03, 0.03], { c: '#587a22' }, { radial: 8, seg: 4, cap: 3 })
-        b.limb([[0.5, 0.65, k * 0.15], [0.75, 0.38, k * 0.4], [0.9, 0.04, k * 0.46]], [0.05, 0.035, 0.03], { c: '#7da82e' }, { radial: 8, seg: 5, cap: 3 })
-        b.limb([[0.2, 0.65, k * 0.15], [0.3, 0.32, k * 0.42], [0.18, 0.04, k * 0.5]], [0.05, 0.035, 0.03], { c: '#7da82e' }, { radial: 8, seg: 5, cap: 3 })
-      }
+    case 'grasshopper':
+      grasshopperModel(b)
       break
-    }
     case 'garden-spider':
       spiderModel(b)
       break

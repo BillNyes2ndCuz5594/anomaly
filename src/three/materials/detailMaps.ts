@@ -223,7 +223,7 @@ export const SPECIMEN_LOOK: Record<string, DetailLook> = {
   'gopher-tortoise': { kind: 'grain', freq: 0.6, bump: 0.025, rough: 0.6, roughVar: 0.4, cavity: 0.5 },
   'brown-pelican': { kind: 'feather', freq: 0.7, bump: 0.01, rough: 0.7, roughVar: 0.3, cavity: 0.35 },
   'barred-owl': { kind: 'feather', freq: 0.8, bump: 0.012, rough: 0.75, roughVar: 0.3, cavity: 0.4 },
-  'green-tree-frog': { kind: 'skin', freq: 0.8, bump: 0.012, rough: 0.2, roughVar: 0.3, cavity: 0.25 },
+  'green-tree-frog': { kind: 'skin', freq: 0.9, bump: 0.02, rough: 0.3, roughVar: 0.3, cavity: 0.3 },
   grasshopper: { kind: 'grain', freq: 1.2, bump: 0.01, rough: 0.42, roughVar: 0.3, cavity: 0.3 },
   'garden-spider': { kind: 'grain', freq: 1.6, bump: 0.008, rough: 0.5, roughVar: 0.3, cavity: 0.3 },
 }

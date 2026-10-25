@@ -290,19 +290,19 @@ export function pantherModel(b: Builder): void {
   // Thick, muscular neck carrying a smallish head low and forward.
   b.limb([[1.0, 1.32, 0], [1.5, 1.5, 0], [1.9, 1.58, 0]], [[0.28, 0.35], [0.23, 0.27], [0.21, 0.23]], {}, { paint: coat, radial: 22, seg: 8, cap: 5 })
   // Head: rounded skull, short broad muzzle with pale chin and lip, dark nose pad, small ears set back.
-  b.ell([2.02, 1.62, 0], [0.3, 0.21, 0.255], tawny, [0, 0, -0.06], 28, 18)
+  b.ell([2.02, 1.61, 0], [0.3, 0.195, 0.255], tawny, [0, 0, -0.06], 28, 18)
     .ell([2.34, 1.5, 0], [0.24, 0.125, 0.17], '#d8c196', [0, 0, -0.12], 22, 14)
     .ell([2.3, 1.4, 0], [0.19, 0.055, 0.13], belly, [0, 0, -0.05], 16, 10)
     .ell([2.56, 1.54, 0], [0.045, 0.035, 0.07], '#5b3b36', [0, 0, 0], 12, 8, WET)
     .limb([[2.55, 1.51, 0], [2.52, 1.44, 0], [2.44, 1.42, 0]], 0.009, { c: dk }, { radial: 6, seg: 4, cap: 2 })
   for (const k of mirrorZ) {
     // ears: small, rounded, dark behind with a pale spot
-    b.ell([1.9, 1.84, k * 0.2], [0.06, 0.1, 0.07], '#a07845', [k * 0.25, 0, 0.1], 14, 10)
-    b.ell([1.885, 1.85, k * 0.205], [0.044, 0.08, 0.045], '#2b2018', [k * 0.25, 0, 0.1], 10, 8)
+    b.ell([1.93, 1.79, k * 0.23], [0.055, 0.085, 0.065], '#a07845', [k * 0.35, 0, 0.1], 14, 10)
+    b.ell([1.915, 1.8, k * 0.235], [0.04, 0.068, 0.042], '#2b2018', [k * 0.35, 0, 0.1], 10, 8)
     // shoulder and haunch muscle that blend the legs into the body
     b.ell([0.84, 1.1, k * 0.2], [0.24, 0.3, 0.17], '#b0804c', [0, 0, 0.1], 18, 12)
     b.ell([-1.22, 1.12, k * 0.22], [0.32, 0.34, 0.2], '#b0804c', [0, 0, -0.1], 18, 12)
-    eye(b, [2.22, 1.69, k * 0.18], 0.052, [0.6, 0.1, k], '#cdbb4a', false, DARK, '#2e2118')
+    eye(b, [2.24, 1.67, k * 0.18], 0.056, [0.6, 0.1, k], '#cdbb4a', false, DARK, '#2e2118')
     b.limb([[2.22, 1.62, k * 0.22], [2.3, 1.54, k * 0.2]], 0.01, { c: dk }, { radial: 6, seg: 4, cap: 2 })
     for (let i = 0; i < 4; i++) b.ell([2.4 - i * 0.03, 1.5 - i * 0.02, k * (0.09 + i * 0.03)], [0.011, 0.011, 0.011], dk, [0, 0, 0], 6, 5)
     // walking pose: the far foreleg and the near hindleg reach forward
@@ -415,7 +415,7 @@ export function frogModel(b: Builder): void {
     1.5,
     8,
   )
-  const wet: [number, number] = [0.5, 0]
+  const wet: [number, number] = [0.22, 0]
   // Pear shaped body low to the ground, broad short head.
   b.limb([[-1.0, 0.68, 0], [-0.25, 0.74, 0], [0.5, 0.8, 0], [1.2, 0.76, 0]], [[0.5, 0.42], [0.76, 0.62], [0.68, 0.52], [0.48, 0.36]], { m: wet }, { paint: skin, radial: 32, seg: 10, cap: 8 })
   b.ell([1.3, 0.7, 0], [0.34, 0.28, 0.4], '#e8f0c2', [0, 0, -0.1], 20, 12, wet)
@@ -441,4 +441,85 @@ export function frogModel(b: Builder): void {
   }
   b.limb([[1.52, 0.64, 0.0], [1.22, 0.72, 0.3], [0.78, 0.72, 0.42]], 0.012, { c: '#2d6a2a' }, { radial: 6, seg: 5, cap: 2 })
   b.limb([[1.52, 0.64, 0.0], [1.22, 0.72, -0.3], [0.78, 0.72, -0.42]], 0.012, { c: '#2d6a2a' }, { radial: 6, seg: 5, cap: 2 })
+}
+
+// ---------- Barred owl ----------
+
+export function owlModel(b: Builder): void {
+  const brown = '#6a5440'
+  const cream = '#dccfb2'
+  const bars = mottle(
+    (t, cs, sn, out) => {
+      // On this upright body cs runs front (negative) to back, so the pale breast is the front half. It is crossed by
+      // dark bars high up and streaked lower down; the back is dark brown flecked with pale spots.
+      const front = smooth(-0.1, 0.55, -cs)
+      out.set(brown)
+      lerpHex(out, cream, front * 0.9)
+      const bar = smooth(0.2, 0.5, 0.5 - Math.abs(((t * 13) % 1) - 0.5)) * smooth(0.1, 0.5, front)
+      lerpHex(out, '#4b3a2b', bar * 0.75 * smooth(0.2, 0.55, t) * (1 - smooth(0.7, 0.9, t)))
+      const streak = smooth(0.55, 0.8, Math.sin(sn * 22 + cs * 9)) * smooth(0.1, 0.5, front) * (1 - smooth(0.2, 0.4, t)) * smooth(0.05, 0.2, t)
+      lerpHex(out, '#5a4634', streak * 0.6)
+      const fleck = smooth(0.78, 0.9, Math.sin(t * 61 + cs * 13) * Math.sin(sn * 17 + t * 29))
+      lerpHex(out, '#e6dcc4', fleck * 0.5 * (1 - front))
+    },
+    0.08,
+    2.2,
+    11,
+  )
+  // upright teardrop body and a big round head with no neck
+  b.limb([[0, 0.45, 0], [0, 1.2, 0], [0.03, 1.9, 0]], [[0.3, 0.3], [0.58, 0.64], [0.5, 0.56]], {}, { paint: bars, radial: 32, seg: 10, cap: 8 })
+  b.ell([0.06, 2.22, 0], [0.5, 0.44, 0.56], '#7d6853', [0, 0, 0], 32, 22)
+  for (const k of mirrorZ) {
+    // pale facial discs with a darker ruff, dark brow, and large dark eyes
+    b.ell([0.4, 2.22, k * 0.25], [0.12, 0.34, 0.3], '#ddd2b9', [0, k * 0.12, 0], 20, 14)
+    b.torus(0.3, 0.035, { p: [0.47, 2.22, k * 0.25], r: [0, Math.PI / 2 - k * 0.15, 0], s: [0.95, 1.2, 1], c: '#6d5a46' }, 8, 28)
+    b.ell([0.42, 2.46, k * 0.22], [0.12, 0.05, 0.2], '#4a3a2c', [0, k * 0.1, -0.15], 12, 8)
+    eye(b, [0.47, 2.26, k * 0.22], 0.105, [0.7, 0.1, k * 0.5], '#1a120d', false, '#030303', '#4a3a2c')
+    // folded wing along the side, long primaries toward the tail
+    b.limb([[0.0, 1.8, k * 0.58], [-0.12, 1.2, k * 0.66], [-0.28, 0.6, k * 0.54], [-0.5, 0.15, k * 0.38]], [[0.4, 0.1], [0.42, 0.11], [0.28, 0.08], [0.06, 0.03]], { m: THIN }, { radial: 16, seg: 8, cap: 5, paint: mottle(countershade('#5d4938', '#7a6650', 0, 0.8), 0.14, 2, 5) })
+    // feathered legs and gripping feet
+    b.limb([[0.15, 0.5, k * 0.22], [0.16, 0.2, k * 0.22]], [0.1, 0.085], { c: '#cbbd9f' }, { radial: 10, seg: 3, cap: 3 })
+    toes(b, [0.2, 0.05, k * 0.22], [-0.45, 0, 0.45], 0.2, 0.045, '#d3c69c', '#2a2218', k)
+  }
+  b.limb([[0.6, 2.2, 0], [0.7, 2.13, 0], [0.74, 2.02, 0]], [0.065, 0.055, 0.018], { c: '#d9b648' }, { radial: 10, seg: 4, cap: 4 })
+  // barred tail
+  fin(b, [[-0.35, 0.75, 0], [-0.55, 0.35, 0], [-0.78, 0.05, 0]], [0.3, 0.26, 0.06], 0.06, '#5f4e3a', 'xy', (t, _c, _s, out) => {
+    out.set('#6d5a45')
+    lerpHex(out, '#3b2f24', smooth(0.2, 0.4, 0.5 - Math.abs(((t * 5) % 1) - 0.5)) * 0.7)
+  })
+}
+
+// ---------- Grasshopper ----------
+
+export function grasshopperModel(b: Builder): void {
+  const green = '#86b53a'
+  const body = mottle(
+    paintWith(countershade('#8cbc3a', '#d3df8a', -0.1, 0.5), (t, _cs, sn, out) => {
+      lerpHex(out, '#e7e07a', smooth(0, 0.18, 0.12 - Math.abs(sn - 0.4)) * 0.7)
+      // fine dark lines between the abdomen segments
+      lerpHex(out, '#4c6420', smooth(0.82, 0.98, Math.sin(t * 95)) * 0.5 * (1 - smooth(0.5, 0.8, t)))
+    }),
+    0.07,
+    1.6,
+    2,
+  )
+  b.limb([[-1.5, 0.8, 0], [-0.7, 0.84, 0], [0.1, 0.86, 0], [0.6, 0.88, 0]], [[0.06, 0.06], [0.2, 0.22], [0.2, 0.22], [0.14, 0.16]], {}, { paint: body, radial: 20, seg: 12, cap: 6 })
+  // head: tall face, big compound eyes, short antennae
+  b.ell([0.95, 0.86, 0], [0.3, 0.3, 0.24], '#7fae36', [0, 0, -0.1], 24, 16)
+  b.ell([1.1, 0.68, 0], [0.16, 0.12, 0.17], '#b9d062', [0, 0, 0], 14, 10)
+  for (const k of mirrorZ) {
+    b.ell([1.0, 0.99, k * 0.17], [0.13, 0.14, 0.09], '#5c7f2a', [0, 0, 0], 14, 10)
+    eye(b, [1.04, 1.0, k * 0.2], 0.1, [0.4, 0.3, k], '#c9b44f', false, '#1a1608', '#6b8a2d')
+    b.limb([[1.15, 1.08, k * 0.07], [1.5, 1.45, k * 0.2], [1.95, 1.7, k * 0.35]], [0.026, 0.02, 0.012], { c: '#3a4a20' }, { radial: 6, seg: 6, cap: 2 })
+    // long folded wings with veins, lying along the back
+    fin(b, [[0.45, 1.05, k * 0.1], [-0.4, 1.08, k * 0.18], [-1.15, 1.0, k * 0.2], [-1.65, 0.9, k * 0.17]], [0.1, 0.14, 0.11, 0.02], 0.014, '#b3d56a', 'xz', undefined, 14)
+    // jumping hind leg: heavy ridged femur, long spiny tibia, foot
+    b.limb([[-0.15, 0.74, k * 0.2], [-0.6, 1.22, k * 0.34], [-1.3, 0.62, k * 0.36]], [0.12, 0.135, 0.05], { c: '#7da82e' }, { radial: 14, seg: 8, cap: 4, paint: mottle(countershade('#7fab30', '#a9c850', 0, 0.8), 0.1, 2, 3) })
+    b.ell([-1.3, 0.62, k * 0.36], [0.07, 0.07, 0.07], '#2f3c18', [0, 0, 0], 8, 6)
+    b.limb([[-1.3, 0.62, k * 0.36], [-1.58, 0.28, k * 0.38], [-1.5, 0.05, k * 0.38]], [0.05, 0.04, 0.03], { c: '#58792a' }, { radial: 10, seg: 5, cap: 3 })
+    for (let i = 0; i < 4; i++) b.ell([-1.38 - i * 0.05, 0.5 - i * 0.1, k * 0.4], [0.025, 0.04, 0.02], '#2f3c18', [0, 0, 0], 5, 4)
+    for (const [x0, dx] of [[0.5, 0.25], [0.2, 0.1]] as [number, number][]) {
+      b.limb([[x0, 0.72, k * 0.15], [x0 + dx * 0.8, 0.4, k * 0.42], [x0 + dx * 1.3, 0.04, k * 0.5]], [0.055, 0.042, 0.03], { c: green }, { radial: 10, seg: 5, cap: 3 })
+    }
+  }
 }
