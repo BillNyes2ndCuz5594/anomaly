@@ -60,7 +60,7 @@ function OrganBeam() {
   })
 
   return (
-    <group ref={group} visible={false}>
+    <group ref={group} visible={false} userData={{ noFit: true }}>
       <mesh ref={beam}>
         <cylinderGeometry args={[0.035, 0.035, 9, 12, 1, true]} />
         <primitive object={beamMat} attach="material" />

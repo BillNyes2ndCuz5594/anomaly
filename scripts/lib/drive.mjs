@@ -32,7 +32,7 @@ export const freePort = () =>
 
 export async function startPreview(port) {
   const base = `http://localhost:${port}/`
-  const proc = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
+  const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
   writeFileSync('/tmp/an-preview.pid', String(proc.pid))
   let log = ''
   proc.stdout.on('data', (d) => (log += d))

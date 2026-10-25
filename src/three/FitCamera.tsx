@@ -34,6 +34,18 @@ export function useFitPose(view: FitView) {
 }
 
 const tmpBox = new THREE.Box3()
+const partBox = new THREE.Box3()
+
+/** World box of the visible meshes under `root`. Effects (feedback beams, rings) opt out with userData.noFit. */
+function measureVisible(root: THREE.Object3D, out: THREE.Box3): void {
+  if (!root.visible || root.userData.noFit) return
+  const mesh = root as THREE.Mesh
+  if (mesh.isMesh && mesh.geometry) {
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
+    if (mesh.geometry.boundingBox) out.union(partBox.copy(mesh.geometry.boundingBox).applyMatrix4(mesh.matrixWorld))
+  }
+  for (const c of root.children) measureVisible(c, out)
+}
 
 /**
  * Publishes where the real objects land on screen, as normalized device coordinates, on the canvas element
@@ -50,7 +62,7 @@ export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefOb
     const obj = measure?.current
     if (obj) {
       obj.updateWorldMatrix(true, true)
-      tmpBox.setFromObject(obj)
+      measureVisible(obj, tmpBox.makeEmpty())
       if (!tmpBox.isEmpty()) box = { min: [tmpBox.min.x, tmpBox.min.y, tmpBox.min.z], max: [tmpBox.max.x, tmpBox.max.y, tmpBox.max.z] }
     }
     const cam = state.camera as THREE.PerspectiveCamera

@@ -56,7 +56,7 @@ const check = (name, ok, detail = '') => {
 }
 
 async function startPreview() {
-  const proc = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
+  const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(PORT), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
   let log = ''
   proc.stdout.on('data', (d) => (log += d))
   proc.stderr.on('data', (d) => (log += d))
@@ -74,7 +74,7 @@ async function startPreview() {
 
 function checkSvg(name, r) {
   const bad = [...r.outside.map((x) => `outside ${x}`), ...r.overlaps.map((x) => `overlap ${x}`), ...r.small.map((x) => `small ${x}`), ...r.letterboxed.map((x) => `letterbox ${x}`)]
-  check(`${name}: ${r.svgs} svgs, ${r.texts} texts inside viewBox, no label overlap, min ${r.minPx.toFixed(1)}px`, r.svgs > 0 && bad.length === 0, bad.join('; '))
+  check(`${name}: ${r.svgs} svgs, ${r.texts} texts inside viewBox, no label overlap, min ${r.minPx == null ? 'n/a' : r.minPx.toFixed(1)}px`, r.svgs > 0 && bad.length === 0, bad.join('; '))
 }
 
 function watch(page, label) {
@@ -431,12 +431,14 @@ async function playCold(page, w) {
 }
 
 const preview = await startPreview()
+writeFileSync('/tmp/an-preview.pid', String(preview.pid))
 let browser
 let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
   browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: CHROME_ARGS })
+  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
   for (const vp of VIEWPORTS) {
@@ -606,6 +608,17 @@ try {
     await sleep(600)
     await click(page, 'cold-continue')
     await page.waitForSelector('[data-testid="item-player"]')
+    // The cold pool is shuffled: answer items until one with a diagram is on screen.
+    for (let n = 0; n < 4 && !(await page.$('svg.scene-svg')); n++) {
+      const stemText = (await text(page, 'stem')).replace(/\s+/g, ' ').trim()
+      const it = CONTENT.items.find((x) => tokenize(x.stem).join(' ') === stemText)
+      await click(page, `option-${it.key}`)
+      await click(page, 'lock-in')
+      await page.waitForSelector('[data-testid="item-result"]')
+      await click(page, 'next-item')
+      await page.waitForSelector('[data-testid="stem"]')
+      await sleep(600)
+    }
     await sleep(2500)
     checkSvg(`cold item diagram at Extra large text (${w})`, await svgReport(page))
     await shot(page, 'cold-item-xl', w)

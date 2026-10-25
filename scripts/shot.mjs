@@ -49,6 +49,12 @@ try {
           await page.waitForSelector('[data-testid="item-result"]')
           await sleep(1200)
         }
+      } else if (target === 'lab-a-flash') {
+        await toCaseStep(page, 'lab-a')
+        await waitRendered(page, 1500)
+        await click(page, `organ-${CONTENT.case.labs.organOps.tasks[0].organ}`)
+        await page.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'yes')
+        await sleep(500)
       } else if (target === 'debrief' || target === 'results') {
         await toCaseStep(page, 'items')
         await sleep(1500)

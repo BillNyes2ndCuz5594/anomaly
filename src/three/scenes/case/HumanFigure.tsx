@@ -142,8 +142,8 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
         g.rotation.y += dt * 0.32 * speed.current
       }
     }
-    let target = mode === 'visual' ? (highlight.length === 0 ? 0.9 : 0.4) : 0.8
-    let op = mode === 'visual' ? (highlight.length === 0 ? 0.55 : 0.22) : 0.42
+    let target = mode === 'visual' ? (highlight.length === 0 ? 0.9 : 0.75) : 0.8
+    let op = mode === 'visual' ? (highlight.length === 0 ? 0.55 : 0.3) : 0.42
     if (mode === 'lab') {
       const fx = useFx.getState()
       if (fx.hover === 'skin' || fx.lit.includes('skin')) {
