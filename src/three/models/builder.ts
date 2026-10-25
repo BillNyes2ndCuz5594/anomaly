@@ -12,7 +12,17 @@ export interface PartOpts {
   s?: V3
   /** Vertex color, any CSS color. Used by lit materials, ignored by holograms. */
   c?: string
+  /** Surface hints for the lit specimen material: [gloss 0..1 (wet, eyes), thin 0..1 (membranes that glow warm)]. */
+  m?: [number, number]
 }
+
+let lod = 1
+/** Level of detail for the next builds: 1 is full, lower values use fewer rings and segments (the Low tier). */
+export function setBuilderLod(v: number): void {
+  lod = v
+}
+export const getBuilderLod = (): number => lod
+const lodN = (n: number, min: number): number => (lod >= 1 ? n : Math.max(min, Math.round(n * lod)))
 
 const tmpColor = new THREE.Color()
 const tint = new THREE.Color()
@@ -69,12 +79,15 @@ export class Builder {
     }
     flat.deleteAttribute('paint')
     flat.setAttribute('color', new THREE.BufferAttribute(col, 3))
+    const surf = new Float32Array(n * 2)
+    if (o.m) for (let i = 0; i < n; i++) surf.set(o.m, i * 2)
+    flat.setAttribute('surf', new THREE.BufferAttribute(surf, 2))
     this.parts.push(flat)
     return this
   }
 
   sphere(r: number, o?: PartOpts, w = 10, h = 7): this {
-    return this.push(new THREE.SphereGeometry(r, w, h), o)
+    return this.push(new THREE.SphereGeometry(r, lodN(w, 6), lodN(h, 4)), o)
   }
   box(w: number, h: number, d: number, o?: PartOpts): this {
     return this.push(new THREE.BoxGeometry(w, h, d), o)
@@ -113,8 +126,8 @@ export class Builder {
   }
 
   /** Ellipsoid at `c` with radii `r`, optionally rotated. Smooth normals. */
-  ell(c: V3, r: V3, color: string, rot: V3 = [0, 0, 0], w = 18, h = 12): this {
-    return this.push(new THREE.SphereGeometry(1, w, h), { p: c, s: r, r: rot, c: color })
+  ell(c: V3, r: V3, color: string, rot: V3 = [0, 0, 0], w = 18, h = 12, m?: [number, number]): this {
+    return this.push(new THREE.SphereGeometry(1, lodN(w, 6), lodN(h, 4)), { p: c, s: r, r: rot, c: color, m })
   }
 
   /** Upper half of an ellipsoid (open below), for shells and mounds. */
@@ -220,9 +233,9 @@ function radiusAt(vals: number[], u: number): number {
 
 /** Raw limb geometry: indexed, smooth normals, uv, plus a temporary `paint` attribute (t, cs, sn). */
 export function limbGeometry(points: V3[], radiiIn: Radii, opt: LimbOpts = {}): THREE.BufferGeometry {
-  const seg = opt.seg ?? 6
-  const radial = opt.radial ?? 12
-  const cap = opt.cap ?? 4
+  const seg = lodN(opt.seg ?? 6, 2)
+  const radial = lodN(opt.radial ?? 12, 6)
+  const cap = (opt.cap ?? 4) > 0 ? lodN(opt.cap ?? 4, 2) : 0
   const n = points.length
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)))
   const radii = typeof radiiIn === 'number' ? points.map(() => radiiIn) : radiiIn
@@ -303,4 +316,25 @@ export function limbGeometry(points: V3[], radiiIn: Radii, opt: LimbOpts = {}): 
   g.setIndex(idx)
   g.computeVertexNormals()
   return g
+}
+
+/** Subtle low frequency color variation, so no region is a flat fill. `amp` is the brightness swing (0.08 is gentle). */
+export function mottle(base: Paint, amp = 0.08, freq = 1, seed = 0): Paint {
+  return paintWith(base, (t, cs, sn, out) => {
+    const n = Math.sin(t * 31 * freq + sn * 4.7 + seed) * Math.sin(cs * 9.3 * freq + t * 17 + seed * 2.1) + 0.5 * Math.sin(t * 73 * freq + cs * 5.1 + sn * 7.7 + seed)
+    out.multiplyScalar(1 + amp * n)
+  })
+}
+
+/** Piecewise linear interpolation of a radii list at u in spine point units (0..n-1). Returns [width, height]. */
+export function radiusPair(radii: Radii, u: number): [number, number] {
+  if (typeof radii === 'number') return [radii, radii]
+  const n = radii.length
+  const i = Math.min(n - 2, Math.max(0, Math.floor(u)))
+  const f = Math.min(1, Math.max(0, u - i))
+  const a = radii[i]
+  const c = radii[Math.min(n - 1, i + 1)]
+  const pa: [number, number] = typeof a === 'number' ? [a, a] : a
+  const pc: [number, number] = typeof c === 'number' ? [c, c] : c
+  return [pa[0] + (pc[0] - pa[0]) * f, pa[1] + (pc[1] - pa[1]) * f]
 }

@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu'
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { Builder, recenter, type V3 } from './builder'
 import { translateBox, unionBox, type Box } from '../fit'
 
@@ -28,15 +29,17 @@ const LEG_R = [0.4, 0.35, 0.26, 0.24, 0.15, 0.12]
 function build(id: string): THREE.BufferGeometry {
   const b = new Builder()
   switch (id) {
-    case 'brain':
+    case 'brain': {
+      // Two folded hemispheres with a real gap between them, temporal lobes underneath, a ridged cerebellum at the
+      // back and the brain stem going down. Built directly in body space, well inside the skull.
       for (const k of [-1, 1]) {
-        b.ell([k * 0.11, 6.36, 0.0], [0.19, 0.2, 0.3], '#fff', [0, 0, 0], 28, 18)
-          .ell([k * 0.12, 6.4, 0.17], [0.17, 0.17, 0.14], '#fff', [0, 0, 0], 20, 14)
-          .ell([k * 0.17, 6.22, -0.02], [0.12, 0.1, 0.22], '#fff', [0, 0, k * 0.2], 20, 14)
-          .ell([k * 0.1, 6.42, -0.17], [0.15, 0.15, 0.14], '#fff', [0, 0, 0], 20, 14)
+        b.geo(foldedLobe([k * 0.14, 6.43, -0.1], [0.13, 0.19, 0.29], k, 'cortex'), {}, grayPaint)
+        b.geo(foldedLobe([k * 0.2, 6.3, -0.04], [0.08, 0.065, 0.17], k, 'cortex'), {}, grayPaint)
       }
-      b.ell([0, 6.14, -0.27], [0.19, 0.09, 0.11], '#fff', [0, 0, 0], 20, 14).limb([[0, 6.2, -0.1], [0, 6.08, -0.1], [0, 6.0, -0.08]], [0.07, 0.055, 0.04], {}, { radial: 10 })
+      b.geo(foldedLobe([0, 6.24, -0.3], [0.2, 0.085, 0.1], 0, 'cerebellum'), {}, grayPaint)
+      b.limb([[0, 6.27, -0.2], [0, 6.15, -0.2], [0, 6.05, -0.18]], [[0.065, 0.06], [0.047, 0.047], [0.036, 0.036]], { c: '#d9d2d6' }, { radial: 14, seg: 5 })
       break
+    }
     case 'heart':
       b.limb([[0.06, 4.62, 0.12], [0.15, 4.4, 0.14], [0.26, 4.15, 0.15]], [[0.3, 0.25], [0.3, 0.26], [0.07, 0.07]], {}, { radial: 18 })
         .ell([-0.05, 4.66, 0.06], [0.15, 0.13, 0.13], '#fff', [0, 0, 0.3])
@@ -111,29 +114,80 @@ function build(id: string): THREE.BufferGeometry {
       b.limb([[0, 5.88, -0.04], [0, 5.86, 0.16], [0, 5.87, 0.34]], [[0.1, 0.05], [0.12, 0.055], [0.08, 0.045]], {}, { radial: 12 })
       break
   }
-  const geo = b.build()
-  if (id === 'brain') {
-    // Shrink about the middle of the skull so both lobes sit well inside the head shell.
-    geo.translate(0, -6.3, 0.05)
-    geo.scale(0.8, 0.8, 0.8)
-    geo.translate(0, 6.38, -0.13)
-    foldBrain(geo)
-  }
-  return geo
+  return b.build()
 }
 
-/** Darkens vertex colors along winding grooves so the two lobes read as a folded cortex. */
-function foldBrain(geo: THREE.BufferGeometry): void {
-  const pos = geo.getAttribute('position')
-  const col = geo.getAttribute('color') as THREE.BufferAttribute
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i)
-    const y = pos.getY(i)
-    const z = pos.getZ(i)
-    const v = Math.sin(x * 46 + 2.2 * Math.sin(y * 27 + z * 15)) * Math.sin(z * 38 + 1.8 * Math.sin(x * 19 + y * 23))
-    const g = 0.66 + 0.34 * smoothstep(-0.55, 0.45, v)
-    col.setXYZ(i, g, g, g)
+/** Smooth 3D value noise in 0..1. */
+function noise3(x: number, y: number, z: number): number {
+  const h = (i: number, j: number, k: number) => {
+    let n = Math.imul(i, 374761393) ^ Math.imul(j, 668265263) ^ Math.imul(k, 1274126177)
+    n = Math.imul(n ^ (n >>> 13), 1103515245)
+    return ((n ^ (n >>> 16)) >>> 0) / 4294967295
   }
+  const xi = Math.floor(x)
+  const yi = Math.floor(y)
+  const zi = Math.floor(z)
+  const f = (t: number) => t * t * (3 - 2 * t)
+  const fx = f(x - xi)
+  const fy = f(y - yi)
+  const fz = f(z - zi)
+  const l = (a: number, b: number, t: number) => a + (b - a) * t
+  return l(
+    l(l(h(xi, yi, zi), h(xi + 1, yi, zi), fx), l(h(xi, yi + 1, zi), h(xi + 1, yi + 1, zi), fx), fy),
+    l(l(h(xi, yi, zi + 1), h(xi + 1, yi, zi + 1), fx), l(h(xi, yi + 1, zi + 1), h(xi + 1, yi + 1, zi + 1), fx), fy),
+    fz,
+  )
+}
+
+/** Paint for the brain: the `t` channel carries the shade (grooves dark, ridges light). */
+const grayPaint = (t: number, _cs: number, _sn: number, out: THREE.Color): void => {
+  out.setRGB(t, t, t)
+}
+
+/**
+ * One brain lobe: an ellipsoid whose surface is pushed in along winding grooves (sulci) and left proud between them
+ * (gyri). `side` is -1 or 1 for a hemisphere (its inner face is flattened so a fissure shows between the two), 0 for
+ * the cerebellum, which gets fine parallel ridges instead.
+ */
+function foldedLobe(c: V3, r: V3, side: number, kind: 'cortex' | 'cerebellum'): THREE.BufferGeometry {
+  let g: THREE.BufferGeometry = new THREE.SphereGeometry(1, 56, 38)
+  g.deleteAttribute('normal')
+  g.deleteAttribute('uv')
+  g = mergeVertices(g, 1e-4)
+  const pos = g.getAttribute('position') as THREE.BufferAttribute
+  const shade = new Float32Array(pos.count * 3)
+  for (let i = 0; i < pos.count; i++) {
+    let dx = pos.getX(i)
+    const dy = pos.getY(i)
+    const dz = pos.getZ(i)
+    let depth = 0
+    let tone = 1
+    if (kind === 'cortex') {
+      const wx = c[0] + dx * r[0]
+      const wy = c[1] + dy * r[1]
+      const wz = c[2] + dz * r[2]
+      const n = 0.62 * noise3(wx * 17, wy * 17, wz * 17) + 0.38 * noise3(wx * 31 + 7, wy * 31, wz * 31)
+      const groove = 1 - smoothstep(0.0, 0.085, Math.abs(n - 0.5))
+      depth = 0.11 * groove
+      tone = 1 - 0.5 * groove
+      // flat inner face: dark where the hemispheres meet
+      const inner = side !== 0 ? smoothstep(0.55, 0.95, -dx * side) : 0
+      if (side !== 0 && -dx * side > 0.78) dx = -0.78 * side
+      tone *= 1 - 0.55 * inner
+      depth += 0.0
+    } else {
+      const ridge = 0.5 + 0.5 * Math.sin((c[1] + dy * r[1]) * 210 + dx * 2)
+      depth = 0.09 * (1 - ridge)
+      tone = 0.62 + 0.38 * ridge
+    }
+    const k = 1 - depth
+    pos.setXYZ(i, c[0] + dx * r[0] * k, c[1] + dy * r[1] * k, c[2] + dz * r[2] * k)
+    shade[i * 3] = tone
+  }
+  g.setAttribute('paint', new THREE.BufferAttribute(shade, 3))
+  g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(pos.count * 2), 2))
+  g.computeVertexNormals()
+  return g
 }
 
 const smoothstep = (a: number, b: number, x: number): number => {
