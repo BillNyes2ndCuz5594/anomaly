@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { content } from '../../content/schema'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
+import Burst from '../../ui/Burst'
 import { CaseTop } from './ui'
 
 const LETTERS = ['A', 'B', 'C', 'D']
@@ -27,12 +28,15 @@ export default function Debrief() {
     <div className="screen case-screen debrief-screen" data-testid="debrief">
       <CaseTop step="debrief" />
       <div className="debrief-body">
-        <header className="panel brackets debrief-head">
-          <div className={closed ? 'stamp closed' : 'stamp open'} data-testid="case-stamp" data-closed={closed ? 'yes' : 'no'}>
-            <span className="stamp-icon" aria-hidden="true">
-              {closed ? '\u2714' : '\u25CB'}
-            </span>
-            <span className="mono stamp-word">{closed ? (kind === 'cold' ? 'RESIDUE CLEARED' : 'CASE CLOSED') : 'CASE STILL OPEN'}</span>
+        <header className={closed ? 'panel brackets debrief-head impact' : 'panel brackets debrief-head'}>
+          <div className="stamp-wrap">
+            <div className={closed ? 'stamp closed' : 'stamp open'} data-testid="case-stamp" data-closed={closed ? 'yes' : 'no'}>
+              <span className="stamp-icon" aria-hidden="true">
+                {closed ? '\u2714' : '\u25CB'}
+              </span>
+              <span className="mono stamp-word">{closed ? (kind === 'cold' ? 'RESIDUE CLEARED' : 'CASE CLOSED') : 'CASE STILL OPEN'}</span>
+            </div>
+            {closed ? <Burst /> : null}
           </div>
           <div className="debrief-summary">
             <p className="debrief-score mono" data-testid="debrief-score">

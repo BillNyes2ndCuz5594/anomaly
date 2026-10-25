@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Burst from '../../ui/Burst'
 import { content } from '../../content/schema'
 import { navigate } from '../../lib/router'
 import { MASTERY_STAGES, parseISO, stageFraction, stageIndex, type MasteryStage } from '../../state/mastery'
@@ -11,6 +12,28 @@ import { CaseTop } from './ui'
 function dueLabel(iso: string | null | undefined): string {
   if (!iso) return 'No review scheduled yet'
   return new Date(parseISO(iso)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })
+}
+
+/** Counts up from 0 to target. Jumps straight to the target with reduced motion. */
+function useCountUp(target: number, startDelay = 450, ms = 1100): number {
+  const reduced = useGame((s) => s.settings.reducedMotion)
+  const [v, setV] = useState(reduced ? target : 0)
+  useEffect(() => {
+    if (reduced) {
+      setV(target)
+      return
+    }
+    let raf = 0
+    const t0 = performance.now() + startDelay
+    const tick = (now: number) => {
+      const k = Math.max(0, Math.min(1, (now - t0) / ms))
+      setV(Math.round(target * (1 - Math.pow(1 - k, 3))))
+      if (k < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [target, reduced, startDelay, ms])
+  return v
 }
 
 const LABELS: Record<string, string> = Object.fromEntries(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
@@ -36,6 +59,7 @@ export default function Results() {
   }, [])
 
   const intel = answers.reduce((n, a) => n + a.intel, 0)
+  const intelShown = useCountUp(intel)
   const rows = benchmarks.map((b) => {
     const mine = items.filter((i) => i.benchmark === b)
     const got = mine.filter((i) => answers.find((a) => a.itemId === i.id)?.correct).length
@@ -59,8 +83,13 @@ export default function Results() {
                     <span className="mono bench-id">{r.b}</span>
                     <span className="bar-label">{LABELS[r.b] ?? r.b}</span>
                   </div>
-                  <div className="bar-track" role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={stageIndex(r.to)} aria-label={`${LABELS[r.b] ?? r.b}: ${MASTERY_LABEL[r.to]}`}>
+                  <div className={r.rose ? 'bar-track rose' : 'bar-track'} role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={stageIndex(r.to)} aria-label={`${LABELS[r.b] ?? r.b}: ${MASTERY_LABEL[r.to]}`}>
                     <div className="bar-fill" style={{ width: `${frac * 100}%` }} />
+                    {r.rose && shown ? (
+                      <span className="stage-up-burst" style={{ left: `${frac * 100}%` }}>
+                        <Burst color="#ffb547" spread={70} delay={1.45} big={false} />
+                      </span>
+                    ) : null}
                     {[1, 2, 3].map((t) => (
                       <i key={t} className="bar-tick" style={{ left: `${t * 25}%` }} aria-hidden="true" />
                     ))}
@@ -95,7 +124,7 @@ export default function Results() {
         <aside className="panel brackets results-side" aria-label="Rewards">
           <div className="reward" data-testid="intel-earned">
             <span className="mono label amber">INTEL EARNED</span>
-            <strong className="reward-num mono">{intel}</strong>
+            <strong className="reward-num mono" aria-label={`${intel} Intel earned`}>{intelShown}</strong>
             <span className="muted tiny">Total Intel: {intelTotal}</span>
           </div>
           <div className="reward" data-testid="case-status" data-closed={cases[caseId]?.closed ? 'yes' : 'no'}>
@@ -108,7 +137,8 @@ export default function Results() {
               {cases[caseId] ? `${cases[caseId].score} of ${cases[caseId].total} correct` : ''}
             </span>
           </div>
-          <div className="reward" data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
+          <div className={paint ? 'reward unlocked' : 'reward'} data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
+            {paint ? <Burst color="#ffb547" spread={90} delay={0.9} big={false} /> : null}
             <span className="mono label amber">DRONE PAINT</span>
             {paint ? (
               <p>
