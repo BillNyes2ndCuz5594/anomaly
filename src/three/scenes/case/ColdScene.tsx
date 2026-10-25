@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { tintedHolo } from '../../materials/tinted'
 import { CameraRig, LabEnvironment, Pedestal, useReduced } from './common'
 
@@ -35,6 +36,11 @@ function SampleShape({ shape }: { shape: number }) {
       return <dodecahedronGeometry args={[0.22, 0]} />
   }
 }
+
+const tmpM = new THREE.Matrix4()
+const tmpP = new THREE.Vector3()
+const tmpQ = new THREE.Quaternion()
+const tmpS = new THREE.Vector3()
 
 function Locker({ reduced }: { reduced: boolean }) {
   const cells = useMemo<Cell[]>(() => {
@@ -81,7 +87,34 @@ function Locker({ reduced }: { reduced: boolean }) {
     [shell, inner, trim, beamCore, beamGlow],
   )
 
-  const canisters = useRef<(THREE.Group | null)[]>([])
+  // Draw call budget: shelves, dividers and glow strips merge into two meshes; the 24 canister shells
+  // and 48 caps are two instanced meshes. Only the 24 samples keep their own (per cell tinted) material.
+  const { frameGeo, stripGeo, shellGeo, capGeo } = useMemo(() => {
+    const boxAt = (w: number, h: number, d: number, x: number, y: number, z: number) => new THREE.BoxGeometry(w, h, d).translate(x, y, z)
+    const frame = [
+      ...Array.from({ length: ROWS + 1 }, (_, r) => boxAt(WALL_W + 0.4, 0.14, 1.1, 0, BASE_Y + r * CELL_H, WALL_Z + 0.3)),
+      ...Array.from({ length: COLS + 1 }, (_, c) => boxAt(0.14, WALL_H, 1.1, (c - COLS / 2) * CELL_W, BASE_Y + WALL_H / 2, WALL_Z + 0.3)),
+    ]
+    const strips = Array.from({ length: ROWS }, (_, r) => boxAt(WALL_W, 0.03, 0.03, 0, BASE_Y + (r + 1) * CELL_H - 0.09, WALL_Z + 0.82))
+    const frameGeo = mergeGeometries(frame)!
+    const stripGeo = mergeGeometries(strips)!
+    frame.forEach((g) => g.dispose())
+    strips.forEach((g) => g.dispose())
+    return { frameGeo, stripGeo, shellGeo: new THREE.CylinderGeometry(0.4, 0.4, 0.78, 20, 1, true), capGeo: new THREE.CylinderGeometry(0.45, 0.45, 0.04, 20) }
+  }, [])
+  useEffect(
+    () => () => {
+      frameGeo.dispose()
+      stripGeo.dispose()
+      shellGeo.dispose()
+      capGeo.dispose()
+    },
+    [frameGeo, stripGeo, shellGeo, capGeo],
+  )
+  const shellMesh = useRef<THREE.InstancedMesh>(null)
+  const capMesh = useRef<THREE.InstancedMesh>(null)
+  const frameMat = useMemo(() => new THREE.MeshStandardNodeMaterial({ color: '#17294a', roughness: 0.45, metalness: 0.6 }), [])
+  useEffect(() => () => frameMat.dispose(), [frameMat])
   const samples = useRef<(THREE.Mesh | null)[]>([])
   const beam = useRef<THREE.Group>(null)
   const heat = useRef<number[]>(cells.map(() => 0))
@@ -96,10 +129,23 @@ function Locker({ reduced }: { reduced: boolean }) {
       const h = heat.current[i]
       heat.current[i] = near > h ? near : h + (near - h) * Math.min(1, dt * 1.2)
       const k = heat.current[i]
-      const g = canisters.current[i]
-      if (g) g.scale.setScalar(1 + k * 0.1)
+      const sc = 1 + k * 0.1
+      const cx = c.x
+      const cy = c.y - 0.35
+      const cz = WALL_Z + 0.5
+      if (shellMesh.current) {
+        tmpM.compose(tmpP.set(cx, cy, cz), tmpQ, tmpS.setScalar(sc))
+        shellMesh.current.setMatrixAt(i, tmpM)
+      }
+      if (capMesh.current) {
+        tmpM.compose(tmpP.set(cx, cy + 0.4 * sc, cz), tmpQ, tmpS.setScalar(sc))
+        capMesh.current.setMatrixAt(i * 2, tmpM)
+        tmpM.compose(tmpP.set(cx, cy - 0.4 * sc, cz), tmpQ, tmpS.setScalar(sc))
+        capMesh.current.setMatrixAt(i * 2 + 1, tmpM)
+      }
       const s = samples.current[i]
       if (s) {
+        s.scale.setScalar(sc)
         if (!reduced) {
           s.rotation.y += dt * (0.5 + k * 3)
           s.position.y = Math.sin(t * 1.2 + i) * 0.05
@@ -109,9 +155,10 @@ function Locker({ reduced }: { reduced: boolean }) {
       m.opacity = 0.5 + k * 0.5
       m.color.set(c.tint).multiplyScalar(1 + k * 1.6)
     })
+    if (shellMesh.current) shellMesh.current.instanceMatrix.needsUpdate = true
+    if (capMesh.current) capMesh.current.instanceMatrix.needsUpdate = true
   })
 
-  const shelfY = (r: number) => BASE_Y + r * CELL_H
   return (
     <group>
       {/* Back wall and frame */}
@@ -119,55 +166,24 @@ function Locker({ reduced }: { reduced: boolean }) {
         <boxGeometry args={[WALL_W + 0.4, WALL_H + 0.2, 0.2]} />
         <meshStandardMaterial color="#0a1424" roughness={0.6} metalness={0.5} />
       </mesh>
-      {Array.from({ length: ROWS + 1 }, (_, r) => (
-        <mesh key={`s${r}`} position={[0, shelfY(r), WALL_Z + 0.3]}>
-          <boxGeometry args={[WALL_W + 0.4, 0.14, 1.1]} />
-          <meshStandardMaterial color="#17294a" roughness={0.45} metalness={0.6} />
-        </mesh>
-      ))}
-      {Array.from({ length: COLS + 1 }, (_, c) => (
-        <mesh key={`d${c}`} position={[(c - COLS / 2) * CELL_W, BASE_Y + WALL_H / 2, WALL_Z + 0.3]}>
-          <boxGeometry args={[0.14, WALL_H, 1.1]} />
-          <meshStandardMaterial color="#17294a" roughness={0.45} metalness={0.6} />
-        </mesh>
-      ))}
+      <mesh geometry={frameGeo} material={frameMat} />
       {/* Thin glow strips under each shelf */}
-      {Array.from({ length: ROWS }, (_, r) => (
-        <mesh key={`g${r}`} position={[0, shelfY(r + 1) - 0.09, WALL_Z + 0.82]}>
-          <boxGeometry args={[WALL_W, 0.03, 0.03]} />
-          <primitive object={trim} attach="material" />
-        </mesh>
-      ))}
+      <mesh geometry={stripGeo}>
+        <primitive object={trim} attach="material" />
+      </mesh>
 
+      <instancedMesh ref={shellMesh} args={[shellGeo, shell, cells.length]} frustumCulled={false} />
+      <instancedMesh ref={capMesh} args={[capGeo, trim, cells.length * 2]} frustumCulled={false} />
       {cells.map((c, i) => (
         <group key={i} position={[c.x, c.y - 0.35, WALL_Z + 0.5]}>
-          <group
-            ref={(g) => {
-              canisters.current[i] = g
+          <mesh
+            ref={(m) => {
+              samples.current[i] = m
             }}
           >
-            <mesh>
-              <cylinderGeometry args={[0.4, 0.4, 0.78, 20, 1, true]} />
-              <primitive object={shell} attach="material" />
-            </mesh>
-            <mesh position={[0, 0.4, 0]}>
-              <cylinderGeometry args={[0.45, 0.45, 0.04, 20]} />
-              <primitive object={trim} attach="material" />
-            </mesh>
-            <mesh position={[0, -0.4, 0]}>
-              <cylinderGeometry args={[0.45, 0.45, 0.04, 20]} />
-              <primitive object={trim} attach="material" />
-            </mesh>
-            <mesh
-              position={[0, 0, 0]}
-              ref={(m) => {
-                samples.current[i] = m
-              }}
-            >
-              <SampleShape shape={c.shape} />
-              <primitive object={inner[i]} attach="material" />
-            </mesh>
-          </group>
+            <SampleShape shape={c.shape} />
+            <primitive object={inner[i]} attach="material" />
+          </mesh>
         </group>
       ))}
 

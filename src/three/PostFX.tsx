@@ -48,7 +48,7 @@ export default function PostFX({ tier }: { tier: Tier }) {
       const seed = screenCoordinate.x
         .add(screenCoordinate.y.mul(1237))
         .add(floor(time.mul(24)).mul(7919))
-      const noise = hash(seed).sub(0.5).mul(0.02)
+      const noise = hash(seed).sub(0.5).mul(0.014)
       out = max(out.add(vec3(noise)), vec3(0))
     }
 

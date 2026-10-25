@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three/webgpu'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   abs,
   color,
@@ -214,45 +215,54 @@ export function DeckLights({ rim = 1 }: { rim?: number }) {
   )
 }
 
-/** Ring of dark console blocks with emissive trim, giving the deck a silhouette. */
+/** Ring of dark console blocks with emissive trim. Bodies and trim are baked into two merged meshes (2 draw calls). */
 export function ConsoleRing({ radius = 15, count = 18, arc = Math.PI * 1.25, tint = '#3ee6ff' }: {
   radius?: number
   count?: number
   arc?: number
   tint?: string
 }) {
-  const { items, trim } = useMemo(() => {
-    const list: { pos: [number, number, number]; rot: number; w: number; h: number; d: number }[] = []
+  const { bodyGeo, trimGeo, trim, body } = useMemo(() => {
     const rnd = (n: number) => {
       const x = Math.sin(n * 127.1) * 43758.5453
       return x - Math.floor(x)
     }
+    const bodies: THREE.BufferGeometry[] = []
+    const trims: THREE.BufferGeometry[] = []
+    const m = new THREE.Matrix4()
     const start = -Math.PI / 2 - arc / 2
     for (let i = 0; i < count; i++) {
       const a = start + (i / (count - 1)) * arc
       const h = 0.9 + rnd(i + 1) * 2.4
       const w = 1.6 + rnd(i + 31) * 1.8
-      list.push({ pos: [Math.cos(a) * radius, h / 2, Math.sin(a) * radius], rot: -a + Math.PI / 2, w, h, d: 1.4 })
+      const d = 1.4
+      const place = new THREE.Matrix4().makeRotationY(-a + Math.PI / 2).setPosition(Math.cos(a) * radius, h / 2, Math.sin(a) * radius)
+      bodies.push(new THREE.BoxGeometry(w, h, d).applyMatrix4(place))
+      m.makeTranslation(0, h / 2 + 0.02, d / 2 - 0.05)
+      trims.push(new THREE.BoxGeometry(w * 0.92, 0.05, 0.05).applyMatrix4(m.premultiply(place)))
     }
-    const m = new THREE.MeshBasicNodeMaterial()
-    m.colorNode = color(tint).mul(2.2)
-    return { items: list, trim: m }
+    const bodyGeo = mergeGeometries(bodies)!
+    const trimGeo = mergeGeometries(trims)!
+    bodies.forEach((g) => g.dispose())
+    trims.forEach((g) => g.dispose())
+    const trim = new THREE.MeshBasicNodeMaterial()
+    trim.colorNode = color(tint).mul(2.2)
+    const body = new THREE.MeshStandardNodeMaterial({ color: '#17294a', roughness: 0.45, metalness: 0.55 })
+    return { bodyGeo, trimGeo, trim, body }
   }, [radius, count, arc, tint])
-  useEffect(() => () => trim.dispose(), [trim])
+  useEffect(
+    () => () => {
+      bodyGeo.dispose()
+      trimGeo.dispose()
+      trim.dispose()
+      body.dispose()
+    },
+    [bodyGeo, trimGeo, trim, body],
+  )
   return (
     <group>
-      {items.map((b, i) => (
-        <group key={i} position={b.pos} rotation={[0, b.rot, 0]}>
-          <mesh>
-            <boxGeometry args={[b.w, b.h, b.d]} />
-            <meshStandardMaterial color="#17294a" roughness={0.45} metalness={0.55} />
-          </mesh>
-          <mesh position={[0, b.h / 2 + 0.02, b.d / 2 - 0.05]}>
-            <boxGeometry args={[b.w * 0.92, 0.05, 0.05]} />
-            <primitive object={trim} attach="material" />
-          </mesh>
-        </group>
-      ))}
+      <mesh geometry={bodyGeo} material={body} />
+      <mesh geometry={trimGeo} material={trim} />
     </group>
   )
 }
