@@ -2,7 +2,7 @@ import { specimenGeo } from './creatures'
 import type { Box } from '../fit'
 
 /** Low or slender animals get a little extra size so they read as well as the chunky ones. */
-const BOOST: Record<string, number> = { 'american-alligator': 1.3, 'garden-spider': 1.15, 'largemouth-bass': 1.1 }
+const BOOST: Record<string, number> = { 'american-alligator': 1.3, 'garden-spider': 1.15, 'largemouth-bass': 1.1, 'blue-crab': 1.25 }
 
 /** Scale that makes the largest dimension of a specimen about `fit` world units. Shared by Specimen and the camera fit. */
 export function specimenScale(id: string, fit: number): number {

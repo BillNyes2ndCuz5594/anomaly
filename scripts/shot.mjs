@@ -18,7 +18,7 @@ const port = await freePort()
 const { proc, base } = await startPreview(port)
 const browser = await launch()
 const errors = []
-const QS = '?tier=high&still=1'
+const QS = '?tier=high&still=1' + (opt('yaw', '') ? '&yaw=' + opt('yaw', '') : '')
 try {
   for (const vp of sizes) {
     for (const target of targets) {
@@ -32,7 +32,7 @@ try {
         await page.reload({ waitUntil: 'load' })
         await page.waitForSelector('[data-testid="hub"]')
       }
-      const name = `${target}-${vp.width}${textSize ? `-t${textSize}` : ''}`
+      const name = `${target.replace(/[:,]/g, '_').slice(0, 40)}-${vp.width}${textSize ? `-t${textSize}` : ''}`
       if (target === 'hub') {
         await sleep(3500)
       } else if (['briefing', 'lab-a', 'lab-b', 'lab-c'].includes(target)) {
@@ -84,8 +84,10 @@ try {
         await page.waitForSelector('[data-testid="visuals-scenes"] svg')
         await page.setViewport({ width: vp.width, height: vp.width > 1700 ? 1080 : 1700, deviceScaleFactor: 1 })
         await sleep(2000)
-      } else if (target === 'models') {
-        await page.goto(base + QS + '#/visuals/models', { waitUntil: 'load' })
+      } else if (target === 'models' || target === 'models-all' || target.startsWith('models:')) {
+        // models:a,b,c,d shows exactly those specimens, one per panel
+        const extra = target === 'models-all' ? '&all=1' : target.startsWith('models:') ? `&ids=${target.slice(7)}` : ''
+        await page.goto(base + QS + extra + '#/visuals/models', { waitUntil: 'load' })
         await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
         await waitRendered(page, 7000)
       } else {
@@ -97,7 +99,7 @@ try {
       await page.screenshot({ path: file, fullPage: target === 'visuals' })
       const fits = await fitReport(page)
       if (target === 'visuals' || target === 'cold-item') console.log('svg', JSON.stringify(await svgReport(page)))
-      console.log(`wrote ${file}`, fits.length ? JSON.stringify(fits.map((f) => ({ over: +f.over.toFixed(3), w: f.canvasW, h: f.canvasH }))) : '')
+      console.log(`wrote ${file}`, fits.length ? JSON.stringify(fits.map((f) => ({ over: +f.over.toFixed(3), w: f.canvasW, h: f.canvasH, minX: f.minX, maxX: f.maxX, minY: f.minY, maxY: f.maxY, fw: f.fw, fh: f.fh }))) : '')
       await page.close()
     }
   }
