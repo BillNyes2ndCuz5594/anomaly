@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three/webgpu'
 import { limbGeometry } from './builder'
-import { LAB_SPECIMENS, specimenGeo } from './creatures'
+import { LAB_SPECIMENS, SCUTE_SEEDS, scuteAt, specimenGeo } from './creatures'
 import { humanModel, ORGAN_LIST } from './human'
 import { litSpecimen } from '../materials/tinted'
 
@@ -114,6 +114,27 @@ describe('specimen models', () => {
     })
   }
 
+  it('builds the panther long and low and the crab wide and flat', () => {
+    const [px, py] = specimenGeo('florida-panther').size
+    expect(px).toBeGreaterThan(py * 2.2)
+    const [cx, cy, cz] = specimenGeo('blue-crab').size
+    expect(Math.max(cx, cz)).toBeGreaterThan(cy * 3)
+  })
+
+  it('finds scute plates and seams on the tortoise shell', () => {
+    const [ax, az] = SCUTE_SEEDS[0]
+    const mid = scuteAt(ax, az)
+    expect(mid.id).toBe(0)
+    expect(mid.center).toBeCloseTo(0, 6)
+    expect(mid.edge).toBeGreaterThan(0.1)
+    // Halfway between two plate centers sits on a seam.
+    const [bx, bz] = SCUTE_SEEDS[1]
+    const seam = scuteAt((ax + bx) / 2, (az + bz) / 2, [SCUTE_SEEDS[0], SCUTE_SEEDS[1]])
+    expect(seam.edge).toBeCloseTo(0, 6)
+    // Every point of the shell belongs to some plate.
+    for (const [x, z] of [[0.9, 0.1], [-0.3, 0.8], [0, -0.95]]) expect(scuteAt(x, z).id).toBeGreaterThanOrEqual(0)
+  })
+
   it('uses a smooth lit material with no flat shading', () => {
     const m = litSpecimen()
     expect(m.flatShading).toBe(false)
@@ -173,6 +194,27 @@ describe('human hologram model', () => {
     expect(c('heart')[0]).toBeGreaterThan(0)
     // Kidneys sit behind the front organs.
     expect(c('kidneys')[2]).toBeLessThan(c('stomach')[2])
+  })
+
+  it('keeps the head organs small and inside the face so the silhouette reads', () => {
+    const size = (id: string) => {
+      const g = model.organs.get(id)!.geo
+      g.computeBoundingBox()
+      return g.boundingBox!.getSize(new THREE.Vector3())
+    }
+    const head = (id: string) => {
+      const o = model.organs.get(id)!
+      o.geo.computeBoundingBox()
+      return o.geo.boundingBox!.clone().translate(new THREE.Vector3(...o.center))
+    }
+    // Eyes: two small spheres, well under the head width. Ears: out at the sides of the head.
+    expect(size('eyes').y).toBeLessThan(0.2)
+    expect(size('eyes').x).toBeLessThan(0.6)
+    expect(head('ears').max.x).toBeGreaterThan(0.4)
+    expect(head('ears').max.x).toBeLessThan(0.55)
+    // Brain stays under the skull top (head spine ends near 6.77) and inside its width.
+    expect(head('brain').max.y).toBeLessThan(6.7)
+    expect(size('brain').x).toBeLessThan(0.6)
   })
 
   it('keeps the model box that the camera fit uses around everything', () => {

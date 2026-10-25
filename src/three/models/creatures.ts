@@ -1,4 +1,5 @@
-import type * as THREE from 'three/webgpu'
+import * as THREE from 'three/webgpu'
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { Builder, countershade, groundCenter, lerpHex, paintWith, recenter, smooth, spineAt, type Paint, type V3 } from './builder'
 
 // ---------- Lab B: dog-like mammal and flowering tree ----------
@@ -117,6 +118,69 @@ let plantCache: PartGeo[] | null = null
 export const animalParts = () => (animalCache ??= buildAnimal())
 export const plantParts = () => (plantCache ??= buildPlant())
 
+// ---------- Tortoise shell ----------
+
+/** Seeds of the scute plates in shell space (x along the body, z across), both in -1..1: 5 vertebral, 4 pairs of costal, a marginal ring. */
+export const SCUTE_SEEDS: [number, number][] = (() => {
+  const out: [number, number][] = []
+  for (const x of [-0.7, -0.35, 0, 0.35, 0.7]) out.push([x, 0])
+  for (const x of [-0.6, -0.2, 0.2, 0.6]) out.push([x, 0.47], [x, -0.47])
+  for (let i = 0; i < 12; i++) out.push([Math.cos((i / 12) * Math.PI * 2 + 0.26) * 0.93, Math.sin((i / 12) * Math.PI * 2 + 0.26) * 0.93])
+  return out
+})()
+
+/**
+ * Nearest scute plate for a point in shell space, with the distance to the seam shared with the next plate
+ * (0 on a seam, growing toward the middle of a plate) and the distance to the plate center.
+ */
+export function scuteAt(x: number, z: number, seeds: [number, number][] = SCUTE_SEEDS): { id: number; edge: number; center: number } {
+  let d1 = Infinity
+  let d2 = Infinity
+  let id = 0
+  for (let i = 0; i < seeds.length; i++) {
+    const d = Math.hypot(x - seeds[i][0], z - seeds[i][1])
+    if (d < d1) {
+      d2 = d1
+      d1 = d
+      id = i
+    } else if (d < d2) d2 = d
+  }
+  return { id, edge: (d2 - d1) / 2, center: d1 }
+}
+
+/** Domed shell with plates raised a little above dark seams, one smooth indexed surface. */
+function scuteShell(b: Builder, c: V3, r: V3): void {
+  let g: THREE.BufferGeometry = new THREE.SphereGeometry(1, 72, 30, 0, Math.PI * 2, 0, Math.PI / 2)
+  g.deleteAttribute('normal')
+  g.deleteAttribute('uv')
+  g = mergeVertices(g, 1e-4)
+  const pos = g.getAttribute('position') as THREE.BufferAttribute
+  const paint = new Float32Array(pos.count * 3)
+  const uv = new Float32Array(pos.count * 2)
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i)
+    const y = pos.getY(i)
+    const z = pos.getZ(i)
+    const sc = scuteAt(x, z)
+    const raise = smooth(0.0, 0.06, sc.edge)
+    const k = 1 + 0.05 * raise * smooth(0, 0.12, y + 0.02)
+    pos.setXYZ(i, x * k, y * k, z * k)
+    // t = plate shade 0..1, cs = seam darkness, sn = growth ring
+    paint[i * 3] = (Math.sin(sc.id * 12.9898) * 43758.5453) % 1
+    paint[i * 3 + 1] = 1 - raise
+    paint[i * 3 + 2] = 0.5 + 0.5 * Math.sin(sc.center * 55)
+  }
+  g.setAttribute('paint', new THREE.BufferAttribute(paint, 3))
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
+  g.computeVertexNormals()
+  const lo = new THREE.Color('#7d6338')
+  const hi = new THREE.Color('#a98e57')
+  const seam = new THREE.Color('#3b2d1a')
+  b.geo(g, { p: c, s: r }, (t, cs, sn, out) => {
+    out.copy(lo).lerp(hi, Math.abs(t % 1) * 0.8 + sn * 0.12).lerp(seam, cs * 0.85)
+  })
+}
+
 // ---------- Lab C and item visuals: stylized specimens ----------
 //
 // Every specimen is built from smooth, variable radius tubes (limb), ellipsoids and a few fins, merged into one
@@ -165,26 +229,25 @@ function bassModel(b: Builder): void {
   const spine: V3[] = [[-2.2, 0.15, 0], [-1.2, 0.08, 0], [0, 0, 0], [1.1, -0.04, 0], [1.85, -0.1, 0], [2.25, -0.16, 0]]
   const paint = paintWith(countershade(back, belly, 0.05, 0.3), (t, cs, sn, out) => {
     // dark lateral band, soft at both ends
-    const band = smooth(0.12, 0.3, t) * (1 - smooth(0.78, 0.92, t)) * (1 - smooth(0.0, 0.2, Math.abs(sn - 0.15))) * smooth(0.3, 0.6, Math.abs(cs))
-    lerpHex(out, dark, band * 0.85)
+    const band = smooth(0.14, 0.3, t) * (1 - smooth(0.8, 0.95, t)) * (1 - smooth(0.2, 0.42, Math.abs(sn - 0.05))) * smooth(0.15, 0.45, Math.abs(cs))
+    lerpHex(out, '#1f3320', band * 0.92)
     if (t > 0.8) lerpHex(out, '#d7e0a3', smooth(0.82, 1, t) * 0.3 * (1 - smooth(-0.2, 0.3, sn)))
   })
-  b.limb(spine, [[0.05, 0.08], [0.24, 0.4], [0.52, 0.78], [0.5, 0.72], [0.34, 0.46], [0.2, 0.22]], {}, { paint, radial: 22, seg: 8, cap: 6 })
+  b.limb(spine, [[0.05, 0.08], [0.24, 0.4], [0.52, 0.78], [0.5, 0.72], [0.34, 0.46], [0.2, 0.22]], {}, { paint, radial: 28, seg: 8, cap: 6 })
   // big lower jaw and the mouth line that runs back under the eye
   b.ell([2.2, -0.28, 0], [0.34, 0.14, 0.3], '#d9e2b0', [0, 0, 0.15], 14, 10)
   b.limb([[2.55, -0.14, 0.0], [2.0, -0.13, 0.3], [1.6, -0.06, 0.4]], 0.018, { c: '#1d2a18' }, { radial: 6, seg: 5, cap: 2 })
   b.limb([[2.55, -0.14, 0.0], [2.0, -0.13, -0.3], [1.6, -0.06, -0.4]], 0.018, { c: '#1d2a18' }, { radial: 6, seg: 5, cap: 2 })
   for (const k of mirrorZ) {
     eye(b, [1.55, 0.2, k * 0.33], 0.13, [0.4, 0.2, k], '#e9d58a')
-    b.ell([1.05, 0.0, k * 0.5], [0.22, 0.34, 0.03], '#9dbb6c', [0, k * 0.2, 0], 12, 10)
+    b.limb([[1.2, 0.32, k * 0.44], [1.08, 0.0, k * 0.51], [1.16, -0.3, k * 0.46]], 0.014, { c: '#2c4527' }, { radial: 6, seg: 6, cap: 1 })
   }
   // spiny dorsal fin, soft dorsal fin
-  fin(b, [[1.0, 0.5, 0], [0.7, 0.85, 0], [0.4, 0.95, 0]], [0.12, 0.1, 0.03], 0.03, dark, 'xy')
-  fin(b, [[0.6, 0.55, 0], [0.2, 0.9, 0], [-0.1, 0.98, 0]], [0.2, 0.18, 0.03], 0.03, dark, 'xy')
-  fin(b, [[-0.35, 0.5, 0], [-0.7, 0.92, 0], [-0.95, 1.0, 0]], [0.28, 0.22, 0.03], 0.025, fn, 'xy')
+  fin(b, [[0.85, 0.5, 0], [0.55, 0.88, 0], [0.25, 1.02, 0]], [0.3, 0.22, 0.02], 0.03, dark, 'xy')
+  fin(b, [[0.0, 0.52, 0], [-0.32, 0.88, 0], [-0.7, 0.98, 0]], [0.32, 0.22, 0.02], 0.025, fn, 'xy')
   // forked tail
-  fin(b, [[-2.1, 0.12, 0], [-2.6, 0.5, 0], [-2.95, 0.88, 0]], [0.25, 0.28, 0.03], 0.03, fn, 'xy')
-  fin(b, [[-2.1, 0.08, 0], [-2.6, -0.3, 0], [-2.95, -0.7, 0]], [0.25, 0.27, 0.03], 0.03, fn, 'xy')
+  fin(b, [[-2.1, 0.1, 0], [-2.6, 0.5, 0], [-2.95, 0.9, 0]], [0.14, 0.3, 0.02], 0.03, fn, 'xy')
+  fin(b, [[-2.1, 0.08, 0], [-2.6, -0.3, 0], [-2.95, -0.72, 0]], [0.14, 0.3, 0.02], 0.03, fn, 'xy')
   // belly fins and pectoral fins
   fin(b, [[-0.5, -0.4, 0], [-0.8, -0.75, 0], [-1.05, -0.9, 0]], [0.22, 0.2, 0.03], 0.025, fn, 'xy')
   fin(b, [[0.5, -0.45, 0], [0.35, -0.82, 0], [0.2, -0.95, 0]], [0.16, 0.14, 0.03], 0.025, '#e0d8a0', 'xy')
@@ -216,31 +279,78 @@ function sharkModel(b: Builder): void {
   for (const k of mirrorZ) fin(b, [[0.9, -0.28, k * 0.4], [0.5, -0.62, k * 0.95], [0.1, -0.88, k * 1.5]], [0.2, 0.3, 0.04], 0.04, '#7d8b98', 'xz')
 }
 
-function crabModel(b: Builder): void {
-  const shell = countershade('#3a7ab0', '#c9d8de', 0.1, 0.4)
-  const blue = '#3f78a3'
-  const leg = '#6a9dbf'
-  const claw = '#d95a33'
-  // carapace: broad and low with pointed side spines
-  const sh = paintWith(shell, (t, _cs, sn, out) => lerpHex(out, '#6fae9a', smooth(0.5, 0.9, sn) * 0.35 * (1 - Math.abs(t - 0.5) * 2)))
-  b.limb([[0.0, 0.55, -1.35], [0, 0.6, 0], [0, 0.55, 1.35]], [[0.45, 0.26], [0.88, 0.5], [0.45, 0.26]], {}, { paint: sh, radial: 24, seg: 10, cap: 6, ref: [0, 1, 0] })
-  b.ell([0, 0.32, 0], [0.7, 0.2, 1.2], '#dfe8ec', [0, 0, 0], 18, 10)
+function pantherModel(b: Builder): void {
+  const tawny = '#bd8748'
+  const belly = '#e6d3a8'
+  const dk = '#34261d'
+  const leg = '#b28046'
+  const coat = paintWith(countershade(tawny, belly, -0.1, 0.55), (_t, _cs, sn, out) => lerpHex(out, '#7d572f', smooth(0.5, 1, sn) * 0.32))
+  // Long, low torso: chest deep, waist tucked, a soft dip behind the shoulders, hips a touch higher.
+  const torso: V3[] = [[-1.45, 1.36, 0], [-0.7, 1.3, 0], [0.05, 1.2, 0], [0.8, 1.27, 0], [1.4, 1.36, 0]]
+  b.limb(torso, [[0.33, 0.42], [0.31, 0.38], [0.27, 0.33], [0.35, 0.44], [0.3, 0.37]], {}, { paint: coat, radial: 22, seg: 9, cap: 6 })
+  // Thick neck rising into a head carried low and forward.
+  b.limb([[1.0, 1.3, 0], [1.5, 1.5, 0], [1.88, 1.6, 0]], [[0.3, 0.36], [0.26, 0.3], [0.25, 0.27]], {}, { paint: coat, radial: 18, seg: 7, cap: 4 })
+  // Head: rounded skull, short broad muzzle with a pale chin and lip, a small nose and low, rounded ears set back.
+  b.ell([2.0, 1.63, 0], [0.36, 0.3, 0.3], tawny, [0, 0, -0.06], 24, 16)
+    .ell([2.3, 1.52, 0], [0.2, 0.15, 0.2], '#dcc59a', [0, 0, -0.12], 18, 12)
+    .ell([2.28, 1.4, 0], [0.17, 0.065, 0.15], belly, [0, 0, -0.05], 14, 8)
+    .ell([2.47, 1.56, 0], [0.05, 0.04, 0.07], '#5e3f38', [0, 0, 0], 10, 8)
+    .limb([[2.46, 1.53, 0], [2.43, 1.45, 0], [2.36, 1.43, 0]], 0.01, { c: dk }, { radial: 6, seg: 4, cap: 2 })
   for (const k of mirrorZ) {
-    // lateral spine, eye stalks
-    b.limb([[0.0, 0.58, k * 1.3], [0.0, 0.62, k * 1.8], [0.0, 0.66, k * 2.15]], [0.15, 0.1, 0.01], { c: '#3a6f96' }, { radial: 10, seg: 5, cap: 3 })
-    b.limb([[0.72, 0.8, k * 0.34], [0.78, 0.98, k * 0.36]], 0.04, { c: '#dfe8ec' }, { radial: 8, seg: 3, cap: 2 })
-    eye(b, [0.8, 1.04, k * 0.36], 0.09, [0.6, 0.3, k * 0.3], '#26323a')
-    // claw arm: shoulder, elbow, big palm, two pincers
-    b.limb([[0.55, 0.52, k * 0.85], [1.0, 0.8, k * 1.2], [1.42, 1.0, k * 1.1]], [0.15, 0.14, 0.15], { c: blue }, { radial: 12, seg: 6, cap: 4 })
-    b.ell([1.75, 1.2, k * 1.0], [0.44, 0.27, 0.26], blue, [0, k * 0.15, 0.3], 16, 10)
-    b.limb([[1.95, 1.34, k * 0.9], [2.35, 1.6, k * 0.7], [2.5, 1.62, k * 0.52]], [[0.11, 0.08], [0.09, 0.06], [0.03, 0.03]], { c: claw }, { radial: 10, seg: 5, cap: 4 })
-    b.limb([[1.95, 1.05, k * 1.1], [2.4, 1.2, k * 1.0], [2.62, 1.38, k * 0.75]], [[0.1, 0.07], [0.085, 0.06], [0.03, 0.03]], { c: claw }, { radial: 10, seg: 5, cap: 4 })
-    // three walking legs and the flat rear swimming paddle
-    for (let i = 0; i < 3; i++) {
-      const x = 0.35 - i * 0.4
-      b.limb([[x, 0.5, k * 0.9], [x - 0.12, 0.92, k * 1.55], [x - 0.3, 0.45, k * 2.0], [x - 0.35, 0.04, k * 2.2]], [0.14, 0.1, 0.075, 0.045], { c: i % 2 ? leg : '#5b8fb2' }, { radial: 8, seg: 5, cap: 3 })
+    b.ell([1.84, 1.9, k * 0.2], [0.075, 0.1, 0.085], '#8f6236', [0, 0, 0.1], 14, 10).ell([1.87, 1.9, k * 0.2], [0.04, 0.065, 0.055], dk, [0, 0, 0.1], 10, 8)
+    eye(b, [2.2, 1.7, k * 0.2], 0.055, [0.6, 0.1, k], '#d9cc5c', false)
+    // dark tear line and whisker spots on the muzzle
+    b.limb([[2.22, 1.64, k * 0.23], [2.3, 1.55, k * 0.22]], 0.012, { c: dk }, { radial: 6, seg: 4, cap: 2 })
+    for (let i = 0; i < 3; i++) b.ell([2.4 - i * 0.03, 1.5 - i * 0.025, k * (0.1 + i * 0.03)], [0.012, 0.012, 0.012], dk, [0, 0, 0], 6, 5)
+    // forelegs: strong shoulder tapering to a slim wrist and a compact paw
+    b.limb([[0.82, 1.22, k * 0.25], [0.78, 0.7, k * 0.23], [0.82, 0.3, k * 0.22], [0.86, 0.1, k * 0.22]], [[0.24, 0.26], [0.15, 0.16], [0.095, 0.1], [0.085, 0.085]], { c: leg }, { radial: 14, seg: 6, cap: 4 })
+    paw(b, [0.95, 0, k * 0.22], 0.115, '#c49358', 0.0)
+    // hindlegs: heavy thigh, forward knee, long hock, tapered foot
+    b.limb([[-1.25, 1.28, k * 0.28], [-0.88, 0.8, k * 0.27], [-1.16, 0.4, k * 0.24], [-1.1, 0.1, k * 0.23]], [[0.3, 0.32], [0.18, 0.2], [0.1, 0.11], [0.085, 0.085]], { c: leg }, { radial: 14, seg: 6, cap: 4 })
+    paw(b, [-1.0, 0, k * 0.23], 0.115, '#c49358', 0.0)
+  }
+  // Long, thick tail that droops, then lifts at the end, with a dark tip.
+  const tail = paintWith(countershade(tawny, '#d6bd90', 0, 0.5), (t, _c, _s, out) => lerpHex(out, dk, smooth(0.8, 0.93, t)))
+  b.limb([[-1.4, 1.38, 0], [-2.0, 1.25, 0], [-2.55, 0.85, 0], [-2.95, 0.48, 0], [-3.4, 0.4, 0], [-3.85, 0.62, 0]], [0.18, 0.165, 0.155, 0.15, 0.145, 0.13], {}, { paint: tail, radial: 14, seg: 8, cap: 5 })
+}
+
+function crabModel(b: Builder): void {
+  const blue = '#3f7fb2'
+  const leg = '#4f88b6'
+  const olive = '#6e7442'
+  const cream = '#e4e3d0'
+  const tip = '#dc5a2c'
+  // Wide flat oval carapace, olive-brown on top, pale underneath, bluish toward the edges.
+  const shell = paintWith(countershade(olive, cream, 0.05, 0.3), (t, cs, sn, out) => {
+    lerpHex(out, '#5f7f6a', smooth(0.6, 1, sn) * 0.25 * smooth(0, 0.7, Math.abs(cs)))
+    lerpHex(out, '#5c8fb3', (smooth(0.8, 1, Math.abs(t - 0.5) * 2)) * 0.55)
+  })
+  b.limb([[0, 0.55, -1.2], [0, 0.6, -0.6], [0, 0.62, 0], [0, 0.6, 0.6], [0, 0.55, 1.2]], [[0.3, 0.16], [0.78, 0.3], [0.9, 0.36], [0.78, 0.3], [0.3, 0.16]], {}, { paint: shell, radial: 28, seg: 8, cap: 6, ref: [0, 1, 0] })
+  for (const k of mirrorZ) {
+    // lateral points, the sharp tips that give the blue crab its wide shoulders
+    b.limb([[0.0, 0.58, k * 1.3], [0.0, 0.6, k * 1.75], [0.0, 0.62, k * 2.25]], [[0.2, 0.08], [0.1, 0.05], [0.012, 0.012]], { c: '#5d93bb' }, { radial: 10, seg: 6, cap: 2 })
+    // eyes on short stalks at the front edge, between the claws
+    b.limb([[0.78, 0.7, k * 0.3], [0.86, 0.88, k * 0.33]], 0.034, { c: '#dfe6e0' }, { radial: 8, seg: 3, cap: 2 })
+    eye(b, [0.89, 0.93, k * 0.34], 0.07, [0.6, 0.3, k * 0.3], '#24303a')
+    // arm swings out and forward, the claw is held out in front of the body
+    b.limb([[0.55, 0.5, k * 0.6], [0.9, 0.62, k * 1.1], [1.35, 0.7, k * 1.05]], [[0.15, 0.13], [0.14, 0.12], [0.15, 0.13]], { c: blue }, { radial: 12, seg: 6, cap: 4 })
+    b.ell([1.75, 0.76, k * 0.92], [0.4, 0.22, 0.24], blue, [0, k * 0.28, 0], 16, 10)
+    const fingerPaint = (hi: number): Paint => (t, _cs, _sn, out) => {
+      out.set(blue)
+      lerpHex(out, tip, smooth(0.42, 0.62, t))
+      lerpHex(out, '#f4c9a0', smooth(0.88, 1, t) * hi)
     }
-    b.limb([[-0.95, 0.45, k * 0.7], [-1.15, 0.38, k * 1.2], [-1.2, 0.3, k * 1.55]], [[0.1, 0.05], [0.2, 0.04], [0.16, 0.03]], { c: '#7fb0cc' }, { radial: 10, seg: 5, cap: 3, ref: [0, 0, 1] })
+    // fixed finger (upper) and moving finger (lower) with a small gap between them, tips curving inward
+    b.limb([[2.0, 0.9, k * 0.84], [2.42, 0.98, k * 0.64], [2.72, 0.9, k * 0.4]], [[0.1, 0.075], [0.075, 0.06], [0.014, 0.014]], {}, { radial: 10, seg: 6, cap: 3, paint: fingerPaint(0.5) })
+    b.limb([[2.0, 0.62, k * 0.94], [2.45, 0.66, k * 0.78], [2.76, 0.74, k * 0.48]], [[0.1, 0.07], [0.075, 0.055], [0.014, 0.014]], {}, { radial: 10, seg: 6, cap: 3, paint: fingerPaint(0.5) })
+    // three pairs of walking legs, splayed out and forward, with bent knees held above the shell
+    const reach: [number, number][] = [[0.38, 0.45], [0.0, 0.1], [-0.38, -0.3]]
+    reach.forEach(([x, dx], i) => {
+      const edge = 1.3 * Math.sqrt(Math.max(0.1, 1 - (x / 0.9) ** 2))
+      b.limb([[x, 0.46, k * edge * 0.72], [x + dx * 0.25, 0.9, k * (edge + 0.5)], [x + dx * 0.65, 0.62, k * (edge + 0.85)], [x + dx, 0.03, k * (edge + 1.2)]], [0.11, 0.085, 0.06, 0.028], { c: i % 2 ? leg : '#5a92bd' }, { radial: 8, seg: 6, cap: 3 })
+    })
+    // flattened rear swimming paddle, broad and thin, pointing back and out
+    b.limb([[-0.68, 0.44, k * 0.85], [-0.95, 0.4, k * 1.5], [-1.2, 0.34, k * 2.0], [-1.35, 0.3, k * 2.45]], [[0.08, 0.07], [0.15, 0.05], [0.27, 0.04], [0.16, 0.03]], { c: '#6aa2c9' }, { radial: 12, seg: 6, cap: 3 })
   }
 }
 
@@ -310,11 +420,21 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       b.limb([[0.5, 1.4, 0], [0.82, 1.8, 0], [0.7, 2.25, 0], [0.98, 2.6, 0], [1.1, 2.75, 0]], [0.3, 0.17, 0.12, 0.14, 0.2], {}, { paint: neck, radial: 16, seg: 8, cap: 5 })
       // bill: long upper bill with hook and a deep pouch underneath
       b.limb([[1.15, 2.7, 0], [1.8, 2.55, 0], [2.4, 2.32, 0]], [[0.1, 0.08], [0.085, 0.065], [0.04, 0.03]], { c: '#c9a46a' }, { radial: 12, seg: 7, cap: 5 })
-      b.limb([[1.2, 2.58, 0], [1.8, 2.4, 0], [2.3, 2.26, 0]], [[0.09, 0.05], [0.13, 0.12], [0.05, 0.04]], { c: '#a98a6c' }, { radial: 12, seg: 7, cap: 5 })
+      // The pouch is the pelican's signature: a deep, soft bag slung under the bill that runs back down the throat.
+      const pouch = paintWith(countershade('#c9a27a', '#e0bf99', 0, 0.5), (t, _c, _s, out) => lerpHex(out, '#9d7b5a', smooth(0.75, 1, t) * 0.6))
+      b.limb([[1.25, 2.6, 0], [1.75, 2.34, 0], [2.3, 2.27, 0]], [[0.12, 0.1], [0.19, 0.27], [0.05, 0.05]], {}, { radial: 16, seg: 8, cap: 5, paint: pouch })
+      b.limb([[1.28, 2.55, 0], [1.1, 2.42, 0], [0.9, 2.3, 0]], [[0.1, 0.09], [0.1, 0.08], [0.06, 0.05]], {}, { radial: 12, seg: 6, cap: 3, paint: pouch })
+      // hooked tip of the upper bill
+      b.limb([[2.36, 2.33, 0], [2.46, 2.27, 0], [2.48, 2.2, 0]], [0.035, 0.03, 0.012], { c: '#b88f58' }, { radial: 8, seg: 4, cap: 3 })
       for (const k of mirrorZ) {
         eye(b, [1.2, 2.82, k * 0.15], 0.075, [0.4, 0.2, k], '#f0e9c8')
         // folded wing, scapular edge
-        b.limb([[0.35, 1.45, k * 0.62], [-0.3, 1.34, k * 0.7], [-1.1, 1.05, k * 0.55], [-1.8, 0.72, k * 0.4]], [[0.1, 0.34], [0.14, 0.34], [0.1, 0.2], [0.035, 0.06]], { c: brown }, { radial: 12, seg: 6, cap: 5 })
+        // folded wing: a deep shoulder tapering to long dark primaries that cross over the tail
+        const wing = paintWith(countershade(brown, '#a99887', 0, 0.6), (t, _c, _s, out) => {
+          lerpHex(out, '#d8cfbd', (1 - smooth(0.0, 0.3, t)) * 0.45)
+          lerpHex(out, '#43362b', smooth(0.55, 0.85, t) * 0.85)
+        })
+        b.limb([[0.4, 1.42, k * 0.6], [-0.25, 1.32, k * 0.68], [-1.0, 1.08, k * 0.58], [-1.7, 0.78, k * 0.4], [-2.1, 0.62, k * 0.3]], [[0.1, 0.22], [0.14, 0.42], [0.1, 0.32], [0.05, 0.14], [0.02, 0.04]], {}, { radial: 14, seg: 6, cap: 4, paint: wing })
         // legs and webbed feet
         b.limb([[0.12, 0.8, k * 0.25], [0.12, 0.4, k * 0.25], [0.14, 0.06, k * 0.25]], [0.1, 0.075, 0.06], { c: '#4a4339' }, { radial: 8, seg: 4, cap: 3 })
         b.ell([0.35, 0.04, k * 0.25], [0.34, 0.04, 0.2], '#5b5246', [0, k * 0.15, 0], 12, 6)
@@ -324,20 +444,9 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
     }
     case 'gopher-tortoise': {
       const [rx, ry, rz, y0] = [1.4, 0.8, 1.05, 0.4]
-      b.dome([0, y0, 0], [rx, ry, rz], '#5f4a2b', 32, 14)
+      scuteShell(b, [0, y0, 0], [rx, ry, rz])
       b.ell([0, y0 - 0.02, 0], [rx * 1.03, 0.11, rz * 1.03], '#cdb98a', [0, 0, 0], 32, 8)
       b.ell([0, y0 - 0.12, 0], [rx * 0.92, 0.16, rz * 0.9], '#a58f5e', [0, 0, 0], 24, 8)
-      // raised scutes sit on the dome surface and tilt with it
-      const plates: [number, number, number][] = [[-0.85, 0, 0.26], [-0.3, 0, 0.3], [0.25, 0, 0.3], [0.8, 0, 0.27]]
-      for (const x of [-0.7, -0.1, 0.5]) for (const k of mirrorZ) plates.push([x, k * 0.52, 0.27])
-      for (const x of [-0.35, 0.3]) for (const k of mirrorZ) plates.push([x, k * 0.84, 0.2])
-      for (const [x, z, r] of plates) {
-        const f = Math.max(0.04, 1 - (x / rx) ** 2 - (z / rz) ** 2)
-        const root = Math.sqrt(f)
-        const hx = (-ry * x) / (rx * rx * root)
-        const hz = (-ry * z) / (rz * rz * root)
-        b.ell([x, y0 + ry * root + 0.012, z], [r, 0.07, r * 0.95], '#ae9559', [-Math.atan(hz), 0, Math.atan(hx)], 14, 8)
-      }
       b.limb([[0.95, 0.4, 0], [1.4, 0.46, 0], [1.78, 0.44, 0]], [[0.32, 0.26], [0.22, 0.19], [0.2, 0.16]], { c: '#c1ad7f' }, { radial: 14, seg: 6, cap: 5 })
       b.limb([[-1.2, 0.3, 0], [-1.6, 0.26, 0], [-1.85, 0.22, 0]], [0.16, 0.1, 0.03], { c: '#7a6844' }, { radial: 8, seg: 4, cap: 3 })
       for (const k of mirrorZ) {
@@ -380,35 +489,9 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
     case 'blue-crab':
       crabModel(b)
       break
-    case 'florida-panther': {
-      const tawny = '#bf8a4a'
-      const coat = paintWith(countershade(tawny, '#ecd9b2', -0.05, 0.5), (_t, _cs, sn, out) => lerpHex(out, '#80582f', smooth(0.45, 1, sn) * 0.3))
-      const pale = '#efddb8'
-      const dk = '#3a2b21'
-      // torso: deep chest, tucked waist, strong hips; the neck flows straight into the head
-      b.limb([[-1.0, 1.3, 0], [-0.3, 1.33, 0], [0.5, 1.36, 0], [1.1, 1.5, 0], [1.5, 1.72, 0]], [[0.4, 0.46], [0.34, 0.4], [0.44, 0.56], [0.42, 0.52], [0.32, 0.38]], {}, { paint: coat, radial: 22, seg: 8, cap: 6 })
-      // head: compact skull, short broad muzzle, pale chin, dark nose; pointed ears and a strong brow keep it feline
-      b.ell([1.88, 1.86, 0], [0.42, 0.36, 0.37], tawny, [0, 0, 0], 22, 16)
-        .ell([2.2, 1.74, 0], [0.24, 0.17, 0.22], '#e8d6af', [0, 0, -0.1], 18, 12)
-        .ell([2.16, 1.6, 0], [0.19, 0.08, 0.17], pale, [0, 0, 0], 14, 8)
-        .ell([2.4, 1.8, 0], [0.075, 0.06, 0.1], '#7a4f43', [0, 0, 0], 10, 8)
-        .limb([[2.38, 1.76, 0], [2.34, 1.64, 0], [2.26, 1.62, 0]], 0.012, { c: dk }, { radial: 6, seg: 4, cap: 2 })
-      for (const k of mirrorZ) {
-        b.limb([[1.74, 2.08, k * 0.25], [1.71, 2.24, k * 0.27], [1.69, 2.36, k * 0.28]], [[0.16, 0.08], [0.11, 0.055], [0.02, 0.02]], { c: '#a97844' }, { radial: 10, seg: 5, cap: 3, ref: [1, 0, 0] })
-          .limb([[1.77, 2.1, k * 0.25], [1.74, 2.24, k * 0.27]], [[0.09, 0.03], [0.05, 0.02]], { c: dk }, { radial: 8, seg: 4, cap: 2, ref: [1, 0, 0] })
-        eye(b, [2.12, 1.95, k * 0.26], 0.078, [0.6, 0.1, k], '#cfc24e', false)
-        b.limb([[2.2, 2.07, k * 0.16], [2.08, 2.1, k * 0.26], [1.96, 2.04, k * 0.33]], 0.045, { c: '#8a5d33' }, { radial: 8, seg: 5, cap: 3 })
-        // legs: thick forearm, heavy hind thigh with a high hock, big pale paws
-        b.limb([[0.85, 1.25, k * 0.34], [0.8, 0.7, k * 0.3], [0.9, 0.2, k * 0.3]], [0.27, 0.2, 0.14], { c: '#b98748' }, { radial: 14, seg: 6, cap: 4 })
-        paw(b, [1.0, 0, k * 0.3], 0.2, '#e3d1aa')
-        b.limb([[-0.9, 1.3, k * 0.36], [-0.52, 0.82, k * 0.36], [-0.98, 0.42, k * 0.34], [-0.88, 0.16, k * 0.34]], [0.34, 0.24, 0.15, 0.12], { c: '#b58348' }, { radial: 14, seg: 6, cap: 4 })
-        paw(b, [-0.78, 0, k * 0.34], 0.2, '#e3d1aa')
-      }
-      // long tail with a dark tip
-      const tail = paintWith(countershade(tawny, '#d9c196', 0, 0.5), (t, _c, _s, out) => lerpHex(out, dk, smooth(0.78, 0.92, t)))
-      b.limb([[-1.2, 1.42, 0], [-1.9, 1.35, 0], [-2.5, 1.08, 0], [-2.95, 0.7, 0], [-3.15, 0.4, 0]], [0.2, 0.17, 0.15, 0.14, 0.13], {}, { paint: tail, radial: 14, seg: 8, cap: 5 })
+    case 'florida-panther':
+      pantherModel(b)
       break
-    }
     case 'barred-owl': {
       const feather = paintWith(countershade('#6f5b45', '#d9ccb0', -0.1, 0.5), (t, cs, _sn, out) => {
         // pale bars across the chest, spots on the back
@@ -489,8 +572,8 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       b.sphere(0.8, { c: '#7fa9c0' })
   }
   const geo = b.build()
-  // The crab walks sideways and faces +z, so its wide shell shows off in the three quarter view.
-  if (id === 'blue-crab') geo.rotateY(-Math.PI / 2)
+  // The crab faces mostly toward the camera in the resting view, so its wide shell and forward claws show.
+  if (id === 'blue-crab') geo.rotateY(-Math.PI / 2 + 0.42)
   return geo
 }
 

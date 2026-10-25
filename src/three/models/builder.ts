@@ -132,6 +132,11 @@ export class Builder {
     return this.push(limbGeometry(points, radii, opt), o, opt.paint)
   }
 
+  /** Adds a prepared geometry (needs position and uv). A `paint` attribute, if present, is fed to `paint` per vertex. */
+  geo(g: THREE.BufferGeometry, o?: PartOpts, paint?: Paint): this {
+    return this.push(g, o, paint)
+  }
+
   build(): THREE.BufferGeometry {
     const g = mergeGeometries(this.parts, false)
     for (const p of this.parts) p.dispose()
