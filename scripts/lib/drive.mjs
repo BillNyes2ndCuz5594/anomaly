@@ -17,6 +17,8 @@ export const CHROME_ARGS = [
   '--enable-unsafe-webgpu',
   '--enable-features=Vulkan',
   '--use-vulkan=swiftshader',
+  '--disable-dev-shm-usage',
+  '--renderer-process-limit=2',
 ]
 
 export const freePort = () =>

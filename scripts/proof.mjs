@@ -39,6 +39,8 @@ const CHROME_ARGS = [
   // Without these two, headless Chrome destroys the WebGPU device on the first presented frame.
   '--enable-features=Vulkan',
   '--use-vulkan=swiftshader',
+  '--disable-dev-shm-usage',
+  '--renderer-process-limit=2',
 ]
 
 mkdirSync(OUT, { recursive: true })
