@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { navigate } from '../lib/router'
 import { useGame } from '../state/store'
 import FirstRunModal from '../ui/FirstRunModal'
-import NoticeModal from '../ui/NoticeModal'
+import ResumeModal from '../ui/ResumeModal'
 
 export default function TitleScreen() {
   const profile = useGame((s) => s.profile)
@@ -52,10 +52,12 @@ export default function TitleScreen() {
         />
       ) : null}
       {modal === 'resume' ? (
-        <NoticeModal
-          title="Resume with code"
-          text="Resume codes are not ready yet. They arrive in a later update."
+        <ResumeModal
           onClose={() => setModal(null)}
+          onDone={() => {
+            setModal(null)
+            navigate('/hub')
+          }}
         />
       ) : null}
     </div>

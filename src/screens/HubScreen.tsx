@@ -1,9 +1,10 @@
-import { useState } from 'react'
 import { codexById } from '../content/schema'
+import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { HUB_BENCHMARKS, MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
-import NoticeModal from '../ui/NoticeModal'
+import { useReviewDue } from '../state/due'
+import ReportCodePanel from '../ui/ReportCodePanel'
 
 export const HUB_PANEL_WIDTH = 360
 
@@ -24,15 +25,29 @@ export default function HubScreen() {
   const mastery = useGame((s) => s.mastery)
   const codex = useGame((s) => s.codex)
   const setFocused = useRuntime((s) => s.setFocusedMarker)
-  const [notice, setNotice] = useState<string | null>(null)
+  const progress = useGame((s) => s.progress)
+  const due = useReviewDue()
   if (!profile) return null
+  // The four starter benchmarks, plus any other benchmark the agent has answered.
+  const labelOf = new Map(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
+  const shownBenchmarks = [
+    ...HUB_BENCHMARKS,
+    ...Object.keys(progress)
+      .filter((id) => !HUB_BENCHMARKS.some((b) => b.id === id))
+      .map((id) => ({ id, label: labelOf.get(id) ?? id })),
+  ]
 
   return (
     <div className="screen hub-screen" data-testid="hub">
       <div className="topbar">
-        <button type="button" className="btn small" onClick={() => navigate('/')}>
-          Title
-        </button>
+        <div className="row">
+          <button type="button" className="btn small" onClick={() => navigate('/')}>
+            Title
+          </button>
+          <button type="button" className="btn small" data-testid="open-settings" onClick={() => navigate('/settings')}>
+            Settings
+          </button>
+        </div>
         <span className="mono label">AGENT HUB</span>
       </div>
 
@@ -70,24 +85,35 @@ export default function HubScreen() {
               type="button"
               className="case-btn cyan"
               data-testid="cold-marker"
-              onClick={() => navigate('/cold/residue')}
+              data-due={due ? 'yes' : 'no'}
+              onClick={() => navigate('/cold/cold-1')}
               onFocus={() => setFocused('cold')}
               onBlur={() => setFocused(null)}
               onMouseEnter={() => setFocused('cold')}
               onMouseLeave={() => setFocused(null)}
             >
               <span className="mono case-code">COLD CASE RESIDUE</span>
-              <span className="case-sub">Review of earlier units</span>
+              <span className="case-sub">
+                {due ? (
+                  <>
+                    <span aria-hidden="true">{'\u25CF'}</span> <strong>Review due</strong> | earlier units
+                  </>
+                ) : (
+                  'Review of earlier units'
+                )}
+              </span>
             </button>
           </div>
         </section>
+
+        <ReportCodePanel />
 
         <section aria-labelledby="mastery-h" className="mastery">
           <h3 id="mastery-h" className="section-title mono">
             Benchmark mastery
           </h3>
           <ul className="mastery-list" data-testid="mastery-list">
-            {HUB_BENCHMARKS.map((b) => {
+            {shownBenchmarks.map((b) => {
               const stage = mastery[b.id] ?? 'unseen'
               return (
                 <li key={b.id}>
@@ -103,19 +129,6 @@ export default function HubScreen() {
           </ul>
         </section>
 
-        <footer className="panel-actions">
-          <button type="button" className="btn" data-testid="open-settings" onClick={() => navigate('/settings')}>
-            Settings
-          </button>
-          <button
-            type="button"
-            className="btn"
-            data-testid="report-code"
-            onClick={() => setNotice('Report codes arrive in a later update. Nothing to copy yet.')}
-          >
-            Report Code
-          </button>
-        </footer>
       </aside>
 
       <details className="panel brackets codex-panel" data-testid="codex-panel">
@@ -139,7 +152,6 @@ export default function HubScreen() {
         )}
       </details>
 
-      {notice ? <NoticeModal title="Report Code" text={notice} onClose={() => setNotice(null)} /> : null}
     </div>
   )
 }
