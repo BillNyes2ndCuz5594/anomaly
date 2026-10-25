@@ -254,16 +254,16 @@ function CometOrbit({ labels }: { labels: Labels }) {
   const uy = dy / len
   const px = -uy
   const py = ux
-  const L = 46
+  const L = 52
   const tip = { x: comet.x + ux * L, y: comet.y + uy * L }
-  const dust = `M ${comet.x + px * 6} ${comet.y + py * 6} Q ${tip.x + px * 6 + ux * 8} ${tip.y + py * 6 + uy * 8} ${tip.x + px * 30} ${tip.y + py * 30} Q ${comet.x + ux * L * 0.5 + px * 3} ${comet.y + uy * L * 0.5 + py * 3} ${comet.x - px * 6} ${comet.y - py * 6} Z`
+  const dust = `M ${comet.x + px * 8} ${comet.y + py * 8} Q ${comet.x + ux * L * 0.6 + px * 20} ${comet.y + uy * L * 0.6 + py * 20} ${tip.x + px * 30} ${tip.y + py * 30} Q ${tip.x + ux * 4} ${tip.y + uy * 4} ${tip.x - px * 6} ${tip.y - py * 6} Q ${comet.x + ux * L * 0.5 - px * 6} ${comet.y + uy * L * 0.5 - py * 6} ${comet.x - px * 8} ${comet.y - py * 8} Z`
   return (
     <>
       <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={CY} strokeWidth="2" strokeDasharray="7 6" opacity="0.85" />
       <circle cx={sun.x} cy={sun.y} r="36" fill="url(#sd-glow)" />
       <circle cx={sun.x} cy={sun.y} r="13" fill="url(#sd-sun)" />
       <path d={dust} fill="url(#sd-tail)" opacity="0.85" />
-      <line x1={comet.x} y1={comet.y} x2={tip.x + ux * 18} y2={tip.y + uy * 18} stroke="#9fe6ff" strokeWidth="2.2" strokeLinecap="round" opacity="0.8" />
+      <line x1={comet.x} y1={comet.y} x2={tip.x + ux * 12} y2={tip.y + uy * 12} stroke="#9fe6ff" strokeWidth="2.2" strokeLinecap="round" opacity="0.8" />
       <circle cx={comet.x} cy={comet.y} r="15" fill="#bfefff" opacity="0.3" />
       <circle cx={comet.x} cy={comet.y} r="7" fill="#ffffff" />
       <Text x={sun.x} y={sun.y - 24}>{labels[0] ?? ''}</Text>

@@ -28,7 +28,7 @@ export default function Burst({ color = '#37e8b4', spread = 190, delay = 0.38, b
     [count, spread],
   )
   return (
-    <span className="burst" aria-hidden="true" style={{ color, '--bd': `${delay}s` } as CSSProperties}>
+    <span className={big ? 'burst' : 'burst small'} aria-hidden="true" style={{ color, '--bd': `${delay}s` } as CSSProperties}>
       <i className="burst-flash" />
       <i className="burst-ring" />
       <i className="burst-ring second" />
