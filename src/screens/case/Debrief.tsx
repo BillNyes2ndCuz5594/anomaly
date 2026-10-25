@@ -36,7 +36,7 @@ export default function Debrief() {
               </span>
               <span className="mono stamp-word">{closed ? (kind === 'cold' ? 'RESIDUE CLEARED' : 'CASE CLOSED') : 'CASE STILL OPEN'}</span>
             </div>
-            {closed ? <Burst /> : null}
+            {closed ? <Burst spread={90} /> : null}
           </div>
           <div className="debrief-summary">
             <p className="debrief-score mono" data-testid="debrief-score">
