@@ -9,11 +9,18 @@ Read `docs/SPEC.md` (source of truth) and `docs/PLAN.md` (stages) first.
 - `npm run dev`: dev server.
 - `npm run build`: type check and production build (main app plus `teacher.html`).
 - `npm test`: unit tests (vitest).
-- `node scripts/proof.mjs`: starts `vite preview` on a free port, walks the whole product in headless Chrome at 1366x768 and 1920x1080, and writes 16 numbered screenshots per size, `fps.json` and `proof-summary.json` to `/workspace/anomaly-proof/`. Exits non-zero on any console error. Run `npm run build` first.
+- `node scripts/proof.mjs`: starts `vite preview` on a free port, walks the whole product in headless Chrome at 1366x768 and 1920x1080, and writes 18 numbered screenshots per size (all at `?tier=high`, so bloom and vignette show), `fps.json` (Auto tier, per backend: WebGPU and WebGL2, throttled and unthrottled) and `proof-summary.json` (also draw calls per scene and per tier, load bytes) to `/workspace/anomaly-proof/`. Exits non-zero on any console error. Run `npm run build` first.
 - `node scripts/gen-catalog.mjs`: regenerates `src/lib/catalog.generated.ts` after content changes (append only, see below).
 - `npm run icons`: regenerates the PWA icons in `public/` (needs local Chrome).
 
-Add `?debug=1` to the URL to force the FPS / backend / tier readout on.
+URL switches (query string, before the `#`):
+
+- `?debug=1` forces the FPS / backend / tier readout on.
+- `?tier=low|medium|high|ultra` pins the quality tier and turns Auto off.
+- `?backend=webgl2` forces three's WebGL2 backend even when WebGPU exists.
+- `#/visuals` and `#/visuals/models` are an unlisted art check page (every scene diagram, the specimen models).
+
+`window.__anomaly` exposes `{ fps, tier, backend, frame, calls, triangles, geometries, textures }`. `calls` is the number of draw calls in the last frame, including post FX passes.
 
 ## Layout
 

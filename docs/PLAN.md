@@ -7,3 +7,5 @@ Each stage is one coding-agent session. Each ends with build + test + proof gree
 - S3 Cold case RESIDUE + spaced scheduler, report code (encode/decode/checksum, resume), Teacher HQ (`teacher.html`, no three), full proof with all screenshots and fps.json.
 - S4 Item visuals library (organ, plantanimal, specimen, table, scene) and accessibility pass.
 - S5 Polish: camera moves, particles, transitions, typography, perf tuning.
+
+- S4 as built: visual polish and accessibility pass (outline logo, hub drone, screen transitions, specimen models, scene diagrams, case closed burst, draw call merging, live regions, contrast tests, proof realism with `?tier=high`, per backend fps).

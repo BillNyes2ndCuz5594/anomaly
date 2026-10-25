@@ -24,6 +24,8 @@ const PORT = await new Promise((resolve) => {
   })
 })
 const BASE = `http://localhost:${PORT}/`
+// Every screenshot run pins tier High (bloom, vignette, grain, contact shadow) so the proof shows the real look.
+const QS = '?tier=high'
 const VIEWPORTS = [
   { width: 1366, height: 768 },
   { width: 1920, height: 1080 },
@@ -88,9 +90,9 @@ async function freshPage(browser, vp, label, hash = '#/') {
   const page = await browser.newPage()
   watch(page, label)
   await page.setViewport({ ...vp, deviceScaleFactor: 1 })
-  await page.goto(BASE + hash, { waitUntil: 'load' })
+  await page.goto(BASE + QS + hash, { waitUntil: 'load' })
   await page.evaluate(() => localStorage.clear())
-  await page.goto(BASE + hash, { waitUntil: 'load' })
+  await page.goto(BASE + QS + hash, { waitUntil: 'load' })
   await page.reload({ waitUntil: 'load' })
   return page
 }
@@ -107,11 +109,41 @@ const text = (page, id) => page.$eval(`[data-testid="${id}"]`, (e) => e.textCont
 const attr = (page, id, a) => page.$eval(`[data-testid="${id}"]`, (e, a) => e.getAttribute(a), a)
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models']
+/** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
+async function freezeBursts(page) {
+  return page.evaluate(() => {
+    let n = 0
+    for (const a of document.getAnimations()) {
+      const el = a.effect?.target
+      if (el && el.closest && el.closest('.burst')) {
+        const t = a.effect.getTiming()
+        a.pause()
+        a.currentTime = Number(t.delay) + Number(t.duration) * 0.3
+        n++
+      }
+    }
+    return n
+  })
+}
+const sceneStats = {}
 async function shot(page, name, w, opts = {}) {
+  if (!name.startsWith('teacher')) {
+    // Software GPUs are slow: wait for several fresh frames (and the post pipeline) before capturing.
+    const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+    await page.waitForFunction((f) => (window.__anomaly?.frame ?? 0) >= f + 3, { timeout: 60000, polling: 200 }, f0).catch(() => {})
+    const a = await page.evaluate(() => window.__anomaly)
+    if (a && w === VIEWPORTS[0].width) sceneStats[name] = { tier: a.tier, backend: a.backend, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures }
+  }
   const n = String(ORDER.indexOf(name) + 1).padStart(2, '0')
   const file = `${n}-${name}-${w}.png`
+  let frozen = 0
+  if (name === 'debrief' || name === 'results-with-code') frozen = await freezeBursts(page)
   await page.screenshot({ path: `${OUT}/${file}`, ...opts })
+  if (frozen) {
+    check(`light burst particles present on ${name} (${w})`, frozen >= 10, `${frozen} animations`)
+    await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()))
+  }
   shots.push(file)
 }
 
@@ -388,6 +420,7 @@ try {
     await shot(page, 'title', w)
     const info = await page.evaluate(() => window.__anomaly)
     check(`title renders (${w})`, !!info && info.backend !== 'none', JSON.stringify(info))
+    check(`proof screenshots run at tier high (${w})`, info.tier === 'high', info.tier)
     check(`start button present (${w})`, !!(await page.$('[data-testid="start-shift"]')))
 
     // Resume modal opens from the title and rejects junk with a clear message
@@ -484,7 +517,7 @@ try {
       const rp = await ctx.newPage()
       watch(rp, 'resume')
       await rp.setViewport({ ...vp, deviceScaleFactor: 1 })
-      await rp.goto(BASE, { waitUntil: 'load' })
+      await rp.goto(BASE + QS, { waitUntil: 'load' })
       await rp.waitForSelector('[data-testid="title"]')
       await rp.click('[data-testid="resume-code"]')
       await rp.waitForSelector('[data-testid="resume-modal"]')
@@ -514,6 +547,17 @@ try {
       check('same agent resumes without a switch warning', !sameAgentWarn)
       await ctx.close()
     }
+
+    // Art check page: scene diagrams and the specimen models
+    await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="visuals-scenes"] svg')
+    check(`visuals page shows every scene diagram (${w})`, (await page.$$('[data-testid="visuals-scenes"] svg')).length >= 8, `${(await page.$$('[data-testid="visuals-scenes"] svg')).length}`)
+    await sleep(1800)
+    await shot(page, 'visuals-scenes', w)
+    await page.evaluate(() => (location.hash = '#/visuals/models'))
+    await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
+    await sleep(9000)
+    await shot(page, 'visuals-models', w)
 
     // Teacher HQ (must not load three)
     const tp = await browser.newPage()
@@ -573,7 +617,7 @@ try {
     check(`heatmap has a row per benchmark played (${w})`, heatRows === rows, `${heatRows} of ${rows}`)
     const id0 = Object.keys(prog).find((k) => k === 'SC.5.L.14.1')
     const expectPct = Math.round((prog[id0].correct / prog[id0].attempts) * 100)
-    check(`teacher cell matches the game for ${id0} (${w})`, (await text(tp, `cell-${id0}-14`)).trim() === String(expectPct), `${await text(tp, `cell-${id0}-14`)} vs ${expectPct}`)
+    check(`teacher cell matches the game for ${id0} (${w})`, (await text(tp, `cell-${id0}-14`)).trim().match(/^\d+/)?.[0] === String(expectPct), `${await text(tp, `cell-${id0}-14`)} vs ${expectPct}`)
     await sleep(300)
     await shot(tp, 'teacher-decoded', w, { fullPage: true })
     await tp.close()
@@ -591,45 +635,231 @@ try {
     await page.close()
   }
 
-  // ---------- fps under 4x CPU throttle, hub and lab A ----------
+  // ---------- fps under 4x CPU throttle, hub and lab A, per backend (Auto tier, no ?tier pin) ----------
   const vp = VIEWPORTS[0]
-  async function sampleFps(label, goTo) {
-    console.log(`\n== fps under 4x CPU throttle (${label}) ==`)
+  const BACKENDS = { webgpu: '', webgl2: '?backend=webgl2' }
+  async function sampleFps(label, search, goTo, { throttle = 4, seconds = 10 } = {}) {
+    console.log(`\n== fps ${label} (${throttle}x CPU, ${seconds} s) ==`)
     const page = await browser.newPage()
     watch(page, `fps-${label}`)
     await page.setViewport({ ...vp, deviceScaleFactor: 1 })
-    await page.goto(BASE, { waitUntil: 'load' })
+    await page.goto(BASE + search, { waitUntil: 'load' })
     await page.evaluate((s) => localStorage.setItem('anomaly.v1', s), lastStore)
     const cdp = await page.createCDPSession()
-    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 })
-    await goTo(page)
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: throttle })
+    await goTo(page, search)
     await waitRendered(page, 1500)
     const first = await page.evaluate(() => window.__anomaly)
     const samples = []
-    for (let i = 0; i < 20; i++) {
+    const n = seconds * 2
+    for (let i = 0; i < n; i++) {
       await sleep(500)
       samples.push((await page.evaluate(() => window.__anomaly)).fps)
     }
     const last = await page.evaluate(() => window.__anomaly)
     const avg = Math.round((samples.reduce((a, b) => a + b, 0) / samples.length) * 10) / 10
-    const result = { backend: last.backend, tierStart: first.tier, tierEnd: last.tier, quality: 'auto', durationSeconds: 10, fpsAvg: avg, fpsMin: Math.min(...samples), fpsMax: Math.max(...samples), fpsSamples: samples }
+    const result = { backend: last.backend, tierStart: first.tier, tierEnd: last.tier, quality: 'auto', throttle, durationSeconds: seconds, fpsAvg: avg, fpsMin: Math.min(...samples), fpsMax: Math.max(...samples), calls: last.calls, fpsSamples: samples }
     console.log(JSON.stringify({ ...result, fpsSamples: `${samples.length} samples` }))
-    check(`fps samples collected on ${label}`, samples.length === 20 && avg > 0, `avg ${avg}, min ${result.fpsMin}, tier ${result.tierStart} to ${result.tierEnd}`)
+    check(`fps samples collected on ${label}`, samples.length === n && avg > 0, `avg ${avg}, min ${result.fpsMin}, tier ${result.tierStart} to ${result.tierEnd}`)
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 })
     await page.close()
     return result
   }
-  const hubFps = await sampleFps('hub', async (page) => {
-    await page.goto(BASE + '#/hub', { waitUntil: 'load' })
+  const goHub = async (page, search) => {
+    await page.goto(BASE + search + '#/hub', { waitUntil: 'load' })
     await page.waitForSelector('[data-testid="hub"]', { timeout: 120000 })
-  })
-  const labFps = await sampleFps('lab-a', async (page) => {
-    await page.goto(BASE + '#/case/03-1', { waitUntil: 'load' })
+  }
+  const goLabA = async (page, search) => {
+    await page.goto(BASE + search + '#/case/03-1', { waitUntil: 'load' })
     await page.waitForSelector('[data-testid="briefing"]', { timeout: 120000 })
     await sleep(1500)
     await page.click('[data-testid="briefing-continue"]')
     await page.waitForSelector('[data-testid="lab-a"]', { timeout: 120000 })
-  })
+  }
+  const fpsByBackend = {}
+  for (const [name, search] of Object.entries(BACKENDS)) {
+    const hub = await sampleFps(`hub ${name}`, search, goHub)
+    const labA = await sampleFps(`lab-a ${name}`, search, goLabA)
+    const hubFree = await sampleFps(`hub ${name} unthrottled`, search, goHub, { throttle: 1, seconds: 5 })
+    check(`backend ${name} honoured by the URL override`, hub.backend === name && labA.backend === name, `${hub.backend}`)
+    fpsByBackend[name] = { hub, labA, hubUnthrottled: hubFree }
+  }
+  const hubFps = fpsByBackend.webgpu.hub
+  const labFps = fpsByBackend.webgpu.labA
+
+  // ---------- draw calls per scene, tier pins, Low tier really drops the extras, no leaks on unmount ----------
+  console.log('\n== draw calls and tier pins ==')
+  async function readScene(search, goTo, settleMs = 2500) {
+    const page = await browser.newPage()
+    watch(page, 'scene-stats')
+    await page.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await page.goto(BASE + search, { waitUntil: 'load' })
+    await page.evaluate((s) => localStorage.setItem('anomaly.v1', s), lastStore)
+    await goTo(page, search)
+    await waitRendered(page, settleMs)
+    const f0 = await page.evaluate(() => window.__anomaly.frame)
+    await page.waitForFunction((f) => window.__anomaly.frame >= f + 3, { timeout: 60000, polling: 200 }, f0)
+    const a = await page.evaluate(() => window.__anomaly)
+    const post = await page.evaluate(() => !!document.querySelector('canvas'))
+    await page.close()
+    return { tier: a.tier, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures, canvas: post }
+  }
+  const pins = {}
+  for (const tier of ['low', 'medium', 'high', 'ultra']) {
+    pins[tier] = { hub: await readScene(`?tier=${tier}`, goHub), labA: await readScene(`?tier=${tier}`, goLabA) }
+    check(`?tier=${tier} pins the tier on hub and lab A`, pins[tier].hub.tier === tier && pins[tier].labA.tier === tier, `${pins[tier].hub.tier}/${pins[tier].labA.tier}`)
+  }
+  check('Low tier draws fewer calls than High (no post, shadow or extra particles) on hub', pins.low.hub.calls < pins.high.hub.calls, `${pins.low.hub.calls} vs ${pins.high.hub.calls}`)
+  check('Low tier draws fewer calls than High on lab A', pins.low.labA.calls < pins.high.labA.calls, `${pins.low.labA.calls} vs ${pins.high.labA.calls}`)
+
+  {
+    // Scene churn: hub, settings, hub, settings ... geometry and texture counts must plateau (dispose on unmount).
+    const page = await browser.newPage()
+    watch(page, 'churn')
+    await page.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await page.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await page.evaluate((s) => localStorage.setItem('anomaly.v1', s), lastStore)
+    await goHub(page, '?tier=low')
+    await waitRendered(page, 1500)
+    const counts = []
+    for (let i = 0; i < 5; i++) {
+      await page.evaluate(() => (location.hash = '#/case/03-1'))
+      await page.waitForSelector('[data-testid="briefing"]')
+      await sleep(1500)
+      await page.evaluate(() => (location.hash = '#/hub'))
+      await page.waitForSelector('[data-testid="hub"]')
+      await sleep(1500)
+      const a = await page.evaluate(() => window.__anomaly)
+      counts.push({ geometries: a.geometries, textures: a.textures })
+    }
+    const grow = counts[4].geometries - counts[1].geometries
+    const growT = counts[4].textures - counts[1].textures
+    check('geometry and texture counts plateau across scene churn (dispose on unmount)', grow <= 2 && growT <= 2, JSON.stringify(counts))
+    pins.churn = counts
+    await page.close()
+  }
+
+  // ---------- accessibility: settings apply everywhere, keyboard reach, visible focus, live regions ----------
+  console.log('\n== accessibility ==')
+  {
+    const st = JSON.parse(lastStore)
+    st.state.settings = { ...st.state.settings, textSize: 2, lineSpacing: 2, reducedMotion: false }
+    const big = JSON.stringify(st)
+    const page = await browser.newPage()
+    watch(page, 'a11y')
+    await page.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await page.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await page.evaluate((s) => localStorage.setItem('anomaly.v1', s), big)
+    await page.goto(BASE + '?tier=low#/', { waitUntil: 'load' })
+    await page.reload({ waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="title"]')
+    const rootPx = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize))
+    check('text size Extra large scales the root to 20.8 px', Math.abs(rootPx - 20.8) < 0.1, `${rootPx}`)
+    const ratio = (sel) => page.$eval(sel, (e) => { const cs = getComputedStyle(e); const lh = parseFloat(cs.lineHeight); return { fs: parseFloat(cs.fontSize), ratio: (Number.isNaN(lh) ? 1.2 * parseFloat(cs.fontSize) : lh) / parseFloat(cs.fontSize) } })
+
+    // Focus walk: every focusable element is reachable by Tab and shows a visible indicator.
+    async function focusWalk(label, pg) {
+      const stops = await pg.evaluate(async () => {
+        const sel = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'
+        const all = [...document.querySelectorAll(sel)].filter((e) => e.offsetParent !== null || getComputedStyle(e).position === 'fixed')
+        // A radio group is one Tab stop (arrow keys move inside it).
+        const radios = new Set(all.filter((e) => e.type === 'radio').map((e) => e.name))
+        return all.filter((e) => e.type !== 'radio').length + radios.size
+      })
+      const seen = new Set()
+      const bad = []
+      await pg.evaluate(() => document.activeElement && document.activeElement.blur())
+      for (let i = 0; i < stops + 3; i++) {
+        await pg.keyboard.press('Tab')
+        const info = await pg.evaluate(() => {
+          const e = document.activeElement
+          if (!e || e === document.body) return null
+          const cs = getComputedStyle(e)
+          const visible = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || (cs.boxShadow && cs.boxShadow !== 'none')
+          return { key: e.getAttribute('data-testid') || e.id || e.tagName + ':' + (e.textContent || '').trim().slice(0, 20), visible: !!visible, focusVisible: e.matches(':focus-visible') }
+        })
+        if (info) {
+          seen.add(info.key)
+          if (!info.visible || !info.focusVisible) bad.push(info.key)
+        }
+      }
+      check(`${label}: ${stops} focusable controls reachable by Tab (${seen.size} stops)`, stops > 0 && seen.size >= Math.min(stops, 3) && seen.size >= stops - 2, `${seen.size} of ${stops}`)
+      check(`${label}: every focused control shows a focus ring`, bad.length === 0, bad.join(','))
+    }
+    await focusWalk('title', page)
+    await page.goto(BASE + '?tier=low#/hub', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="hub"]')
+    await sleep(900)
+    await focusWalk('hub', page)
+    check('hub text uses the extra large scale', (await ratio('[data-testid="codename"]')).fs > 1.5 * 20.8 * 0.95)
+    await page.goto(BASE + '?tier=low#/settings', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="settings"]')
+    await sleep(700)
+    await focusWalk('settings', page)
+
+    // Case screens: briefing, lab A, item player, results all follow the spacing setting.
+    await page.goto(BASE + '?tier=low#/case/03-1', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="briefing"]')
+    await sleep(900)
+    const rb = await ratio('[data-testid="briefing-text"]')
+    check('briefing text follows Loose line spacing', rb.ratio >= 1.9, `${rb.ratio.toFixed(2)} at ${rb.fs}px`)
+    await focusWalk('briefing', page)
+    await click(page, 'briefing-continue')
+    await page.waitForSelector('[data-testid="lab-a"]')
+    await sleep(700)
+    const rl = await ratio('[data-testid="task-text"]')
+    check('lab A job text follows Loose line spacing and the larger text size', rl.ratio >= 1.6 && rl.fs > 1.35 * 20.8 * 0.95, `${rl.ratio.toFixed(2)} at ${rl.fs}px`)
+    await click(page, 'organ-liver')
+    await sleep(500)
+    const live = await page.$eval('[data-testid="announcer"]', (e) => e.textContent)
+    check('lab feedback is announced through the live region', /Not that one/.test(live), live)
+    await focusWalk('lab A', page)
+    await page.close()
+
+    // Item player: stem spacing, result announcement, with the same settings
+    const ip = await browser.newPage()
+    watch(ip, 'a11y-items')
+    await ip.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await ip.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await ip.evaluate((s) => localStorage.setItem('anomaly.v1', s), big)
+    await ip.goto(BASE + '?tier=low#/cold/cold-1', { waitUntil: 'load' })
+    await ip.reload({ waitUntil: 'load' })
+    await ip.waitForSelector('[data-testid="cold-intro"]')
+    await sleep(800)
+    await click(ip, 'cold-continue')
+    await ip.waitForSelector('[data-testid="item-player"]')
+    await sleep(1200)
+    const rs = await ip.$eval('[data-testid="stem"]', (e) => { const cs = getComputedStyle(e); return { fs: parseFloat(cs.fontSize), lh: parseFloat(cs.lineHeight) } })
+    check('item stem follows Loose spacing and the larger text size', rs.lh / rs.fs >= 2.6 && rs.fs > 1.12 * 20.8 * 0.95, `${(rs.lh / rs.fs).toFixed(2)} at ${rs.fs}px`)
+    await ip.keyboard.press('1')
+    await ip.keyboard.press('Enter')
+    await ip.waitForSelector('[data-testid="item-result"]')
+    await sleep(400)
+    const live2 = await ip.$eval('[data-testid="announcer"]', (e) => e.textContent)
+    check('item result is announced through the live region', /Correct|Not quite/.test(live2), live2)
+    await focusWalk('item player', ip)
+    await ip.close()
+  }
+
+  // Reduced motion: no veil, no particles, no stamp shake
+  {
+    const st = JSON.parse(lastStore)
+    st.state.settings = { ...st.state.settings, reducedMotion: true }
+    const page = await browser.newPage()
+    watch(page, 'reduced')
+    await page.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await page.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await page.evaluate((s) => localStorage.setItem('anomaly.v1', s), JSON.stringify(st))
+    await page.goto(BASE + '?tier=low#/hub', { waitUntil: 'load' })
+    await page.reload({ waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="hub"]')
+    check('reduced motion flag is on the document', (await page.evaluate(() => document.documentElement.dataset.reducedMotion)) === 'true')
+    await page.evaluate(() => (location.hash = '#/settings'))
+    await page.waitForSelector('[data-testid="settings"]')
+    const veil = await page.$eval('.veil', (e) => ({ display: getComputedStyle(e).display, phase: e.getAttribute('data-phase') }))
+    check('reduced motion swaps screens with no scan veil', veil.display === 'none' && veil.phase === 'idle', JSON.stringify(veil))
+    await page.close()
+  }
 
   // ---------- initial load transfer (title page, clean context, cache off) ----------
   console.log('\n== initial load size ==')
@@ -665,7 +895,7 @@ try {
   check('initial load is under 5 MB transferred', transferred < 5 * 1024 * 1024, `${(transferred / 1024).toFixed(0)} KB over ${initial.length} requests`)
   console.log(JSON.stringify(transfer))
 
-  writeFileSync(`${OUT}/fps.json`, JSON.stringify({ throttle: 4, viewport: vp, hub: hubFps, labA: labFps, transfer }, null, 2))
+  writeFileSync(`${OUT}/fps.json`, JSON.stringify({ throttle: 4, viewport: vp, hub: hubFps, labA: labFps, backends: fpsByBackend, drawCalls: { screenshotScenesAtHigh: sceneStats, byTier: pins }, transfer }, null, 2))
 
   // ---------- test counts and summary ----------
   console.log('\n== unit tests ==')
@@ -698,7 +928,11 @@ try {
         checks: { total: checks.length, failed: failed2.map((c) => `${c.name} ${c.detail}`) },
         screenshots: shots.slice().sort(),
         tests,
-        fps: { hub: { avg: hubFps.fpsAvg, min: hubFps.fpsMin, tierStart: hubFps.tierStart, tierEnd: hubFps.tierEnd }, labA: { avg: labFps.fpsAvg, min: labFps.fpsMin, tierStart: labFps.tierStart, tierEnd: labFps.tierEnd }, backend: hubFps.backend },
+        fps: {
+          note: 'Software GPU (SwiftShader) with 4x CPU throttle on hub and lab A, Auto tier; unthrottled is the 5 s hub reading.',
+          ...Object.fromEntries(Object.entries(fpsByBackend).map(([k, v]) => [k, { hub: { avg: v.hub.fpsAvg, min: v.hub.fpsMin, tierStart: v.hub.tierStart, tierEnd: v.hub.tierEnd }, labA: { avg: v.labA.fpsAvg, min: v.labA.fpsMin, tierStart: v.labA.tierStart, tierEnd: v.labA.tierEnd }, hubUnthrottled: { avg: v.hubUnthrottled.fpsAvg, min: v.hubUnthrottled.fpsMin, tierEnd: v.hubUnthrottled.tierEnd } }])),
+        },
+        drawCalls: { screenshotScenesAtHigh: sceneStats, byTier: pins },
         transfer,
         viewports: VIEWPORTS,
       },
