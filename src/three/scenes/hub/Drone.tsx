@@ -121,7 +121,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     const thrustMat = new THREE.MeshBasicNodeMaterial()
     const h = saturate(positionLocal.y.add(0.5))
     thrustMat.colorNode = color(HOLO_CYAN).mul(float(2.2).add(sin(time.mul(9)).mul(0.3)))
-    thrustMat.opacityNode = oneMinus(h).mul(0.4)
+    thrustMat.opacityNode = oneMinus(h).mul(0.22)
     thrustMat.transparent = true
     thrustMat.blending = THREE.AdditiveBlending
     thrustMat.depthWrite = false
@@ -179,7 +179,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
           }}
         />
       ))}
-      <mesh geometry={thrustG} material={thrustM} position={[0, -0.42, 0]} scale={[0.3, 0.5, 0.3]} />
+      <mesh geometry={thrustG} material={thrustM} position={[0, -0.36, 0]} scale={[0.24, 0.36, 0.24]} />
     </group>
   )
 }

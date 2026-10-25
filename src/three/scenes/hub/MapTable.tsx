@@ -186,8 +186,8 @@ function Planet({ reduced }: { reduced: boolean }) {
             <sphereGeometry args={[0.3, 32, 20]} />
             <primitive object={planetMat} attach="material" />
           </mesh>
-          <mesh rotation={[1.0, 0.1, 0.35]}>
-            <ringGeometry args={[0.46, 0.66, 64]} />
+          <mesh rotation={[1.3, 0.0, -0.3]}>
+            <ringGeometry args={[0.4, 0.62, 64]} />
             <primitive object={ringMat} attach="material" />
           </mesh>
           <group ref={moon} rotation={[0, reduced ? 1 : 0, 0]}>
