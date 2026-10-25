@@ -129,13 +129,13 @@ export function analyze(reports: ReportData[]): Analysis {
 
 // ---------- color scale ----------
 
-/** Viridis-like sequential ramp: dark purple (0) to yellow (100). Safe for the common color vision types. */
+/** Viridis-like sequential ramp: dark purple (0) to a soft mint (100). Calmer than full yellow, still safe for the common color vision types. */
 const RAMP: readonly [number, number, number][] = [
   [68, 1, 84],
   [59, 82, 139],
   [33, 144, 141],
-  [93, 200, 99],
-  [253, 231, 37],
+  [74, 182, 124],
+  [172, 223, 156],
 ]
 
 export function scaleColor(pct: number): { bg: string; fg: string } {
