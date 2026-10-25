@@ -1,0 +1,1702 @@
+{
+ "case": {
+  "id": "03-1",
+  "codename": "VITALS",
+  "unit": "U03 Living Things",
+  "benchmarks": [
+   "SC.5.L.14.1",
+   "SC.5.L.14.2",
+   "SC.3.L.15.1"
+  ],
+  "dispatchHook": "Scanner glitch on the Space Coast. Organs and animals filed wrong.",
+  "briefing": [
+   "Agent, a medical scanner on the Space Coast just scrambled its body map.",
+   "The lagoon wildlife database caught the same glitch and filed a manatee as a fish.",
+   "Route organs, match plant and animal parts, and re-sort the specimens.",
+   "Then clear the evidence check, preferably with fewer errors than the scanner."
+  ],
+  "labs": {
+   "organOps": {
+    "scenario": "A launch-pad technician's body scan lost every organ label, and the job cards are piling up.",
+    "intro": "Each card is a job. Find the organ that does it. The scanner is counting on you. So am I.",
+    "tasks": [
+     {
+      "id": "t1",
+      "text": "Pump blood out to the legs",
+      "organ": "heart",
+      "hint": "Look for the organ that squeezes blood through tubes.",
+      "why": "The heart pumps blood to every part of the body."
+     },
+     {
+      "id": "t2",
+      "text": "Take in oxygen from the air",
+      "organ": "lungs",
+      "hint": "Think about where air goes when it enters your chest.",
+      "why": "The lungs take in oxygen from the air you breathe."
+     },
+     {
+      "id": "t3",
+      "text": "Send signals to move and to think",
+      "organ": "brain",
+      "hint": "This organ is the control center.",
+      "why": "The brain controls the body and lets you think, learn, and remember."
+     },
+     {
+      "id": "t4",
+      "text": "Mash and break down the sandwich",
+      "organ": "stomach",
+      "hint": "Food lands here soon after you swallow it.",
+      "why": "The stomach mixes food with juices and breaks it down."
+     },
+     {
+      "id": "t5",
+      "text": "Move food nutrients into the blood",
+      "organ": "small-intestine",
+      "hint": "Look for the long, coiled tube that comes right after the stomach.",
+      "why": "The small intestine takes nutrients from food into the blood."
+     },
+     {
+      "id": "t6",
+      "text": "Help control the sugar in the blood",
+      "organ": "pancreas",
+      "hint": "A small organ tucked behind the stomach.",
+      "why": "The pancreas helps control blood sugar and makes juices that help digest food."
+     },
+     {
+      "id": "t7",
+      "text": "Filter wastes out of the blood",
+      "organ": "kidneys",
+      "hint": "There are two of these, shaped like beans, one on each side of the backbone, just below the ribs.",
+      "why": "The kidneys filter wastes and extra water from the blood to make urine."
+     },
+     {
+      "id": "t8",
+      "text": "Block germs and sweat to cool off",
+      "organ": "skin",
+      "hint": "This organ is on the outside of the whole body.",
+      "why": "The skin protects the body and sweats to help cool it."
+     }
+    ]
+   },
+   "structureMatch": {
+    "intro": "Plants and animals solve some of the same problems. Match the parts that do the same job.",
+    "pairs": [
+     {
+      "id": "p1",
+      "animal": "skeleton",
+      "plant": "stem",
+      "job": "support",
+      "why": "A skeleton holds up an animal's body. A stem holds up a plant."
+     },
+     {
+      "id": "p2",
+      "animal": "skin",
+      "plant": "bark (plant covering)",
+      "job": "protection",
+      "why": "Skin covers and protects an animal. Bark covers and protects a tree trunk."
+     }
+    ],
+    "contrast": [
+     {
+      "id": "c1",
+      "structure": "root",
+      "owner": "plant",
+      "job": "takes in water from the soil",
+      "choices": [
+       "takes in water from the soil",
+       "makes food using sunlight",
+       "makes spores for new plants"
+      ],
+      "why": "Roots take in water from the soil and hold the plant in place."
+     },
+     {
+      "id": "c2",
+      "structure": "leaf",
+      "owner": "plant",
+      "job": "makes food using sunlight",
+      "choices": [
+       "holds the plant in the ground",
+       "makes food using sunlight",
+       "takes in oxygen from water"
+      ],
+      "why": "Leaves use sunlight to make food for the plant."
+     },
+     {
+      "id": "c3",
+      "structure": "gills",
+      "owner": "animal",
+      "job": "takes in oxygen from water",
+      "choices": [
+       "pumps blood through the body",
+       "takes in oxygen from water",
+       "covers and protects the body"
+      ],
+      "why": "Gills let a fish get oxygen from water, the way lungs get it from air."
+     }
+    ]
+   },
+   "specimenSort": {
+    "intro": "Six specimens, one scrambled database. Read the cards. First impressions are how the scanner got here.",
+    "specimens": [
+     {
+      "id": "manatee",
+      "name": "Manatee",
+      "card": [
+       "Thick gray skin with a few thin hairs",
+       "Has a backbone; breathes air with lungs",
+       "Gives birth to live calves that drink milk"
+      ],
+      "backbone": true,
+      "group": "mammal"
+     },
+     {
+      "id": "brown-pelican",
+      "name": "Brown pelican",
+      "card": [
+       "Body covered in feathers",
+       "Has a backbone and two wings",
+       "Lays eggs with hard shells in a nest"
+      ],
+      "backbone": true,
+      "group": "bird"
+     },
+     {
+      "id": "gopher-tortoise",
+      "name": "Gopher tortoise",
+      "card": [
+       "Dry, scaly skin and a hard shell",
+       "Has a backbone; breathes air with lungs",
+       "Lays eggs on land in sandy soil"
+      ],
+      "backbone": true,
+      "group": "reptile"
+     },
+     {
+      "id": "green-tree-frog",
+      "name": "Green tree frog",
+      "card": [
+       "Smooth, moist skin with no scales",
+       "Has a backbone",
+       "Lays eggs in water; young hatch as tadpoles"
+      ],
+      "backbone": true,
+      "group": "amphibian"
+     },
+     {
+      "id": "bull-shark",
+      "name": "Bull shark",
+      "card": [
+       "Tough skin with tiny scales; has fins",
+       "Backbone made of cartilage, not bone",
+       "Breathes with gills; gives birth to live young"
+      ],
+      "backbone": true,
+      "group": "fish"
+     },
+     {
+      "id": "blue-crab",
+      "name": "Blue crab",
+      "card": [
+       "Hard outer shell called an exoskeleton",
+       "No backbone; ten jointed legs",
+       "Breathes with gills; hatches from eggs"
+      ],
+      "backbone": false,
+      "group": "arthropod"
+     }
+    ]
+   }
+  },
+  "debriefClosed": "Case closed. The scanner works, and the manatee is a mammal again. Log it.",
+  "debriefOpen": "Case stays open for now. It comes back as a cold case soon, and you will know more by then."
+ },
+ "coldCase": {
+  "id": "cold-1",
+  "codename": "RESIDUE",
+  "dispatchHook": "Old evidence is acting up. Recheck it before it spreads.",
+  "briefing": [
+   "Residue from old cases turned up in the evidence locker.",
+   "Experiments, planets, and the water cycle all need a second look.",
+   "Four items, same rules as always."
+  ],
+  "debriefClosed": "Residue cleared. The locker is quiet again, for now.",
+  "debriefOpen": "Some residue stuck. It goes back in the locker for another pass soon."
+ },
+ "items": [
+  {
+   "id": "L14-01",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Maria eats a slice of cheese pizza. Her body needs to break down the fat in the cheese. Which organ makes bile, a juice that helps break down fats?",
+   "options": [
+    "kidneys",
+    "pancreas",
+    "bladder",
+    "liver"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: the kidneys filter wastes from the blood. They do not make bile.",
+    "Decoy: the pancreas makes digestive juices and helps control blood sugar, but it does not make bile.",
+    "Decoy: the bladder stores urine. It has no job in breaking down food.",
+    "Correct. The liver makes bile, which helps break down fats. It also helps clean the blood."
+   ],
+   "keyWords": [
+    "makes bile",
+    "break down fats"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "kidneys",
+     "pancreas",
+     "bladder",
+     "liver"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with four organs glowing: kidneys, pancreas, bladder, and liver. No labels.",
+   "tisCheck": "Liver function only; no organ parts, no body systems, no reproductive organs.",
+   "misconceptions": "Pancreas also makes digestive juices; bladder confused with a digestion organ; kidneys seen as the only blood cleaner."
+  },
+  {
+   "id": "L14-02",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "One organ makes juices that help digest food. The same organ helps control the amount of sugar in the blood. Which organ is it?",
+   "options": [
+    "pancreas",
+    "stomach",
+    "heart",
+    "brain"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. The pancreas makes digestive juices and helps control blood sugar.",
+    "Decoy: the stomach makes juices that break down food, but it does not control blood sugar.",
+    "Decoy: the heart moves blood that carries sugar, but it does not control how much sugar is in it.",
+    "Decoy: the brain controls many actions, so it seems like a safe guess, but the pancreas controls blood sugar."
+   ],
+   "keyWords": [
+    "help digest food",
+    "control the amount of sugar"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "pancreas",
+     "stomach",
+     "heart",
+     "brain"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with four organs glowing: pancreas, stomach, heart, and brain. No labels.",
+   "tisCheck": "Pancreas general function only; no organ parts, no body systems.",
+   "misconceptions": "Stomach makes juices too; brain as the boss of everything; heart linked to anything in the blood."
+  },
+  {
+   "id": "L14-03",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Blood picks up wastes as it moves through the body. Which organs filter these wastes out of the blood to make urine?",
+   "options": [
+    "lungs",
+    "large intestine",
+    "kidneys",
+    "bladder"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: the lungs get rid of the gas carbon dioxide when you breathe out, but they do not make urine.",
+    "Decoy: the large intestine handles solid food waste, not wastes in the blood.",
+    "Correct. The kidneys filter wastes from the blood and make urine.",
+    "Decoy: the bladder stores urine after it is made. It does not filter blood."
+   ],
+   "keyWords": [
+    "filter",
+    "wastes out of the blood",
+    "urine"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "lungs",
+     "large-intestine",
+     "kidneys",
+     "bladder"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with the lungs, large intestine, kidneys, and bladder glowing. No labels.",
+   "tisCheck": "Kidney function only; no kidney parts, no body systems.",
+   "misconceptions": "Bladder confused with the organ that makes urine; any waste organ seen as a blood filter."
+  },
+  {
+   "id": "L14-04",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "The kidneys make urine. Where is urine stored until it leaves the body?",
+   "options": [
+    "stomach",
+    "bladder",
+    "liver",
+    "kidneys"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: the stomach holds and breaks down food, not urine.",
+    "Correct. The bladder stores urine until it leaves the body.",
+    "Decoy: the liver makes bile and helps clean the blood. It does not store urine.",
+    "Decoy: the kidneys make urine, but they send it on. They do not store it."
+   ],
+   "keyWords": [
+    "stored",
+    "until it leaves the body"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "stomach",
+     "bladder",
+     "liver",
+     "kidneys"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with the stomach, bladder, liver, and kidneys glowing. No labels.",
+   "tisCheck": "Bladder function only; no organ parts, no body systems.",
+   "misconceptions": "Kidneys both make and store urine; stomach as a general storage organ."
+  },
+  {
+   "id": "L14-05",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "The stomach breaks food into a mushy mix. Next, the nutrients in the food must get into the blood. Which organ takes in most of these nutrients?",
+   "options": [
+    "small intestine",
+    "large intestine",
+    "stomach",
+    "liver"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. The small intestine takes nutrients from food into the blood.",
+    "Decoy: the large intestine mostly takes in water from leftover waste.",
+    "Decoy: the stomach breaks food down, but it takes in very few nutrients.",
+    "Decoy: the liver works on nutrients after they reach the blood. It does not take them in from food."
+   ],
+   "keyWords": [
+    "nutrients",
+    "get into the blood",
+    "takes in most"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "small-intestine",
+     "large-intestine",
+     "stomach",
+     "liver"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with the small intestine, large intestine, stomach, and liver glowing. No labels.",
+   "tisCheck": "Small vs large intestine allowed by TIS; function only, no organ parts, no body systems.",
+   "misconceptions": "Large means more important; stomach does all of digestion; liver seen as the food processor."
+  },
+  {
+   "id": "L14-06",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Food waste is very watery when it leaves the small intestine. By the time it leaves the body, much of that water has been taken back in. Which organ takes in most of this water?",
+   "options": [
+    "kidneys",
+    "bladder",
+    "stomach",
+    "large intestine"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: the kidneys remove extra water from the blood, not from food waste.",
+    "Decoy: the bladder holds urine. Food waste never passes through it.",
+    "Decoy: food passes the stomach before the small intestine, so the waste never goes back there.",
+    "Correct. The large intestine takes water back in from food waste."
+   ],
+   "keyWords": [
+    "leaves the small intestine",
+    "taken back in",
+    "most of this water"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "kidneys",
+     "bladder",
+     "stomach",
+     "large-intestine"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with the kidneys, bladder, stomach, and large intestine glowing. No labels.",
+   "tisCheck": "Large intestine function; no organ parts, no body systems.",
+   "misconceptions": "Kidneys and bladder linked to anything about water; food path order confused."
+  },
+  {
+   "id": "L14-07",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Which organ covers the outside of the body, helps keep germs out, and makes sweat to cool the body?",
+   "options": [
+    "skeleton",
+    "skin",
+    "kidneys",
+    "lungs"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: the skeleton protects some organs from the inside, but it does not cover the body or make sweat.",
+    "Correct. The skin covers the body, keeps germs out, and sweats to cool you down.",
+    "Decoy: the kidneys remove wastes in urine. Sweat is made by the skin.",
+    "Decoy: the lungs bring in air. They do not cover the body."
+   ],
+   "keyWords": [
+    "covers the outside",
+    "keep germs out",
+    "sweat"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [],
+    "labels": false
+   },
+   "alt": "Hologram of a full human body standing. No organ is highlighted.",
+   "tisCheck": "Skin as an organ with general function; no skin layers, no body systems.",
+   "misconceptions": "Skeleton as the main protector; kidneys linked to any body fluid leaving the body."
+  },
+  {
+   "id": "L14-08",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "At a Gulf beach, Ava closes her eyes. She can still tell that waves are crashing nearby. Which organ picks up the sound of the waves and sends it to her brain?",
+   "options": [
+    "nose",
+    "tongue",
+    "ears",
+    "eyes"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: the nose picks up smells, like salty air, not sounds.",
+    "Decoy: the tongue picks up tastes, not sounds.",
+    "Correct. The ears pick up sounds and send signals to the brain.",
+    "Decoy: her eyes are closed, and eyes pick up light, not sound."
+   ],
+   "keyWords": [
+    "closes her eyes",
+    "sound of the waves",
+    "brain"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "eyes",
+     "ears",
+     "nose",
+     "tongue"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human head and body with the eyes, ears, nose, and tongue glowing. No labels.",
+   "tisCheck": "Sensory organ function only; no ear parts.",
+   "misconceptions": "Beach setting pulls toward smell; sight assumed as the main way to notice things."
+  },
+  {
+   "id": "L14-09",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Lifting a heavy backpack takes muscles. What is the main job of muscles?",
+   "options": [
+    "to protect the brain and heart",
+    "to send messages through the body",
+    "to cover the body and keep germs out",
+    "to move the body by pulling on bones"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: protecting the brain and heart is a job of the skeleton.",
+    "Decoy: the brain sends messages. Muscles follow those messages.",
+    "Decoy: covering the body and keeping germs out is the job of the skin.",
+    "Correct. Muscles pull on bones to move the body."
+   ],
+   "keyWords": [
+    "main job",
+    "muscles"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [
+     "muscles"
+    ],
+    "labels": false
+   },
+   "alt": "Hologram of a human body with the muscle layer glowing over the arms and legs.",
+   "tisCheck": "General function of muscles only; no muscle names, no body systems.",
+   "misconceptions": "Muscles and skeleton jobs mixed up; brain and muscles seen as doing the same job."
+  },
+  {
+   "id": "L14-10",
+   "benchmark": "SC.5.L.14.1",
+   "testedAs": "SC.5.L.14.1",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Bike riders wear helmets to protect their heads. Which part of the body acts like a helmet for the brain and also holds the body up?",
+   "options": [
+    "skeleton",
+    "skin",
+    "muscles",
+    "heart"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. The skeleton protects organs like the brain and holds the body up.",
+    "Decoy: skin protects the outside of the body, but it is soft and does not hold the body up.",
+    "Decoy: muscles move the body, but they do not form a hard shield around the brain.",
+    "Decoy: the heart pumps blood. It does not protect or support the body."
+   ],
+   "keyWords": [
+    "helmet for the brain",
+    "holds the body up"
+   ],
+   "visual": {
+    "kind": "organ",
+    "highlight": [],
+    "labels": false
+   },
+   "alt": "Hologram of a full human body standing. No organ is highlighted.",
+   "tisCheck": "General function of the skeleton; no bone names required.",
+   "misconceptions": "Skin as the main protector; muscles seen as what holds the body up."
+  },
+  {
+   "id": "L142-01",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "A largemouth bass lives its whole life underwater in a Florida spring. Which structure does the bass use to take in oxygen from the water?",
+   "options": [
+    "lungs",
+    "stomach",
+    "gills",
+    "exoskeleton"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: lungs take in oxygen from air. A bass stays underwater and has no lungs.",
+    "Decoy: the stomach breaks down food. It does not take in oxygen.",
+    "Correct. Gills take in oxygen from water.",
+    "Decoy: an exoskeleton is a hard outer covering on animals like crabs. A bass has scales and a skeleton inside."
+   ],
+   "keyWords": [
+    "underwater",
+    "take in oxygen from the water"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "largemouth-bass"
+    ],
+    "captions": [
+     "Lives underwater its whole life"
+    ]
+   },
+   "alt": "A largemouth bass swimming underwater in a clear spring.",
+   "tisCheck": "Structures limited to TIS list (lungs, gills, stomach, exoskeleton); common name only.",
+   "misconceptions": "All animals breathe with lungs; hard body parts linked to water animals."
+  },
+  {
+   "id": "L142-02",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A blue crab and a Florida panther both have a skeleton that supports their bodies. How are their skeletons different?",
+   "options": [
+    "The panther's skeleton is outside its body, and the crab's is inside.",
+    "The crab's skeleton is outside its body, and the panther's is inside.",
+    "The crab's skeleton supports its body, and the panther's does not.",
+    "Only the panther's skeleton protects soft body parts."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: this is backward. The panther's bones are inside, under its fur.",
+    "Correct. The crab has an exoskeleton on the outside. The panther has bones on the inside.",
+    "Decoy: both skeletons support the body. The question says so.",
+    "Decoy: both protect soft parts. The crab's shell covers its soft body, and the panther's bones guard organs like the brain."
+   ],
+   "keyWords": [
+    "blue crab",
+    "Florida panther",
+    "different"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "blue-crab",
+     "florida-panther"
+    ],
+    "captions": [
+     "Blue crab",
+     "Florida panther"
+    ]
+   },
+   "alt": "A blue crab and a Florida panther shown side by side.",
+   "tisCheck": "Skeleton vs exoskeleton within animals; bones and exoskeleton on TIS list; common names.",
+   "misconceptions": "Inside and outside swapped; exoskeleton not counted as a skeleton; only bones protect."
+  },
+  {
+   "id": "L142-03",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A cabbage palm has roots and leaves. Which statement correctly compares the jobs of its roots and leaves?",
+   "options": [
+    "Roots make food using sunlight, and leaves take in water from the soil.",
+    "Roots and leaves both make food using sunlight.",
+    "Roots make seeds, and leaves protect the trunk.",
+    "Roots take in water from the soil, and leaves make food using sunlight."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: this switches the two jobs.",
+    "Decoy: roots are underground in the dark, so they cannot make food from sunlight.",
+    "Decoy: roots do not make seeds, and leaves do not protect the trunk.",
+    "Correct. Roots take in water from the soil, and leaves use sunlight to make food."
+   ],
+   "keyWords": [
+    "roots",
+    "leaves",
+    "compares the jobs"
+   ],
+   "visual": {
+    "kind": "plantanimal",
+    "show": [
+     "root",
+     "leaf",
+     "stem"
+    ]
+   },
+   "alt": "A palm tree with its roots below the ground, its trunk, and its leaves shown.",
+   "tisCheck": "Plant structures limited to root, leaf, seed, stem; comparison within a plant.",
+   "misconceptions": "Root and leaf jobs reversed; every green or plant part makes food."
+  },
+  {
+   "id": "L142-04",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "An orange tree makes seeds inside its fruit. A resurrection fern grows on oak branches. It has small brown dots under its leaves. What does the fern make so that new ferns can grow?",
+   "options": [
+    "spores",
+    "seeds",
+    "cones",
+    "fruit"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Ferns make spores, often in brown dots under their leaves. New ferns grow from spores.",
+    "Decoy: many plants make seeds, but ferns do not. They make spores.",
+    "Decoy: cones hold seeds on plants like pine trees. Ferns do not make cones.",
+    "Decoy: fruit holds seeds, like an orange does. Ferns do not make fruit."
+   ],
+   "keyWords": [
+    "resurrection fern",
+    "brown dots",
+    "new ferns"
+   ],
+   "visual": {
+    "kind": "plantanimal",
+    "show": [
+     "spore",
+     "seed",
+     "fruit",
+     "leaf"
+    ]
+   },
+   "alt": "An orange with seeds inside next to a fern leaf with small brown dots on its underside.",
+   "tisCheck": "Plant structures limited to seed, spore, fruit, cone, leaf; no flower or reproductive organ comparison; common names.",
+   "misconceptions": "All plants make seeds; cones and fruit seen as the only other options."
+  },
+  {
+   "id": "L142-05",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A slash pine has thick bark around its trunk. The bark keeps out insects and helps protect the tree from fire. Which animal structure does a job most like bark?",
+   "options": [
+    "skeleton",
+    "muscles",
+    "skin",
+    "heart"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: the skeleton supports the body, which is more like a stem. Bark's main job is protection.",
+    "Decoy: muscles move the body. Bark does not move anything.",
+    "Correct. Skin covers and protects an animal, like bark covers and protects a tree.",
+    "Decoy: the heart pumps blood. Bark does not pump anything."
+   ],
+   "keyWords": [
+    "bark",
+    "protect",
+    "most like bark"
+   ],
+   "visual": {
+    "kind": "plantanimal",
+    "show": [
+     "bark",
+     "skin",
+     "skeleton",
+     "stem"
+    ]
+   },
+   "alt": "A pine trunk with thick bark next to an animal outline showing its skin and skeleton.",
+   "tisCheck": "Plant-animal comparison limited to skin vs plant covering; common names.",
+   "misconceptions": "Bark is hard, so it seems like a skeleton; support and protection mixed up."
+  },
+  {
+   "id": "L142-06",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "A tall sunflower stem holds its leaves up toward the sunlight. Which part of a human does a job most like this stem?",
+   "options": [
+    "skin",
+    "skeleton",
+    "lungs",
+    "stomach"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: skin covers and protects. That job is more like bark.",
+    "Correct. The skeleton holds up the human body, like a stem holds up a plant.",
+    "Decoy: the lungs take in air. They do not hold the body up.",
+    "Decoy: the stomach breaks down food. It does not support the body."
+   ],
+   "keyWords": [
+    "holds its leaves up",
+    "most like this stem"
+   ],
+   "visual": {
+    "kind": "plantanimal",
+    "show": [
+     "stem",
+     "leaf",
+     "skeleton",
+     "skin"
+    ]
+   },
+   "alt": "A tall plant with a stem and leaves next to a human outline showing skin and skeleton.",
+   "tisCheck": "Plant-animal comparison limited to skeleton vs stem; no reproductive comparison.",
+   "misconceptions": "Outer coverings and supports confused; stems seen as tubes like lungs."
+  },
+  {
+   "id": "L142-07",
+   "benchmark": "SC.5.L.14.2",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "high",
+   "pool": "case",
+   "stem": "In winter, a manatee and a largemouth bass swim in Blue Spring. Every few minutes, the manatee rises to the surface and pokes its nose out of the water. The bass stays underwater the whole time. Which statement best explains this difference?",
+   "options": [
+    "The manatee comes up to find food, and the bass finds food underwater.",
+    "Both animals have gills, but the manatee's gills are smaller.",
+    "The bass has bigger lungs that hold more air than the manatee's lungs.",
+    "The manatee breathes air with lungs, and the bass takes oxygen from water with gills."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: manatees eat plants underwater. Coming to the surface is about air, not food.",
+    "Decoy: manatees are mammals. They have no gills at all.",
+    "Decoy: a bass has gills, not lungs.",
+    "Correct. The manatee needs air for its lungs. The bass uses gills to get oxygen from water."
+   ],
+   "keyWords": [
+    "rises to the surface",
+    "stays underwater",
+    "best explains"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "manatee",
+     "largemouth-bass"
+    ],
+    "captions": [
+     "Comes up every few minutes",
+     "Stays underwater"
+    ]
+   },
+   "alt": "A manatee near the water surface and a largemouth bass deeper in a clear spring.",
+   "tisCheck": "Lungs vs gills across two organisms; both on TIS list; common names only.",
+   "misconceptions": "Water animals all have gills; behavior explained by food instead of breathing."
+  },
+  {
+   "id": "L315-01",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "An agent scans four animals near the Indian River Lagoon. Read each scan card. Which animal is an invertebrate?",
+   "options": [
+    "bull shark",
+    "blue crab",
+    "gopher tortoise",
+    "manatee"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: a shark's skeleton is cartilage, not bone, but it still has a backbone. It is a vertebrate.",
+    "Correct. A blue crab has no backbone. Its hard shell is an exoskeleton, so it is an invertebrate.",
+    "Decoy: a tortoise's shell is joined to its backbone. It is a vertebrate.",
+    "Decoy: a manatee has a backbone. It is a mammal, which is a vertebrate."
+   ],
+   "keyWords": [
+    "scan card",
+    "invertebrate"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "bull-shark",
+     "blue-crab",
+     "gopher-tortoise",
+     "manatee"
+    ],
+    "captions": [
+     "Fins, gills, backbone made of cartilage",
+     "Hard outer shell, jointed legs, no backbone",
+     "Scaly skin, hard shell joined to its backbone",
+     "Thick skin, flippers, has a backbone, breathes air"
+    ]
+   },
+   "alt": "Four scan cards: a bull shark, a blue crab, a gopher tortoise, and a manatee, each with a short description of its body.",
+   "tisCheck": "Vertebrate vs invertebrate with picture and description; no classification beyond the initial grouping; common names.",
+   "misconceptions": "Cartilage means no backbone; hard shell means invertebrate for the tortoise."
+  },
+  {
+   "id": "L315-02",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Manatees live in water and swim with flippers. Scientists still group manatees with mammals. Which trait makes a manatee a mammal?",
+   "options": [
+    "It swims with flippers.",
+    "It has a backbone.",
+    "It feeds its young milk.",
+    "It lives in warm water."
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: animals that are not mammals, like sea turtles, also swim with flippers.",
+    "Decoy: fish, birds, reptiles, and amphibians also have backbones.",
+    "Correct. Mammals feed their young milk. Manatee mothers nurse their calves.",
+    "Decoy: where an animal lives does not decide its group. Many fish live in warm water too."
+   ],
+   "keyWords": [
+    "group manatees with mammals",
+    "trait"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "manatee"
+    ],
+    "captions": [
+     "A calf swims beside its mother"
+    ]
+   },
+   "alt": "A manatee mother swimming with her calf.",
+   "tisCheck": "General mammal characteristics only; common name.",
+   "misconceptions": "Habitat decides the group; any vertebrate trait seen as a mammal trait."
+  },
+  {
+   "id": "L315-03",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Brown pelicans dive for fish in the lagoon. Barred owls hunt mice in the forest at night. Both animals are birds. Which trait do all birds share?",
+   "options": [
+    "They have feathers.",
+    "They can fly.",
+    "They eat fish.",
+    "They live near water."
+   ],
+   "key": 0,
+   "why": [
+    "Correct. All birds have feathers. No other animal group has them.",
+    "Decoy: most birds fly, but some, like penguins and ostriches, cannot.",
+    "Decoy: pelicans eat fish, but owls eat mice. Food does not decide the group.",
+    "Decoy: owls live in forests. Where an animal lives does not decide its group."
+   ],
+   "keyWords": [
+    "all birds",
+    "share"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "brown-pelican",
+     "barred-owl"
+    ],
+    "captions": [
+     "Feathers, wings, dives for fish",
+     "Feathers, wings, hunts at night"
+    ]
+   },
+   "alt": "A brown pelican and a barred owl shown side by side, both covered in feathers.",
+   "tisCheck": "General bird characteristics only; common names; no classification beyond major groups.",
+   "misconceptions": "Flying defines birds; diet or habitat decides the group."
+  },
+  {
+   "id": "L315-04",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "An American alligator spends much of its time in the water of the Everglades. It is a reptile, not an amphibian. Which description supports this?",
+   "options": [
+    "It has smooth, moist skin and lays eggs in water.",
+    "It has fins and breathes with gills.",
+    "It has hair and feeds its young milk.",
+    "It has dry, scaly skin and lays eggs with shells on land."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: smooth, moist skin and eggs laid in water describe an amphibian, like a frog.",
+    "Decoy: fins and gills describe a fish. Alligators breathe air with lungs.",
+    "Decoy: hair and milk describe a mammal.",
+    "Correct. Reptiles have dry, scaly skin and lay eggs with shells on land. Alligators build nests on land."
+   ],
+   "keyWords": [
+    "reptile",
+    "not an amphibian"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "american-alligator"
+    ],
+    "captions": [
+     "Rests in water, nests on land"
+    ]
+   },
+   "alt": "An American alligator resting half in the water near a grassy bank.",
+   "tisCheck": "General reptile vs amphibian characteristics; common name only.",
+   "misconceptions": "Animals that spend time in water seen as amphibians."
+  },
+  {
+   "id": "L315-05",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "A green tree frog starts life as a tadpole in a pond. The tadpole breathes with gills. The adult frog has lungs and smooth, moist skin. Which group does the green tree frog belong to?",
+   "options": [
+    "reptile",
+    "amphibian",
+    "fish",
+    "mammal"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: reptiles have dry, scaly skin, and their young do not start as tadpoles.",
+    "Correct. Amphibians usually start life in water with gills and later breathe air. They have smooth, moist skin.",
+    "Decoy: a tadpole has gills like a fish, but the adult frog has lungs.",
+    "Decoy: mammals have hair and feed their young milk. Frogs do neither."
+   ],
+   "keyWords": [
+    "tadpole",
+    "gills",
+    "lungs",
+    "smooth, moist skin"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "green-tree-frog"
+    ],
+    "captions": [
+     "Smooth, moist skin; starts life as a tadpole"
+    ]
+   },
+   "alt": "A bright green tree frog with smooth skin sitting on a leaf.",
+   "tisCheck": "General amphibian characteristics and behaviors; common name only.",
+   "misconceptions": "Gills mean fish; frogs confused with reptiles because both are cold-blooded."
+  },
+  {
+   "id": "L315-06",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A bull shark has fins and breathes with gills. Its skeleton is made of cartilage, a bendy material. A bull shark mother gives birth to live young. Which group does the bull shark belong to?",
+   "options": [
+    "fish",
+    "mammal",
+    "reptile",
+    "invertebrate"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Fins and gills make the shark a fish. Some fish give birth to live young.",
+    "Decoy: live birth tempts you toward mammal, but mammals breathe air with lungs and have hair.",
+    "Decoy: reptiles breathe air with lungs. A shark uses gills.",
+    "Decoy: cartilage is still a skeleton with a backbone, so the shark is a vertebrate."
+   ],
+   "keyWords": [
+    "fins",
+    "gills",
+    "gives birth to live young"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "bull-shark"
+    ],
+    "captions": [
+     "Fins, gills, skeleton made of cartilage"
+    ]
+   },
+   "alt": "A bull shark swimming in murky green water, with its fins and gill slits visible.",
+   "tisCheck": "General fish characteristics with description; common name only.",
+   "misconceptions": "Live birth means mammal; no bones means no backbone."
+  },
+  {
+   "id": "L315-07",
+   "benchmark": "SC.3.L.15.1",
+   "testedAs": "SC.5.L.14.2",
+   "category": "Life Science",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "A grasshopper and a garden spider look very different. Scientists still put them both in the arthropod group. Which features do they share?",
+   "options": [
+    "a backbone and fur",
+    "feathers and a beak",
+    "an exoskeleton and jointed legs",
+    "a soft body with no legs"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: a backbone and fur belong to mammals. Arthropods have no backbone.",
+    "Decoy: feathers and a beak belong to birds.",
+    "Correct. Arthropods have a hard outer exoskeleton and legs that bend at joints.",
+    "Decoy: a soft body with no legs describes an earthworm, which is not an arthropod."
+   ],
+   "keyWords": [
+    "arthropod group",
+    "share"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "grasshopper",
+     "garden-spider"
+    ],
+    "captions": [
+     "Hard outer covering, six jointed legs",
+     "Hard outer covering, eight jointed legs"
+    ]
+   },
+   "alt": "A grasshopper and a garden spider side by side, each with a hard outer covering and jointed legs.",
+   "tisCheck": "Arthropod general characteristics (listed in SC.3.L.15.1); no further invertebrate classification; common names.",
+   "misconceptions": "Spiders and insects seen as unrelated because of leg count; all small crawling animals lumped together."
+  },
+  {
+   "id": "N11-01",
+   "benchmark": "SC.5.N.1.4",
+   "testedAs": "SC.5.N.1.1",
+   "category": "Nature of Science",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "Liam wants to know if plant food helps bean plants grow taller. Group 1 gets water with plant food. Group 2 gets water only. Both groups get the same soil, pots, and sunlight. Which group is the control group, and why?",
+   "options": [
+    "Group 1, because it gets the plant food being tested.",
+    "Group 2, because it gets no plant food, so Liam can compare results to it.",
+    "Group 1, because those plants will probably grow the tallest.",
+    "Group 2, because it gets more water than Group 1."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: the group that gets the thing being tested is not the control group.",
+    "Correct. The control group does not get the plant food. It shows what happens without it, so Liam has something to compare to.",
+    "Decoy: a guess about which plants grow tallest does not decide the control group.",
+    "Decoy: both groups get water. The setup does not say Group 2 gets more."
+   ],
+   "keyWords": [
+    "plant food",
+    "control group",
+    "why"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "plant-pots",
+    "labels": [
+     "Group 1: water + plant food",
+     "Group 2: water only"
+    ]
+   },
+   "alt": "Two groups of bean plants in matching pots in the same sunny spot. Group 1 is labeled water plus plant food. Group 2 is labeled water only.",
+   "tisCheck": "One control group only; no hypothesis evaluation; no math; no dependent vs independent variable naming.",
+   "misconceptions": "Control group seen as the group that gets the treatment or the best results."
+  },
+  {
+   "id": "N11-02",
+   "benchmark": "SC.5.N.1.2",
+   "testedAs": "SC.5.N.1.1",
+   "category": "Nature of Science",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "Four students each planned an investigation. Which investigation is an experiment?",
+   "options": [
+    "Counting the birds at a feeder each morning for a week",
+    "Measuring how deep a spring is at five different spots",
+    "Watching sea turtles nest on a beach and writing down what they do",
+    "Putting salt water and fresh water in the same kind of cup in the same freezer to see which freezes first"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: counting birds is an observation. Nothing is changed or controlled.",
+    "Decoy: measuring depth collects data, but nothing is being tested.",
+    "Decoy: watching turtles is an observation. The student does not change anything.",
+    "Correct. One thing is changed (the type of water) while everything else stays the same. That makes it an experiment."
+   ],
+   "keyWords": [
+    "experiment"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Investigation Plans",
+    "columns": [
+     "Student",
+     "Plan"
+    ],
+    "rows": [
+     [
+      "1",
+      "Count birds at a feeder"
+     ],
+     [
+      "2",
+      "Measure spring depth"
+     ],
+     [
+      "3",
+      "Watch sea turtles nest"
+     ],
+     [
+      "4",
+      "Freeze salt water and fresh water"
+     ]
+    ]
+   },
+   "alt": "A table listing four students and a short version of each investigation plan.",
+   "tisCheck": "Experiment vs other investigations (controlled variables); no hypothesis; no procedure design; no math.",
+   "misconceptions": "Any investigation that uses tools or measuring is an experiment."
+  },
+  {
+   "id": "N11-03",
+   "benchmark": "SC.5.N.1.1",
+   "testedAs": "SC.5.N.1.1",
+   "category": "Nature of Science",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "Ana rolled the same toy car down the same ramp onto four floor surfaces. She recorded how far it rolled. Which statement is supported by her data?",
+   "options": [
+    "The car rolled farther on smoother surfaces.",
+    "The car rolled the same distance on every surface.",
+    "The car rolled farther on rougher surfaces.",
+    "Heavier cars roll farther than lighter cars."
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Tile, the smoothest surface, had the longest distance. Sand, the roughest, had the shortest.",
+    "Decoy: the distances in the table are all different.",
+    "Decoy: this is backward. The rough sand had the shortest distance.",
+    "Decoy: Ana used only one car, so her data says nothing about weight."
+   ],
+   "keyWords": [
+    "four floor surfaces",
+    "supported by her data"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Toy Car Distance",
+    "columns": [
+     "Surface",
+     "Distance rolled (cm)"
+    ],
+    "rows": [
+     [
+      "Tile",
+      "200"
+     ],
+     [
+      "Wood",
+      "160"
+     ],
+     [
+      "Carpet",
+      "70"
+     ],
+     [
+      "Sand",
+      "30"
+     ]
+    ]
+   },
+   "alt": "A table of distances. Tile 200 centimeters, wood 160, carpet 70, sand 30.",
+   "tisCheck": "Interpreting data in a table; comparing values only, no computation; conclusion chosen, not formed.",
+   "misconceptions": "Picking a statement that sounds scientific but was not tested."
+  },
+  {
+   "id": "N21-01",
+   "benchmark": "SC.5.N.1.6",
+   "testedAs": "SC.5.N.2.1",
+   "category": "Nature of Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Jada visits a Florida spring and writes four notes. Which note is an observation and not an opinion?",
+   "options": [
+    "The spring is the prettiest place in Florida.",
+    "Manatees enjoy the warm water.",
+    "The thermometer read 22 degrees Celsius in the spring.",
+    "The water is the perfect temperature for swimming."
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: prettiest is a personal opinion. Others may disagree.",
+    "Decoy: we cannot observe what a manatee enjoys. This is an idea about its feelings.",
+    "Correct. A thermometer reading can be checked by anyone. It is an observation.",
+    "Decoy: perfect is a personal opinion."
+   ],
+   "keyWords": [
+    "observation",
+    "not an opinion"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Jada's Field Notes",
+    "columns": [
+     "Note",
+     "What Jada wrote"
+    ],
+    "rows": [
+     [
+      "1",
+      "The spring is the prettiest place in Florida."
+     ],
+     [
+      "2",
+      "Manatees enjoy the warm water."
+     ],
+     [
+      "3",
+      "The thermometer read 22 degrees Celsius in the spring."
+     ],
+     [
+      "4",
+      "The water is the perfect temperature for swimming."
+     ]
+    ]
+   },
+   "alt": "A field notebook page with Jada's four numbered notes about the spring.",
+   "readAloud": "Jada visits a Florida spring and writes four notes. Which note is an observation and not an opinion?",
+   "tisCheck": "Opinion vs observation; uses the word observation, not verified observation.",
+   "misconceptions": "Statements about animal feelings or popular opinions seen as facts."
+  },
+  {
+   "id": "N21-02",
+   "benchmark": "SC.5.N.2.1",
+   "testedAs": "SC.5.N.2.1",
+   "category": "Nature of Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Leo says that bean seeds sprout faster in warm places. Which would be the best evidence to support his explanation?",
+   "options": [
+    "A test where seeds in a warm spot sprouted sooner than the same kind of seeds in a cool spot",
+    "His best friend agrees with him.",
+    "He has believed this for a long time.",
+    "A cartoon shows seeds sprouting under a hot sun."
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Observations from a test are evidence. Explanations in science must be linked to evidence.",
+    "Decoy: someone agreeing is an opinion, not evidence.",
+    "Decoy: believing something for a long time does not make it true.",
+    "Decoy: a cartoon is made up. It is not an observation."
+   ],
+   "keyWords": [
+    "best evidence",
+    "support his explanation"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "plant-pots",
+    "labels": [
+     "Warm spot",
+     "Cool spot"
+    ]
+   },
+   "alt": "Two pots of bean seeds, one in a warm spot and one in a cool spot.",
+   "tisCheck": "Explanations linked to evidence; uses the term evidence, not empirical evidence; no scientific method steps.",
+   "misconceptions": "Agreement or belief counts as proof."
+  },
+  {
+   "id": "E53-01",
+   "benchmark": "SC.5.E.5.3",
+   "testedAs": "SC.5.E.5.3",
+   "category": "Earth and Space Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "An object made of ice, dust, and rock travels around the Sun in a long oval path. When it comes close to the Sun, it forms a long, glowing tail. What is this object?",
+   "options": [
+    "asteroid",
+    "moon",
+    "planet",
+    "comet"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: asteroids are mostly rock and metal. They do not form tails.",
+    "Decoy: a moon travels around a planet, not in a long path around the Sun.",
+    "Decoy: planets travel in nearly round paths and do not grow tails.",
+    "Correct. A comet is made of ice, dust, and rock. Near the Sun, it forms a tail."
+   ],
+   "keyWords": [
+    "ice, dust, and rock",
+    "long oval path",
+    "glowing tail"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "comet-orbit",
+    "labels": [
+     "Sun",
+     "Path of the object"
+    ]
+   },
+   "alt": "The Sun with a long oval path around it. A small object on the path glows near the Sun.",
+   "tisCheck": "Distinguishes comets from other solar system objects; no Sun characteristics; no gravity; no numbers.",
+   "misconceptions": "Asteroids and comets confused; any object moving around the Sun called a planet."
+  },
+  {
+   "id": "E53-02",
+   "benchmark": "SC.5.E.5.2",
+   "testedAs": "SC.5.E.5.3",
+   "category": "Earth and Space Science",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "A rocket from the Space Coast is headed for the outer planets. Which statement best describes the outer planets compared to the inner planets?",
+   "options": [
+    "They are smaller and have rocky surfaces.",
+    "They are larger, are made mostly of gas, and have rings.",
+    "They are closer to the Sun and warmer.",
+    "They take less time to travel around the Sun."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: small and rocky describes the inner planets.",
+    "Correct. The outer planets are large, mostly gas, and all have rings.",
+    "Decoy: the outer planets are farther from the Sun, so they are colder.",
+    "Decoy: the outer planets are farther away, so their years are much longer."
+   ],
+   "keyWords": [
+    "outer planets",
+    "compared to the inner planets"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "inner-outer-planets",
+    "labels": [
+     "Sun",
+     "Inner planets",
+     "Outer planets"
+    ]
+   },
+   "alt": "The Sun on the left, four small planets near it, and four large planets farther away.",
+   "tisCheck": "Inner vs outer limited to composition, size, position, rings, temperature, year length; no numbers; no gravity.",
+   "misconceptions": "Inner and outer traits swapped; farther planets assumed faster."
+  },
+  {
+   "id": "E53-03",
+   "benchmark": "SC.5.E.5.3",
+   "testedAs": "SC.5.E.5.3",
+   "category": "Earth and Space Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "A model shows the inner planets in order from the Sun: Mercury, Venus, a missing planet, then Mars. Which object belongs in the missing spot?",
+   "options": [
+    "Jupiter",
+    "the Moon",
+    "Earth",
+    "Saturn"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: Jupiter is an outer planet. It comes after Mars.",
+    "Decoy: the Moon is not a planet. It travels around Earth.",
+    "Correct. Earth is the third planet from the Sun, between Venus and Mars.",
+    "Decoy: Saturn is an outer planet, far past Mars."
+   ],
+   "keyWords": [
+    "inner planets",
+    "in order from the Sun",
+    "missing spot"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "solar-system",
+    "labels": [
+     "Sun",
+     "Mercury",
+     "Venus",
+     "?",
+     "Mars"
+    ]
+   },
+   "alt": "A row showing the Sun, then Mercury, Venus, an empty spot marked with a question mark, and Mars.",
+   "tisCheck": "Earth's position in the solar system; moon vs planet distinction; no quantitative data.",
+   "misconceptions": "The Moon counted as a planet; Earth's position forgotten."
+  },
+  {
+   "id": "E71-01",
+   "benchmark": "SC.5.E.7.2",
+   "testedAs": "SC.5.E.7.1",
+   "category": "Earth and Space Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Water evaporates from many places on Earth. Where does most of the water that evaporates into the air come from?",
+   "options": [
+    "oceans",
+    "lakes",
+    "rivers",
+    "glaciers"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Oceans cover most of Earth and hold most of its water, so most evaporation happens there.",
+    "Decoy: lakes add some water vapor, but much less than oceans.",
+    "Decoy: rivers add some water vapor, but much less than oceans.",
+    "Decoy: glaciers are frozen and mostly stay solid. Very little of their water evaporates."
+   ],
+   "keyWords": [
+    "most of the water",
+    "evaporates"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "ocean-evaporation",
+    "labels": []
+   },
+   "alt": "A view of Earth's surface with ocean, a lake, a river, and a glacier, with water vapor rising into the air.",
+   "tisCheck": "Ocean's role in the water cycle; does not use the term reservoir; no transpiration, infiltration, percolation.",
+   "misconceptions": "Fresh water seen as the main source of rain; nearby water sources seem bigger."
+  },
+  {
+   "id": "E71-02",
+   "benchmark": "SC.5.E.7.1",
+   "testedAs": "SC.5.E.7.1",
+   "category": "Earth and Space Science",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "High in the sky, water vapor cools. It turns into tiny water droplets that form a cloud. Which change of state happens to the water?",
+   "options": [
+    "liquid to gas",
+    "solid to liquid",
+    "gas to liquid",
+    "liquid to solid"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: liquid to gas is evaporation, the opposite of what happens here.",
+    "Decoy: solid to liquid is melting. Water vapor is not a solid.",
+    "Correct. Water vapor is a gas. It cools and condenses into liquid droplets.",
+    "Decoy: liquid to solid is freezing. The droplets in this cloud are liquid."
+   ],
+   "keyWords": [
+    "water vapor cools",
+    "water droplets",
+    "change of state"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "water-cycle",
+    "labels": [
+     "Ocean",
+     "Water vapor",
+     "Cloud"
+    ]
+   },
+   "alt": "A water cycle diagram with an ocean, water vapor rising into the sky, and a cloud forming high above.",
+   "tisCheck": "Phase change in a water cycle context only; no transpiration, infiltration, percolation.",
+   "misconceptions": "Clouds thought to be water vapor (gas) or smoke; condensation and evaporation reversed."
+  },
+  {
+   "id": "E71-03",
+   "benchmark": "SC.5.E.7.1",
+   "testedAs": "SC.5.E.7.1",
+   "category": "Earth and Space Science",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "On a hot day, the Sun heats the water in the Indian River Lagoon. Some of the water changes into water vapor and rises into the air. Which part of the water cycle is this?",
+   "options": [
+    "condensation",
+    "evaporation",
+    "precipitation",
+    "runoff"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: condensation is when water vapor cools and becomes liquid.",
+    "Correct. Evaporation is when liquid water is heated and changes into water vapor.",
+    "Decoy: precipitation is water falling from clouds as rain, sleet, snow, or hail.",
+    "Decoy: runoff is water flowing over land into lakes, rivers, and oceans."
+   ],
+   "keyWords": [
+    "heats the water",
+    "changes into water vapor",
+    "rises"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "ocean-evaporation",
+    "labels": [
+     "Sun",
+     "Lagoon"
+    ]
+   },
+   "alt": "The Sun shining on a lagoon with wavy lines of water vapor rising from the surface.",
+   "tisCheck": "Parts of the water cycle with state change; no transpiration, infiltration, percolation; no term reservoir.",
+   "misconceptions": "Evaporation and condensation swapped; any water movement called runoff."
+  }
+ ],
+ "codex": [
+  {
+   "id": "organ:heart",
+   "title": "Heart",
+   "line": "The heart pumps blood to every part of the body."
+  },
+  {
+   "id": "organ:lungs",
+   "title": "Lungs",
+   "line": "The lungs take in oxygen from the air and let out carbon dioxide."
+  },
+  {
+   "id": "organ:brain",
+   "title": "Brain",
+   "line": "The brain controls the body and lets you think, learn, and remember."
+  },
+  {
+   "id": "organ:stomach",
+   "title": "Stomach",
+   "line": "The stomach mixes food with juices and breaks it down."
+  },
+  {
+   "id": "organ:small-intestine",
+   "title": "Small intestine",
+   "line": "The small intestine takes nutrients from food into the blood."
+  },
+  {
+   "id": "organ:pancreas",
+   "title": "Pancreas",
+   "line": "The pancreas makes juices that help digest food and helps control sugar in the blood."
+  },
+  {
+   "id": "organ:kidneys",
+   "title": "Kidneys",
+   "line": "The kidneys filter wastes from the blood to make urine."
+  },
+  {
+   "id": "organ:skin",
+   "title": "Skin",
+   "line": "The skin covers and protects the body, keeps germs out, and sweats to cool you."
+  },
+  {
+   "id": "specimen:manatee",
+   "title": "Manatee",
+   "line": "A mammal that lives in water, breathes air with lungs, and feeds its calves milk."
+  },
+  {
+   "id": "specimen:brown-pelican",
+   "title": "Brown pelican",
+   "line": "A bird with feathers and a backbone that lays hard-shelled eggs."
+  },
+  {
+   "id": "specimen:gopher-tortoise",
+   "title": "Gopher tortoise",
+   "line": "A reptile with dry, scaly skin that lays eggs on land."
+  },
+  {
+   "id": "specimen:green-tree-frog",
+   "title": "Green tree frog",
+   "line": "An amphibian with smooth, moist skin that starts life as a tadpole in water."
+  },
+  {
+   "id": "specimen:bull-shark",
+   "title": "Bull shark",
+   "line": "A fish with gills and fins; its backbone is made of cartilage, but it is still a vertebrate."
+  },
+  {
+   "id": "specimen:blue-crab",
+   "title": "Blue crab",
+   "line": "An arthropod with no backbone, an exoskeleton, and jointed legs."
+  }
+ ]
+}
