@@ -11,7 +11,7 @@ import Markers from './hub/Markers'
 const FINAL = { x: 0, y: 8.2, z: 9.2 }
 const START = { x: 8, y: 10, z: 15 }
 const LOOK = { x: 0, y: 1.3, z: 0.4 }
-const DRONE_POS: [number, number, number] = [-2.7, 2.5, 3.9]
+const DRONE_POS: [number, number, number] = [-2.15, 2.85, 2.2]
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 
@@ -52,7 +52,7 @@ export default function HubScene() {
       <ConsoleRing radius={13} count={16} arc={Math.PI * 1.1} />
       <MapTable reduced={reduced} />
       <Markers reduced={reduced} />
-      <Drone reduced={reduced} position={DRONE_POS} />
+      <Drone reduced={reduced} position={DRONE_POS} scale={1} />
       {cfg.contactShadow ? (
         <>
           <ContactShadow position={[0, 0.012, 0]} radius={5.4} opacity={0.85} />

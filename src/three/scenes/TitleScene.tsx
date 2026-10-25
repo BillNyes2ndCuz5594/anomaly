@@ -1,76 +1,66 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
-import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import {
   abs,
   color,
   float,
   fract,
-  hash,
-  instanceIndex,
   normalLocal,
-  step,
+  oneMinus,
   positionGeometry,
-  positionWorld,
   pow,
-  saturate,
-  sin,
   smoothstep,
   time,
 } from 'three/tsl'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
-import { layoutWord } from '../data/letters'
+import { layoutLogo } from '../data/logoShapes'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor, makeRadialTexture } from './common'
 
-const CUBE = 0.33
 const LOGO_BASE_Y = 1.05
+const LOGO_H = 2.3
 
-function LogoLetters() {
-  const { geo, mat, voxels } = useMemo(() => {
-    const voxels = layoutWord('ANOMALY', 1, 2)
-    const geo = new RoundedBoxGeometry(1, 1, 1, 3, 0.1)
+/** Beveled outline letters, merged into one mesh: dark metal body, glowing bevel edges, a slow light sweep. */
+function LogoLetters({ reduced }: { reduced: boolean }) {
+  const { geo, mat, width } = useMemo(() => {
+    const { glyphs, width } = layoutLogo('ANOMALY')
+    const parts = glyphs.map((g) => {
+      const shape = new THREE.Shape(g.outline.map(([x, y]) => new THREE.Vector2(x, y)))
+      for (const h of g.holes) shape.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x, y))))
+      const eg = new THREE.ExtrudeGeometry(shape, {
+        depth: 0.16,
+        bevelEnabled: true,
+        bevelThickness: 0.02,
+        bevelSize: 0.02,
+        bevelSegments: 2,
+        curveSegments: 4,
+      })
+      eg.translate(g.x, 0, -0.08)
+      return eg
+    })
+    const geo = mergeGeometries(parts)!
+    parts.forEach((g) => g.dispose())
 
     const m = new THREE.MeshStandardNodeMaterial()
-    m.color = new THREE.Color('#091526')
-    m.roughness = 0.38
-    m.metalness = 0.55
-    // Glowing cube edges: bright where two box axes are near their extremes.
-    const a = abs(positionGeometry).mul(2)
-    const ex = smoothstep(0.74, 0.93, a.x)
-    const ey = smoothstep(0.74, 0.93, a.y)
-    const ez = smoothstep(0.74, 0.93, a.z)
-    const edge = saturate(ex.mul(ey).add(ey.mul(ez)).add(ex.mul(ez)))
-    // A bright band that travels across the whole word.
-    const band = pow(fract(positionWorld.x.mul(0.055).sub(time.mul(0.12))), float(26))
-    const seed = hash(instanceIndex)
-    const pulse = float(0.82).add(sin(time.mul(1.4).add(seed.mul(6.283))).mul(0.18))
-    // Front faces carry a solid glow so the letters read as shapes, not just outlines.
-    const front = step(0.85, normalLocal.z).mul(float(0.42).add(sin(time.mul(0.9).add(seed.mul(6.283))).mul(0.06)))
-    const face = float(0.08).add(front)
-    m.emissiveNode = color('#3ee6ff').mul(edge.mul(2.6).add(face).add(band.mul(1.8)).mul(pulse))
-    return { geo, mat: m, voxels }
-  }, [])
+    m.color = new THREE.Color('#0b1a2e')
+    m.roughness = 0.3
+    m.metalness = 0.7
+    const nz = abs(normalLocal.z)
+    const bevel = smoothstep(0.1, 0.4, nz).mul(oneMinus(smoothstep(0.82, 0.97, nz)))
+    const front = smoothstep(0.9, 0.99, normalLocal.z)
+    const sweepPos = positionGeometry.x.mul(0.17).add(positionGeometry.y.mul(0.22))
+    const phase = reduced ? float(0.35) : time.mul(0.13)
+    const band = pow(oneMinus(abs(fract(sweepPos.sub(phase)).sub(0.5)).mul(2)), float(14))
+    const fill = float(0.26).add(positionGeometry.y.mul(0.22))
+    const glow = bevel.mul(3.4).add(front.mul(fill)).add(band.mul(front.mul(1.2).add(bevel.mul(2.2)).add(0.15)))
+    m.emissiveNode = color('#3ee6ff').mul(glow)
+    return { geo, mat: m, width }
+  }, [reduced])
 
-  const ref = useRef<THREE.InstancedMesh>(null)
-  useEffect(() => {
-    const mesh = ref.current
-    if (!mesh) return
-    const m4 = new THREE.Matrix4()
-    const gap = 0.95
-    voxels.forEach((v, i) => {
-      m4.compose(
-        new THREE.Vector3(v.x * CUBE, v.y * CUBE, v.z * CUBE),
-        new THREE.Quaternion(),
-        new THREE.Vector3(CUBE * gap, CUBE * gap, CUBE * gap * 1.9),
-      )
-      mesh.setMatrixAt(i, m4)
-    })
-    mesh.instanceMatrix.needsUpdate = true
-  }, [voxels])
   useEffect(
     () => () => {
       geo.dispose()
@@ -78,7 +68,36 @@ function LogoLetters() {
     },
     [geo, mat],
   )
-  return <instancedMesh ref={ref} args={[geo, mat, voxels.length]} frustumCulled={false} />
+  const w = width * LOGO_H
+  return (
+    <group>
+      <mesh geometry={geo} material={mat} scale={[LOGO_H, LOGO_H, LOGO_H * 1.4]} />
+      <UnderlineBar width={w} y={-0.3} />
+    </group>
+  )
+}
+
+/** Thin amber rule with end ticks under the logo. */
+function UnderlineBar({ width, y }: { width: number; y: number }) {
+  const mat = useMemo(() => {
+    const m = new THREE.MeshBasicNodeMaterial()
+    m.colorNode = color('#ffb547').mul(2.4)
+    return m
+  }, [])
+  useEffect(() => () => mat.dispose(), [mat])
+  return (
+    <group position={[0, y, 0]}>
+      <mesh material={mat}>
+        <boxGeometry args={[width, 0.035, 0.05]} />
+      </mesh>
+      <mesh material={mat} position={[-width / 2, 0.1, 0]}>
+        <boxGeometry args={[0.035, 0.24, 0.05]} />
+      </mesh>
+      <mesh material={mat} position={[width / 2, 0.1, 0]}>
+        <boxGeometry args={[0.035, 0.24, 0.05]} />
+      </mesh>
+    </group>
+  )
 }
 
 function LogoGlow({ y }: { y: number }) {
@@ -157,7 +176,7 @@ export default function TitleScene() {
       <GridFloor fade={34} />
       <ConsoleRing radius={17} count={20} arc={Math.PI * 1.3} />
       <group position={[0, LOGO_BASE_Y, 0]}>
-        <LogoLetters />
+        <LogoLetters reduced={reduced} />
       </group>
       <LogoGlow y={LOGO_BASE_Y + 1.3} />
       <HoloRings />
