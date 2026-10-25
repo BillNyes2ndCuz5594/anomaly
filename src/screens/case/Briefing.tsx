@@ -4,9 +4,10 @@ import { useReadAloud, wordAt } from '../../lib/speech'
 import { useSession } from '../../state/session'
 import { CaseTop } from './ui'
 
-export default function Briefing() {
+export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) {
   const next = useSession((s) => s.next)
-  const c = content.case
+  const cold = kind === 'cold'
+  const c = cold ? content.coldCase : content.case
   const text = c.briefing.join(' ')
   const ra = useReadAloud(text)
 
@@ -29,9 +30,9 @@ export default function Briefing() {
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1
 
   return (
-    <div className="screen case-screen" data-testid="briefing">
+    <div className="screen case-screen" data-testid={cold ? 'cold-intro' : 'briefing'}>
       <CaseTop step="briefing" />
-      <aside className="panel brackets side-panel dispatch-card" aria-label="Dispatch briefing">
+      <aside className="panel brackets side-panel dispatch-card" aria-label={cold ? 'Dispatch briefing, cold case' : 'Dispatch briefing'}>
         <header className="dispatch-head">
           <span className="dispatch-dot" aria-hidden="true" />
           <span className="mono label amber">DISPATCH</span>
@@ -39,7 +40,7 @@ export default function Briefing() {
             <i /> <i /> <i /> <i />
           </span>
         </header>
-        <h1 className="mono dispatch-title">CASE 03-1 VITALS</h1>
+        <h1 className="mono dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
         <p className="dispatch-hook">{c.dispatchHook}</p>
         <div className="dispatch-lines" data-testid="briefing-text">
           {layout.lines.map((words, li) => (
@@ -70,8 +71,8 @@ export default function Briefing() {
               </span>
             ) : null}
           </div>
-          <button type="button" className="btn primary big" data-testid="briefing-continue" onClick={next}>
-            Start field lab
+          <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} onClick={next}>
+            {cold ? 'Open the evidence' : 'Start field lab'}
           </button>
         </div>
       </aside>

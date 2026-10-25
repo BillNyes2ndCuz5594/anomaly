@@ -3,7 +3,9 @@ import { content } from '../../content/schema'
 import { navigate } from '../../lib/router'
 import { MASTERY_STAGES, parseISO, stageFraction, stageIndex, type MasteryStage } from '../../state/mastery'
 import { useSession } from '../../state/session'
-import { HUB_BENCHMARKS, MASTERY_LABEL, rankFor, useGame } from '../../state/store'
+import { CATALOG_BENCHMARKS } from '../../lib/catalog.generated'
+import { MASTERY_LABEL, rankFor, useGame } from '../../state/store'
+import ReportCodePanel from '../../ui/ReportCodePanel'
 import { CaseTop } from './ui'
 
 function dueLabel(iso: string | null | undefined): string {
@@ -11,12 +13,16 @@ function dueLabel(iso: string | null | undefined): string {
   return new Date(parseISO(iso)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-const LABELS: Record<string, string> = Object.fromEntries(HUB_BENCHMARKS.map((b) => [b.id, b.label]))
+const LABELS: Record<string, string> = Object.fromEntries(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
 
 export default function Results() {
   const items = useSession((s) => s.items)
   const answers = useSession((s) => s.answers)
   const before = useSession((s) => s.stagesBefore)
+  const kind = useSession((s) => s.kind)
+  const benchmarks = useSession((s) => s.benchmarks)
+  const caseId = useSession((s) => s.caseId) ?? content.case.id
+  const caseLabel = kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`
   const paint = useSession((s) => s.paint)
   const progress = useGame((s) => s.progress)
   const mastery = useGame((s) => s.mastery)
@@ -30,7 +36,7 @@ export default function Results() {
   }, [])
 
   const intel = answers.reduce((n, a) => n + a.intel, 0)
-  const rows = content.case.benchmarks.map((b) => {
+  const rows = benchmarks.map((b) => {
     const mine = items.filter((i) => i.benchmark === b)
     const got = mine.filter((i) => answers.find((a) => a.itemId === i.id)?.correct).length
     const from = (before[b] ?? 'unseen') as MasteryStage
@@ -92,14 +98,14 @@ export default function Results() {
             <strong className="reward-num mono">{intel}</strong>
             <span className="muted tiny">Total Intel: {intelTotal}</span>
           </div>
-          <div className="reward" data-testid="case-status" data-closed={cases[content.case.id]?.closed ? 'yes' : 'no'}>
-            <span className="mono label amber">CASE 03-1 VITALS</span>
+          <div className="reward" data-testid="case-status" data-closed={cases[caseId]?.closed ? 'yes' : 'no'}>
+            <span className="mono label amber">{caseLabel}</span>
             <p>
-              <span aria-hidden="true">{cases[content.case.id]?.closed ? '\u2714' : '\u25CB'}</span>{' '}
-              <strong>{cases[content.case.id]?.closed ? 'Case closed' : 'Case still open'}</strong>
+              <span aria-hidden="true">{cases[caseId]?.closed ? '\u2714' : '\u25CB'}</span>{' '}
+              <strong>{cases[caseId]?.closed ? (kind === 'cold' ? 'Residue cleared' : 'Case closed') : 'Case still open'}</strong>
             </p>
             <span className="muted tiny">
-              {cases[content.case.id] ? `${cases[content.case.id].score} of ${cases[content.case.id].total} correct` : ''}
+              {cases[caseId] ? `${cases[caseId].score} of ${cases[caseId].total} correct` : ''}
             </span>
           </div>
           <div className="reward" data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
@@ -119,6 +125,7 @@ export default function Results() {
             </p>
             <span className="muted tiny">Codex entries: {codexCount}</span>
           </div>
+          <ReportCodePanel intro="Copy this into your Canvas assignment. It also resumes your progress on another laptop." />
           <button type="button" className="btn primary big" data-testid="back-to-hub" onClick={() => navigate('/hub')}>
             Back to hub
           </button>

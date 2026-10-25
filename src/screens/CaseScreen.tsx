@@ -27,18 +27,18 @@ function Placeholder({ label, text }: { label: string; text: string }) {
   )
 }
 
-function CaseFlow({ id }: { id: string }) {
+function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
   const caseId = useSession((s) => s.caseId)
   const step = useSession((s) => s.step)
   const start = useSession((s) => s.start)
   useEffect(() => {
-    start(id)
+    start(id, kind)
     return () => useSession.setState({ caseId: null })
-  }, [id, start])
+  }, [id, kind, start])
   if (caseId !== id) return null
   switch (step) {
     case 'briefing':
-      return <Briefing />
+      return kind === 'cold' ? <Briefing kind="cold" /> : <Briefing />
     case 'lab-a':
       return <LabA />
     case 'lab-b':
@@ -55,7 +55,10 @@ function CaseFlow({ id }: { id: string }) {
 }
 
 export default function CaseScreen({ kind, id }: { kind: 'case' | 'cold'; id: string }) {
-  if (kind === 'cold') return <Placeholder label={`COLD CASE ${id.toUpperCase()}`} text="Cold case missions arrive in a later update." />
+  if (kind === 'cold') {
+    if (id !== content.coldCase.id) return <Placeholder label={`COLD CASE ${id.toUpperCase()}`} text="No such case on file." />
+    return <CaseFlow id={id} kind="cold" />
+  }
   if (id !== content.case.id) return <Placeholder label={`CASE ${id.toUpperCase()}`} text="No such case on file." />
-  return <CaseFlow id={id} />
+  return <CaseFlow id={id} kind="case" />
 }

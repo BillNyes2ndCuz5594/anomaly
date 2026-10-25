@@ -2,8 +2,9 @@ import { Billboard } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three/webgpu'
-import { color, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
+import { color, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
 import { navigate } from '../../../lib/router'
+import { useReviewDue } from '../../../state/due'
 import { useRuntime } from '../../../state/runtime'
 import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
@@ -21,9 +22,11 @@ interface MarkerProps {
   /** 1 puts the label to the right of the gem, -1 to the left. */
   side: 1 | -1
   reduced: boolean
+  /** Glow level, 1 is full. A cold case with no review due idles at a lower glow. */
+  glow?: number
 }
 
-function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced }: MarkerProps) {
+function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow = 1 }: MarkerProps) {
   const [x, z] = lonLatToXZ(lon, lat)
   const gem = useRef<THREE.Group>(null)
   const root = useRef<THREE.Group>(null)
@@ -31,8 +34,9 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced }: Ma
   const focused = useRuntime((s) => s.focusedMarker === id)
   const active = hover || focused
 
+  const glowU = useMemo(() => uniform(glow), []) // eslint-disable-line react-hooks/exhaustive-deps
   const { gemMat, wireMat, beamMat, ringMat, label } = useMemo(() => {
-    const c = color(hex)
+    const c = color(hex).mul(glowU)
     const gemMat = new THREE.MeshStandardNodeMaterial()
     gemMat.color = new THREE.Color('#06101c')
     gemMat.roughness = 0.2
@@ -75,7 +79,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced }: Ma
     labelMat.depthWrite = false
     labelMat.depthTest = false
     return { gemMat, wireMat, beamMat, ringMat, label: { ...label, mat: labelMat } }
-  }, [hex, title, sub])
+  }, [hex, title, sub, glowU])
 
   useEffect(
     () => () => {
@@ -91,6 +95,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced }: Ma
 
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
+    glowU.value += (glow - glowU.value) * Math.min(1, dt * 4)
     if (gem.current) {
       if (!reduced) {
         gem.current.rotation.y += dt * 0.9
@@ -167,6 +172,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced }: Ma
 
 /** Case markers floating over the map. Mirrored as HTML buttons in the side panel. */
 export default function Markers({ reduced }: { reduced: boolean }) {
+  const due = useReviewDue()
   return (
     <>
       <Marker
@@ -189,9 +195,10 @@ export default function Markers({ reduced }: { reduced: boolean }) {
         hex="#3ee6ff"
         title="COLD CASE RESIDUE"
         sub="Review"
-        to="/cold/residue"
+        to="/cold/cold-1"
         side={1}
         reduced={reduced}
+        glow={due ? 1.35 : 0.5}
       />
     </>
   )

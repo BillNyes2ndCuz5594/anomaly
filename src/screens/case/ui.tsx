@@ -1,13 +1,15 @@
 import type { ReactNode } from 'react'
 import { navigate } from '../../lib/router'
 import { useReadAloud } from '../../lib/speech'
-import { CASE_STEPS, type CaseStep } from '../../state/session'
+import { stepsFor, useSession, type CaseKind, type CaseStep } from '../../state/session'
+import { content } from '../../content/schema'
 
-export function StepBar({ step }: { step: CaseStep }) {
-  const idx = CASE_STEPS.findIndex((s) => s.id === step)
+export function StepBar({ step, kind = 'case' }: { step: CaseStep; kind?: CaseKind }) {
+  const steps = stepsFor(kind)
+  const idx = steps.findIndex((s) => s.id === step)
   return (
     <ol className="stepbar" data-testid="step-indicator" aria-label="Case progress">
-      {CASE_STEPS.map((s, i) => (
+      {steps.map((s, i) => (
         <li
           key={s.id}
           className={i < idx ? 'done' : i === idx ? 'now' : ''}
@@ -26,13 +28,14 @@ export function StepBar({ step }: { step: CaseStep }) {
 }
 
 export function CaseTop({ step }: { step: CaseStep }) {
+  const kind = useSession((s) => s.kind)
   return (
     <div className="topbar case-top">
       <button type="button" className="btn small" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
         Hub
       </button>
-      <StepBar step={step} />
-      <span className="mono label case-tag">CASE 03-1 VITALS</span>
+      <StepBar step={step} kind={kind} />
+      <span className="mono label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`}</span>
     </div>
   )
 }

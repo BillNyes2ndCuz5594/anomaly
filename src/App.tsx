@@ -39,6 +39,8 @@ function SceneFor({ route }: { route: Route }) {
       return <HubScene />
     case 'case':
       return <CaseScene />
+    case 'cold':
+      return <CaseScene cold />
     default:
       return <AmbientScene />
   }
@@ -79,7 +81,7 @@ export default function App() {
       <div className={ready ? 'stage-layer ready' : 'stage-layer'}>
         <StageBoundary>
           <Suspense fallback={null}>
-            <Stage rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' ? caseInset(step) : 0}>
+            <Stage rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
               <Suspense fallback={null}>
                 <SceneFor key={route.name} route={route} />
               </Suspense>
