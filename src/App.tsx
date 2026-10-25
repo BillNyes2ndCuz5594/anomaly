@@ -2,9 +2,11 @@ import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { navigate, parseHash, useHash, type Route } from './lib/router'
 import CaseScreen from './screens/CaseScreen'
 import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
+import { caseInset } from './screens/case/layout'
 import SettingsScreen from './screens/SettingsScreen'
 import TitleScreen from './screens/TitleScreen'
 import { useRuntime } from './state/runtime'
+import { useSession } from './state/session'
 import { useGame } from './state/store'
 import FpsReadout from './ui/FpsReadout'
 import { useApplySettings } from './ui/useApplySettings'
@@ -14,6 +16,7 @@ const Stage = lazy(() => import('./three/Stage'))
 const TitleScene = lazy(() => import('./three/scenes/TitleScene'))
 const HubScene = lazy(() => import('./three/scenes/HubScene'))
 const AmbientScene = lazy(() => import('./three/scenes/AmbientScene'))
+const CaseScene = lazy(() => import('./three/scenes/CaseScene'))
 
 class StageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
@@ -34,6 +37,8 @@ function SceneFor({ route }: { route: Route }) {
       return <TitleScene />
     case 'hub':
       return <HubScene />
+    case 'case':
+      return <CaseScene />
     default:
       return <AmbientScene />
   }
@@ -60,6 +65,7 @@ export default function App() {
   const route = parseHash(hash)
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
+  const step = useSession((s) => s.step)
 
   // Routes past the title need an agent. Send new visitors to check in first.
   const needsProfile = (route.name === 'hub' || route.name === 'case' || route.name === 'cold') && !profile
@@ -73,7 +79,7 @@ export default function App() {
       <div className={ready ? 'stage-layer ready' : 'stage-layer'}>
         <StageBoundary>
           <Suspense fallback={null}>
-            <Stage rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : 0}>
+            <Stage rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' ? caseInset(step) : 0}>
               <Suspense fallback={null}>
                 <SceneFor key={route.name} route={route} />
               </Suspense>

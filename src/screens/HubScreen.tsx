@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { codexById } from '../content/schema'
 import { navigate } from '../lib/router'
 import { HUB_BENCHMARKS, MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
@@ -21,6 +22,7 @@ function Pips({ stage }: { stage: MasteryStage }) {
 export default function HubScreen() {
   const profile = useGame((s) => s.profile)
   const mastery = useGame((s) => s.mastery)
+  const codex = useGame((s) => s.codex)
   const setFocused = useRuntime((s) => s.setFocusedMarker)
   const [notice, setNotice] = useState<string | null>(null)
   if (!profile) return null
@@ -115,6 +117,27 @@ export default function HubScreen() {
           </button>
         </footer>
       </aside>
+
+      <details className="panel brackets codex-panel" data-testid="codex-panel">
+        <summary className="mono">
+          CODEX <span className="muted" data-testid="codex-count">{codex.length} unlocked</span>
+        </summary>
+        {codex.length === 0 ? (
+          <p className="muted">Nothing logged yet. Correct answers and finished labs add entries.</p>
+        ) : (
+          <ul className="codex-list">
+            {codex.map((id) => {
+              const e = codexById.get(id)
+              return e ? (
+                <li key={id} data-testid={`codex-${id}`}>
+                  <strong className="mono">{e.title}</strong>
+                  <span>{e.line}</span>
+                </li>
+              ) : null
+            })}
+          </ul>
+        )}
+      </details>
 
       {notice ? <NoticeModal title="Report Code" text={notice} onClose={() => setNotice(null)} /> : null}
     </div>
