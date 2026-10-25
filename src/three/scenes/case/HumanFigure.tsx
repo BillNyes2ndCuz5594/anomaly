@@ -20,6 +20,8 @@ export interface HumanFigureProps {
 }
 
 const SKIN_TINT = '#3ee6ff'
+/** Small head organs idle dimmer so the face silhouette reads; hover, highlight and flash keep full strength. */
+const CALM_IDLE: Record<string, number> = { eyes: 0.5, ears: 0.55, nose: 0.7, tongue: 0.8, brain: 0.75 }
 
 function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganDef; mode: HumanFigureProps['mode']; highlighted: boolean; dimOthers: boolean; reduced: boolean }) {
   const ref = useRef<THREE.Mesh>(null)
@@ -81,6 +83,8 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
     }
     // The heart keeps a gentle idle beat.
     if (def.id === 'heart' && !reduced) pulse *= 1 + 0.03 * Math.pow(Math.sin(now * 5) * 0.5 + 0.5, 4)
+    const calm = CALM_IDLE[def.id]
+    if (calm !== undefined && g < 0.8) g *= calm
     const f = Math.min(1, dt * 10)
     glow.current += (g - glow.current) * f
     body.current += (dim - body.current) * f

@@ -30,12 +30,12 @@ function build(id: string): THREE.BufferGeometry {
   switch (id) {
     case 'brain':
       for (const k of [-1, 1]) {
-        b.ell([k * 0.15, 6.36, 0.0], [0.19, 0.2, 0.3], '#fff', [0, 0, 0], 28, 18)
-          .ell([k * 0.17, 6.4, 0.17], [0.17, 0.17, 0.14], '#fff', [0, 0, 0], 20, 14)
-          .ell([k * 0.22, 6.22, -0.02], [0.12, 0.1, 0.22], '#fff', [0, 0, k * 0.2], 20, 14)
-          .ell([k * 0.14, 6.42, -0.17], [0.15, 0.15, 0.14], '#fff', [0, 0, 0], 20, 14)
+        b.ell([k * 0.11, 6.36, 0.0], [0.19, 0.2, 0.3], '#fff', [0, 0, 0], 28, 18)
+          .ell([k * 0.12, 6.4, 0.17], [0.17, 0.17, 0.14], '#fff', [0, 0, 0], 20, 14)
+          .ell([k * 0.17, 6.22, -0.02], [0.12, 0.1, 0.22], '#fff', [0, 0, k * 0.2], 20, 14)
+          .ell([k * 0.1, 6.42, -0.17], [0.15, 0.15, 0.14], '#fff', [0, 0, 0], 20, 14)
       }
-      b.ell([0, 6.14, -0.27], [0.19, 0.09, 0.11], '#fff', [0, 0, 0], 20, 14).limb([[0, 6.2, -0.1], [0, 6.0, -0.1], [0, 5.84, -0.08]], [0.07, 0.055, 0.04], {}, { radial: 10 })
+      b.ell([0, 6.14, -0.27], [0.19, 0.09, 0.11], '#fff', [0, 0, 0], 20, 14).limb([[0, 6.2, -0.1], [0, 6.08, -0.1], [0, 6.0, -0.08]], [0.07, 0.055, 0.04], {}, { radial: 10 })
       break
     case 'heart':
       b.limb([[0.06, 4.62, 0.12], [0.15, 4.4, 0.14], [0.26, 4.15, 0.15]], [[0.3, 0.25], [0.3, 0.26], [0.07, 0.07]], {}, { radial: 18 })
@@ -91,27 +91,34 @@ function build(id: string): THREE.BufferGeometry {
       b.limb([[0, 2.82, 0.1], [0, 2.98, 0.1], [0, 3.14, 0.1]], [[0.1, 0.1], [0.18, 0.16], [0.06, 0.06]], {}, { radial: 14 })
       break
     case 'eyes':
+      // Small and set into the face: the shell silhouette stays readable, the eyes are a subtle glint.
       for (const k of [-1, 1]) {
-        b.ell([k * 0.2, 6.18, 0.33], [0.1, 0.1, 0.1], '#fff', [0, 0, 0], 16, 12).ell([k * 0.2, 6.18, 0.425], [0.05, 0.05, 0.03], '#241c14', [0, 0, 0], 12, 8).limb([[k * 0.19, 6.2, 0.24], [k * 0.12, 6.16, 0.0], [k * 0.05, 6.1, -0.18]], 0.03, {}, { radial: 8 })
+        b.ell([k * 0.17, 6.18, 0.35], [0.075, 0.075, 0.075], '#fff', [0, 0, 0], 16, 12).ell([k * 0.17, 6.18, 0.42], [0.036, 0.036, 0.022], '#241c14', [0, 0, 0], 12, 8)
       }
       break
     case 'ears':
+      // At the sides of the head, where the shell has its own ear bumps.
       for (const k of [-1, 1]) {
-        b.ell([k * 0.29, 6.12, 0.0], [0.07, 0.13, 0.11], '#fff', [0, 0, 0], 12, 10).limb([[k * 0.37, 6.1, 0.0], [k * 0.26, 6.1, 0.0], [k * 0.12, 6.08, 0.02]], 0.035, {}, { radial: 8 })
-        b.torus(0.055, 0.025, { p: [k * 0.26, 6.2, 0.0], r: [0, Math.PI / 2, 0] }, 8, 14, Math.PI * 1.5)
+        b.ell([k * 0.43, 6.13, -0.02], [0.045, 0.095, 0.065], '#fff', [0, 0, k * 0.12], 12, 10)
       }
       break
     case 'nose':
       b.limb([[0, 6.14, 0.22], [0, 6.04, 0.42], [0, 5.97, 0.53]], [[0.05, 0.05], [0.07, 0.07], [0.09, 0.08]], {}, { radial: 12 })
-        .ell([-0.065, 5.95, 0.5], [0.055, 0.045, 0.06], '#fff', [0, 0, 0], 10, 8)
-        .ell([0.065, 5.95, 0.5], [0.055, 0.045, 0.06], '#fff', [0, 0, 0], 10, 8)
+        .ell([-0.065, 5.95, 0.5], [0.045, 0.04, 0.05], '#fff', [0, 0, 0], 10, 8)
+        .ell([0.065, 5.95, 0.5], [0.045, 0.04, 0.05], '#fff', [0, 0, 0], 10, 8)
       break
     case 'tongue':
       b.limb([[0, 5.88, -0.04], [0, 5.86, 0.16], [0, 5.87, 0.34]], [[0.1, 0.05], [0.12, 0.055], [0.08, 0.045]], {}, { radial: 12 })
       break
   }
   const geo = b.build()
-  if (id === 'brain') foldBrain(geo)
+  if (id === 'brain') {
+    // Shrink about the middle of the skull so both lobes sit well inside the head shell.
+    geo.translate(0, -6.3, 0.05)
+    geo.scale(0.8, 0.8, 0.8)
+    geo.translate(0, 6.38, -0.13)
+    foldBrain(geo)
+  }
   return geo
 }
 
@@ -136,7 +143,7 @@ const smoothstep = (a: number, b: number, x: number): number => {
 
 /**
  * Whole body outer shell. A smooth stylized adult built from tapered tubes: neck, sloped shoulders, relaxed arms
- * with a soft elbow bend, a sculpted head (jaw, brow, nose, no ears), legs and feet. Feet at y = 0, about 6.6 units
+ * with a soft elbow bend, a sculpted head (jaw, brow, nose, ear bumps), legs and feet. Feet at y = 0, about 6.6 units
  * tall, facing +z. Torso organs sit between 2.8 and 5.3, head organs inside the skull.
  */
 function buildSkin(): THREE.BufferGeometry {
@@ -154,6 +161,8 @@ function buildSkin(): THREE.BufferGeometry {
   b.limb([[0, 6.2, 0.4], [0, 6.07, 0.5], [0, 5.99, 0.6]], [[0.045, 0.05], [0.07, 0.07], [0.085, 0.075]], {}, { radial: 12, seg: 6 })
   b.limb([[-0.31, 6.27, 0.3], [-0.16, 6.3, 0.41], [0, 6.3, 0.44], [0.16, 6.3, 0.41], [0.31, 6.27, 0.3]], 0.06, {}, { radial: 10, seg: 6 })
   for (const k of [-1, 1]) {
+    // Ear bumps give the head its human silhouette; the ear organ sits inside them.
+    b.ell([k * 0.42, 6.13, -0.02], [0.07, 0.125, 0.09], '#fff', [0, 0, k * 0.12], 14, 10)
     b.limb(ARM.map((p) => mx(k, p)), ARM_R, {}, { radial: 14, seg: 6 })
     // Hand: flat palm and fingers with a thumb tucked forward.
     b.limb([[k * 1.64, 3.15, 0.3], [k * 1.7, 2.96, 0.35], [k * 1.74, 2.72, 0.39], [k * 1.76, 2.5, 0.41]], [[0.1, 0.06], [0.125, 0.06], [0.12, 0.05], [0.05, 0.035]], {}, { radial: 12, seg: 5 })
