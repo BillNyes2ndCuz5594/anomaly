@@ -1,4 +1,4 @@
-import { resolveTier } from '../state/quality'
+import { isAutoActive, resolveTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 
@@ -14,12 +14,12 @@ export default function FpsReadout() {
   if (!show && !isDebugUrl()) return null
   const tier = resolveTier(quality, autoTier)
   return (
-    <div className="fps-readout" data-testid="fps-readout" role="status" aria-label="Performance readout">
+    <div className="fps-readout" data-testid="fps-readout" aria-hidden="true">
       <span>{fps.toFixed(0)} FPS</span>
       <span>{backend.toUpperCase()}</span>
       <span>
         {tier.toUpperCase()}
-        {quality === 'auto' ? ' (AUTO)' : ''}
+        {isAutoActive(quality) ? ' (AUTO)' : ''}
       </span>
     </div>
   )

@@ -48,7 +48,27 @@ export function autoStartTier(backend: Backend): Tier {
   return backend === 'webgpu' ? 'high' : 'medium'
 }
 
+/** `?tier=low|medium|high|ultra` pins the tier and turns Auto off (proof and debugging). */
+export function urlTier(): Tier | null {
+  if (typeof window === 'undefined') return null
+  const v = new URLSearchParams(window.location.search).get('tier')
+  return v && (TIERS as readonly string[]).includes(v) ? (v as Tier) : null
+}
+
+/** `?backend=webgl2` forces three's WebGL2 backend even when WebGPU exists. */
+export function urlForceWebGL(): boolean {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('backend') === 'webgl2'
+}
+
+/** True when the Auto controller is allowed to change the tier. */
+export function isAutoActive(setting: QualitySetting): boolean {
+  return setting === 'auto' && urlTier() === null
+}
+
 export function resolveTier(setting: QualitySetting, autoTier: Tier): Tier {
+  const pinned = urlTier()
+  if (pinned) return pinned
   return setting === 'auto' ? autoTier : setting
 }
 

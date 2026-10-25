@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import type { Backend, Tier } from '../state/quality'
-import { TIER_CONFIG } from '../state/quality'
+import { TIER_CONFIG, urlForceWebGL } from '../state/quality'
 
 export interface RendererInfo {
   renderer: THREE.WebGPURenderer
@@ -27,6 +27,7 @@ export async function createRenderer(
     canvas: props.canvas as HTMLCanvasElement,
     antialias: TIER_CONFIG[tier].antialias,
     alpha: false,
+    forceWebGL: urlForceWebGL(),
     powerPreference: 'high-performance',
   })
   renderer.toneMapping = THREE.ACESFilmicToneMapping

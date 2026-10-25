@@ -10,8 +10,10 @@ import {
   type AutoState,
   type Backend,
   type Tier,
+  isAutoActive,
   isPostTier,
 } from '../state/quality'
+import type * as THREE from 'three/webgpu'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import PostFX from './PostFX'
@@ -19,7 +21,7 @@ import { createRenderer } from './renderer'
 
 declare global {
   interface Window {
-    __anomaly?: { fps: number; tier: Tier; backend: Backend }
+    __anomaly?: { fps: number; tier: Tier; backend: Backend; frame: number; calls: number; triangles: number; geometries: number; textures: number }
   }
 }
 
@@ -33,8 +35,25 @@ function Runtime() {
   const auto = useRef<AutoState>(initialAutoState(useRuntime.getState().autoTier))
   const graceUntil = useRef(performance.now() + GRACE_MS)
   const lastTier = useRef<Tier | null>(null)
+  const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
+  // Draw stats of the last finished frame, including post passes. Info resets once per frame here.
+  const stats = useRef({ calls: 0, triangles: 0 })
+  const frame = useRef(0)
+
+  useEffect(() => {
+    gl.info.autoReset = false
+    return () => {
+      gl.info.autoReset = true
+    }
+  }, [gl])
 
   useFrame(() => {
+    stats.current = { calls: gl.info.render.drawCalls, triangles: gl.info.render.triangles }
+    gl.info.reset()
+  }, -100)
+
+  useFrame(() => {
+    frame.current++
     const arr = stamps.current
     arr.push(performance.now())
     if (arr.length > 600) arr.splice(0, arr.length - 600)
@@ -55,15 +74,24 @@ function Runtime() {
       const fps = rollingFps(stamps.current, now)
       const rounded = Math.round(fps * 10) / 10
       setFps(rounded)
-      window.__anomaly = { fps: rounded, tier, backend }
+      window.__anomaly = {
+        fps: rounded,
+        tier,
+        backend,
+        frame: frame.current,
+        calls: stats.current.calls,
+        triangles: stats.current.triangles,
+        geometries: gl.info.memory.geometries,
+        textures: gl.info.memory.textures,
+      }
 
-      if (quality !== 'auto' || document.hidden || now < graceUntil.current || fps === 0) return
+      if (!isAutoActive(quality) || document.hidden || now < graceUntil.current || fps === 0) return
       const next = stepAuto({ ...auto.current, tier: useRuntime.getState().autoTier }, fps, SAMPLE_MS)
       auto.current = next
       if (next.tier !== useRuntime.getState().autoTier) setAutoTier(next.tier)
     }, SAMPLE_MS)
     return () => window.clearInterval(id)
-  }, [])
+  }, [gl])
 
   return null
 }
@@ -105,7 +133,7 @@ export default function Stage({ children, rightInset = 0 }: StageProps) {
       createRenderer(props, initialTier.current, (backend) => {
         const rt = useRuntime.getState()
         rt.setBackend(backend)
-        if (useGame.getState().settings.quality === 'auto') rt.setAutoTier(autoStartTier(backend))
+        if (isAutoActive(useGame.getState().settings.quality)) rt.setAutoTier(autoStartTier(backend))
       }),
     [],
   )
