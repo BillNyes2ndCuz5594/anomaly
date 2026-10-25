@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import * as THREE from 'three/webgpu'
+import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
@@ -101,7 +102,7 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
 }
 
 /**
- * Chunky hologram human with every organ as its own mesh. Facing +z, feet at y = 0, about 5 units tall.
+ * Hologram human with every organ as its own mesh. Facing +z, feet at y = 0, about 6.5 units tall.
  * Skin is one translucent merged shell. Pointer events are handled per part (see choosePart).
  */
 export default function HumanFigure({ mode, highlight = [], spin = false, reduced = false, showMuscles = false, scale = 1, children }: HumanFigureProps) {
@@ -131,7 +132,9 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
   useFrame((state, dt) => {
     const g = group.current
     if (g) {
-      if (mode === 'visual') {
+      if (STILL) {
+        g.rotation.y = 0.3
+      } else if (mode === 'visual') {
         g.rotation.y = reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.6) * 0.5
       } else if (spin && !reduced) {
         const hovering = mode === 'lab' && useFx.getState().hover !== null

@@ -1,5 +1,6 @@
-import type * as THREE from 'three/webgpu'
+import * as THREE from 'three/webgpu'
 import { Builder, recenter, type V3 } from './builder'
+import { translateBox, unionBox, type Box } from '../fit'
 
 export interface OrganDef {
   id: string
@@ -95,22 +96,43 @@ function build(id: string): THREE.BufferGeometry {
   return b.build()
 }
 
-/** Whole body outer shell. Chunky, readable silhouette, built from simple solids. */
+/**
+ * Whole body outer shell. A clean stylized adult: neck, sloped shoulders, tapered limbs, hands and feet.
+ * Feet at y = 0, about 6.5 units tall, facing +z. Torso organs sit in the 3.0 to 5.3 band, head organs in the head.
+ */
 function buildSkin(): THREE.BufferGeometry {
   const b = new Builder()
-  b.sphere(0.6, { p: [0, 4.45, 0], s: [0.95, 1.05, 1] }, 16, 12)
-    .cyl(0.23, 0.27, 0.4, { p: [0, 3.95, 0] }, 12)
-    .capsule(0.8, 0.9, { p: [0, 2.85, 0], s: [1.08, 1, 0.66] }, 16)
-    .sphere(0.8, { p: [0, 1.65, 0], s: [1.0, 0.58, 0.64] }, 14, 8)
-  for (const x of mirror(1)) {
-    const k = Math.sign(x)
-    b.sphere(0.42, { p: [x, 3.62, 0] }, 12, 8)
-      .capsule(0.27, 0.75, { p: [k * 1.2, 3.0, 0], r: [0, 0, -k * 0.12] }, 10)
-      .capsule(0.23, 0.7, { p: [k * 1.32, 2.0, 0], r: [0, 0, -k * 0.07] }, 10)
-      .sphere(0.27, { p: [k * 1.38, 1.36, 0] }, 10, 8)
-      .capsule(0.38, 0.6, { p: [k * 0.42, 1.2, 0] }, 12)
-      .capsule(0.3, 0.3, { p: [k * 0.42, 0.45, 0] }, 10)
-      .sphere(0.3, { p: [k * 0.42, 0.13, 0.2], s: [0.95, 0.5, 1.5] }, 10, 8)
+  // Trunk as one lathe (smooth), squashed front to back.
+  b.lathe(
+    [[0.0, 3.0], [0.42, 3.03], [0.66, 3.12], [0.78, 3.34], [0.78, 3.7], [0.75, 4.0], [0.76, 4.3], [0.82, 4.62], [0.88, 4.9], [0.94, 5.08], [0.8, 5.22], [0.46, 5.3], [0.22, 5.36], [0.0, 5.4]],
+    { s: [1, 1, 0.62] },
+    28,
+  )
+  // Neck and head: a longer jaw under a rounder skull so the head reads as a face, not a ball.
+  b.cyl(0.19, 0.23, 0.5, { p: [0, 5.52, 0.03] }, 16)
+    .sphere(0.5, { p: [0, 6.02, 0], s: [1.02, 1.0, 1.1] }, 24, 18)
+    .sphere(0.38, { p: [0, 5.74, 0.13], s: [0.98, 0.9, 0.92] }, 18, 12)
+  for (const k of [-1, 1]) {
+    const x = k * 0.97
+    // Arm: shoulder cap, upper arm, elbow, forearm, hand with four fingers and a thumb.
+    b.sphere(0.27, { p: [x, 5.0, 0], s: [1, 1.05, 1] }, 16, 12)
+      .seg([x, 5.0, 0], [k * 1.1, 4.0, 0.02], 0.22, undefined, 0.17, 14)
+      .sphere(0.17, { p: [k * 1.1, 4.0, 0.02] }, 12, 10)
+      .seg([k * 1.1, 4.0, 0.02], [k * 1.24, 3.1, 0.08], 0.16, undefined, 0.11, 14)
+      .sphere(0.115, { p: [k * 1.24, 3.1, 0.08] }, 12, 10)
+      .sphere(0.13, { p: [k * 1.26, 2.95, 0.09], s: [0.62, 1.0, 0.36] }, 12, 10)
+    for (let f = 0; f < 4; f++) {
+      const fx = k * (1.26 + (f - 1.5) * 0.045)
+      b.capsule(0.032, 0.17 - Math.abs(f - 1.5) * 0.015, { p: [fx, 2.74 - Math.abs(f - 1.5) * 0.008, 0.1], r: [0.08, 0, k * -0.03] }, 6)
+    }
+    b.capsule(0.036, 0.13, { p: [k * 1.38, 2.9, 0.13], r: [0.3, 0, k * 0.7] }, 6)
+    // Leg: thigh, knee, shin, ankle, foot.
+    const lx = k * 0.4
+    b.seg([lx, 3.12, 0], [k * 0.42, 1.7, 0.02], 0.34, undefined, 0.21, 16)
+      .sphere(0.21, { p: [k * 0.42, 1.7, 0.02] }, 12, 10)
+      .seg([k * 0.42, 1.7, 0.02], [k * 0.42, 0.3, 0], 0.2, undefined, 0.12, 14)
+      .sphere(0.115, { p: [k * 0.42, 0.28, 0] }, 10, 8)
+      .sphere(0.17, { p: [k * 0.42, 0.11, 0.2], s: [0.82, 0.62, 2.4] }, 14, 10)
   }
   return b.build()
 }
@@ -119,17 +141,31 @@ function buildSkin(): THREE.BufferGeometry {
 function buildMuscles(): THREE.BufferGeometry {
   const b = new Builder()
   for (const k of [-1, 1]) {
-    b.capsule(0.3, 0.7, { p: [k * 1.2, 3.0, 0], r: [0, 0, -k * 0.12], s: [1, 1, 1.05] }, 8)
-      .capsule(0.26, 0.6, { p: [k * 1.32, 2.0, 0], r: [0, 0, -k * 0.07] }, 8)
-      .capsule(0.42, 0.55, { p: [k * 0.42, 1.2, 0] }, 8)
-      .capsule(0.33, 0.28, { p: [k * 0.42, 0.45, 0] }, 8)
-      .sphere(0.46, { p: [k * 0.4, 3.45, 0.36], s: [1, 0.7, 0.4] }, 8, 6)
-      .sphere(0.4, { p: [k * 0.34, 2.55, 0.42], s: [0.9, 1.1, 0.3] }, 8, 6)
+    b.sphere(0.3, { p: [k * 0.98, 5.0, 0.02], s: [1, 1.1, 1.05] }, 12, 10)
+      .seg([k * 1.0, 4.85, 0.05], [k * 1.1, 4.1, 0.05], 0.2, undefined, 0.15, 12)
+      .seg([k * 1.1, 3.9, 0.06], [k * 1.22, 3.2, 0.09], 0.17, undefined, 0.11, 12)
+      .seg([k * 0.4, 2.95, 0.06], [k * 0.42, 1.95, 0.08], 0.33, undefined, 0.23, 12)
+      .seg([k * 0.42, 1.5, 0.05], [k * 0.42, 0.55, 0.04], 0.2, undefined, 0.13, 12)
+      .sphere(0.4, { p: [k * 0.4, 4.78, 0.3], s: [1, 0.62, 0.38] }, 12, 8)
+      .sphere(0.3, { p: [k * 0.32, 4.1, 0.34], s: [1, 1.05, 0.3] }, 10, 8)
   }
   return b.build()
 }
 
-let cache: { organs: Map<string, OrganDef>; skin: THREE.BufferGeometry; muscles: THREE.BufferGeometry } | null = null
+const HEAD_ORGANS = new Set(['brain', 'eyes', 'ears', 'nose', 'tongue'])
+
+/**
+ * The organ shapes were authored for a short chunky body. This maps them onto the natural proportion body:
+ * torso organs are narrowed and lifted into the trunk, head organs are moved up into the head.
+ */
+function adapt(id: string, geo: THREE.BufferGeometry) {
+  const m = new THREE.Matrix4()
+  if (HEAD_ORGANS.has(id)) m.makeTranslation(0, 1.46, 0).multiply(new THREE.Matrix4().makeScale(0.92, 1, 0.9))
+  else m.makeTranslation(0, 1.872, 0).multiply(new THREE.Matrix4().makeScale(0.78, 0.8, 0.9))
+  geo.applyMatrix4(m)
+}
+
+let cache: { organs: Map<string, OrganDef>; skin: THREE.BufferGeometry; muscles: THREE.BufferGeometry; box: Box } | null = null
 
 /** CPU side geometry cache shared by Lab A, the briefing and the item visuals. */
 export function humanModel() {
@@ -138,11 +174,21 @@ export function humanModel() {
   for (const o of ORGAN_LIST) {
     if (o.id === 'skin') continue
     const geo = build(o.id)
+    adapt(o.id, geo)
     const center = recenter(geo)
     organs.set(o.id, { ...o, center, geo })
   }
-  cache = { organs, skin: buildSkin(), muscles: buildMuscles() }
+  const skin = buildSkin()
+  skin.computeBoundingBox()
+  const bb = skin.boundingBox!
+  let box: Box = { min: [bb.min.x, bb.min.y, bb.min.z], max: [bb.max.x, bb.max.y, bb.max.z] }
+  for (const o of organs.values()) {
+    o.geo.computeBoundingBox()
+    const ob = o.geo.boundingBox!
+    box = unionBox(box, translateBox({ min: [ob.min.x, ob.min.y, ob.min.z], max: [ob.max.x, ob.max.y, ob.max.z] }, o.center))
+  }
+  cache = { organs, skin, muscles: buildMuscles(), box }
   return cache
 }
 
-export const BODY_CENTER: V3 = [0, 2.55, 0]
+export const BODY_CENTER: V3 = [0, 3.25, 0]
