@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
+import { STILL } from '../../../lib/flags'
 import { humanModel } from '../../models/human'
 import { specimenBox } from '../../models/specimenBox'
 import { sweepYaw, translateBox, unionBox, type Box } from '../../fit'
@@ -8,7 +9,10 @@ import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
 import HumanFigure from './HumanFigure'
 import Specimen from './Specimen'
 
-/** Horizontal scanner bar that sweeps up and down across both subjects. */
+/**
+ * Horizontal scanner bar that rises through the lower body and the manatee, fading in at the floor and out
+ * before the shoulders. It never reaches the head, so the face stays clear.
+ */
 function ScannerSweep({ reduced }: { reduced: boolean }) {
   const bar = useRef<THREE.Group>(null)
   const { core, glow } = useMemo(() => {
@@ -32,9 +36,11 @@ function ScannerSweep({ reduced }: { reduced: boolean }) {
     [core, glow],
   )
   useFrame((state) => {
-    const t = reduced ? 0.4 : state.clock.elapsedTime
-    const k = (Math.sin(t * 0.9) + 1) / 2
-    if (bar.current) bar.current.position.y = 0.1 + k * 6.0
+    const p = STILL || reduced ? 0.4 : (state.clock.elapsedTime * 0.17) % 1
+    const fade = Math.pow(Math.sin(p * Math.PI), 0.7)
+    if (bar.current) bar.current.position.y = 0.08 + p * BAR_TOP
+    core.opacity = 0.9 * fade
+    glow.opacity = 0.03 * fade
   })
   return (
     <group ref={bar}>
@@ -54,6 +60,8 @@ function ScannerSweep({ reduced }: { reduced: boolean }) {
   )
 }
 
+/** Highest point the scan bar reaches, well below the shoulders (about 5.0 world units). */
+const BAR_TOP = 3.2
 const HUMAN_X = -2.9
 const HUMAN_SCALE = 0.95
 const SPEC_X = 3.2

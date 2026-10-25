@@ -25,6 +25,9 @@ import {
   uv,
   vec2,
   vec3,
+  cameraProjectionMatrix,
+  positionView,
+  vec4,
 } from 'three/tsl'
 import { TIER_CONFIG, type Tier } from '../../state/quality'
 
@@ -246,7 +249,9 @@ export function ConsoleRing({ radius = 15, count = 18, arc = Math.PI * 1.25, tin
     bodies.forEach((g) => g.dispose())
     trims.forEach((g) => g.dispose())
     const trim = new THREE.MeshBasicNodeMaterial()
-    trim.colorNode = color(tint).mul(2.2)
+    // Neon trim fades out toward the top of the screen so it never runs through the HUD bar (HUB, step nav).
+    const clip = cameraProjectionMatrix.mul(vec4(positionView, 1))
+    trim.colorNode = color(tint).mul(2.2).mul(oneMinus(smoothstep(0.5, 0.78, clip.y.div(clip.w))))
     const body = new THREE.MeshStandardNodeMaterial({ color: '#17294a', roughness: 0.45, metalness: 0.55 })
     return { bodyGeo, trimGeo, trim, body }
   }, [radius, count, arc, tint])

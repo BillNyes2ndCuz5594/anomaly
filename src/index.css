@@ -2177,3 +2177,61 @@ html[data-reduced-motion='true'] .results-panel::after {
   flex: 0 1 auto;
   align-content: start;
 }
+
+/* S6: results on large screens. Centre the two panels vertically and scale them up so the screen is not top heavy. */
+@media (min-width: 1500px) and (min-height: 900px) {
+  .results-body {
+    top: 96px;
+    bottom: 56px;
+    align-content: center;
+    align-items: stretch;
+    grid-template-columns: minmax(0, 1.5fr) minmax(480px, 1fr);
+    gap: 32px;
+  }
+  .results-panel,
+  .results-side {
+    padding: 34px 40px;
+    max-height: 100%;
+  }
+  .results-panel {
+    gap: 44px;
+  }
+  .results-panel .panel-title {
+    font-size: 1.5rem;
+  }
+  .bars {
+    flex: 1;
+    gap: 44px;
+    justify-content: space-evenly;
+  }
+  .bar-label {
+    font-size: 1.45rem;
+  }
+  .bar-head .bench-id {
+    font-size: 0.95rem;
+  }
+  .bar-track {
+    height: 36px;
+  }
+  .bar-ladder {
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  .bar-foot {
+    font-size: 0.95rem;
+    margin-top: 10px;
+  }
+  .results-side {
+    gap: 22px;
+    justify-content: space-evenly;
+  }
+  .results-side .reward {
+    padding-bottom: 18px;
+  }
+  .results-side .reward-num {
+    font-size: 4rem;
+  }
+  .results-side .reward p {
+    font-size: 1.2rem;
+  }
+}
