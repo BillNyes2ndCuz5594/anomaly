@@ -4,6 +4,7 @@ import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
+import { useAnnounce } from '../../ui/announce'
 import { CaseTop } from './ui'
 import ItemVisual from './ItemVisual'
 
@@ -48,6 +49,7 @@ function ItemBody({ item, index, total, onLocked, onNext }: BodyProps) {
   const [readUsed, setReadUsed] = useState(false)
   const [result, setResult] = useState<AnswerRecord | null>(null)
   const locked = result !== null
+  useAnnounce(result ? `${result.correct ? 'Correct' : 'Not quite'}. ${result.correct ? 'Locked in.' : `The key was ${LETTERS[item.key]}.`} Intel earned: ${result.intel}` : '')
 
   // Read aloud: stem first, then the four options.
   const spoken = useMemo(() => {
@@ -336,7 +338,7 @@ function ItemBody({ item, index, total, onLocked, onNext }: BodyProps) {
           </div>
 
           {locked ? (
-            <div className={`verdict ${result.correct ? 'ok' : 'bad'}`} role="status" data-testid="item-result" data-ok={result.correct ? 'yes' : 'no'}>
+            <div className={`verdict ${result.correct ? 'ok' : 'bad'}`} data-testid="item-result" data-ok={result.correct ? 'yes' : 'no'}>
               <span className="verdict-icon" aria-hidden="true">
                 {result.correct ? '\u2714' : '\u2716'}
               </span>

@@ -10,6 +10,24 @@ import './teacher.css'
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
+/** Band marker so the heatmap reads without color: low, middle, high. */
+const band = (pct: number) => (pct < 50 ? { g: '\u25BC', w: 'low' } : pct < 80 ? { g: '\u25A0', w: 'middle' } : { g: '\u25B2', w: 'high' })
+
+// Text size and line spacing chosen in the game apply here too (same browser storage, read only).
+function applySavedSettings() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('anomaly.v1') ?? 'null')
+    const st = raw?.state?.settings
+    const scale = { 0: 1, 1: 1.15, 2: 1.3 } as Record<number, number>
+    const lh = { 0: 1.5, 1: 1.75, 2: 2 } as Record<number, number>
+    if (st && scale[st.textSize]) document.documentElement.style.fontSize = `${16 * scale[st.textSize]}px`
+    if (st && lh[st.lineSpacing]) document.body.style.lineHeight = String(lh[st.lineSpacing])
+  } catch {
+    /* no saved settings, keep defaults */
+  }
+}
+applySavedSettings()
+
 const EMPTY: DecodedBatch = { reports: [], rejected: [] }
 
 function Heatmap({ a }: { a: Analysis }) {
@@ -73,7 +91,11 @@ function Heatmap({ a }: { a: Analysis }) {
                       data-testid={`cell-${b.id}-${c.agent}`}
                       title={`Agent ${c.agent}: ${cell.correct} of ${cell.attempts} correct (${pct}%), stage ${cell.stage}`}
                     >
-                      {pct}
+                      <span>{pct}</span>
+                      <span className="band" aria-hidden="true">
+                        {band(pct).g}
+                      </span>
+                      <span className="sr-only">{`, ${band(pct).w}`}</span>
                     </td>
                   )
                 })}
@@ -95,7 +117,10 @@ function Heatmap({ a }: { a: Analysis }) {
             </span>
           )
         })}
-        <span className="muted tiny">Each cell shows the number. A dash means not attempted.</span>
+        <span className="mono tiny" data-testid="band-legend">
+          <span aria-hidden="true">{'\u25BC'}</span> under 50 <span aria-hidden="true">{'\u25A0'}</span> 50 to 79 <span aria-hidden="true">{'\u25B2'}</span> 80 and up
+        </span>
+        <span className="muted tiny">Each cell shows the number and a marker. A dash means not attempted.</span>
       </div>
     </div>
   )

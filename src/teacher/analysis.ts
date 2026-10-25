@@ -143,8 +143,17 @@ export function scaleColor(pct: number): { bg: string; fg: string } {
   const i = Math.min(RAMP.length - 2, Math.floor(t))
   const f = t - i
   const c = RAMP[i].map((v, k) => Math.round(v + (RAMP[i + 1][k] - v) * f))
-  const lum = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255
-  return { bg: `rgb(${c[0]}, ${c[1]}, ${c[2]})`, fg: lum > 0.5 ? '#0b1220' : '#ffffff' }
+  // Text is whichever of white and navy has the higher WCAG contrast on this cell.
+  const lin = (v: number) => {
+    const x = v / 255
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
+  }
+  const lum = 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2])
+  // Near black, not the panel navy: navy and white leave a gap around mid luminance where neither reaches 4.5:1.
+  const NAVY_LUM = 0.0015 // #02050a
+  const onWhite = 1.05 / (lum + 0.05)
+  const onNavy = (lum + 0.05) / (NAVY_LUM + 0.05)
+  return { bg: `rgb(${c[0]}, ${c[1]}, ${c[2]})`, fg: onNavy >= onWhite ? '#02050a' : '#ffffff' }
 }
 
 // ---------- CSV ----------

@@ -36,6 +36,14 @@ function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
     return () => useSession.setState({ caseId: null })
   }, [id, kind, start])
   if (caseId !== id) return null
+  return (
+    <div className="step-host" key={step}>
+      <StepScreen step={step} kind={kind} />
+    </div>
+  )
+}
+
+function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getState>['step']; kind: 'case' | 'cold' }) {
   switch (step) {
     case 'briefing':
       return kind === 'cold' ? <Briefing kind="cold" /> : <Briefing />

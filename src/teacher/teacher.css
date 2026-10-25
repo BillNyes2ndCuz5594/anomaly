@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/AtkinsonHyperlegible-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/AtkinsonHyperlegible-Bold.woff2') format('woff2');
+}
 :root {
   --cyan: #3ee6ff;
   --amber: #ffb547;
@@ -9,6 +23,7 @@
 }
 * { box-sizing: border-box; }
 html { background: #0b1220; }
+html { font-size: 16px; }
 body {
   margin: 0;
   min-height: 100vh;
@@ -42,7 +57,7 @@ h2 { font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppe
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
 textarea {
-  font: 0.85rem var(--font-mono); letter-spacing: 0.04em; color: inherit; background: rgba(4, 10, 20, 0.85);
+  font: 0.85rem var(--font-mono); line-height: 1.5; letter-spacing: 0.04em; color: inherit; background: rgba(4, 10, 20, 0.85);
   border: 1px solid var(--line); padding: 12px; resize: vertical; min-height: 120px;
 }
 .drop {
@@ -74,7 +89,8 @@ textarea {
 .heatmap .bench-h { text-align: left; font-weight: 400; display: flex; flex-direction: column; line-height: 1.2; padding: 3px 8px 3px 0; white-space: nowrap; }
 .heatmap .bench-h .mono { font-size: 0.72rem; color: var(--cyan); }
 .heatmap .bench-h .muted { font-size: 0.78rem; }
-.heatmap td { height: 36px; min-width: 34px; font-weight: 700; }
+.heatmap td { height: 40px; min-width: 36px; font-weight: 700; line-height: 1.1; }
+.heatmap td .band { display: block; font-size: 0.55rem; opacity: 0.9; }
 .heatmap td.empty { color: rgba(157, 178, 209, 0.55); background: rgba(255, 255, 255, 0.03); }
 .heatmap td.avg { border-left: 6px solid transparent; background-clip: padding-box; }
 .legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; }

@@ -36,7 +36,7 @@ describe('teacher analysis', () => {
 
   it('color scale runs dark to light and picks readable text', () => {
     expect(scaleColor(0).fg).toBe('#ffffff')
-    expect(scaleColor(100).fg).toBe('#0b1220')
+    expect(scaleColor(100).fg).toBe('#02050a')
     expect(scaleColor(0).bg).not.toBe(scaleColor(100).bg)
   })
 

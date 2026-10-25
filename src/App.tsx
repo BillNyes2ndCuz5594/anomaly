@@ -1,13 +1,16 @@
-import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { navigate, parseHash, useHash, type Route } from './lib/router'
 import CaseScreen from './screens/CaseScreen'
 import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
 import { caseInset } from './screens/case/layout'
 import SettingsScreen from './screens/SettingsScreen'
 import TitleScreen from './screens/TitleScreen'
+
+const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
 import { useRuntime } from './state/runtime'
 import { useSession } from './state/session'
 import { useGame } from './state/store'
+import { Announcer } from './ui/announce'
 import FpsReadout from './ui/FpsReadout'
 import { useApplySettings } from './ui/useApplySettings'
 
@@ -54,6 +57,12 @@ function ScreenFor({ route }: { route: Route }) {
       return <HubScreen />
     case 'settings':
       return <SettingsScreen />
+    case 'visuals':
+      return (
+        <Suspense fallback={null}>
+          <VisualsScreen view={route.view} />
+        </Suspense>
+      )
     case 'case':
       return <CaseScreen kind="case" id={route.id} />
     case 'cold':
@@ -61,9 +70,47 @@ function ScreenFor({ route }: { route: Route }) {
   }
 }
 
+type Phase = 'idle' | 'cover' | 'reveal'
+const COVER_MS = 200
+const REVEAL_MS = 460
+
+/**
+ * Eased screen transition: the old screen is covered by a scan veil, the route swaps underneath it,
+ * then the veil wipes away top to bottom. Reduced motion swaps instantly with no veil.
+ */
+function useTransitionedHash(reduced: boolean): { hash: string; phase: Phase } {
+  const target = useHash()
+  const [shown, setShown] = useState(target)
+  const [phase, setPhase] = useState<Phase>('idle')
+  const shownRef = useRef(shown)
+  shownRef.current = shown
+
+  useEffect(() => {
+    if (target === shownRef.current) return
+    if (reduced) {
+      setShown(target)
+      setPhase('idle')
+      return
+    }
+    setPhase('cover')
+    const t1 = window.setTimeout(() => {
+      setShown(target)
+      setPhase('reveal')
+    }, COVER_MS)
+    const t2 = window.setTimeout(() => setPhase('idle'), COVER_MS + REVEAL_MS)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+  }, [target, reduced])
+
+  return { hash: shown, phase }
+}
+
 export default function App() {
   useApplySettings()
-  const hash = useHash()
+  const reducedMotion = useGame((s) => s.settings.reducedMotion)
+  const { hash, phase } = useTransitionedHash(reducedMotion)
   const route = parseHash(hash)
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
@@ -90,9 +137,16 @@ export default function App() {
         </StageBoundary>
       </div>
       <div className="hud-layer">
-        <ScreenFor route={route} />
+        <div className="screen-host" key={route.name}>
+          <ScreenFor route={route} />
+        </div>
+      </div>
+      <div className="veil" data-phase={phase} aria-hidden="true">
+        <div className="veil-fill" />
+        <div className="veil-line" />
       </div>
       <FpsReadout />
+      <Announcer />
     </div>
   )
 }
