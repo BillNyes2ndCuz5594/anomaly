@@ -1,6 +1,10 @@
 # ANOMALY
 
-A science response unit game for grade 5 science review. Vite + React 19 + TypeScript, React Three Fiber v9, three r186 `WebGPURenderer` (WebGL2 fallback), zustand, vite-plugin-pwa.
+A science review game for grade 5 Florida SSA (Statewide Science Assessment). Students play field agents who run short hands-on 3D labs, then answer SSA-style questions using RKEA (Read, Key words, Eliminate, Answer).
+
+No logins, no personal data. Progress travels as a short report code.
+
+Built with Vite, React 19, TypeScript, React Three Fiber v9, three r186 `WebGPURenderer` (WebGL2 fallback), zustand and vite-plugin-pwa.
 
 Read `docs/SPEC.md` (source of truth) and `docs/PLAN.md` (stages) first.
 
