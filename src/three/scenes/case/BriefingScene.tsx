@@ -1,7 +1,10 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
-import { CameraRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { humanModel } from '../../models/human'
+import { specimenBox } from '../../models/specimenBox'
+import { sweepYaw, translateBox, unionBox, type Box } from '../../fit'
+import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
 import HumanFigure from './HumanFigure'
 import Specimen from './Specimen'
 
@@ -31,7 +34,7 @@ function ScannerSweep({ reduced }: { reduced: boolean }) {
   useFrame((state) => {
     const t = reduced ? 0.4 : state.clock.elapsedTime
     const k = (Math.sin(t * 0.9) + 1) / 2
-    if (bar.current) bar.current.position.y = 0.1 + k * 5.0
+    if (bar.current) bar.current.position.y = 0.1 + k * 6.0
   })
   return (
     <group ref={bar}>
@@ -51,20 +54,35 @@ function ScannerSweep({ reduced }: { reduced: boolean }) {
   )
 }
 
+const HUMAN_X = -2.9
+const HUMAN_SCALE = 0.95
+const SPEC_X = 3.2
+const SPEC_FIT = 4.6
+const ring = (r: number): Box => ({ min: [-r, 0, -r], max: [r, 0.06, r] })
+
 export default function BriefingScene() {
   const reduced = useReduced()
+  const content = useRef<THREE.Group>(null)
+  const view = useMemo(() => {
+    const hb = sweepYaw(humanModel().box, Math.PI, 36)
+    const human = translateBox({ min: hb.min.map((v) => v * HUMAN_SCALE) as Box['min'], max: hb.max.map((v) => v * HUMAN_SCALE) as Box['max'] }, [HUMAN_X, 0, 0])
+    const spec = translateBox(sweepYaw(specimenBox('manatee', SPEC_FIT), Math.PI, 36), [SPEC_X, 0, 0])
+    return { box: unionBox(human, spec, translateBox(ring(1.95), [HUMAN_X, 0, 0]), translateBox(ring(2.75), [SPEC_X, 0, 0])), elevation: 0.18 }
+  }, [])
   return (
     <>
       <LabEnvironment />
       <pointLight position={[3, 5, 5]} intensity={16} color="#fff2dd" distance={20} decay={2} />
-      <CameraRig pos={[0, 3.3, 13.4]} look={[0, 1.95, 0]} from={[5, 3, 4]} />
-      <group position={[-2.4, 0, 0]}>
-        <Pedestal radius={1.9} />
-        <HumanFigure mode="briefing" spin reduced={reduced} scale={0.95} />
-      </group>
-      <group position={[2.7, 0, 0]}>
-        <Pedestal radius={2.4} />
-        <Specimen id="manatee" fit={3.6} mode="holo" spin reduced={reduced} />
+      <FitRig view={view} measure={content} from={[5, 3, 4]} />
+      <group ref={content}>
+        <group position={[HUMAN_X, 0, 0]}>
+          <Pedestal radius={1.95} />
+          <HumanFigure mode="briefing" spin reduced={reduced} scale={HUMAN_SCALE} />
+        </group>
+        <group position={[SPEC_X, 0, 0]}>
+          <Pedestal radius={2.75} />
+          <Specimen id="manatee" fit={SPEC_FIT} mode="holo" spin reduced={reduced} />
+        </group>
       </group>
       <ScannerSweep reduced={reduced} />
     </>

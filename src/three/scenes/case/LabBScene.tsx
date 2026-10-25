@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { useFx } from '../../../state/session'
 import { animalParts, plantParts, type PartGeo } from '../../models/creatures'
-import { CameraRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
+import type { Box } from '../../fit'
 import PartMesh from './PartMesh'
 import { PAIR_TINTS } from './pairTints'
 
@@ -90,6 +91,9 @@ function ModelParts({ side }: { side: 'a' | 'p' }) {
   )
 }
 
+// Both models with their pedestals: animal at x -3.4, plant at x 3.4, roots down to about -1.4.
+const VIEW = { box: { min: [-5.9, -1.5, -2.4], max: [5.7, 3.7, 2.4] } as Box, elevation: 0.12 }
+
 export default function LabBScene() {
   const reduced = useReduced()
   const left = useRef<THREE.Group>(null)
@@ -103,7 +107,7 @@ export default function LabBScene() {
   return (
     <>
       <LabEnvironment floorY={-1.55} ring={false} />
-      <CameraRig pos={[0, 2.4, 14.2]} look={[0, 1.2, 0]} />
+      <FitRig view={VIEW} />
       <group position={ANIMAL_POS}>
         <Pedestal radius={2.5} />
       </group>

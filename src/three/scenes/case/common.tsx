@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react'
 import * as THREE from 'three/webgpu'
 import type { ThreeEvent } from '@react-three/fiber'
 import { resolveTier } from '../../../state/quality'
@@ -7,6 +7,7 @@ import { useRuntime } from '../../../state/runtime'
 import { useGame } from '../../../state/store'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from '../common'
 import { tintedHolo } from '../../materials/tinted'
+import { useFitPose, usePublishFit, type FitView } from '../../FitCamera'
 
 export function useTier() {
   const quality = useGame((s) => s.settings.quality)
@@ -46,6 +47,23 @@ export function CameraRig({
     state.camera.lookAt(look[0], look[1], look[2])
   })
   return null
+}
+
+/** CameraRig whose pose comes from fitting a bounding box into the part of the screen the HUD leaves free. */
+export function FitRig({
+  view,
+  from,
+  parallax,
+  measure,
+}: {
+  view: FitView
+  from?: [number, number, number]
+  parallax?: number
+  measure?: RefObject<THREE.Object3D | null>
+}) {
+  const pose = useFitPose(view)
+  usePublishFit(pose, measure, view.box)
+  return <CameraRig pos={pose.position} look={pose.target} from={from} parallax={parallax} />
 }
 
 /** Shared lab environment: deck, grid, console ring, fog, dust. */

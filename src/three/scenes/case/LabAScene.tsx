@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { useFx } from '../../../state/session'
 import { humanModel, BODY_CENTER } from '../../models/human'
-import { CameraRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { sweepYaw, unionBox } from '../../fit'
 import HumanFigure from './HumanFigure'
 
 /** Light beam and expanding ring at the organ that was just routed correctly. */
@@ -72,16 +73,23 @@ function OrganBeam() {
   )
 }
 
+const RING = 2.15
+
 export default function LabAScene() {
   const reduced = useReduced()
+  const content = useRef<THREE.Group>(null)
+  // The whole body at every turn angle plus the base ring.
+  const view = useMemo(() => ({ box: unionBox(sweepYaw(humanModel().box, Math.PI, 36), { min: [-RING, 0, -RING], max: [RING, 0.06, RING] }), elevation: 0.16 }), [])
   return (
     <>
       <LabEnvironment />
-      <CameraRig pos={[0, 3.2, 13.2]} look={[0, 1.6, 0]} />
-      <Pedestal radius={2.1} />
-      <HumanFigure mode="lab" spin reduced={reduced}>
-        <OrganBeam />
-      </HumanFigure>
+      <FitRig view={view} measure={content} />
+      <group ref={content}>
+        <Pedestal radius={RING} />
+        <HumanFigure mode="lab" spin reduced={reduced}>
+          <OrganBeam />
+        </HumanFigure>
+      </group>
     </>
   )
 }

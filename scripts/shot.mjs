@@ -1,0 +1,86 @@
+// Quick targeted screenshots while iterating on art. Needs `npm run build` first.
+// Usage: node scripts/shot.mjs [--vp=1366,1920] [--out=/tmp/shots] target[:qs] ...
+// Targets: hub briefing lab-a lab-b lab-c item item-result visuals models cold-item results debrief firstrun
+// Examples: node scripts/shot.mjs briefing lab-c --vp=1366     node scripts/shot.mjs visuals --text=2
+import { mkdirSync } from 'node:fs'
+import { setTimeout as sleep } from 'node:timers/promises'
+import { click, fitReport, freePort, launch, profilePage, startPreview, text, toCaseStep, waitRendered, CONTENT } from './lib/drive.mjs'
+
+const args = process.argv.slice(2)
+const opt = (k, d) => (args.find((a) => a.startsWith(`--${k}=`)) ?? `--${k}=${d}`).split('=')[1]
+const targets = args.filter((a) => !a.startsWith('--'))
+const sizes = opt('vp', '1366').split(',').map((w) => ({ width: Number(w), height: Math.round((Number(w) * 9) / 16) }))
+const OUT = opt('out', '/tmp/shots')
+const textSize = Number(opt('text', '0'))
+mkdirSync(OUT, { recursive: true })
+
+const port = await freePort()
+const { proc, base } = await startPreview(port)
+const browser = await launch()
+const errors = []
+const QS = '?tier=high&still=1'
+try {
+  for (const vp of sizes) {
+    for (const target of targets) {
+      const page = await profilePage(browser, base, QS, vp, errors)
+      if (textSize) {
+        await page.evaluate((t) => {
+          const raw = JSON.parse(localStorage.getItem('anomaly.v1'))
+          raw.state.settings = { ...raw.state.settings, textSize: t }
+          localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+        }, textSize)
+        await page.reload({ waitUntil: 'load' })
+        await page.waitForSelector('[data-testid="hub"]')
+      }
+      const name = `${target}-${vp.width}${textSize ? `-t${textSize}` : ''}`
+      if (target === 'hub') {
+        await sleep(3500)
+      } else if (['briefing', 'lab-a', 'lab-b', 'lab-c'].includes(target)) {
+        await toCaseStep(page, target)
+        await waitRendered(page, 4500)
+      } else if (target === 'item' || target === 'item-result') {
+        await toCaseStep(page, 'items')
+        await sleep(4500)
+        if (target === 'item-result') {
+          const stem = (await text(page, 'stem')).replace(/\s+/g, ' ').trim()
+          const item = CONTENT.items.find((it) => it.stem.split(/\s+/).join(' ') === stem)
+          await click(page, `option-${item.key}`)
+          await click(page, 'lock-in')
+          await page.waitForSelector('[data-testid="item-result"]')
+          await sleep(1200)
+        }
+      } else if (target === 'cold-item') {
+        await page.evaluate(() => (location.hash = '#/cold/cold-1'))
+        await page.waitForSelector('[data-testid="cold-intro"]')
+        await sleep(800)
+        await click(page, 'cold-continue')
+        await page.waitForSelector('[data-testid="item-player"]')
+        await sleep(2500)
+      } else if (target === 'visuals') {
+        await page.goto(base + QS + '#/visuals', { waitUntil: 'load' })
+        await page.waitForSelector('[data-testid="visuals-scenes"] svg')
+        await sleep(1500)
+      } else if (target === 'models') {
+        await page.goto(base + QS + '#/visuals/models', { waitUntil: 'load' })
+        await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
+        await waitRendered(page, 7000)
+      } else {
+        console.log('unknown target', target)
+        await page.close()
+        continue
+      }
+      const file = `${OUT}/${name}.png`
+      await page.screenshot({ path: file, fullPage: target === 'visuals' })
+      const fits = await fitReport(page)
+      console.log(`wrote ${file}`, fits.length ? JSON.stringify(fits.map((f) => ({ over: +f.over.toFixed(3), w: f.canvasW, h: f.canvasH }))) : '')
+      await page.close()
+    }
+  }
+} finally {
+  await browser.close()
+  proc.kill()
+}
+if (errors.length) {
+  console.log('CONSOLE ERRORS:\n' + errors.join('\n'))
+  process.exitCode = 1
+}

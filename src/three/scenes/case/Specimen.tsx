@@ -2,7 +2,9 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { depthOnlyMaterial, litSpecimen, tintedHolo } from '../../materials/tinted'
+import { STILL, STILL_YAW } from '../../../lib/flags'
 import { specimenGeo } from '../../models/creatures'
+import { specimenScale } from '../../models/specimenBox'
 
 export interface SpecimenProps {
   id: string
@@ -15,10 +17,12 @@ export interface SpecimenProps {
   yaw?: number
   /** Pops in from zero scale when mounted. */
   pop?: boolean
+  /** Sways by this many radians around `yaw` instead of spinning. */
+  sway?: number
 }
 
 /** One low poly specimen, grounded at y = 0. Lit and flat shaded, or as a cyan hologram. */
-export default function Specimen({ id, fit = 3, spin = false, reduced = false, mode = 'lit', yaw = -0.45, pop = false }: SpecimenProps) {
+export default function Specimen({ id, fit = 3, spin = false, reduced = false, mode = 'lit', yaw = -0.45, pop = false, sway = 0 }: SpecimenProps) {
   const g = useMemo(() => specimenGeo(id), [id])
   const mat = useMemo(() => (mode === 'lit' ? litSpecimen() : tintedHolo('#3ee6ff', 0.9, false)), [mode])
   const depthMat = useMemo(() => (mode === 'holo' ? depthOnlyMaterial() : null), [mode])
@@ -26,13 +30,15 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   useEffect(() => () => depthMat?.dispose(), [depthMat])
   const group = useRef<THREE.Group>(null)
   const born = useRef<number | null>(null)
-  const k = fit / Math.max(g.size[0], g.size[1] * 1.15, g.size[2])
+  const k = specimenScale(id, fit)
 
   useFrame((state, dt) => {
     const gr = group.current
     if (!gr) return
     if (born.current === null) born.current = state.clock.elapsedTime
-    if (spin && !reduced) gr.rotation.y += dt * 0.55
+    if (STILL) gr.rotation.y = STILL_YAW
+    else if (sway > 0) gr.rotation.y = yaw + (reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.55) * sway)
+    else if (spin && !reduced) gr.rotation.y += dt * 0.55
     else if (!spin) gr.rotation.y = yaw
     if (pop && !reduced) {
       const a = Math.min(1, (state.clock.elapsedTime - born.current) / 0.55)
@@ -42,7 +48,7 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   })
 
   return (
-    <group ref={group} rotation={[0, yaw, 0]} scale={k}>
+    <group ref={group} rotation={[0, STILL ? STILL_YAW : yaw, 0]} scale={k}>
       {depthMat ? (
         <mesh geometry={g.geo}>
           <primitive object={depthMat} attach="material" />

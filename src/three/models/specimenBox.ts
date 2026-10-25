@@ -1,0 +1,15 @@
+import { specimenGeo } from './creatures'
+import type { Box } from '../fit'
+
+/** Scale that makes the largest dimension of a specimen about `fit` world units. Shared by Specimen and the camera fit. */
+export function specimenScale(id: string, fit: number): number {
+  const g = specimenGeo(id)
+  return fit / Math.max(g.size[0], g.size[1] * 1.15, g.size[2])
+}
+
+/** World box of a specimen standing on y = 0 at the origin, before any turning. */
+export function specimenBox(id: string, fit: number): Box {
+  const g = specimenGeo(id)
+  const k = specimenScale(id, fit)
+  return { min: [(-g.size[0] / 2) * k, 0, (-g.size[2] / 2) * k], max: [(g.size[0] / 2) * k, g.size[1] * k, (g.size[2] / 2) * k] }
+}

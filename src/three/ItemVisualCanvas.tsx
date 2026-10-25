@@ -1,6 +1,10 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { useCallback, useMemo, useRef } from 'react'
 import type * as THREE from 'three/webgpu'
+import { STILL, STILL_YAW } from '../lib/flags'
+import { FitCamera } from './FitCamera'
+import { sweepYaw, translateBox, unionBox, type Box } from './fit'
+import { specimenBox } from './models/specimenBox'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -13,20 +17,6 @@ import HumanFigure from './scenes/case/HumanFigure'
 import PartMesh from './scenes/case/PartMesh'
 import Specimen from './scenes/case/Specimen'
 
-/** Fits a w by h box centered on (cx, cy) into the view, whatever the canvas aspect. */
-function FitCamera({ cx, cy, w, h }: { cx: number; cy: number; w: number; h: number }) {
-  const size = useThree((s) => s.size)
-  useFrame((state) => {
-    const cam = state.camera as THREE.PerspectiveCamera
-    const tan = Math.tan((cam.fov * Math.PI) / 360)
-    const aspect = size.width / Math.max(1, size.height)
-    const dist = Math.max(h / 2 / tan, w / 2 / (tan * aspect)) * 1.06
-    cam.position.set(cx, cy + dist * 0.1, dist)
-    cam.lookAt(cx, cy, 0)
-  })
-  return null
-}
-
 function Lights() {
   return (
     <>
@@ -37,47 +27,67 @@ function Lights() {
   )
 }
 
+const RING = 2.15
+const ringBox = (r: number): Box => ({ min: [-r, 0, -r], max: [r, 0.06, r] })
+const SWAY_BODY = 0.5
+const SWAY_SPECIMEN = 0.3
+const SPECIMEN_YAW = -0.55
+
 function OrganVisual({ highlight }: { highlight: string[] }) {
-  const { cy, h } = useMemo(() => {
-    const m = humanModel()
-    const ys = highlight.filter((id) => m.organs.has(id)).map((id) => m.organs.get(id)!.center[1])
-    if (highlight.length === 0 || highlight.includes('muscles') || ys.length === 0) return { cy: 2.55, h: 5.6 }
-    const lo = Math.min(...ys)
-    const hi = Math.max(...ys)
-    return { cy: (lo + hi) / 2, h: Math.max(4.6, hi - lo + 3) }
-  }, [highlight])
   const reduced = useGame((s) => s.settings.reducedMotion)
+  const content = useRef<THREE.Group>(null)
+  // The whole body at every point of its sway, plus the base ring.
+  const box = useMemo(() => unionBox(sweepYaw(humanModel().box, STILL ? 0.4 : SWAY_BODY, 24, STILL ? 0.3 : 0), ringBox(RING)), [])
+  const view = useMemo(() => ({ box, elevation: 0.14 }), [box])
   return (
     <>
-      <FitCamera cx={0} cy={cy} w={h * 0.8} h={h} />
-      <Pedestal radius={2} />
-      <HumanFigure mode="visual" highlight={highlight} reduced={reduced} />
+      <FitCamera view={view} measure={content} />
+      <group ref={content}>
+        <Pedestal radius={RING} />
+        <HumanFigure mode="visual" highlight={highlight} reduced={reduced} />
+      </group>
     </>
   )
 }
 
-const SPACING = 3.6
+// Animal at x -3.4 (about 4.6 wide, 3 tall), plant at x 3.4 (about 3 wide, from roots at -1.3 up to 3.6).
+const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
+const SPACING = 3.7
+const FIT = 2.8
 
 function SpecimenVisual({ ids }: { ids: string[] }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
+  const content = useRef<THREE.Group>(null)
   const n = ids.length
+  const view = useMemo(() => {
+    const parts = ids.map((id, i) => {
+      const x = (i - (n - 1) / 2) * SPACING
+      const sw = sweepYaw(specimenBox(id, FIT), STILL ? 0.02 : SWAY_SPECIMEN, 16, STILL ? STILL_YAW : SPECIMEN_YAW)
+      return unionBox(translateBox(sw, [x, 0, 0]), translateBox(ringBox(1.5), [x, 0, 0]))
+    })
+    return { box: unionBox(...parts), elevation: 0.24 }
+  }, [ids, n])
   return (
     <>
-      <FitCamera cx={0} cy={1.3} w={n * SPACING} h={3.4} />
-      {ids.map((id, i) => (
-        <group key={id} position={[(i - (n - 1) / 2) * SPACING, 0, 0]}>
-          <Pedestal radius={1.4} />
-          <Specimen id={id} fit={2.7} spin reduced={reduced} />
-        </group>
-      ))}
+      <FitCamera view={view} measure={content} />
+      <group ref={content}>
+        {ids.map((id, i) => (
+          <group key={id} position={[(i - (n - 1) / 2) * SPACING, 0, 0]}>
+            <Pedestal radius={1.5} />
+            <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
+          </group>
+        ))}
+      </group>
     </>
   )
 }
 
 function PlantAnimalVisual({ show }: { show: string[] }) {
+  const content = useRef<THREE.Group>(null)
   return (
     <>
-      <FitCamera cx={0} cy={1.1} w={12.6} h={5.9} />
+      <FitCamera view={PLANT_ANIMAL_VIEW} measure={content} />
+      <group ref={content}>
       <group position={[-3.4, 0, 0]}>
         {animalParts().map((p) => (
           <PartMesh key={p.id} part={p} fxId={`a:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
@@ -87,6 +97,7 @@ function PlantAnimalVisual({ show }: { show: string[] }) {
         {plantParts().map((p) => (
           <PartMesh key={p.id} part={p} fxId={`p:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
         ))}
+      </group>
       </group>
     </>
   )
