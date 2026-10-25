@@ -10,6 +10,7 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, 
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { createServer } from 'node:net'
+import { fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const OUT = '/workspace/anomaly-proof'
@@ -25,7 +26,7 @@ const PORT = await new Promise((resolve) => {
 })
 const BASE = `http://localhost:${PORT}/`
 // Every screenshot run pins tier High (bloom, vignette, grain, contact shadow) so the proof shows the real look.
-const QS = '?tier=high'
+const QS = '?tier=high&still=1'
 const VIEWPORTS = [
   { width: 1366, height: 768 },
   { width: 1920, height: 1080 },
@@ -71,6 +72,11 @@ async function startPreview() {
   throw new Error('vite preview did not start:\n' + log)
 }
 
+function checkSvg(name, r) {
+  const bad = [...r.outside.map((x) => `outside ${x}`), ...r.overlaps.map((x) => `overlap ${x}`), ...r.small.map((x) => `small ${x}`), ...r.letterboxed.map((x) => `letterbox ${x}`)]
+  check(`${name}: ${r.svgs} svgs, ${r.texts} texts inside viewBox, no label overlap, min ${r.minPx.toFixed(1)}px`, r.svgs > 0 && bad.length === 0, bad.join('; '))
+}
+
 function watch(page, label) {
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(`[${label}] console.error: ${m.text()}`)
@@ -111,7 +117,7 @@ const text = (page, id) => page.$eval(`[data-testid="${id}"]`, (e) => e.textCont
 const attr = (page, id, a) => page.$eval(`[data-testid="${id}"]`, (e, a) => e.getAttribute(a), a)
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl']
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -129,6 +135,19 @@ async function freezeBursts(page) {
   })
 }
 const sceneStats = {}
+/** The art check grid scrolls inside the screen, so grow the viewport to the content for the shot, then restore it. */
+async function shotTall(page, name, w, vp) {
+  const need = await page.evaluate(() => {
+    const g = document.querySelector('.visuals-grid')
+    return g ? Math.ceil(g.scrollHeight + g.getBoundingClientRect().top + 24) : 0
+  })
+  const h = Math.max(vp.height, need)
+  await page.setViewport({ width: vp.width, height: h, deviceScaleFactor: 1 })
+  await sleep(1500)
+  await shot(page, name, w)
+  await page.setViewport({ ...vp, deviceScaleFactor: 1 })
+  await sleep(500)
+}
 async function shot(page, name, w, opts = {}) {
   if (!name.startsWith('teacher')) {
     // Software GPUs are slow: wait for several fresh frames (and the post pipeline) before capturing.
@@ -137,16 +156,25 @@ async function shot(page, name, w, opts = {}) {
     const a = await page.evaluate(() => window.__anomaly)
     if (a && w === VIEWPORTS[0].width) sceneStats[name] = { tier: a.tier, backend: a.backend, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures }
   }
-  const n = String(ORDER.indexOf(name) + 1).padStart(2, '0')
-  const file = `${n}-${name}-${w}.png`
-  let frozen = 0
-  if (name === 'debrief' || name === 'results-with-code') frozen = await freezeBursts(page)
-  await page.screenshot({ path: `${OUT}/${file}`, ...opts })
-  if (frozen) {
-    check(`light burst particles present on ${name} (${w})`, frozen >= 10, `${frozen} animations`)
-    await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()))
+  const write = async (nm) => {
+    const n = String(ORDER.indexOf(nm) + 1).padStart(2, '0')
+    const file = `${n}-${nm}-${w}.png`
+    await page.screenshot({ path: `${OUT}/${file}`, ...opts })
+    shots.push(file)
   }
-  shots.push(file)
+  if (name === 'debrief' || name === 'results-with-code') {
+    // Catch the burst mid flight for the particle check and one extra shot, then settle and shoot the real screen.
+    const frozen = await freezeBursts(page)
+    check(`light burst particles present on ${name} (${w})`, frozen >= 10, `${frozen} animations`)
+    if (frozen) await write(name === 'debrief' ? 'debrief-burst' : 'results-burst')
+    await page.evaluate(() => document.getAnimations().forEach((a) => a.finish()))
+    const leftover = await page.evaluate(() => [...document.querySelectorAll('.burst i')].filter((e) => getComputedStyle(e).opacity !== '0').length)
+    check(`burst is fully faded on the settled ${name} screen (${w})`, leftover === 0, `${leftover} visible parts`)
+  }
+  // Every model viewport must show its whole model: projected bbox inside the canvas rect.
+  const fits = await fitReport(page)
+  for (const f of fits) check(`${name} model bbox fully inside canvas ${f.canvasW}x${f.canvasH} (${w})`, f.over <= 0.001, `over ${f.over.toFixed(3)}`)
+  await write(name)
 }
 
 /** First index of the first key phrase inside the stem tokens. */
@@ -555,11 +583,40 @@ try {
     await page.waitForSelector('[data-testid="visuals-scenes"] svg')
     check(`visuals page shows every scene diagram (${w})`, (await page.$$('[data-testid="visuals-scenes"] svg')).length >= 8, `${(await page.$$('[data-testid="visuals-scenes"] svg')).length}`)
     await sleep(1800)
-    await shot(page, 'visuals-scenes', w)
+    await shotTall(page, 'visuals-scenes', w, vp)
     await page.evaluate(() => (location.hash = '#/visuals/models'))
     await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
     await sleep(9000)
     await shot(page, 'visuals-models', w)
+
+    // Diagram labels: Normal, then Extra large text. Art check page and the cold item in the real player.
+    await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="visuals-scenes"] svg')
+    await sleep(900)
+    const rep0 = await svgReport(page)
+    checkSvg(`art check diagrams at Normal text (${w})`, rep0)
+    await setTextSize(page, 2)
+    await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="visuals-scenes"] svg')
+    await sleep(1200)
+    checkSvg(`art check diagrams at Extra large text (${w})`, await svgReport(page))
+    await shotTall(page, 'visuals-scenes-xl', w, vp)
+    await page.evaluate(() => (location.hash = '#/cold/cold-1'))
+    await page.waitForSelector('[data-testid="cold-intro"]')
+    await sleep(600)
+    await click(page, 'cold-continue')
+    await page.waitForSelector('[data-testid="item-player"]')
+    await sleep(2500)
+    checkSvg(`cold item diagram at Extra large text (${w})`, await svgReport(page))
+    await shot(page, 'cold-item-xl', w)
+    // every other text size, on the cold item and every art check diagram
+    for (const t of [1, 0]) {
+      await setTextSize(page, t)
+      await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
+      await page.waitForSelector('[data-testid="visuals-scenes"] svg')
+      await sleep(900)
+      checkSvg(`art check diagrams at text size ${t} (${w})`, await svgReport(page))
+    }
 
     // Teacher HQ (must not load three)
     const tp = await browser.newPage()
@@ -623,6 +680,18 @@ try {
     await sleep(300)
     await shot(tp, 'teacher-decoded', w, { fullPage: true })
     await tp.close()
+    await page.close()
+  }
+
+  // Narrow laptop check: the organ item at 1280x720 shows the whole body and the base ring.
+  {
+    const vp720 = { width: 1280, height: 720 }
+    const page = await profilePage(browser, BASE, QS, vp720, errors)
+    await toCaseStep(page, 'items')
+    await sleep(4500)
+    await shot(page, 'item-rkea', 1280)
+    const fits = await fitReport(page)
+    check('organ item model fits at 1280x720', fits.length >= 1 && fits.every((f) => f.over <= 0.001), fits.map((f) => f.over.toFixed(3)).join(','))
     await page.close()
   }
 
@@ -914,7 +983,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length
+  const expected = ORDER.length * VIEWPORTS.length + 1
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)

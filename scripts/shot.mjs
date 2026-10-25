@@ -4,7 +4,7 @@
 // Examples: node scripts/shot.mjs briefing lab-c --vp=1366     node scripts/shot.mjs visuals --text=2
 import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
-import { click, fitReport, freePort, launch, profilePage, startPreview, text, toCaseStep, waitRendered, CONTENT } from './lib/drive.mjs'
+import { click, finishItems, fitReport, svgReport, freePort, launch, profilePage, startPreview, text, toCaseStep, waitRendered, CONTENT } from './lib/drive.mjs'
 
 const args = process.argv.slice(2)
 const opt = (k, d) => (args.find((a) => a.startsWith(`--${k}=`)) ?? `--${k}=${d}`).split('=')[1]
@@ -49,6 +49,23 @@ try {
           await page.waitForSelector('[data-testid="item-result"]')
           await sleep(1200)
         }
+      } else if (target === 'debrief' || target === 'results') {
+        await toCaseStep(page, 'items')
+        await sleep(1500)
+        await finishItems(page)
+        await sleep(target === 'debrief' ? 2500 : 500)
+        if (target === 'results') {
+          await click(page, 'debrief-continue')
+          await page.waitForSelector('[data-testid="results"]')
+          await sleep(4500)
+        }
+      } else if (target === 'firstrun') {
+        await page.evaluate(() => localStorage.clear())
+        await page.reload({ waitUntil: 'load' })
+        await page.waitForSelector('[data-testid="start-shift"]')
+        await page.click('[data-testid="start-shift"]')
+        await page.waitForSelector('[data-testid="firstrun-modal"]')
+        await sleep(800)
       } else if (target === 'cold-item') {
         await page.evaluate(() => (location.hash = '#/cold/cold-1'))
         await page.waitForSelector('[data-testid="cold-intro"]')
@@ -59,7 +76,8 @@ try {
       } else if (target === 'visuals') {
         await page.goto(base + QS + '#/visuals', { waitUntil: 'load' })
         await page.waitForSelector('[data-testid="visuals-scenes"] svg')
-        await sleep(1500)
+        await page.setViewport({ width: vp.width, height: vp.width > 1700 ? 1080 : 1700, deviceScaleFactor: 1 })
+        await sleep(2000)
       } else if (target === 'models') {
         await page.goto(base + QS + '#/visuals/models', { waitUntil: 'load' })
         await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
@@ -72,6 +90,7 @@ try {
       const file = `${OUT}/${name}.png`
       await page.screenshot({ path: file, fullPage: target === 'visuals' })
       const fits = await fitReport(page)
+      if (target === 'visuals' || target === 'cold-item') console.log('svg', JSON.stringify(await svgReport(page)))
       console.log(`wrote ${file}`, fits.length ? JSON.stringify(fits.map((f) => ({ over: +f.over.toFixed(3), w: f.canvasW, h: f.canvasH }))) : '')
       await page.close()
     }
