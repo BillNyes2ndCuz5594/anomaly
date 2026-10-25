@@ -144,6 +144,54 @@ function fish(b: Builder, o: { body: string; belly: string; fin: string; len: nu
   if (o.stripe) b.box(L * 1.3, 0.07, 0.8, { p: [-L * 0.1, 0.08 * o.depth, 0], c: o.stripe })
 }
 
+
+/** Chain of tapered segments with round joints, used for tails and legs. Radii go from r[0] to r[n-1]. */
+function chain(b: Builder, pts: V3[], radii: number[], c: string, sides = 7): void {
+  for (let i = 0; i < pts.length - 1; i++) {
+    b.seg(pts[i], pts[i + 1], radii[i], c, radii[i + 1], sides)
+    b.sphere(radii[i + 1] * 1.02, { p: pts[i + 1], c }, sides + 1, 5)
+  }
+}
+
+function bassModel(b: Builder): void {
+  const body = '#6f9a4e'
+  const belly = '#e3e9c2'
+  const dark = '#2f4b25'
+  const fin = '#5a8240'
+  b.lathe(
+    [[0, -1.95], [0.08, -1.9], [0.16, -1.5], [0.3, -0.9], [0.5, -0.3], [0.58, 0.25], [0.56, 0.8], [0.46, 1.3], [0.32, 1.65], [0.18, 1.9], [0.07, 2.05], [0, 2.1]],
+    { r: [0, 0, -Math.PI / 2], s: [1, 1, 0.72], c: body },
+    12,
+  )
+  // pale belly and cheek plate
+  b.sphere(1, { p: [0.15, -0.27, 0], s: [1.75, 0.3, 0.55], c: belly }, 10, 6)
+  b.sphere(0.4, { p: [0.95, 0.0, 0], s: [0.35, 1.0, 0.95], c: '#8db364' }, 8, 6)
+  // dark lateral band
+  for (const k of mirrorZ) b.sphere(1, { p: [0.0, 0.1, k * 0.37], s: [1.7, 0.09, 0.06], c: dark }, 10, 4)
+  // big lower jaw and mouth line
+  b.sphere(0.34, { p: [1.62, -0.1, 0], s: [1.5, 0.4, 0.78], c: '#cfd9a0' }, 8, 6)
+  b.box(0.95, 0.03, 0.5, { p: [1.62, 0.02, 0], c: '#1f2c19' })
+  // eyes
+  for (const k of mirrorZ) {
+    b.sphere(0.12, { p: [1.22, 0.28, k * 0.31], c: '#efe9c0' }, 8, 6)
+    b.sphere(0.065, { p: [1.29, 0.29, k * 0.35], c: '#101820' }, 6, 5)
+  }
+  // spiny dorsal, soft dorsal
+  for (let i = 0; i < 6; i++) b.cone(0.1, 0.42 - i * 0.025, { p: [0.75 - i * 0.2, 0.6 + 0.2 - i * 0.015, 0], r: [0, 0, 0.3], s: [1, 1, 0.3], c: dark }, 4)
+  b.sphere(1, { p: [0.15, 0.7, 0], s: [0.65, 0.17, 0.04], r: [0, 0, 0.12], c: fin }, 8, 4)
+  b.cone(0.3, 0.55, { p: [-0.75, 0.8, 0], r: [0, 0, 0.5], s: [1, 1, 0.12], c: fin }, 5)
+  // forked tail
+  b.cone(0.38, 0.95, { p: [-2.3, 0.3, 0], r: [0, 0, Math.PI / 2 - 0.4], s: [1, 1, 0.12], c: fin }, 5)
+  b.cone(0.38, 0.95, { p: [-2.3, -0.3, 0], r: [0, 0, Math.PI / 2 + 0.4], s: [1, 1, 0.12], c: fin }, 5)
+  b.cone(0.16, 0.6, { p: [-1.9, 0.0, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.12], c: fin }, 5)
+  // pelvic, anal and pectoral fins
+  b.cone(0.2, 0.55, { p: [-0.75, -0.5, 0], r: [0, 0, -0.4], s: [1, 1, 0.12], c: fin }, 5)
+  for (const k of mirrorZ) {
+    b.cone(0.17, 0.5, { p: [0.45, -0.52, k * 0.15], r: [k * 0.2, 0, 0.5], s: [1, 1, 0.12], c: fin }, 5)
+    b.sphere(0.3, { p: [0.65, -0.18, k * 0.4], s: [0.9, 0.55, 0.14], r: [k * 0.3, k * 0.3, -0.5], c: '#7fa65d' }, 6, 5)
+  }
+}
+
 function buildSpecimen(id: string): THREE.BufferGeometry {
   const b = new Builder()
   switch (id) {
@@ -215,8 +263,7 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       for (const k of mirrorZ) b.box(0.03, 0.2, 0.05, { p: [0.62, 0.0, k * 0.4], c: '#3a4650' }).box(0.03, 0.2, 0.05, { p: [0.72, 0.0, k * 0.4], c: '#3a4650' })
       break
     case 'largemouth-bass':
-      fish(b, { body: '#6f9a4e', belly: '#dfe7bd', fin: '#587c3e', len: 1.4, depth: 1.25, stripe: '#3d5d2c' })
-      b.box(0.5, 0.1, 0.5, { p: [1.65, -0.05, 0], c: '#34502a' })
+      bassModel(b)
       break
     case 'blue-crab': {
       b.sphere(1, { p: [0, 0.55, 0], s: [0.8, 0.38, 1.3], c: '#4f88b9' }, 10, 6).sphere(1, { p: [0, 0.38, 0], s: [0.7, 0.2, 1.1], c: '#c9d6df' }, 8, 4)
@@ -237,17 +284,39 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       break
     }
     case 'florida-panther': {
-      const t = '#b99a6b'
-      b.capsule(0.5, 1.5, { p: [0, 1.25, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.8], c: t }, 10)
-        .sphere(0.45, { p: [1.55, 1.7, 0], s: [1.1, 0.95, 0.95], c: t }, 10, 8)
-        .sphere(0.2, { p: [2.0, 1.6, 0], s: [1, 0.7, 1], c: '#e2d2b0' }, 8, 6)
-        .sphere(0.07, { p: [2.17, 1.66, 0], c: '#3b2a24' }, 5, 4)
-        .cone(0.16, 0.3, { p: [1.42, 2.15, 0.28], c: '#8f7550' }, 5)
-        .cone(0.16, 0.3, { p: [1.42, 2.15, -0.28], c: '#8f7550' }, 5)
-        .tube([[-1.15, 1.35, 0], [-1.7, 1.2, 0], [-2.2, 0.8, 0], [-2.55, 0.9, 0]], 0.09, { c: t }, 20, 6)
-        .capsule(0.28, 0.5, { p: [1.15, 1.5, 0], r: [0, 0, -0.6], c: t }, 8)
-      for (const x of [0.9, -0.85]) for (const k of mirrorZ) b.seg([x, 1.1, k * 0.3], [x, 0.18, k * 0.3], 0.17, t, 0.11).sphere(0.17, { p: [x + 0.08, 0.1, k * 0.3], s: [1.3, 0.6, 1], c: '#a78a5e' }, 6, 5)
-      for (const k of mirrorZ) b.sphere(0.05, { p: [1.8, 1.82, k * 0.22], c: '#2a3c2a' }, 5, 4)
+      const t = '#b8935f'
+      const pale = '#dccaa6'
+      const dk = '#47362a'
+      // torso, chest and haunch masses
+      b.capsule(0.46, 1.4, { p: [0, 1.38, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.78], c: t }, 12)
+        .sphere(0.52, { p: [0.78, 1.36, 0], s: [1, 1.1, 0.82], c: t }, 12, 8)
+        .sphere(0.54, { p: [-0.82, 1.38, 0], s: [1.05, 1.05, 0.88], c: t }, 12, 8)
+        .sphere(1, { p: [0.05, 1.06, 0], s: [1.5, 0.24, 0.3], c: pale }, 10, 5)
+        .capsule(0.3, 0.45, { p: [1.28, 1.72, 0], r: [0, 0, -1.0], c: t }, 9)
+      // head: skull, muzzle, chin, nose, ears, eyes
+      b.sphere(0.4, { p: [1.78, 1.9, 0], s: [1.05, 0.92, 0.98], c: t }, 12, 9)
+        .sphere(0.21, { p: [2.14, 1.8, 0], s: [1.15, 0.75, 1.0], c: '#d9c5a0' }, 10, 7)
+        .sphere(0.15, { p: [2.08, 1.62, 0], s: [1.5, 0.45, 0.85], c: pale }, 8, 6)
+        .sphere(0.075, { p: [2.34, 1.86, 0], s: [1, 0.8, 1.2], c: dk }, 6, 5)
+        .box(0.3, 0.025, 0.02, { p: [2.2, 1.68, 0.0], c: dk })
+      for (const k of mirrorZ) {
+        b.sphere(0.15, { p: [1.62, 2.3, k * 0.24], s: [0.55, 1.1, 0.9], r: [k * 0.25, 0, 0], c: t }, 7, 5)
+          .sphere(0.08, { p: [1.65, 2.28, k * 0.25], s: [0.4, 0.9, 0.7], c: dk }, 6, 4)
+          .sphere(0.065, { p: [2.0, 2.0, k * 0.23], c: '#cdbf4f' }, 7, 5)
+          .sphere(0.032, { p: [2.04, 2.0, k * 0.245], c: '#10161c' }, 5, 4)
+          .sphere(0.14, { p: [1.98, 2.08, k * 0.22], s: [1.2, 0.45, 0.6], c: '#8d6e45' }, 6, 4)
+      }
+      // tail with dark tip
+      chain(b, [[-1.3, 1.5, 0], [-1.95, 1.4, 0], [-2.55, 1.08, 0], [-3.0, 0.72, 0], [-3.25, 0.5, 0]], [0.16, 0.14, 0.12, 0.105, 0.1], t)
+      b.sphere(0.115, { p: [-3.28, 0.46, 0], c: dk }, 8, 6)
+      // front legs: shoulder, elbow, paw
+      for (const k of mirrorZ) {
+        chain(b, [[0.86, 1.2, k * 0.3], [0.8, 0.68, k * 0.3], [0.92, 0.18, k * 0.3]], [0.2, 0.15, 0.1], t)
+        b.sphere(0.17, { p: [1.0, 0.09, k * 0.3], s: [1.4, 0.55, 1], c: '#a78558' }, 8, 5)
+        // hind legs: thigh forward, shin back, long hock
+        chain(b, [[-0.9, 1.3, k * 0.32], [-0.52, 0.82, k * 0.32], [-0.98, 0.42, k * 0.32], [-0.9, 0.16, k * 0.32]], [0.26, 0.17, 0.11, 0.09], t)
+        b.sphere(0.17, { p: [-0.8, 0.09, k * 0.32], s: [1.4, 0.55, 1], c: '#a78558' }, 8, 5)
+      }
       break
     }
     case 'barred-owl': {
@@ -267,17 +336,43 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       break
     }
     case 'american-alligator': {
-      const gr = '#50703f'
-      b.capsule(0.45, 2.0, { p: [0, 0.6, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.95], c: gr }, 9)
-        .cone(0.42, 2.3, { p: [-2.7, 0.5, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.65], c: '#46633a' }, 8)
-        .box(1.3, 0.25, 0.5, { p: [2.25, 0.5, 0], r: [0, 0, -0.03], c: '#5b7d49' })
-        .box(0.9, 0.2, 0.42, { p: [2.55, 0.4, 0], c: '#c7c79a' })
-        .sphere(0.38, { p: [1.5, 0.7, 0], s: [1.2, 0.8, 1], c: gr }, 8, 6)
+      const gr = '#4d6b3b'
+      const dg = '#33482b'
+      const belly = '#c8c697'
+      const ridge = '#27381f'
+      // body and tail
+      b.capsule(0.58, 1.7, { p: [0, 0.74, 0], r: [0, 0, Math.PI / 2], s: [0.85, 1, 1.18], c: gr }, 12)
+        .sphere(1, { p: [0, 0.42, 0], s: [1.9, 0.22, 0.75], c: belly }, 10, 5)
+      const tail: V3[] = [[-1.4, 0.68, 0.0], [-2.3, 0.55, 0.22], [-3.3, 0.4, -0.15], [-4.3, 0.28, -0.4], [-5.1, 0.2, -0.2]]
+      chain(b, tail, [0.46, 0.38, 0.28, 0.18, 0.06], dg, 8)
+      // head: skull, long flat snout, pale lower jaw, eye ridges, nostrils
+      b.sphere(0.52, { p: [1.62, 0.86, 0], s: [1.15, 0.62, 1.0], c: gr }, 12, 8)
+        .cyl(0.17, 0.4, 1.7, { p: [2.7, 0.78, 0], r: [0, 0, -Math.PI / 2], s: [0.5, 1, 1.15], c: gr }, 10)
+        .cyl(0.14, 0.34, 1.6, { p: [2.62, 0.56, 0], r: [0, 0, -Math.PI / 2], s: [0.4, 1, 1.05], c: belly }, 9)
+        .sphere(0.17, { p: [3.55, 0.99, 0], s: [1, 0.6, 1.6], c: dg }, 7, 5)
       for (const k of mirrorZ) {
-        b.sphere(0.12, { p: [1.6, 0.95, k * 0.22], c: '#d8d36f' }, 6, 5).sphere(0.05, { p: [1.65, 1.0, k * 0.25], c: '#10161c' }, 5, 4)
-        for (const x of [1.0, -0.9]) b.seg([x, 0.35, k * 0.5], [x + 0.1, 0.1, k * 1.0], 0.16, gr, 0.1).box(0.34, 0.05, 0.22, { p: [x + 0.25, 0.05, k * 1.0], c: '#3f5a32' })
+        b.sphere(0.2, { p: [1.72, 1.14, k * 0.3], s: [1.2, 0.8, 1], c: gr }, 8, 6)
+          .sphere(0.075, { p: [1.78, 1.24, k * 0.34], c: '#e0cb4a' }, 6, 5)
+          .sphere(0.035, { p: [1.82, 1.26, k * 0.37], s: [0.5, 1.6, 1], c: '#10161c' }, 5, 4)
+          .sphere(0.05, { p: [3.5, 1.08, k * 0.1], c: '#10161c' }, 5, 4)
+        // teeth along the upper jaw
+        for (let i = 0; i < 7; i++) b.cone(0.028, 0.1, { p: [2.2 + i * 0.22, 0.58, k * (0.26 - i * 0.02)], r: [Math.PI, 0, 0], c: '#f1ecd6' }, 4)
+        // splayed legs with toes
+        for (const x of [0.95, -0.95]) {
+          chain(b, [[x, 0.58, k * 0.62], [x + 0.12, 0.3, k * 1.05], [x + 0.2, 0.1, k * 1.15]], [0.2, 0.14, 0.1], gr)
+          for (let i = -1; i <= 1; i++) b.box(0.28, 0.06, 0.07, { p: [x + 0.4, 0.04, k * (1.15 + i * 0.12)], r: [0, i * k * 0.3, 0], c: dg })
+        }
       }
-      for (let i = 0; i < 9; i++) b.cone(0.1, 0.2, { p: [1.1 - i * 0.55, 1.08 - Math.max(0, i - 4) * 0.12, 0], c: '#33472a' }, 4)
+      // double row of osteoderm scutes down the back and tail
+      for (let i = 0; i < 11; i++) {
+        const x = 1.2 - i * 0.28
+        for (const k of mirrorZ) b.cone(0.1, 0.17, { p: [x, 1.2 - Math.max(0, x < 0 ? -x * 0.08 : 0), k * 0.2], c: ridge }, 4)
+      }
+      for (let i = 0; i < tail.length - 1; i++) {
+        const [x0, y0, z0] = tail[i]
+        const [x1, y1, z1] = tail[i + 1]
+        for (const f of [0.2, 0.7]) b.cone(0.12 - i * 0.02, 0.2 - i * 0.03, { p: [x0 + (x1 - x0) * f, y0 + (y1 - y0) * f + 0.4 - i * 0.07, z0 + (z1 - z0) * f], c: ridge }, 4)
+      }
       break
     }
     case 'grasshopper': {
@@ -300,19 +395,34 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       break
     }
     case 'garden-spider': {
-      b.sphere(0.58, { p: [-0.6, 0.62, 0], s: [1.15, 0.95, 0.95], c: '#e3b933' }, 10, 8)
-        .sphere(0.3, { p: [0.2, 0.52, 0], s: [1, 0.8, 0.85], c: '#3b2f1e' }, 8, 6)
-        .box(0.12, 0.05, 0.9, { p: [-0.62, 1.12, 0], c: '#3b2f1e' })
-        .box(0.12, 0.05, 0.76, { p: [-0.3, 1.0, 0], r: [0, 0, -0.5], c: '#3b2f1e' })
-        .box(0.12, 0.05, 0.76, { p: [-0.95, 1.0, 0], r: [0, 0, 0.5], c: '#3b2f1e' })
+      const yel = '#e6bd2e'
+      const blk = '#241c12'
+      const silver = '#c3b697'
+      // abdomen with black bands, cephalothorax, eyes, fangs
+      b.sphere(0.7, { p: [-0.78, 0.98, 0], s: [1.3, 1.0, 0.95], c: yel }, 14, 10)
+      for (const dx of [-0.62, -0.28, 0.06, 0.4]) {
+        const f = Math.sqrt(Math.max(0, 1 - (dx / 0.91) ** 2))
+        b.torus(0.7 * f * 1.01, 0.04, { p: [-0.78 + dx, 0.98, 0], r: [0, Math.PI / 2, 0], s: [0.95, 1, 1], c: blk }, 5, 22)
+      }
+      b.sphere(0.36, { p: [0.4, 0.82, 0], s: [1.15, 0.8, 0.88], c: silver }, 10, 8)
+        .sphere(0.17, { p: [-0.06, 0.88, 0], c: blk }, 7, 5)
+        .sphere(0.13, { p: [0.72, 0.85, 0], s: [0.8, 0.9, 1.1], c: '#8d7f63' }, 7, 5)
       for (const k of mirrorZ) {
+        b.sphere(0.045, { p: [0.7, 0.98, k * 0.07], c: '#0b0b0b' }, 5, 4)
+          .sphere(0.04, { p: [0.64, 1.02, k * 0.17], c: '#0b0b0b' }, 5, 4)
+          .cone(0.035, 0.14, { p: [0.84, 0.74, k * 0.08], r: [0, 0, Math.PI + 0.3], c: '#3b2c1c' }, 5)
+        // eight legs: yellow femur, dark banded tibia, ground tip
         for (let i = 0; i < 4; i++) {
-          const x = 0.34 - i * 0.14
-          const sp = (i - 1.5) * 0.5
-          b.seg([x, 0.52, k * 0.22], [x + sp * 0.9 + 0.1, 1.0, k * 0.85], 0.045, '#4a3a24')
-            .seg([x + sp * 0.9 + 0.1, 1.0, k * 0.85], [x + sp * 1.5 + 0.15, 0.04, k * 1.45], 0.035, '#5a4830')
+          const x = 0.56 - i * 0.17
+          const sp = (1.5 - i) * 0.5
+          const knee: V3 = [x + sp * 0.5, 1.28, k * (0.98 + (i === 1 || i === 2 ? 0.1 : 0))]
+          const tip: V3 = [x + sp * 1.6 + (i < 2 ? 0.3 : -0.2), 0.04, k * (1.7 + (i === 1 || i === 2 ? 0.2 : 0))]
+          const mid: V3 = [knee[0] + (tip[0] - knee[0]) * 0.45, knee[1] + (tip[1] - knee[1]) * 0.45, knee[2] + (tip[2] - knee[2]) * 0.45]
+          b.seg([x, 0.8, k * 0.2], knee, 0.075, yel, 0.06)
+            .sphere(0.07, { p: knee, c: blk }, 7, 5)
+            .seg(knee, mid, 0.06, blk, 0.055)
+            .seg(mid, tip, 0.055, '#6a4f22', 0.025)
         }
-        b.sphere(0.05, { p: [0.45, 0.62, k * 0.12], c: '#f0e8d0' }, 5, 4)
       }
       break
     }
