@@ -341,10 +341,11 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       const belly = '#c8c697'
       const ridge = '#27381f'
       // body and tail
-      b.capsule(0.58, 1.7, { p: [0, 0.74, 0], r: [0, 0, Math.PI / 2], s: [0.85, 1, 1.18], c: gr }, 12)
+      b.capsule(0.64, 1.7, { p: [0, 0.8, 0], r: [0, 0, Math.PI / 2], s: [0.85, 1, 1.2], c: gr }, 12)
         .sphere(1, { p: [0, 0.42, 0], s: [1.9, 0.22, 0.75], c: belly }, 10, 5)
-      const tail: V3[] = [[-1.4, 0.68, 0.0], [-2.3, 0.55, 0.22], [-3.3, 0.4, -0.15], [-4.3, 0.28, -0.4], [-5.1, 0.2, -0.2]]
-      chain(b, tail, [0.46, 0.38, 0.28, 0.18, 0.06], dg, 8)
+      // the tail curls round to one side so the whole animal reads at a compact, readable size
+      const tail: V3[] = [[-1.4, 0.68, 0.0], [-2.2, 0.58, 0.3], [-2.95, 0.46, 0.85], [-3.35, 0.34, 1.55], [-3.35, 0.24, 2.3], [-3.0, 0.16, 2.85]]
+      chain(b, tail, [0.48, 0.42, 0.34, 0.26, 0.16, 0.05], dg, 8)
       // head: skull, long flat snout, pale lower jaw, eye ridges, nostrils
       b.sphere(0.52, { p: [1.62, 0.86, 0], s: [1.15, 0.62, 1.0], c: gr }, 12, 8)
         .cyl(0.17, 0.4, 1.7, { p: [2.7, 0.78, 0], r: [0, 0, -Math.PI / 2], s: [0.5, 1, 1.15], c: gr }, 10)
@@ -417,11 +418,15 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
           const sp = (1.5 - i) * 0.5
           const knee: V3 = [x + sp * 0.5, 1.28, k * (0.98 + (i === 1 || i === 2 ? 0.1 : 0))]
           const tip: V3 = [x + sp * 1.6 + (i < 2 ? 0.3 : -0.2), 0.04, k * (1.7 + (i === 1 || i === 2 ? 0.2 : 0))]
-          const mid: V3 = [knee[0] + (tip[0] - knee[0]) * 0.45, knee[1] + (tip[1] - knee[1]) * 0.45, knee[2] + (tip[2] - knee[2]) * 0.45]
-          b.seg([x, 0.8, k * 0.2], knee, 0.075, yel, 0.06)
-            .sphere(0.07, { p: knee, c: blk }, 7, 5)
-            .seg(knee, mid, 0.06, blk, 0.055)
-            .seg(mid, tip, 0.055, '#6a4f22', 0.025)
+          const lerp = (u: V3, v: V3, t: number): V3 => [u[0] + (v[0] - u[0]) * t, u[1] + (v[1] - u[1]) * t, u[2] + (v[2] - u[2]) * t]
+          b.seg([x, 0.8, k * 0.2], knee, 0.1, yel, 0.085).sphere(0.1, { p: knee, c: blk }, 7, 5)
+          // banded lower leg: alternating dark and gold rings, then a slim tan foot
+          const bands = [0, 0.3, 0.55, 0.78, 1]
+          for (let j = 0; j < bands.length - 1; j++) {
+            const r0 = 0.085 - 0.012 * j
+            b.seg(lerp(knee, tip, bands[j] * 0.85), lerp(knee, tip, bands[j + 1] * 0.85), r0, j % 2 ? yel : blk, r0 - 0.012, 6)
+          }
+          b.seg(lerp(knee, tip, 0.85), tip, 0.04, '#6a4f22', 0.022)
         }
       }
       break

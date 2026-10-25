@@ -9,8 +9,10 @@ import type { Visual } from '../content/schema'
 const MiniCanvas = lazy(() => import('../three/ItemVisualCanvas'))
 
 const MODEL_SETS: { ids: string[]; title: string }[] = [
-  { ids: ['florida-panther', 'american-alligator'], title: 'Florida panther, American alligator' },
-  { ids: ['largemouth-bass', 'garden-spider'], title: 'Largemouth bass, garden spider' },
+  { ids: ['american-alligator'], title: 'American alligator' },
+  { ids: ['garden-spider'], title: 'Garden spider' },
+  { ids: ['manatee'], title: 'Manatee' },
+  { ids: ['florida-panther'], title: 'Florida panther' },
 ]
 
 export default function VisualsScreen({ view }: { view: 'scenes' | 'models' }) {

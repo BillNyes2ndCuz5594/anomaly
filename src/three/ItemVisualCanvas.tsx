@@ -52,8 +52,8 @@ function OrganVisual({ highlight }: { highlight: string[] }) {
 
 // Animal at x -3.4 (about 4.6 wide, 3 tall), plant at x 3.4 (about 3 wide, from roots at -1.3 up to 3.6).
 const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
-const SPACING = 3.7
-const FIT = 2.8
+const SPACING = 4.2
+const FIT = 3.0
 
 function SpecimenVisual({ ids }: { ids: string[] }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
@@ -63,7 +63,7 @@ function SpecimenVisual({ ids }: { ids: string[] }) {
     const parts = ids.map((id, i) => {
       const x = (i - (n - 1) / 2) * SPACING
       const sw = sweepYaw(specimenBox(id, FIT), STILL ? 0.02 : SWAY_SPECIMEN, 16, STILL ? STILL_YAW : SPECIMEN_YAW)
-      return unionBox(translateBox(sw, [x, 0, 0]), translateBox(ringBox(1.5), [x, 0, 0]))
+      return unionBox(translateBox(sw, [x, 0, 0]), translateBox(ringBox(1.6), [x, 0, 0]))
     })
     return { box: unionBox(...parts), elevation: 0.24 }
   }, [ids, n])
@@ -73,7 +73,7 @@ function SpecimenVisual({ ids }: { ids: string[] }) {
       <group ref={content}>
         {ids.map((id, i) => (
           <group key={id} position={[(i - (n - 1) / 2) * SPACING, 0, 0]}>
-            <Pedestal radius={1.5} />
+            <Pedestal radius={1.6} />
             <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
           </group>
         ))}
