@@ -3,8 +3,8 @@ import { useCallback, useMemo, useRef } from 'react'
 import type * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
 import { FitCamera } from './FitCamera'
-import { sweepYaw, translateBox, unionBox, type Box } from './fit'
-import { specimenBox } from './models/specimenBox'
+import { pointsBox, sweepYaw, translatePoints, unionBox, type Box, type V3 } from './fit'
+import { DISPLAY_YAW, specimenOutline, specimenRing } from './models/specimenBox'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -27,11 +27,23 @@ function Lights() {
   )
 }
 
+/** Clean studio light for animals: warm key, soft sky fill, cool rim from behind (the same cyan as the holograms). */
+function SpecimenLights() {
+  return (
+    <>
+      <hemisphereLight args={['#b4c8e4', '#2b2824', 0.95]} />
+      <directionalLight position={[4, 7, 6]} intensity={2.3} color="#fff0dc" />
+      <directionalLight position={[-6, 3, -5]} intensity={1.7} color="#4fe6ff" />
+      <pointLight position={[-4, 2, 5]} intensity={6} color="#ffd9b0" distance={24} decay={2} />
+    </>
+  )
+}
+
 const RING = 2.15
 const ringBox = (r: number): Box => ({ min: [-r, 0, -r], max: [r, 0.06, r] })
 const SWAY_BODY = 0.5
 const SWAY_SPECIMEN = 0.3
-const SPECIMEN_YAW = -0.55
+const SPECIMEN_YAW = DISPLAY_YAW
 
 function OrganVisual({ highlight }: { highlight: string[] }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
@@ -52,28 +64,37 @@ function OrganVisual({ highlight }: { highlight: string[] }) {
 
 // Animal at x -3.4 (about 4.6 wide, 3 tall), plant at x 3.4 (about 3 wide, from roots at -1.3 up to 3.6).
 const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
-const SPACING = 4.2
 const FIT = 3.0
+
+/** Centers of a row of specimens, spaced by their own base rings so wide and narrow animals sit evenly. */
+function rowX(ids: string[]): number[] {
+  const r = ids.map((id) => specimenRing(id, FIT))
+  const xs: number[] = []
+  let x = 0
+  r.forEach((ri, i) => {
+    if (i > 0) x += r[i - 1] + ri + 0.5
+    xs.push(x)
+  })
+  const mid = (xs[0] + xs[xs.length - 1]) / 2
+  return xs.map((v) => v - mid)
+}
 
 function SpecimenVisual({ ids }: { ids: string[] }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const content = useRef<THREE.Group>(null)
-  const n = ids.length
   const view = useMemo(() => {
-    const parts = ids.map((id, i) => {
-      const x = (i - (n - 1) / 2) * SPACING
-      const sw = sweepYaw(specimenBox(id, FIT), STILL ? 0.02 : SWAY_SPECIMEN, 16, STILL ? STILL_YAW : SPECIMEN_YAW)
-      return unionBox(translateBox(sw, [x, 0, 0]), translateBox(ringBox(1.6), [x, 0, 0]))
-    })
-    return { box: unionBox(...parts), elevation: 0.24 }
-  }, [ids, n])
+    const xs = rowX(ids)
+    const pts: V3[] = ids.flatMap((id, i) => translatePoints(specimenOutline(id, FIT, STILL ? STILL_YAW : SPECIMEN_YAW, STILL ? 0.02 : SWAY_SPECIMEN), [xs[i], 0, 0]))
+    return { box: pointsBox(pts), points: pts, elevation: 0.28, margin: 0.14 }
+  }, [ids])
+  const xs = useMemo(() => rowX(ids), [ids])
   return (
     <>
       <FitCamera view={view} measure={content} />
       <group ref={content}>
         {ids.map((id, i) => (
-          <group key={id} position={[(i - (n - 1) / 2) * SPACING, 0, 0]}>
-            <Pedestal radius={1.6} />
+          <group key={id} position={[xs[i], 0, 0]}>
+            <Pedestal radius={specimenRing(id, FIT)} />
             <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
           </group>
         ))}
@@ -116,7 +137,7 @@ export default function ItemVisualCanvas({ visual }: { visual: Visual }) {
   return (
     <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
       <color attach="background" args={['#091222']} />
-      <Lights />
+      {visual.kind === 'specimen' ? <SpecimenLights /> : <Lights />}
       {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} /> : null}
       {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} /> : null}
       {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} /> : null}
