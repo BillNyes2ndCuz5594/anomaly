@@ -149,6 +149,8 @@ function Florida() {
   )
 }
 
+const PLANET_ANGLE = 2.55
+
 /** Orbiting planet with a ring, and a small moon. A hint of the space cases. */
 function Planet({ reduced }: { reduced: boolean }) {
   const orbit = useRef<THREE.Group>(null)
@@ -166,24 +168,25 @@ function Planet({ reduced }: { reduced: boolean }) {
     [],
   )
   const trail = useMemo(() => createHologramMaterial({ opacity: 0.5, intensity: 0.7, scanDensity: 3, sweep: 0 }), [])
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     if (reduced) return
-    if (orbit.current) orbit.current.rotation.y += dt * 0.12
+    // The planet drifts along a short arc in the upper left sky, clear of the case labels and the panel.
+    if (orbit.current) orbit.current.rotation.y = PLANET_ANGLE + Math.sin(state.clock.elapsedTime * 0.18) * 0.16
     if (moon.current) moon.current.rotation.y += dt * 0.7
   })
   return (
-    <group position={[0, TABLE_TOP_Y + 2.1, -0.6]} rotation={[0.22, 0, -0.14]}>
+    <group position={[0, TABLE_TOP_Y + 1.35, -0.4]} rotation={[0.1, 0, -0.08]}>
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[TABLE_RADIUS - 0.2, 0.012, 6, 128]} />
+        <torusGeometry args={[TABLE_RADIUS - 0.6, 0.012, 6, 128]} />
         <primitive object={trail} attach="material" />
       </mesh>
-      <group ref={orbit} rotation={[0, reduced ? 2.1 : 0, 0]}>
-        <group position={[TABLE_RADIUS - 0.2, 0, 0]}>
+      <group ref={orbit} rotation={[0, PLANET_ANGLE, 0]}>
+        <group position={[TABLE_RADIUS - 0.6, 0, 0]}>
           <mesh>
             <sphereGeometry args={[0.3, 32, 20]} />
             <primitive object={planetMat} attach="material" />
           </mesh>
-          <mesh rotation={[1.25, 0.2, 0]}>
+          <mesh rotation={[1.0, 0.1, 0.35]}>
             <ringGeometry args={[0.46, 0.66, 64]} />
             <primitive object={ringMat} attach="material" />
           </mesh>

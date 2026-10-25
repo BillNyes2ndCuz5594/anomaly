@@ -26,15 +26,18 @@ function bake(parts: Part[]): THREE.BufferGeometry {
 }
 
 const FAN_SPOTS: readonly [number, number][] = [
-  [0.82, 0.66],
-  [-0.82, 0.66],
-  [-0.82, -0.66],
-  [0.82, -0.66],
+  [0.9, 0.62],
+  [-0.9, 0.62],
+  [-0.9, -0.62],
+  [0.9, -0.62],
 ]
+const ROTOR_Y = 0.16
+const ROTOR_R = 0.34
 
 /**
- * Procedural field drone: octagonal armored hull, amber visor, shoulder pods, four ducted fans
- * with spinning blades, antenna and a thruster glow. Static parts are merged per material (about 9 draw calls).
+ * Procedural field drone: a pale shell with a navy spine, a glowing amber sensor eye in a dark
+ * bezel, four swept arms ending in glowing cyan rotor rings, each with a soft blur disc and fast
+ * translucent blades. Static parts are merged per material (about 11 draw calls).
  */
 export default function Drone({ reduced, position, scale = 1 }: { reduced: boolean; position: [number, number, number]; scale?: number }) {
   const root = useRef<THREE.Group>(null)
@@ -43,95 +46,91 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
   const built = useMemo(() => {
     const box = new THREE.BoxGeometry(1, 1, 1)
     const cyl = (rt: number, rb: number, h: number, seg: number) => new THREE.CylinderGeometry(rt, rb, h, seg)
-    const torus = (r: number, t: number, a = 48) => new THREE.TorusGeometry(r, t, 8, a)
+    const torus = (r: number, t: number, a = 56) => new THREE.TorusGeometry(r, t, 8, a)
+    const ball = (r: number) => new THREE.SphereGeometry(r, 24, 16)
 
+    // pale shell: a smooth lozenge body, a nose, a dorsal cap and the arms
     const hull: Part[] = [
-      { geo: cyl(0.4, 0.52, 0.3, 8), rot: [0, Math.PI / 8, 0] },
-      { geo: cyl(0.3, 0.36, 0.14, 8), pos: [0, 0.2, 0], rot: [0, Math.PI / 8, 0] },
-      // shoulder pods
-      { geo: box, pos: [0.56, 0.02, 0], scale: [0.26, 0.22, 0.5] },
-      { geo: box, pos: [-0.56, 0.02, 0], scale: [0.26, 0.22, 0.5] },
-      // arms to the fans
-      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: box, pos: [x * 0.62, 0.03, z * 0.62], rot: [0, Math.atan2(-z, x), 0], scale: [Math.hypot(x, z) * 0.82, 0.07, 0.1] })),
-      // ducts
-      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: torus(0.31, 0.04), pos: [x, 0.08, z], rot: [Math.PI / 2, 0, 0] })),
-      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: cyl(0.06, 0.07, 0.14, 12), pos: [x, 0.06, z] })),
+      { geo: ball(0.5), scale: [1.18, 0.5, 1.0] },
+      { geo: ball(0.28), pos: [0, 0.04, 0.36], scale: [1.0, 0.6, 0.85] },
+      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: cyl(0.045, 0.06, 1, 10), pos: [x * 0.52, 0.06, z * 0.52], rot: [Math.PI / 2, 0, Math.atan2(z, x) - Math.PI / 2], scale: [1, Math.hypot(x, z) * 0.9, 1] })),
     ]
+    // navy spine, shoulder pads and motor pods
     const armor: Part[] = [
-      { geo: cyl(0.27, 0.3, 0.06, 8), pos: [0, 0.29, 0], rot: [0, Math.PI / 8, 0] },
-      { geo: box, pos: [0.56, 0.15, 0], scale: [0.2, 0.05, 0.42] },
-      { geo: box, pos: [-0.56, 0.15, 0], scale: [0.2, 0.05, 0.42] },
-      { geo: cyl(0.012, 0.012, 0.4, 6), pos: [-0.18, 0.5, -0.16], rot: [0.15, 0, 0.2] },
+      { geo: ball(0.34), pos: [0, 0.16, -0.1], scale: [0.85, 0.3, 1.2] },
+      { geo: box, pos: [0, 0.17, -0.1], scale: [0.035, 0.26, 0.85] },
+      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: cyl(0.1, 0.12, 0.16, 14), pos: [x, 0.07, z] })),
+      { geo: cyl(0.012, 0.012, 0.42, 6), pos: [-0.22, 0.52, -0.3], rot: [0.12, 0, 0.18] },
     ]
     const dark: Part[] = [
-      { geo: cyl(0.26, 0.2, 0.16, 8), pos: [0, -0.2, 0], rot: [0, Math.PI / 8, 0] },
-      { geo: box, pos: [0, 0.03, 0.46], scale: [0.62, 0.2, 0.16] },
-      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: torus(0.24, 0.012), pos: [x, 0.0, z], rot: [Math.PI / 2, 0, 0] })),
+      // eye bezel and the belly
+      { geo: torus(0.17, 0.035), pos: [0, 0.03, 0.47], rot: [0.12, 0, 0] },
+      { geo: ball(0.3), pos: [0, -0.15, 0], scale: [1.2, 0.35, 1.0] },
+      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: torus(0.1, 0.014), pos: [x, 0.13, z], rot: [Math.PI / 2, 0, 0] })),
     ]
-    const glow: Part[] = [
-      // visor and lens
-      { geo: box, pos: [0, 0.04, 0.545], scale: [0.5, 0.07, 0.03] },
-      { geo: new THREE.SphereGeometry(0.05, 14, 10), pos: [0, -0.07, 0.52] },
-      // chevron stripes on the top plate and shoulders
-      { geo: box, pos: [0.1, 0.33, 0.0], rot: [0, 0.5, 0], scale: [0.035, 0.012, 0.3] },
-      { geo: box, pos: [-0.1, 0.33, 0.0], rot: [0, -0.5, 0], scale: [0.035, 0.012, 0.3] },
-      { geo: box, pos: [0.69, 0.02, 0.1], scale: [0.012, 0.05, 0.28] },
-      { geo: box, pos: [-0.69, 0.02, 0.1], scale: [0.012, 0.05, 0.28] },
-      { geo: new THREE.SphereGeometry(0.03, 10, 8), pos: [-0.22, 0.7, -0.1] },
+    const eye: Part[] = [
+      { geo: ball(0.15), pos: [0, 0.03, 0.5], scale: [1, 1, 0.7] },
+      { geo: ball(0.03), pos: [-0.22, 0.73, -0.36] },
     ]
-    const disc: Part[] = FAN_SPOTS.map(([x, z]): Part => ({ geo: cyl(0.3, 0.3, 0.004, 28), pos: [x, 0.08, z] }))
+    const rims: Part[] = [
+      ...FAN_SPOTS.map(([x, z]): Part => ({ geo: torus(ROTOR_R, 0.026), pos: [x, ROTOR_Y, z], rot: [Math.PI / 2, 0, 0] })),
+      { geo: torus(0.26, 0.012), pos: [0, -0.16, 0], rot: [Math.PI / 2, 0, 0] },
+      { geo: box, pos: [0.42, 0.14, 0.14], rot: [0, 0.35, 0], scale: [0.2, 0.014, 0.025] },
+      { geo: box, pos: [-0.42, 0.14, 0.14], rot: [0, -0.35, 0], scale: [0.2, 0.014, 0.025] },
+    ]
+    const disc: Part[] = FAN_SPOTS.map(([x, z]): Part => ({ geo: cyl(ROTOR_R, ROTOR_R, 0.004, 32), pos: [x, ROTOR_Y, z] }))
 
     const blade = bake([
-      { geo: box, scale: [0.5, 0.01, 0.045], rot: [0, 0.1, 0] },
-      { geo: box, scale: [0.5, 0.01, 0.045], rot: [0, Math.PI / 2 + 0.1, 0] },
+      { geo: box, scale: [0.62, 0.006, 0.03], rot: [0, 0.1, 0] },
+      { geo: box, scale: [0.62, 0.006, 0.03], rot: [0, Math.PI / 2 + 0.1, 0] },
     ])
 
     const hullMat = new THREE.MeshStandardNodeMaterial()
-    hullMat.color = new THREE.Color('#223a62')
-    hullMat.roughness = 0.38
-    hullMat.metalness = 0.7
+    hullMat.color = new THREE.Color('#cfdcf0')
+    hullMat.roughness = 0.32
+    hullMat.metalness = 0.35
     const armorMat = new THREE.MeshStandardNodeMaterial()
-    armorMat.color = new THREE.Color('#7f9ec8')
+    armorMat.color = new THREE.Color('#2a4572')
     armorMat.roughness = 0.35
-    armorMat.metalness = 0.55
+    armorMat.metalness = 0.6
     const darkMat = new THREE.MeshStandardNodeMaterial()
     darkMat.color = new THREE.Color('#070d18')
     darkMat.roughness = 0.25
     darkMat.metalness = 0.85
-    const bladeMat = new THREE.MeshStandardNodeMaterial()
-    bladeMat.color = new THREE.Color('#aab9d2')
-    bladeMat.roughness = 0.5
 
-    const glowMat = new THREE.MeshBasicNodeMaterial()
-    glowMat.colorNode = color('#ffb547').mul(float(2.8).add(sin(time.mul(2.2)).mul(0.6)))
-    const stripMat = new THREE.MeshBasicNodeMaterial()
-    stripMat.colorNode = color(HOLO_CYAN).mul(2.6)
+    const eyeMat = new THREE.MeshBasicNodeMaterial()
+    eyeMat.colorNode = color('#ffb547').mul(float(2.8).add(sin(time.mul(2.2)).mul(0.6)))
+    const rimMat = new THREE.MeshBasicNodeMaterial()
+    rimMat.colorNode = color(HOLO_CYAN).mul(2.8)
 
     const discMat = new THREE.MeshBasicNodeMaterial()
-    discMat.colorNode = color('#8fe9ff').mul(0.9)
-    discMat.opacity = 0.07
+    discMat.colorNode = color('#8fe9ff').mul(1.2)
+    discMat.opacity = 0.2
     discMat.transparent = true
     discMat.blending = THREE.AdditiveBlending
     discMat.depthWrite = false
     discMat.side = THREE.DoubleSide
 
+    const bladeMat = new THREE.MeshBasicNodeMaterial()
+    bladeMat.colorNode = color('#d8f6ff').mul(1.4)
+    bladeMat.opacity = 0.22
+    bladeMat.transparent = true
+    bladeMat.blending = THREE.AdditiveBlending
+    bladeMat.depthWrite = false
+
     const thrustMat = new THREE.MeshBasicNodeMaterial()
     const h = saturate(positionLocal.y.add(0.5))
     thrustMat.colorNode = color(HOLO_CYAN).mul(float(2.2).add(sin(time.mul(9)).mul(0.3)))
-    thrustMat.opacityNode = oneMinus(h).mul(0.6)
+    thrustMat.opacityNode = oneMinus(h).mul(0.4)
     thrustMat.transparent = true
     thrustMat.blending = THREE.AdditiveBlending
     thrustMat.depthWrite = false
     thrustMat.side = THREE.DoubleSide
     const thrustGeo = new THREE.CylinderGeometry(0.5, 0.05, 1, 20, 1, true)
 
-    // Glow stripes on the visor are amber, the rest of the light work is cyan: split the glow list.
-    const visor = bake(glow.slice(0, 2))
-    const strips = bake(glow.slice(2))
-
-    const geos = [bake(hull), bake(armor), bake(dark), visor, strips, bake(disc), blade, thrustGeo]
-    const mats = [hullMat, armorMat, darkMat, glowMat, stripMat, discMat, bladeMat, thrustMat]
-    return { box, geos, mats, blade, hullMat, armorMat, darkMat, glowMat, stripMat, discMat, bladeMat, thrustMat, thrustGeo }
+    const geos = [bake(hull), bake(armor), bake(dark), bake(eye), bake(rims), bake(disc), blade, thrustGeo]
+    const mats = [hullMat, armorMat, darkMat, eyeMat, rimMat, discMat, bladeMat, thrustMat]
+    return { box, geos, mats, blade }
   }, [])
 
   useEffect(
@@ -150,7 +149,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
       g.position.y = position[1] + (reduced ? 0 : Math.sin(t * 1.3) * 0.09)
       g.rotation.y = 0.42 + (reduced ? 0 : Math.sin(t * 0.5) * 0.16)
       g.rotation.z = reduced ? 0 : Math.sin(t * 0.9) * 0.03
-      g.rotation.x = 0.1 + (reduced ? 0 : Math.sin(t * 0.7 + 1) * 0.03)
+      g.rotation.x = -0.28 + (reduced ? 0 : Math.sin(t * 0.7 + 1) * 0.03)
     }
     const spin = reduced ? 8 : 34
     rotors.current.forEach((r, i) => {
@@ -158,29 +157,29 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     })
   })
 
-  const [hullG, armorG, darkG, visorG, stripG, discG, , thrustG] = built.geos
-  const [hullM, armorM, darkM, visorM, stripM, discM, bladeM, thrustM] = built.mats
+  const [hullG, armorG, darkG, eyeG, rimG, discG, , thrustG] = built.geos
+  const [hullM, armorM, darkM, eyeM, rimM, discM, bladeM, thrustM] = built.mats
 
   return (
     <group ref={root} position={position} scale={scale}>
       <mesh geometry={hullG} material={hullM} />
       <mesh geometry={armorG} material={armorM} />
       <mesh geometry={darkG} material={darkM} />
-      <mesh geometry={visorG} material={visorM} />
-      <mesh geometry={stripG} material={stripM} />
+      <mesh geometry={eyeG} material={eyeM} />
+      <mesh geometry={rimG} material={rimM} />
       <mesh geometry={discG} material={discM} />
       {FAN_SPOTS.map(([x, z], i) => (
         <mesh
           key={i}
           geometry={built.blade}
           material={bladeM}
-          position={[x, 0.17, z]}
+          position={[x, ROTOR_Y + 0.01, z]}
           ref={(el) => {
             if (el) rotors.current[i] = el
           }}
         />
       ))}
-      <mesh geometry={thrustG} material={thrustM} position={[0, -0.55, 0]} scale={[0.5, 0.7, 0.5]} />
+      <mesh geometry={thrustG} material={thrustM} position={[0, -0.42, 0]} scale={[0.3, 0.5, 0.3]} />
     </group>
   )
 }
