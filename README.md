@@ -1,32 +1,23 @@
-# React + TypeScript + Vite
+# ANOMALY
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A science response unit game for grade 5 science review. Vite + React 19 + TypeScript, React Three Fiber v9, three r186 `WebGPURenderer` (WebGL2 fallback), zustand, vite-plugin-pwa.
 
-Currently, two official plugins are available:
+Read `docs/SPEC.md` (source of truth) and `docs/PLAN.md` (stages) first.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Commands
 
-## React Compiler
+- `npm run dev`: dev server.
+- `npm run build`: type check and production build (main app plus `teacher.html`).
+- `npm test`: unit tests (vitest).
+- `node scripts/proof.mjs`: starts `vite preview`, walks the flow in headless Chrome, writes screenshots and `fps.json` to `/workspace/anomaly-proof/`. Run `npm run build` first.
+- `npm run icons`: regenerates the PWA icons in `public/` (needs local Chrome).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Add `?debug=1` to the URL to force the FPS / backend / tier readout on.
 
-## Expanding the Oxlint configuration
+## Layout
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- `src/three/`: renderer, `Stage`, `PostFX`, `materials/hologram.ts`, `scenes/*`.
+- `src/screens/`: HUD screens (title, hub, settings, case placeholder).
+- `src/state/`: zustand store (`anomaly.v1`), quality tiers and Auto logic, runtime facts.
+- `src/ui/`: shared HUD components.
+- `src/teacher/`: Teacher HQ entry (must not import three).

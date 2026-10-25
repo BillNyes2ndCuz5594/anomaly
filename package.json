@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "proof": "node scripts/proof.mjs",
+    "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
