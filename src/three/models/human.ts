@@ -15,15 +15,10 @@ export interface OrganDef {
 }
 
 import { ORGAN_LIST } from './humanList'
+import { ARM, ARM_R, LEG, LEG_R, buildHumanSkin } from './humanSkin'
 export { ORGAN_LIST }
 
 const mx = (k: number, p: V3): V3 => [p[0] * k, p[1], p[2]]
-
-/** Spine of one arm, shoulder to wrist, relaxed and angled slightly out and forward with a soft elbow. */
-const ARM: V3[] = [[0.62, 5.16, 0], [1.0, 4.96, 0], [1.17, 4.5, 0.0], [1.34, 4.0, 0.03], [1.5, 3.58, 0.17], [1.64, 3.15, 0.3]]
-const ARM_R = [0.3, 0.3, 0.235, 0.185, 0.155, 0.1]
-const LEG: V3[] = [[0.32, 3.12, 0], [0.34, 2.45, 0.02], [0.36, 1.75, 0.05], [0.35, 1.05, 0.0], [0.33, 0.45, -0.01], [0.33, 0.2, 0]]
-const LEG_R = [0.4, 0.35, 0.26, 0.24, 0.15, 0.12]
 
 /** The sensory and organ shapes, authored directly in body space (feet at y = 0, facing +z). */
 function build(id: string): THREE.BufferGeometry {
@@ -195,36 +190,9 @@ const smoothstep = (a: number, b: number, x: number): number => {
   return t * t * (3 - 2 * t)
 }
 
-/**
- * Whole body outer shell. A smooth stylized adult built from tapered tubes: neck, sloped shoulders, relaxed arms
- * with a soft elbow bend, a sculpted head (jaw, brow, nose, ear bumps), legs and feet. Feet at y = 0, about 6.6 units
- * tall, facing +z. Torso organs sit between 2.8 and 5.3, head organs inside the skull.
- */
+/** Whole body outer shell: one smooth sculpted surface, see humanSkin.ts. Feet at y = 0, facing +z. */
 function buildSkin(): THREE.BufferGeometry {
-  const b = new Builder()
-  // Trunk: pelvis, waist, ribcage, shoulders, neck, one smooth sweep.
-  b.limb(
-    [[0, 3.25, 0.0], [0, 3.8, 0.0], [0, 4.5, 0.0], [0, 5.1, 0.0], [0, 5.34, 0.01], [0, 5.55, 0.03], [0, 5.78, 0.06]],
-    [[0.6, 0.42], [0.55, 0.39], [0.7, 0.47], [0.9, 0.43], [0.7, 0.36], [0.34, 0.3], [0.28, 0.27]],
-    {},
-    { radial: 24, seg: 7 },
-  )
-  // Head: jaw tapers to a chin, cranium is deeper than it is wide, face leans forward.
-  b.limb([[0, 5.88, 0.15], [0, 6.02, 0.08], [0, 6.22, 0.04], [0, 6.36, -0.01]], [[0.18, 0.21], [0.35, 0.39], [0.41, 0.47], [0.37, 0.45]], {}, { radial: 24, seg: 7, cap: 5 })
-  // Nose bridge and brow ridge: small features so the face reads without becoming a mask.
-  b.limb([[0, 6.2, 0.4], [0, 6.07, 0.5], [0, 5.99, 0.6]], [[0.045, 0.05], [0.07, 0.07], [0.085, 0.075]], {}, { radial: 12, seg: 6 })
-  b.limb([[-0.31, 6.27, 0.3], [-0.16, 6.3, 0.41], [0, 6.3, 0.44], [0.16, 6.3, 0.41], [0.31, 6.27, 0.3]], 0.06, {}, { radial: 10, seg: 6 })
-  for (const k of [-1, 1]) {
-    // Ear bumps give the head its human silhouette; the ear organ sits inside them.
-    b.ell([k * 0.42, 6.13, -0.02], [0.07, 0.125, 0.09], '#fff', [0, 0, k * 0.12], 14, 10)
-    b.limb(ARM.map((p) => mx(k, p)), ARM_R, {}, { radial: 14, seg: 6 })
-    // Hand: flat palm and fingers with a thumb tucked forward.
-    b.limb([[k * 1.64, 3.15, 0.3], [k * 1.7, 2.96, 0.35], [k * 1.74, 2.72, 0.39], [k * 1.76, 2.5, 0.41]], [[0.1, 0.06], [0.125, 0.06], [0.12, 0.05], [0.05, 0.035]], {}, { radial: 12, seg: 5 })
-    b.limb([[k * 1.62, 3.02, 0.36], [k * 1.54, 2.9, 0.46], [k * 1.52, 2.76, 0.52]], [0.05, 0.042, 0.03], {}, { radial: 8, seg: 5 })
-    b.limb(LEG.map((p) => mx(k, p)), LEG_R, {}, { radial: 16, seg: 6 })
-    b.limb([[k * 0.35, 0.17, -0.12], [k * 0.36, 0.13, 0.22], [k * 0.37, 0.1, 0.62]], [[0.13, 0.11], [0.15, 0.1], [0.12, 0.06]], {}, { radial: 12, seg: 6 })
-  }
-  return b.build()
+  return new Builder().colored(buildHumanSkin()).build()
 }
 
 /** General muscle bulk shown on the figure when an item asks about muscles. */
