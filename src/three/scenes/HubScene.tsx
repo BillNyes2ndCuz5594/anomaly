@@ -4,8 +4,9 @@ import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
+import { useWidthFit } from './case/common'
 import Drone from './hub/Drone'
-import MapTable, { TABLE_TOP_Y } from './hub/MapTable'
+import MapTable, { TABLE_RADIUS, TABLE_TOP_Y } from './hub/MapTable'
 import Markers from './hub/Markers'
 
 const FINAL = { x: 0, y: 8.2, z: 9.2 }
@@ -22,6 +23,8 @@ export default function HubScene() {
   const tier = resolveTier(quality, autoTier)
   const cfg = TIER_CONFIG[tier]
   const start = useRef(performance.now())
+  // Keep the whole map table in view on a tall narrow screen (phone held upright).
+  const fit = useWidthFit(TABLE_RADIUS + 0.7, 11.2, 66, 0.04)
 
   useFrame((state, dt) => {
     const cam = state.camera
@@ -30,14 +33,17 @@ export default function HubScene() {
     // Gentle pointer parallax once the intro has settled.
     const px = reduced ? 0 : state.pointer.x * 0.45 * k
     const py = reduced ? 0 : state.pointer.y * 0.25 * k
-    const x = START.x + (FINAL.x - START.x) * k + px
-    const y = START.y + (FINAL.y - START.y) * k + py
-    const z = START.z + (FINAL.z - START.z) * k
+    const back = fit.current
+    const x = LOOK.x + (START.x + (FINAL.x - START.x) * k + px - LOOK.x) * back
+    const y = LOOK.y + (START.y + (FINAL.y - START.y) * k + py - LOOK.y) * back
+    const z = LOOK.z + (START.z + (FINAL.z - START.z) * k - LOOK.z) * back
     const follow = reduced ? 1 : 1 - Math.exp(-dt * 7)
     cam.position.x += (x - cam.position.x) * follow
     cam.position.y += (y - cam.position.y) * follow
     cam.position.z += (z - cam.position.z) * follow
     cam.lookAt(LOOK.x, LOOK.y, LOOK.z)
+    const fog = state.scene.fog as { density: number } | null
+    if (fog) fog.density = 0.016 / back
   })
 
   return (

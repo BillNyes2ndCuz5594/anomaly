@@ -343,3 +343,26 @@ export function fillFraction(pts: V3[], pose: FitResult, o: FitOptions): number 
   const fh = (o.frame?.h ?? 1) / (1 + (o.margin ?? 0.08))
   return Math.max((e.maxX - e.minX) / 2 / fw, (e.maxY - e.minY) / 2 / fh)
 }
+
+/**
+ * Vertical field of view (degrees) that shows `halfWidth` world units either side of the view axis at `distance`
+ * with the given margin, on a canvas of `aspect` (width / height). Never narrower than `baseFovDeg`, so wide
+ * screens keep their look and only tall narrow screens widen the view.
+ */
+export function fovToFitWidth(halfWidth: number, distance: number, aspect: number, baseFovDeg: number, margin = 0.08): number {
+  const tanH = (halfWidth * (1 + margin)) / Math.max(1e-6, distance)
+  const fov = (2 * Math.atan(tanH / Math.max(1e-6, aspect)) * 180) / Math.PI
+  return Math.max(baseFovDeg, fov)
+}
+
+/**
+ * Like fovToFitWidth, but the field of view stops at `maxFovDeg` (strong perspective looks wrong) and the rest is
+ * made up by moving the camera back: `distanceScale` multiplies the camera distance (1 when nothing is needed).
+ */
+export function widthFit(halfWidth: number, distance: number, aspect: number, baseFovDeg: number, maxFovDeg: number, margin = 0.08): { fovDeg: number; distanceScale: number } {
+  const wanted = fovToFitWidth(halfWidth, distance, aspect, baseFovDeg, margin)
+  const fovDeg = Math.min(wanted, maxFovDeg)
+  const tanWanted = Math.tan((wanted * Math.PI) / 360)
+  const tanHave = Math.tan((fovDeg * Math.PI) / 360)
+  return { fovDeg, distanceScale: Math.max(1, tanWanted / tanHave) }
+}

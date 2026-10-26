@@ -186,7 +186,7 @@ export default function LabB() {
                 ))}
               </div>
             </div>
-            <p className="muted tiny">Click a part on the hologram or use these buttons. Animal first, then plant.</p>
+            <p className="muted tiny">Tap or click a part on the hologram, or use these buttons. Animal first, then plant.</p>
           </>
         ) : (
           <div className="contrast" data-testid="contrast-card">

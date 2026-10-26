@@ -87,7 +87,7 @@ export default function LabA() {
             </button>
           ))}
         </div>
-        <p className="muted tiny">Tip: click an organ on the hologram, or use this list. The skin covers the whole body.</p>
+        <p className="muted tiny">Tip: tap or click an organ on the hologram, or use this list. The skin covers the whole body.</p>
       </aside>
 
       <section className="dock" aria-label="Job card">

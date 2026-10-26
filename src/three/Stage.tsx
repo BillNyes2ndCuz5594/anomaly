@@ -19,6 +19,7 @@ import { useGame } from '../state/store'
 import PostFX from './PostFX'
 import { createRenderer } from './renderer'
 import { InsetsContext, NO_INSETS, type Insets } from './insets'
+import { hudInsets } from '../screens/case/layout'
 
 declare global {
   interface Window {
@@ -97,15 +98,14 @@ function Runtime() {
   return null
 }
 
-/** Applies the camera view offset so the scene centers in the area not covered by HUD panels. */
+/** Applies the camera view offset so the scene centers in the area not covered by HUD panels (side panel, bottom sheet, dock, top bar). */
 function ViewOffset({ insets }: { insets: Insets }) {
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   useEffect(() => {
     const cam = camera as import('three').PerspectiveCamera
-    const wide = size.width > 900
-    const x = wide ? insets.right / 2 : 0
-    const y = wide ? (insets.bottom - insets.top) / 2 : 0
+    const x = insets.right / 2
+    const y = (insets.bottom - insets.top) / 2
     if (x !== 0 || y !== 0) cam.setViewOffset(size.width, size.height, x, y, size.width, size.height)
     else cam.clearViewOffset()
     cam.updateProjectionMatrix()
@@ -127,12 +127,14 @@ function useHudInsets(fallbackRight: number, vertical: boolean): Insets {
     const read = () => {
       const W = window.innerWidth
       const H = window.innerHeight
-      const panel = document.querySelector('.hud-layer .side-panel, .hud-layer .hub-panel') as HTMLElement | null
-      const dock = vertical ? (document.querySelector('.hud-layer .dock') as HTMLElement | null) : null
-      const bar = vertical ? (document.querySelector('.hud-layer .topbar') as HTMLElement | null) : null
-      const right = panel ? Math.max(0, Math.round(W - panel.getBoundingClientRect().left + 14)) : fallbackRight
-      const bottom = dock ? Math.max(0, Math.round(H - dock.getBoundingClientRect().top + 10)) : 0
-      const top = bar ? Math.max(0, Math.round(bar.getBoundingClientRect().bottom + 6)) : 0
+      const rectOf = (sel: string) => (document.querySelector(sel) as HTMLElement | null)?.getBoundingClientRect() ?? null
+      const { right, top, bottom } = hudInsets(
+        W,
+        H,
+        { panel: rectOf('.hud-layer .side-panel, .hud-layer .hub-panel'), dock: vertical ? rectOf('.hud-layer .dock') : null, bar: vertical ? rectOf('.hud-layer .topbar') : null },
+        vertical,
+        fallbackRight,
+      )
       setIns((p) => (Math.abs(p.right - right) > 3 || Math.abs(p.top - top) > 3 || Math.abs(p.bottom - bottom) > 3 ? { right, top, bottom } : p))
     }
     read()
