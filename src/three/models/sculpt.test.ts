@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { chain, cone, ellipsoid, makeField, meshField, primBounds, raycast, smin } from './sculpt'
+import { chain, cone, ellipsoid, makeField, makeSdf, meshField, primBounds, raycast, smin } from './sculpt'
 import { humanModel } from './human'
 import { humanSkinField } from './humanSkin'
 import { pantherPrims, pawSpots } from './panther'
+import { pelicanBody, pelicanNeck, pelicanWings } from './pelican'
+import { BRANCH, owlPrims, owlTail, owlWings } from './owl'
+import { HIND, grasshopperBody, grasshopperEyes, grasshopperFemora, grasshopperHead, grasshopperPrims, grasshopperWings } from './grasshopper'
 import { Builder } from './builder'
 import { sail } from './animals'
 
@@ -122,5 +125,98 @@ describe('fin membrane', () => {
     expect(zmax).toBeGreaterThan(0.005)
     expect(zmin).toBeLessThan(-0.005)
     expect(zmax - zmin).toBeLessThan(0.05)
+  })
+})
+
+describe('barred owl sculpt', () => {
+  const f = makeField(owlPrims()).f
+  const { lo, hi } = primBounds(owlPrims(), 0)
+
+  it('is a compact upright bird: tall, broad across the chest, with a head as wide as the body and no ear tufts', () => {
+    const h = hi[1] - lo[1]
+    const w = hi[2] - lo[2]
+    expect(h).toBeGreaterThan(1.8)
+    expect(h).toBeLessThan(2.8)
+    expect(w).toBeGreaterThan(h * 0.38)
+    expect(w).toBeLessThan(h * 0.65)
+    // widest point of the head is within 15 percent of the widest point of the chest
+    const widthAt = (y: number): number => {
+      let m = 0
+      for (let z = 0; z < 1; z += 0.01) if (f(0.1, y, z) < 0) m = z
+      return m
+    }
+    expect(widthAt(2.14)).toBeGreaterThan(widthAt(1.4) * 0.85)
+    // nothing rises above a smooth dome: the top of the head is a single bump at the middle
+    const top = (z: number): number => {
+      for (let y = 3; y > 1.8; y -= 0.01) if (f(0.12, y, z) < 0) return y
+      return 0
+    }
+    expect(top(0)).toBeGreaterThanOrEqual(top(0.3))
+    expect(top(0.3)).toBeGreaterThanOrEqual(top(0.45))
+  })
+
+  it('has folded wings that wrap the sides and a short tail behind', () => {
+    const wings = makeField(owlWings()).f
+    const wb = primBounds(owlWings(), 0)
+    expect(wb.hi[1]).toBeGreaterThan(1.8)
+    expect(wb.lo[1]).toBeLessThan(0.4)
+    // each wing is thin across the body and sits on the flank
+    expect(wings(0.0, 1.2, 0.54)).toBeLessThan(0)
+    expect(wings(0.0, 1.2, -0.54)).toBeLessThan(0)
+    const tb = primBounds(owlTail(), 0)
+    expect(tb.lo[0]).toBeLessThan(-0.5)
+    expect(tb.hi[2] - tb.lo[2]).toBeGreaterThan(0.3)
+    expect(tb.lo[1]).toBeGreaterThanOrEqual(-0.01)
+  })
+
+  it('perches on a branch under the feet', () => {
+    const ys = BRANCH.map((p) => p[1])
+    expect(Math.min(...ys)).toBeGreaterThan(0.05)
+    const mid = BRANCH.find((p) => Math.abs(p[2]) < 0.1)!
+    expect(mid[1]).toBeLessThan(lo[1] + 0.5)
+  })
+})
+
+describe('grasshopper sculpt', () => {
+  const all = grasshopperPrims()
+  const f = makeField(all).f
+  const { lo, hi } = primBounds(all, 0)
+
+  it('is long and low, with the head at the front and wings folded past the abdomen', () => {
+    expect(hi[0] - lo[0]).toBeGreaterThan((hi[1] - lo[1]) * 2.2)
+    const wb = primBounds(grasshopperWings(), 0)
+    const ab = primBounds(grasshopperBody(), 0)
+    // forewings run back to the tip of the abdomen (the cerci) and start behind the head
+    expect(wb.lo[0]).toBeLessThan(ab.lo[0] + 0.2)
+    expect(wb.hi[0]).toBeLessThan(primBounds(grasshopperHead(), 0).hi[0])
+  })
+
+  it('has hind femora far thicker than the tibiae and the other legs, and compound eyes set flush in the head', () => {
+    const rs = HIND(1).length
+    expect(rs).toBe(4)
+    const femur = makeSdf(grasshopperFemora())
+    // the thick part of the femur is at least 0.15 deep at its middle
+    let depth = 0
+    for (let y = 0.7; y < 1.5; y += 0.01) if (femur(-0.65, y, 0.33) < 0) depth += 0.01
+    expect(depth).toBeGreaterThan(0.28)
+    // an eye center is inside the head shell: nothing sticks out of it by more than a small bump
+    const head = makeSdf(grasshopperHead())
+    for (const e of grasshopperEyes()) {
+      const c: [number, number, number] = [(e.lo[0] + e.hi[0]) / 2, (e.lo[1] + e.hi[1]) / 2, (e.lo[2] + e.hi[2]) / 2]
+      expect(head(...c)).toBeLessThan(0.1)
+      expect(f(...c)).toBeLessThan(0)
+    }
+  })
+})
+
+describe('brown pelican sculpt', () => {
+  it('has a deep body, long folded wings and a neck rising well above the back', () => {
+    const body = primBounds(pelicanBody(), 0)
+    const wings = primBounds(pelicanWings(), 0)
+    const neck = primBounds(pelicanNeck(), 0)
+    expect(body.hi[1] - body.lo[1]).toBeGreaterThan(1.0)
+    expect(wings.lo[0]).toBeLessThan(body.lo[0] - 0.8)
+    expect(neck.hi[1]).toBeGreaterThan(body.hi[1] + 0.8)
+    expect(neck.hi[0]).toBeGreaterThan(1.2)
   })
 })

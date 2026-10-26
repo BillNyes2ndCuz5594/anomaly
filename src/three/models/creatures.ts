@@ -3,7 +3,10 @@ import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, mottle, recenter, smooth, spineAt, type V3 } from './builder'
 
 import { pantherModel } from './panther'
-import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, grasshopperModel, manateeModel, mirrorZ, owlModel, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
+import { owlModel } from './owl'
+import { pelicanModel } from './pelican'
+import { grasshopperModel } from './grasshopper'
+import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, manateeModel, mirrorZ, paw, sharkModel, spiderModel, toes } from './animals'
 
 // ---------- Lab B: dog-like mammal and flowering tree ----------
 
