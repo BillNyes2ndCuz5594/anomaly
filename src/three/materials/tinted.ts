@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import {
   abs,
+  attribute,
   dot,
   float,
   fract,
@@ -8,16 +9,23 @@ import {
   materialEmissive,
   materialOpacity,
   mix,
+  normalize,
+  normalLocal,
   normalView,
   normalWorld,
+  positionLocal,
   positionViewDirection,
   positionWorld,
   pow,
   saturate,
   sin,
+  texture,
   time,
+  transformNormalToView,
   vec3,
+  vertexColor,
 } from 'three/tsl'
+import { DEFAULT_LOOK, detailMap, type DetailKind, type DetailLook } from './detailMaps'
 
 /**
  * Hologram variant that reads its tint and opacity from material.color and material.opacity.
@@ -57,16 +65,79 @@ export function tintedHolo(tint: THREE.ColorRepresentation, opacity = 0.8, doubl
   return m
 }
 
+const detailTextures = new Map<DetailKind, { tex: THREE.DataTexture; gradMax: number }>()
+
+/** The shared tileable detail map for a kind of skin, generated on first use (128 px, a few ms). */
+export function detailTexture(kind: DetailKind): { tex: THREE.DataTexture; gradMax: number } {
+  let t = detailTextures.get(kind)
+  if (!t) {
+    const m = detailMap(kind, 128)
+    const tex = new THREE.DataTexture(m.pixels, 128, 128, THREE.RGBAFormat)
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+    tex.magFilter = THREE.LinearFilter
+    tex.minFilter = THREE.LinearMipmapLinearFilter
+    tex.generateMipmaps = true
+    tex.anisotropy = 4
+    tex.needsUpdate = true
+    t = { tex, gradMax: m.gradMax }
+    detailTextures.set(kind, t)
+  }
+  return t
+}
+
+export interface SpecimenMaterialOpts {
+  look?: DetailLook
+  /** Triplanar detail map: bump, roughness variation and cavity darkening. Off on the Low tier. */
+  detail?: boolean
+}
+
 /**
  * Stylized lit material for specimens: smooth shaded vertex colors, physically based, with a cool rim light and a
- * faint sky bounce on upward facing surfaces so shapes read at panel size.
+ * faint sky bounce on upward facing surfaces so shapes read at panel size. Per vertex `surf` (gloss, thin) marks
+ * wet eyes and thin membranes. With `detail`, a small procedural map adds scales, wrinkles or coat as bump,
+ * roughness variation and crevice darkening, all in the shader (works on WebGPU and WebGL2).
  */
-export function litSpecimen(): THREE.MeshStandardNodeMaterial {
-  const m = new THREE.MeshStandardNodeMaterial({ vertexColors: true, roughness: 0.5, metalness: 0.02 })
+export function litSpecimen(opts: SpecimenMaterialOpts = {}): THREE.MeshStandardNodeMaterial {
+  const look = opts.look ?? DEFAULT_LOOK
+  const m = new THREE.MeshStandardNodeMaterial({ vertexColors: true, roughness: look.rough, metalness: 0.02 })
   const facing = abs(dot(normalView, positionViewDirection))
   const rim = pow(saturate(float(1).sub(facing)), float(3))
   const sky = saturate(normalWorld.y.mul(0.5).add(0.5))
-  m.emissiveNode = vec3(0.24, 0.9, 1).mul(rim).mul(0.42).add(vec3(0.02, 0.04, 0.07).mul(sky))
+  const surf = attribute('surf', 'vec2')
+  const gloss = surf.x
+  const thin = surf.y
+  let rough: THREE.Node<'float'> = float(look.rough)
+  let albedo: THREE.Node<'vec3'> = vec3(1, 1, 1)
+  if (opts.detail) {
+    const { tex, gradMax } = detailTexture(look.kind)
+    const p = positionLocal.mul(look.freq)
+    const nw = pow(abs(normalLocal), vec3(4, 4, 4))
+    const w = nw.div(nw.x.add(nw.y).add(nw.z))
+    // Triplanar: the same pattern is read along x, y and z and blended by how much each face looks that way.
+    const s1 = texture(tex, p.zy)
+    const s2 = texture(tex, p.xz)
+    const s3 = texture(tex, p.xy)
+    const dec = (v: THREE.Node<'float'>) => v.sub(0.5).mul(2 * gradMax)
+    // Height gradient of each projection, placed on its own two axes, then blended.
+    const grad = vec3(0, dec(s1.g), dec(s1.r)).mul(w.x).add(vec3(dec(s2.r), 0, dec(s2.g)).mul(w.y)).add(vec3(dec(s3.r), dec(s3.g), 0).mul(w.z))
+    const slope = grad.mul(look.bump * look.freq)
+    const nl = normalLocal
+    m.normalNode = normalize(transformNormalToView(normalize(nl.sub(slope.sub(nl.mul(dot(slope, nl)))))))
+    const mixed = s1.mul(w.x).add(s2.mul(w.y)).add(s3.mul(w.z))
+    rough = float(look.rough).add(mixed.b.sub(0.5).mul(look.roughVar * 2))
+    albedo = vec3(mix(float(1), mixed.a, look.cavity))
+  }
+  m.roughnessNode = mix(rough, float(0.1), gloss)
+  // Cheap ambient occlusion: surfaces that face down sit a little darker, which gives the bodies weight.
+  const ao = mix(float(0.74), float(1), saturate(normalWorld.y.mul(1.1).add(0.55)))
+  m.colorNode = albedo.mul(ao)
+  // A soft key fixed in view space gives the thin parts (fins, ears, flippers) a warm backlit glow.
+  const key = vec3(0.35, 0.6, 0.72).normalize()
+  const wrap = saturate(dot(normalView, key).mul(0.5).add(0.5))
+  const edge = pow(saturate(float(1).sub(facing)), float(1.6))
+  const warm = vertexColor().mul(vec3(1.5, 0.62, 0.42))
+  const glow = warm.mul(edge.mul(wrap).mul(float(0.05).add(thin.mul(0.38))))
+  m.emissiveNode = vec3(0.24, 0.9, 1).mul(rim).mul(0.2).add(vec3(0.015, 0.025, 0.04).mul(sky)).add(glow)
   return m
 }
 
@@ -122,7 +193,7 @@ export function organMaterial(tint: THREE.ColorRepresentation): THREE.MeshStanda
   const lit = saturate(dot(normalView, key))
   const half = vec3(0.35, 0.6, 1.72).normalize()
   const glint = pow(saturate(dot(normalView, half)), float(48)).mul(0.5)
-  m.emissiveNode = materialEmissive.mul(mix(float(0.5), float(1.2), lit)).add(vec3(0.55, 0.95, 1).mul(rim).mul(0.4)).add(vec3(1, 1, 1).mul(glint))
+  m.emissiveNode = materialEmissive.mul(vertexColor()).mul(mix(float(0.5), float(1.2), lit)).add(vec3(0.55, 0.95, 1).mul(rim).mul(0.4)).add(vec3(1, 1, 1).mul(glint))
   return m
 }
 

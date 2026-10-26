@@ -2,8 +2,9 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { useFx } from '../../../state/session'
-import { specimenBox } from '../../models/specimenBox'
-import { sweepYaw, unionBox } from '../../fit'
+import { pointsBox } from '../../fit'
+import { specimenOutline, specimenRing } from '../../models/specimenBox'
+import { STILL, STILL_YAW } from '../../../lib/flags'
 import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
 import Specimen from './Specimen'
 
@@ -31,20 +32,26 @@ function ScanRing({ id }: { id: string }) {
   })
   return (
     <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]} key={id}>
-      <torusGeometry args={[RING * 0.85, 0.02, 6, 64]} />
+      <torusGeometry args={[specimenRing(id, FIT) * 0.85, 0.02, 6, 64]} />
       <primitive object={mat} attach="material" />
     </mesh>
   )
 }
 
 const FIT = 4.2
-const RING = 2.6
+/** Lab C shows the specimen swaying through a wide arc (side profile to head on) instead of a full spin, so the camera can fit the real silhouette. */
+const YAW = -0.7
+const SWAY = 0.95
 
 export default function LabCScene() {
   const reduced = useReduced()
   const id = useFx((s) => s.specimen) ?? 'manatee'
   const content = useRef<THREE.Group>(null)
-  const view = useMemo(() => ({ box: unionBox(sweepYaw(specimenBox(id, FIT), Math.PI, 36), { min: [-RING, 0, -RING], max: [RING, 0.06, RING] }), elevation: 0.3 }), [id])
+  const ring = specimenRing(id, FIT)
+  const view = useMemo(() => {
+    const points = specimenOutline(id, FIT, STILL ? STILL_YAW : YAW, STILL ? 0.02 : SWAY)
+    return { box: pointsBox(points), points, elevation: 0.3, margin: 0.16 }
+  }, [id])
   return (
     <>
       <LabEnvironment />
@@ -52,8 +59,8 @@ export default function LabCScene() {
       <pointLight position={[-4, 3, 3]} intensity={10} color="#8fdcff" distance={20} decay={2} />
       <FitRig view={view} measure={content} />
       <group ref={content}>
-        <Pedestal radius={RING} />
-        <Specimen key={id} id={id} fit={FIT} spin reduced={reduced} pop />
+        <Pedestal radius={ring} />
+        <Specimen key={id} id={id} fit={FIT} yaw={YAW} sway={SWAY} reduced={reduced} pop />
       </group>
       <ScanRing key={`scan-${id}`} id={id} />
     </>

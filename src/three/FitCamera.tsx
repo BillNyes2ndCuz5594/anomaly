@@ -1,11 +1,13 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo, useRef, type RefObject } from 'react'
 import * as THREE from 'three/webgpu'
-import { fitBox, projectBox, type Box, type V3 } from './fit'
+import { boxCorners, fitBox, fitPoints, outlinePoints, projectPoints, type Box, type V3 } from './fit'
 import { useInsets } from './insets'
 
 export interface FitView {
   box: Box
+  /** Optional silhouette proxy (see fit.ts outlinePoints). When present the camera fits these instead of the box corners. */
+  points?: V3[]
   elevation?: number
   azimuth?: number
   margin?: number
@@ -26,23 +28,36 @@ export function useFitPose(view: FitView) {
   const size = useThree((s) => s.size)
   const fov = useThree((s) => (s.camera as THREE.PerspectiveCamera).fov)
   const frame = useFrameFractions()
-  const { box, elevation = 0.14, azimuth = 0, margin = 0.08 } = view
-  return useMemo(
-    () => fitBox(box, { fovDeg: fov, aspect: size.width / Math.max(1, size.height), margin, elevation, azimuth, frame }),
-    [box, fov, size.width, size.height, margin, elevation, azimuth, frame],
-  )
+  const { box, points, elevation = 0.14, azimuth = 0, margin = 0.08 } = view
+  return useMemo(() => {
+    const o = { fovDeg: fov, aspect: size.width / Math.max(1, size.height), margin, elevation, azimuth, frame }
+    return points ? fitPoints(points, o) : fitBox(box, o)
+  }, [box, points, fov, size.width, size.height, margin, elevation, azimuth, frame])
 }
 
-const tmpBox = new THREE.Box3()
-const partBox = new THREE.Box3()
+const outlines = new WeakMap<THREE.BufferGeometry, V3[]>()
+const tmpV = new THREE.Vector3()
 
-/** World box of the visible meshes under `root`. Effects (feedback beams, rings) opt out with userData.noFit. */
-function measureVisible(root: THREE.Object3D, out: THREE.Box3): void {
+/** Silhouette proxy of a geometry in its own space, cached. */
+function outlineOf(geo: THREE.BufferGeometry): V3[] {
+  let o = outlines.get(geo)
+  if (!o) {
+    const pos = geo.getAttribute('position')
+    o = pos && pos.count > 0 ? outlinePoints(pos.array as ArrayLike<number>, pos.count > 200 ? 96 : 20) : []
+    outlines.set(geo, o)
+  }
+  return o
+}
+
+/** World space outline points of the visible meshes under `root`. Effects (feedback beams, rings) opt out with userData.noFit. */
+function measureVisible(root: THREE.Object3D, out: V3[]): void {
   if (!root.visible || root.userData.noFit) return
   const mesh = root as THREE.Mesh
   if (mesh.isMesh && mesh.geometry) {
-    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
-    if (mesh.geometry.boundingBox) out.union(partBox.copy(mesh.geometry.boundingBox).applyMatrix4(mesh.matrixWorld))
+    for (const p of outlineOf(mesh.geometry)) {
+      tmpV.set(p[0], p[1], p[2]).applyMatrix4(mesh.matrixWorld)
+      out.push([tmpV.x, tmpV.y, tmpV.z])
+    }
   }
   for (const c of root.children) measureVisible(c, out)
 }
@@ -50,6 +65,7 @@ function measureVisible(root: THREE.Object3D, out: THREE.Box3): void {
 /**
  * Publishes where the real objects land on screen, as normalized device coordinates, on the canvas element
  * (data-fit). The proof run reads it and asserts the whole model is inside the canvas. Cheap: every 20 frames.
+ * Measures the outline of the real meshes, not a box, so a turned wide model is judged by its true silhouette.
  */
 export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefObject<THREE.Object3D | null> | undefined, fallback: Box) {
   const gl = useThree((s) => s.gl)
@@ -58,15 +74,16 @@ export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefOb
   const n = useRef(0)
   useFrame((state) => {
     if (n.current++ % 20 !== 0) return
-    let box = fallback
+    let pts = boxCorners(fallback)
     const obj = measure?.current
     if (obj) {
       obj.updateWorldMatrix(true, true)
-      measureVisible(obj, tmpBox.makeEmpty())
-      if (!tmpBox.isEmpty()) box = { min: [tmpBox.min.x, tmpBox.min.y, tmpBox.min.z], max: [tmpBox.max.x, tmpBox.max.y, tmpBox.max.z] }
+      const got: V3[] = []
+      measureVisible(obj, got)
+      if (got.length) pts = got
     }
     const cam = state.camera as THREE.PerspectiveCamera
-    const e = projectBox(box, [cam.position.x, cam.position.y, cam.position.z], pose.target, cam.fov, size.width / Math.max(1, size.height))
+    const e = projectPoints(pts, [cam.position.x, cam.position.y, cam.position.z], pose.target, cam.fov, size.width / Math.max(1, size.height))
     const el = gl.domElement as HTMLCanvasElement
     el.dataset.fit = JSON.stringify({ minX: +e.minX.toFixed(4), maxX: +e.maxX.toFixed(4), minY: +e.minY.toFixed(4), maxY: +e.maxY.toFixed(4), behind: e.behind, fw: +frame.w.toFixed(3), fh: +frame.h.toFixed(3), w: size.width, h: size.height })
   })

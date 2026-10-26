@@ -108,6 +108,11 @@ function basis(position: V3, target: V3) {
 
 /** Projects the box corners to normalized device coordinates (-1 to 1 spans the canvas). */
 export function projectBox(box: Box, position: V3, target: V3, fovDeg: number, aspect: number): Extents {
+  return projectPoints(boxCorners(box), position, target, fovDeg, aspect)
+}
+
+/** Projects a point set to normalized device coordinates (-1 to 1 spans the canvas). */
+export function projectPoints(points: V3[], position: V3, target: V3, fovDeg: number, aspect: number): Extents {
   const { f, r, u } = basis(position, target)
   const tanV = Math.tan((fovDeg * Math.PI) / 360)
   const tanH = tanV * aspect
@@ -116,7 +121,7 @@ export function projectBox(box: Box, position: V3, target: V3, fovDeg: number, a
   let minY = Infinity
   let maxY = -Infinity
   let behind = false
-  for (const c of boxCorners(box)) {
+  for (const c of points) {
     const v = sub(c, position)
     const z = dot(v, f)
     if (z <= 1e-4) {
@@ -141,6 +146,15 @@ export function insideNdc(e: Extents, slack = 0): boolean {
 
 /** Finds the camera pose that fits the whole box, centered, at the given aspect. */
 export function fitBox(box: Box, o: FitOptions): FitResult {
+  return fitPoints(boxCorners(box), o)
+}
+
+/**
+ * Finds the camera pose that fits a point set (a silhouette proxy, for example the swept outline of a model),
+ * centered, at the given aspect. Tighter than a box for wide, flat or oddly shaped models.
+ */
+export function fitPoints(points: V3[], o: FitOptions): FitResult {
+  const box = pointsBox(points)
   const margin = o.margin ?? 0.08
   const el = o.elevation ?? 0.1
   const az = o.azimuth ?? 0
@@ -154,7 +168,7 @@ export function fitBox(box: Box, o: FitOptions): FitResult {
   let dist = 10
   const at = (d: number, t: V3): V3 => [t[0] + dir[0] * d, t[1] + dir[1] * d, t[2] + dir[2] * d]
   const fits = (d: number, t: V3) => {
-    const e = projectBox(box, at(d, t), t, o.fovDeg, aspect)
+    const e = projectPoints(points, at(d, t), t, o.fovDeg, aspect)
     if (e.behind) return false
     return Math.max(Math.abs(e.minX), Math.abs(e.maxX)) <= limX && Math.max(Math.abs(e.minY), Math.abs(e.maxY)) <= limY
   }
@@ -171,7 +185,7 @@ export function fitBox(box: Box, o: FitOptions): FitResult {
     dist = hi
     // Re-center on the projected extents so perspective skew does not push one side out.
     const pos = at(dist, target)
-    const e = projectBox(box, pos, target, o.fovDeg, aspect)
+    const e = projectPoints(points, pos, target, o.fovDeg, aspect)
     const { r, u } = basis(pos, target)
     const mx = (e.minX + e.maxX) / 2
     const my = (e.minY + e.maxY) / 2
@@ -187,4 +201,145 @@ export function fitBox(box: Box, o: FitOptions): FitResult {
   }
   dist = hi
   return { position: at(dist, target), target, distance: dist }
+}
+
+// ---------- point sets: silhouette proxies ----------
+
+/** Axis aligned box around a point set. */
+export function pointsBox(points: V3[]): Box {
+  const min: V3 = [Infinity, Infinity, Infinity]
+  const max: V3 = [-Infinity, -Infinity, -Infinity]
+  for (const p of points) {
+    for (let i = 0; i < 3; i++) {
+      min[i] = Math.min(min[i], p[i])
+      max[i] = Math.max(max[i], p[i])
+    }
+  }
+  return { min, max }
+}
+
+export const translatePoints = (pts: V3[], d: V3): V3[] => pts.map((p) => [p[0] + d[0], p[1] + d[1], p[2] + d[2]])
+
+export const scalePoints = (pts: V3[], k: number): V3[] => pts.map((p) => [p[0] * k, p[1] * k, p[2] * k])
+
+/** Points on a flat ring of radius r at height y, for the base ring of a pedestal. */
+export function ringPoints(r: number, y = 0, n = 24): V3[] {
+  return Array.from({ length: n }, (_, i) => [Math.cos((i / n) * Math.PI * 2) * r, y, Math.sin((i / n) * Math.PI * 2) * r] as V3)
+}
+
+/** Convex hull (monotone chain) of 2D points, counter clockwise. */
+export function hull2d(pts: [number, number][]): [number, number][] {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1])
+  if (p.length < 3) return p
+  const cr = (o: [number, number], a: [number, number], b: [number, number]) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+  const lower: [number, number][] = []
+  for (const q of p) {
+    while (lower.length >= 2 && cr(lower[lower.length - 2], lower[lower.length - 1], q) <= 0) lower.pop()
+    lower.push(q)
+  }
+  const upper: [number, number][] = []
+  for (let i = p.length - 1; i >= 0; i--) {
+    const q = p[i]
+    while (upper.length >= 2 && cr(upper[upper.length - 2], upper[upper.length - 1], q) <= 0) upper.pop()
+    upper.push(q)
+  }
+  lower.pop()
+  upper.pop()
+  return lower.concat(upper)
+}
+
+export function polygonArea(poly: [number, number][]): number {
+  let a = 0
+  for (let i = 0; i < poly.length; i++) {
+    const [x0, y0] = poly[i]
+    const [x1, y1] = poly[(i + 1) % poly.length]
+    a += x0 * y1 - x1 * y0
+  }
+  return Math.abs(a) / 2
+}
+
+/** `n` roughly even directions on the sphere (Fibonacci lattice), plus the six axes. */
+export function sphereDirections(n: number): V3[] {
+  const out: V3[] = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+  const g = Math.PI * (3 - Math.sqrt(5))
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (2 * (i + 0.5)) / n
+    const r = Math.sqrt(1 - y * y)
+    out.push([Math.cos(g * i) * r, y, Math.sin(g * i) * r])
+  }
+  return out
+}
+
+/**
+ * A compact stand in for a vertex cloud: the vertex that sticks out farthest in each of `n` directions. These are
+ * real vertices (never outside the mesh) and approximate its convex hull, which is what a camera fit needs, since
+ * the projection of the hull is the hull of the projection from any angle. Wide flat shapes keep their rims.
+ */
+export function outlinePoints(verts: ArrayLike<number>, n = 96): V3[] {
+  const count = Math.floor(verts.length / 3)
+  const dirs = sphereDirections(n)
+  const best = dirs.map(() => -1)
+  const bestScore = dirs.map(() => -Infinity)
+  for (let i = 0; i < count; i++) {
+    const x = verts[i * 3]
+    const y = verts[i * 3 + 1]
+    const z = verts[i * 3 + 2]
+    for (let d = 0; d < dirs.length; d++) {
+      const sc = x * dirs[d][0] + y * dirs[d][1] + z * dirs[d][2]
+      if (sc > bestScore[d]) {
+        bestScore[d] = sc
+        best[d] = i
+      }
+    }
+  }
+  const seen = new Set<number>()
+  const out: V3[] = []
+  for (const i of best) {
+    if (i < 0 || seen.has(i)) continue
+    seen.add(i)
+    out.push([verts[i * 3], verts[i * 3 + 1], verts[i * 3 + 2]])
+  }
+  return out
+}
+
+/** Rotates points about the vertical axis. */
+export function yawPoints(pts: V3[], a: number): V3[] {
+  const c = Math.cos(a)
+  const s = Math.sin(a)
+  return pts.map(([x, y, z]) => [x * c + z * s, y, -x * s + z * c])
+}
+
+/** Every position the points take while turning about the vertical axis by +-maxYaw around centerYaw. */
+export function sweepPoints(pts: V3[], maxYaw: number, steps = 12, centerYaw = 0): V3[] {
+  if (maxYaw <= 1e-6) return yawPoints(pts, centerYaw)
+  const out: V3[] = []
+  for (let i = 0; i <= steps; i++) out.push(...yawPoints(pts, centerYaw - maxYaw + (2 * maxYaw * i) / steps))
+  return out
+}
+
+/** Area of the on screen silhouette (convex hull, orthographic, viewed from `elevation`) of points turned by `yaw`. */
+export function projectedArea(pts: V3[], yaw: number, elevation = 0.2): number {
+  const se = Math.sin(elevation)
+  const ce = Math.cos(elevation)
+  const flat = yawPoints(pts, yaw).map(([x, y, z]) => [x, y * ce - z * se] as [number, number])
+  return polygonArea(hull2d(flat))
+}
+
+/** Mean silhouette area over a yaw range. */
+export function meanProjectedArea(pts: V3[], centerYaw: number, halfRange: number, elevation = 0.2, steps = 4): number {
+  let sum = 0
+  for (let i = 0; i <= steps; i++) sum += projectedArea(pts, centerYaw - halfRange + (2 * halfRange * i) / steps, elevation)
+  return sum / (steps + 1)
+}
+
+/**
+ * How much of the free frame a point set takes at a camera pose: the larger of its width and height as a
+ * fraction of what the frame allows (1 is touching the margin).
+ */
+export function fillFraction(pts: V3[], pose: FitResult, o: FitOptions): number {
+  const aspect = Math.max(0.2, o.aspect)
+  const e = projectPoints(pts, pose.position, pose.target, o.fovDeg, aspect)
+  const fw = (o.frame?.w ?? 1) / (1 + (o.margin ?? 0.08))
+  const fh = (o.frame?.h ?? 1) / (1 + (o.margin ?? 0.08))
+  return Math.max((e.maxX - e.minX) / 2 / fw, (e.maxY - e.minY) / 2 / fh)
 }

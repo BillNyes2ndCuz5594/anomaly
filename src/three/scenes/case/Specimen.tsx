@@ -4,6 +4,8 @@ import * as THREE from 'three/webgpu'
 import { depthOnlyMaterial, litSpecimen, tintedHolo } from '../../materials/tinted'
 import { STILL, STILL_YAW } from '../../../lib/flags'
 import { specimenGeo } from '../../models/creatures'
+import { SPECIMEN_LOOK } from '../../materials/detailMaps'
+import { useTier } from './common'
 import { specimenScale } from '../../models/specimenBox'
 
 export interface SpecimenProps {
@@ -23,14 +25,17 @@ export interface SpecimenProps {
 
 /** One low poly specimen, grounded at y = 0. Lit and flat shaded, or as a cyan hologram. */
 export default function Specimen({ id, fit = 3, spin = false, reduced = false, mode = 'lit', yaw = -0.45, pop = false, sway = 0 }: SpecimenProps) {
-  const g = useMemo(() => specimenGeo(id), [id])
-  const mat = useMemo(() => (mode === 'lit' ? litSpecimen() : tintedHolo('#3ee6ff', 0.9, false)), [mode])
+  const tier = useTier()
+  const low = tier === 'low'
+  const g = useMemo(() => specimenGeo(id, low ? 0.55 : 1), [id, low])
+  const k = specimenScale(id, fit)
+  // Low tier: fewer segments and no detail map, so it stays lighter than High.
+  const mat = useMemo(() => (mode === 'lit' ? litSpecimen({ look: SPECIMEN_LOOK[id], detail: !low }) : tintedHolo('#3ee6ff', 0.9, false)), [mode, id, low])
   const depthMat = useMemo(() => (mode === 'holo' ? depthOnlyMaterial() : null), [mode])
   useEffect(() => () => mat.dispose(), [mat])
   useEffect(() => () => depthMat?.dispose(), [depthMat])
   const group = useRef<THREE.Group>(null)
   const born = useRef<number | null>(null)
-  const k = specimenScale(id, fit)
 
   useFrame((state, dt) => {
     const gr = group.current

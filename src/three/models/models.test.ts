@@ -4,6 +4,10 @@ import { limbGeometry } from './builder'
 import { LAB_SPECIMENS, SCUTE_SEEDS, scuteAt, specimenGeo } from './creatures'
 import { humanModel, ORGAN_LIST } from './human'
 import { litSpecimen } from '../materials/tinted'
+import { DEFAULT_LOOK, SPECIMEN_LOOK, detailMap, detailPixels, type DetailKind } from '../materials/detailMaps'
+import { DISPLAY_YAW, specimenOutline, specimenRing, specimenScale } from './specimenBox'
+import { meanProjectedArea, outlinePoints, projectedArea } from '../fit'
+import { setBuilderLod } from './builder'
 
 const SPECIMEN_IDS = [
   ...LAB_SPECIMENS,
@@ -114,6 +118,71 @@ describe('specimen models', () => {
     })
   }
 
+  it('every specimen has a surface look and per vertex surface hints', () => {
+    for (const id of SPECIMEN_IDS) {
+      expect(SPECIMEN_LOOK[id], id).toBeDefined()
+      const surf = specimenGeo(id).geo.getAttribute('surf')
+      expect(surf, id).toBeDefined()
+      expect(surf.itemSize).toBe(2)
+      let max = 0
+      for (let i = 0; i < surf.count; i++) max = Math.max(max, surf.getX(i), surf.getY(i))
+      // eyes are glossy, so at least a few vertices carry a hint
+      expect(max, `${id} has glossy eyes`).toBeGreaterThan(0.4)
+    }
+  })
+
+  it('the low detail build is lighter than the full one', () => {
+    for (const id of ['american-alligator', 'blue-crab', 'manatee', 'gopher-tortoise']) {
+      const hi = specimenGeo(id, 1).geo.getAttribute('position').count
+      const lo = specimenGeo(id, 0.55).geo.getAttribute('position').count
+      expect(lo, id).toBeLessThan(hi * 0.75)
+      expect(lo, id).toBeGreaterThan(300)
+    }
+    setBuilderLod(1)
+  })
+
+  it('normalizes scale by projected silhouette area so wide and slim animals take similar room', () => {
+    const areas = SPECIMEN_IDS.map((id) => {
+      const k = specimenScale(id, 3)
+      const pts = outlinePoints(specimenGeo(id).geo.getAttribute('position').array as Float32Array, 128)
+      return { id, a: meanProjectedArea(pts.map((p) => [p[0] * k, p[1] * k, p[2] * k]), DISPLAY_YAW, 0.6, 0.24), k }
+    })
+    const target = 0.36 * 9
+    for (const { id, a } of areas) {
+      // Within 35 percent of the shared target; a few slender animals are capped by the reach limit and may be smaller.
+      expect(a, id).toBeLessThan(target * 1.35)
+      expect(a, id).toBeGreaterThan(target * 0.5)
+    }
+    const crab = areas.find((x) => x.id === 'blue-crab')!
+    const panther = areas.find((x) => x.id === 'florida-panther')!
+    expect(Math.abs(crab.a - panther.a) / panther.a).toBeLessThan(0.2)
+  })
+
+  it('the pedestal ring follows the footprint and the outline stays inside it vertically', () => {
+    for (const id of SPECIMEN_IDS) {
+      const r = specimenRing(id, 3)
+      expect(r).toBeGreaterThanOrEqual(3 * 0.46 - 1e-9)
+      expect(r).toBeLessThanOrEqual(3 * 0.74 + 1e-9)
+      const pts = specimenOutline(id, 3, DISPLAY_YAW, 0.3)
+      expect(pts.length).toBeGreaterThan(40)
+      expect(Math.min(...pts.map((p) => p[1]))).toBeGreaterThanOrEqual(-1e-6)
+    }
+    expect(specimenRing('blue-crab', 3)).toBeGreaterThan(specimenRing('brown-pelican', 3) - 1e-6)
+  })
+
+  it('outline points are real vertices and hold the extremes', () => {
+    const geo = specimenGeo('blue-crab').geo
+    const arr = geo.getAttribute('position').array as Float32Array
+    const pts = outlinePoints(arr, 96)
+    expect(pts.length).toBeGreaterThan(30)
+    expect(pts.length).toBeLessThan(110)
+    geo.computeBoundingBox()
+    const bb = geo.boundingBox!
+    expect(Math.max(...pts.map((p) => p[0]))).toBeCloseTo(bb.max.x, 4)
+    expect(Math.min(...pts.map((p) => p[2]))).toBeCloseTo(bb.min.z, 4)
+    expect(projectedArea(pts, 0.3)).toBeGreaterThan(0)
+  })
+
   it('builds the panther long and low and the crab wide and flat', () => {
     const [px, py] = specimenGeo('florida-panther').size
     expect(px).toBeGreaterThan(py * 2.2)
@@ -217,6 +286,45 @@ describe('human hologram model', () => {
     expect(size('brain').x).toBeLessThan(0.6)
   })
 
+  it('shapes the brain as two folded hemispheres with a cerebellum and a stem', () => {
+    const o = model.organs.get('brain')!
+    const pos = o.geo.getAttribute('position')
+    const col = o.geo.getAttribute('color')
+    expect(pos.count).toBeGreaterThan(3000)
+    // Gyri and sulci: the vertex shade varies a lot over the surface.
+    let sum = 0
+    let sum2 = 0
+    for (let i = 0; i < col.count; i++) {
+      sum += col.getX(i)
+      sum2 += col.getX(i) ** 2
+    }
+    const mean = sum / col.count
+    expect(Math.sqrt(sum2 / col.count - mean * mean)).toBeGreaterThan(0.12)
+    // A central fissure: the hemispheres leave a gap along x = 0 at the top of the brain.
+    o.geo.computeBoundingBox()
+    const bb = o.geo.boundingBox!
+    const topBand = bb.max.y - (bb.max.y - bb.min.y) * 0.25
+    let nearMid = 0
+    for (let i = 0; i < pos.count; i++) if (pos.getY(i) > topBand && Math.abs(pos.getX(i)) < 0.006) nearMid++
+    expect(nearMid, 'no surface across the midline at the top').toBe(0)
+    // Stem: the lowest points hug the midline and sit in the back half.
+    const low = bb.min.y + (bb.max.y - bb.min.y) * 0.08
+    for (let i = 0; i < pos.count; i++) {
+      if (pos.getY(i) < low) {
+        expect(Math.abs(pos.getX(i))).toBeLessThan(0.1)
+        expect(pos.getZ(i)).toBeLessThan((bb.min.z + bb.max.z) / 2 + 0.05)
+      }
+    }
+    // Cerebellum: widest low point at the back (the lowest 35 percent reaches farther back than the top).
+    let backTop = Infinity
+    let backLow = Infinity
+    for (let i = 0; i < pos.count; i++) {
+      if (pos.getY(i) > topBand) backTop = Math.min(backTop, pos.getZ(i))
+      else if (pos.getY(i) < bb.min.y + (bb.max.y - bb.min.y) * 0.35) backLow = Math.min(backLow, pos.getZ(i))
+    }
+    expect(backLow).toBeLessThanOrEqual(backTop + 0.02)
+  })
+
   it('keeps the model box that the camera fit uses around everything', () => {
     for (const o of model.organs.values()) {
       o.geo.computeBoundingBox()
@@ -225,4 +333,45 @@ describe('human hologram model', () => {
       expect(b.max.y).toBeLessThanOrEqual(model.box.max[1] + 1e-3)
     }
   })
+})
+
+
+describe('detail maps', () => {
+  const kinds = new Set<DetailKind>(Object.values(SPECIMEN_LOOK).map((l) => l.kind))
+  kinds.add(DEFAULT_LOOK.kind)
+  for (const kind of kinds) {
+    it(`${kind} map is deterministic, varied, tileable and encodes a usable gradient`, () => {
+      const a = detailPixels(kind, 64)
+      const b = detailPixels(kind, 64)
+      expect(Array.from(a)).toEqual(Array.from(b))
+      let min = 255
+      let max = 0
+      for (let i = 0; i < 64 * 64; i++) {
+        min = Math.min(min, a[i * 4])
+        max = Math.max(max, a[i * 4])
+      }
+      expect(max - min, 'height varies').toBeGreaterThan(60)
+      // Tileable: neighbouring texels across the wrap are about as close as neighbours inside the map.
+      let wrap = 0
+      let inner = 0
+      for (let y = 0; y < 64; y++) {
+        wrap += Math.abs(a[(y * 64) * 4] - a[(y * 64 + 63) * 4])
+        inner += Math.abs(a[(y * 64 + 30) * 4] - a[(y * 64 + 31) * 4])
+      }
+      expect(wrap).toBeLessThan(inner * 2.5 + 64 * 12)
+      const m = detailMap(kind, 64)
+      expect(m.pixels.length).toBe(64 * 64 * 4)
+      expect(m.gradMax).toBeGreaterThan(0)
+      expect(Number.isFinite(m.gradMax)).toBe(true)
+      // The encoded gradient has some spread around 0.5 (flat), not a constant.
+      let lo = 255
+      let hi = 0
+      for (let i = 0; i < 64 * 64; i++) {
+        lo = Math.min(lo, m.pixels[i * 4])
+        hi = Math.max(hi, m.pixels[i * 4])
+      }
+      expect(lo).toBeLessThan(110)
+      expect(hi).toBeGreaterThan(145)
+    })
+  }
 })
