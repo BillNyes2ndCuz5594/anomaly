@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fillFraction, fitBox, fitPoints, hull2d, insideNdc, meanProjectedArea, outlinePoints, pointsBox, polygonArea, projectBox, projectPoints, ringPoints, sphereDirections, sweepPoints, sweepYaw, translateBox, unionBox, yawPoints, boxCorners, type Box, type V3 } from './fit'
+import { fillFraction, fitBox, fovToFitWidth, widthFit, fitPoints, hull2d, insideNdc, meanProjectedArea, outlinePoints, pointsBox, polygonArea, projectBox, projectPoints, ringPoints, sphereDirections, sweepPoints, sweepYaw, translateBox, unionBox, yawPoints, boxCorners, type Box, type V3 } from './fit'
 
 const body: Box = { min: [-1.4, 0, -0.5], max: [1.4, 5.2, 0.5] }
 const ring: Box = { min: [-2, 0, -2], max: [2, 0.05, 2] }
@@ -175,5 +175,30 @@ describe('point set helpers', () => {
   it('projected area is larger side on than end on for a long box', () => {
     const pts = boxCorners({ min: [-2, 0, -0.3], max: [2, 1, 0.3] })
     expect(meanProjectedArea(pts, 0, 0.01, 0)).toBeGreaterThan(meanProjectedArea(pts, Math.PI / 2, 0.01, 0) * 3)
+  })
+})
+
+describe('fovToFitWidth', () => {
+  it('keeps the base fov when the width already fits', () => {
+    expect(fovToFitWidth(6, 16, 1.78, 40)).toBe(40)
+  })
+  it('widens the vertical fov on a tall narrow canvas so the half width fits', () => {
+    const fov = fovToFitWidth(6, 16, 0.46, 40, 0.1)
+    expect(fov).toBeGreaterThan(40)
+    const halfWidthSeen = Math.tan((fov * Math.PI) / 360) * 0.46 * 16
+    expect(halfWidthSeen).toBeCloseTo(6 * 1.1, 5)
+  })
+})
+
+describe('widthFit', () => {
+  it('changes nothing on a wide canvas', () => {
+    expect(widthFit(6, 16, 1.78, 40, 70)).toEqual({ fovDeg: 40, distanceScale: 1 })
+  })
+  it('caps the fov and moves the camera back for the remainder', () => {
+    const r = widthFit(8, 16, 0.46, 40, 70, 0.1)
+    expect(r.fovDeg).toBe(70)
+    expect(r.distanceScale).toBeGreaterThan(1)
+    const seen = Math.tan((r.fovDeg * Math.PI) / 360) * 0.46 * 16 * r.distanceScale
+    expect(seen).toBeCloseTo(8 * 1.1, 5)
   })
 })

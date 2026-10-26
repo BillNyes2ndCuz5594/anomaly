@@ -1,5 +1,5 @@
-import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react'
 import * as THREE from 'three/webgpu'
 import type { ThreeEvent } from '@react-three/fiber'
 import { resolveTier } from '../../../state/quality'
@@ -8,6 +8,32 @@ import { useGame } from '../../../state/store'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from '../common'
 import { tintedHolo } from '../../materials/tinted'
 import { useFitPose, usePublishFit, type FitView } from '../../FitCamera'
+import { widthFit } from '../../fit'
+
+const BASE_FOV = 40
+
+/**
+ * Keeps `halfWidth` world units either side of the view axis (at `distance`) visible on tall narrow canvases:
+ * widens the field of view up to `maxFovDeg`, then reports how much further back the camera has to go.
+ * Restores the default fov on unmount, since the canvas and camera outlive scenes.
+ */
+export function useWidthFit(halfWidth: number, distance: number, maxFovDeg = 70, margin = 0.08): { current: number } {
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
+  const width = useThree((s) => s.size.width)
+  const height = useThree((s) => s.size.height)
+  const scale = useRef(1)
+  useLayoutEffect(() => {
+    const r = widthFit(halfWidth, distance, width / Math.max(1, height), BASE_FOV, maxFovDeg, margin)
+    scale.current = r.distanceScale
+    camera.fov = r.fovDeg
+    camera.updateProjectionMatrix()
+    return () => {
+      camera.fov = BASE_FOV
+      camera.updateProjectionMatrix()
+    }
+  }, [camera, width, height, halfWidth, distance, maxFovDeg, margin])
+  return scale
+}
 
 export function useTier() {
   const quality = useGame((s) => s.settings.quality)

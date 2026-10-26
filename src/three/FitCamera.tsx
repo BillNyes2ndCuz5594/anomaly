@@ -13,13 +13,12 @@ export interface FitView {
   margin?: number
 }
 
-/** The free part of the canvas as fractions, given the HUD insets (ignored on narrow screens, where panels stack). */
+/** The free part of the canvas as fractions, given the HUD insets (side panel, bottom sheet, dock, top bar). */
 export function useFrameFractions() {
   const size = useThree((s) => s.size)
   const ins = useInsets()
   return useMemo(() => {
-    if (size.width <= 900) return { w: 1, h: 1 }
-    return { w: Math.max(0.3, (size.width - ins.right) / size.width), h: Math.max(0.3, (size.height - ins.top - ins.bottom) / size.height) }
+    return { w: Math.max(0.3, (size.width - ins.right) / size.width), h: Math.max(0.15, (size.height - ins.top - ins.bottom) / size.height) }
   }, [size.width, size.height, ins.right, ins.top, ins.bottom])
 }
 

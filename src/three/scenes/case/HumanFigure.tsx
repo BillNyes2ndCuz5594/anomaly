@@ -23,6 +23,19 @@ const SKIN_TINT = '#3ee6ff'
 /** Small head organs idle dimmer so the face silhouette reads; hover, highlight and flash keep full strength. */
 const CALM_IDLE: Record<string, number> = { eyes: 0.5, ears: 0.55, nose: 0.7, tongue: 0.8, brain: 0.75 }
 
+const organScreen: Record<string, [number, number]> = {}
+const tmpP = new THREE.Vector3()
+
+/** Publishes where an organ is on screen (CSS px) on the canvas as data-organs, so a touch test can tap the hologram itself. */
+function publishOrgan(id: string, mesh: THREE.Mesh, state: { camera: THREE.Camera; gl: { domElement: HTMLCanvasElement | HTMLElement } }) {
+  mesh.getWorldPosition(tmpP)
+  tmpP.project(state.camera)
+  const el = state.gl.domElement as HTMLElement
+  const r = el.getBoundingClientRect()
+  organScreen[id] = [Math.round(r.left + ((tmpP.x + 1) / 2) * r.width), Math.round(r.top + ((1 - tmpP.y) / 2) * r.height)]
+  el.dataset.organs = JSON.stringify(organScreen)
+}
+
 function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganDef; mode: HumanFigureProps['mode']; highlighted: boolean; dimOthers: boolean; reduced: boolean }) {
   const ref = useRef<THREE.Mesh>(null)
   const mat = useMemo(() => organMaterial(def.tint), [def.tint])
@@ -31,6 +44,7 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
   const body = useRef(1)
   const flashN = useRef(0)
   const flashT = useRef(-10)
+  const tick = useRef(0)
   useEffect(() => () => mat.dispose(), [mat])
   const hand = useMemo(() => {
     const st = useFx.getState()
@@ -48,6 +62,7 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
     let shake = 0
     if (mode === 'lab') {
       const fx = useFx.getState()
+      if (tick.current++ % 20 === 0) publishOrgan(def.id, mesh, state as never)
       if (fx.flash && fx.flash.id === def.id && fx.flash.n !== flashN.current) {
         flashN.current = fx.flash.n
         flashT.current = now

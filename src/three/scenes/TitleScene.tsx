@@ -19,6 +19,7 @@ import { useGame } from '../../state/store'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
+import { useWidthFit } from './case/common'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor, makeRadialTexture } from './common'
 
 const LOGO_BASE_Y = 1.05
@@ -155,6 +156,9 @@ export default function TitleScene() {
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
   const start = useRef(performance.now())
+  // The logo is wider than a phone held upright: widen the view and back the camera off until it fits.
+  const logoHalf = useMemo(() => (layoutLogo('ANOMALY').width * LOGO_H) / 2, [])
+  const fit = useWidthFit(logoHalf * 1.04, 16, 66, 0.2)
 
   useFrame((state) => {
     const t = (performance.now() - start.current) / 1000
@@ -163,8 +167,12 @@ export default function TitleScene() {
     const orbit = reduced ? 0.1 : Math.sin(t * 0.11) * 0.32
     const radius = 16 + (1 - intro) * 7
     const height = 2.2 + Math.sin(t * 0.07) * (reduced ? 0 : 0.5) + (1 - intro) * 2
-    cam.position.set(Math.sin(orbit) * radius, height, Math.cos(orbit) * radius)
-    cam.lookAt(0, LOGO_BASE_Y + 1.0, 0)
+    const k = fit.current
+    const aimY = LOGO_BASE_Y + 1.0
+    cam.position.set(Math.sin(orbit) * radius * k, aimY + (height - aimY) * k, Math.cos(orbit) * radius * k)
+    cam.lookAt(0, aimY, 0)
+    const fog = state.scene.fog as THREE.FogExp2 | null
+    if (fog) fog.density = 0.018 / k
   })
 
   return (
