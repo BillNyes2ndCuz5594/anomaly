@@ -250,21 +250,20 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       b.limb([[-1.2, 0.34, 0], [-1.6, 0.28, 0], [-1.85, 0.22, 0]], [0.15, 0.09, 0.03], { c: '#7a6844' }, { radial: 10, seg: 4, cap: 3 })
       for (const k of mirrorZ) {
         eye(b, [1.9, 0.72, k * 0.15], 0.045, [0.3, 0.3, k], '#3b3426', false, DARK, '#8d7a50')
-        // forelimb: a thick, slightly flattened column armored with overlapping scales, blunt dark claws
-        const foreLimb: V3[] = [[0.95, 0.66, k * 0.6], [1.1, 0.38, k * 0.88], [1.22, 0.1, k * 0.98]]
-        const foreR: [number, number][] = [[0.32, 0.27], [0.28, 0.24], [0.28, 0.19]]
+        // forelimb: a heavy, slightly flattened column like an elephant's, armored with big overlapping scales, flaring into a broad foot with blunt claws
+        const foreLimb: V3[] = [[0.95, 0.68, k * 0.58], [1.1, 0.4, k * 0.9], [1.24, 0.12, k * 1.0]]
+        const foreR: [number, number][] = [[0.34, 0.3], [0.31, 0.26], [0.33, 0.21]]
         b.limb(foreLimb, foreR, {}, { paint: hide, radial: 24, seg: 8, cap: 4 })
-        scalePlates(b, foreLimb, foreR, k, 6, [-0.1, 0.45, 1.0, 1.55], 0.1, ['#9d8c65', '#8c7b55'])
-        // broad foot with blunt claws
-        b.ell([1.3, 0.07, k * 1.0], [0.24, 0.07, 0.24], '#8f7b52', [0, 0, 0], 16, 10)
-        toes(b, [1.4, 0.06, k * 1.0], [-0.55, -0.18, 0.18, 0.55], 0.2, 0.06, '#7a6a47', '#2b241a', k)
-        // hindlimb: stout and columnar like an elephant's, with scales
-        const hind: V3[] = [[-0.92, 0.62, k * 0.7], [-0.98, 0.34, k * 0.9], [-1.0, 0.1, k * 0.95]]
-        const hindR: [number, number][] = [[0.42, 0.36], [0.35, 0.3], [0.33, 0.24]]
+        scalePlates(b, foreLimb, foreR, k, 4, [-0.2, 0.35, 0.9, 1.45], 0.135, ['#a69470', '#85734e'])
+        b.ell([1.32, 0.08, k * 1.02], [0.29, 0.08, 0.29], '#8f7b52', [0, 0, 0], 18, 10)
+        toes(b, [1.46, 0.07, k * 1.02], [-0.6, -0.3, 0, 0.3, 0.6], 0.24, 0.07, '#7a6a47', '#231d14', k)
+        // hindlimb: short, stout stump with a round foot and three claws
+        const hind: V3[] = [[-0.92, 0.6, k * 0.7], [-0.98, 0.34, k * 0.9], [-1.0, 0.1, k * 0.95]]
+        const hindR: [number, number][] = [[0.42, 0.36], [0.36, 0.3], [0.34, 0.24]]
         b.limb(hind, hindR, {}, { paint: hide, radial: 24, seg: 8, cap: 4 })
-        scalePlates(b, hind, hindR, k, 5, [0.2, 0.8, 1.4], 0.11, ['#9d8c65', '#8c7b55'])
-        paw(b, [-0.9, 0, k * 0.97], 0.27, '#8f7b52')
-        toes(b, [-0.75, 0.05, k * 0.97], [-0.4, 0, 0.4], 0.17, 0.055, '#7a6a47', '#2b241a', k)
+        scalePlates(b, hind, hindR, k, 3, [0.2, 0.9, 1.5], 0.14, ['#a69470', '#85734e'])
+        paw(b, [-0.9, 0, k * 0.97], 0.3, '#8f7b52')
+        toes(b, [-0.72, 0.05, k * 0.97], [-0.4, 0, 0.4], 0.2, 0.065, '#7a6a47', '#231d14', k)
       }
       break
     }

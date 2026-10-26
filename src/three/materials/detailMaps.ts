@@ -217,7 +217,7 @@ export const SPECIMEN_LOOK: Record<string, DetailLook> = {
   'american-alligator': { kind: 'gator', freq: 0.42, bump: 0.032, rough: 0.55, roughVar: 0.4, cavity: 0.6 },
   'largemouth-bass': { kind: 'fish', freq: 0.55, bump: 0.007, rough: 0.3, roughVar: 0.25, cavity: 0.16 },
   'bull-shark': { kind: 'grain', freq: 1.4, bump: 0.006, rough: 0.34, roughVar: 0.25, cavity: 0.2 },
-  manatee: { kind: 'wrinkle', freq: 0.4, bump: 0.05, rough: 0.58, roughVar: 0.45, cavity: 0.5 },
+  manatee: { kind: 'wrinkle', freq: 0.55, bump: 0.011, rough: 0.5, roughVar: 0.3, cavity: 0.2 },
   'florida-panther': { kind: 'fur', freq: 1.5, bump: 0.0075, rough: 0.82, roughVar: 0.25, cavity: 0.18 },
   'blue-crab': { kind: 'grain', freq: 0.7, bump: 0.02, rough: 0.4, roughVar: 0.4, cavity: 0.4 },
   'gopher-tortoise': { kind: 'grain', freq: 0.6, bump: 0.025, rough: 0.6, roughVar: 0.4, cavity: 0.5 },

@@ -168,37 +168,42 @@ export function spiderModel(b: Builder): void {
 // ---------- West Indian manatee ----------
 
 export function manateeModel(b: Builder): void {
+  // Smooth grey brown hide: darker back, pale belly, soft sun bleached and algae patches, a few pale scars.
   const skin = mottle(
-    paintWith(countershade('#777b80', '#a9abab', -0.1, 0.6), (t, cs, sn, out) => {
-      // faint algae and sun bleached patches
-      lerpHex(out, '#6f7a6a', smooth(0.5, 1, sn) * smooth(0.2, 0.6, Math.sin(t * 19 + cs * 3)) * 0.35)
-      lerpHex(out, '#8a8c8a', smooth(0.3, 0.9, Math.sin(t * 7 + sn * 2.3 + 1)) * 0.2)
+    paintWith(countershade('#6f6e69', '#a29e92', -0.1, 0.55), (t, cs, sn, out) => {
+      lerpHex(out, '#6a7461', smooth(0.45, 1, sn) * smooth(0.3, 0.7, Math.sin(t * 15 + cs * 2.6)) * 0.4)
+      lerpHex(out, '#8c8579', smooth(0.2, 0.9, Math.sin(t * 6 + sn * 2.0 + 1)) * 0.25)
+      lerpHex(out, '#b7b2a2', smooth(0.9, 0.99, Math.sin(t * 41 + cs * 5.0)) * smooth(0.0, 0.8, sn) * 0.5)
     }),
-    0.09,
-    0.9,
+    0.05,
+    0.7,
     5,
   )
+  // Fusiform body: blunt rounded head, fullest at the middle, tapering smoothly into the tail stalk.
   b.limb(
-    [[-1.9, 0.18, 0], [-1.25, 0.1, 0], [-0.4, 0.02, 0], [0.5, 0, 0], [1.25, -0.05, 0], [1.8, -0.2, 0]],
-    [[0.22, 0.2], [0.52, 0.5], [0.78, 0.74], [0.8, 0.72], [0.56, 0.5], [0.4, 0.34]],
-    {},
-    { paint: skin, radial: 36, seg: 11, cap: 8 },
+    [[-1.95, 0.2, 0], [-1.3, 0.12, 0], [-0.45, 0.02, 0], [0.45, 0, 0], [1.2, -0.04, 0], [1.75, -0.16, 0]],
+    [[0.2, 0.18], [0.5, 0.48], [0.76, 0.72], [0.8, 0.74], [0.58, 0.54], [0.4, 0.36]],
+    { m: [0, 0] },
+    { paint: skin, radial: 36, seg: 12, cap: 8 },
   )
-  // flat paddle tail: horizontal, broadest near the end with a smooth rounded rim
-  b.limb([[-1.85, 0.16, 0], [-2.3, 0.26, 0], [-2.75, 0.38, 0], [-3.05, 0.46, 0]], [[0.3, 0.22], [0.74, 0.1], [1.0, 0.07], [0.85, 0.045]], { c: '#70757a', m: THIN }, { radial: 32, seg: 9, cap: 9, paint: mottle(countershade('#74787d', '#92969a', 0, 0.5), 0.08, 1.2, 8) })
-  // broad down turned muzzle with a split upper lip, bristles and nostrils on top
-  b.ell([1.95, -0.36, 0], [0.4, 0.3, 0.46], '#8d9094', [0, 0, 0.35], 24, 16)
+  // tail: a short flattened stalk that opens into a broad, rounded paddle (spatula shaped, flat, no fork)
+  b.limb([[-1.85, 0.18, 0], [-2.25, 0.27, 0], [-2.55, 0.34, 0]], [[0.32, 0.26], [0.36, 0.15], [0.62, 0.07]], { m: [0, 0] }, { radial: 28, seg: 6, cap: 4, paint: skin })
+  b.ell([-2.92, 0.38, 0], [0.46, 0.05, 0.92], '#6c6b66', [0.16, 0, -0.1], 36, 10, THIN)
+  b.ell([-2.95, 0.405, 0], [0.34, 0.022, 0.66], '#76746e', [0.16, 0, -0.1], 28, 8, THIN)
+  // broad down turned muzzle with a split, bristled upper lip and nostrils on top
+  b.ell([1.95, -0.36, 0], [0.42, 0.3, 0.47], '#8b8a85', [0, 0, 0.35], 26, 18)
   for (const k of mirrorZ) {
-    b.ell([2.16, -0.46, k * 0.17], [0.19, 0.14, 0.2], '#9a9c9f', [0, 0, 0.3], 14, 10)
-    b.ell([2.17, -0.1, k * 0.14], [0.065, 0.035, 0.05], '#262a2e', [0, 0, 0.5], 8, 6)
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 3 - 0.5) * 1.6
-      b.limb([[2.3, -0.5, k * (0.06 + i * 0.07)], [2.4, -0.55 - i * 0.015, k * (0.08 + i * 0.08) + Math.sin(a) * 0.05], [2.46, -0.62, k * (0.08 + i * 0.09) + Math.sin(a) * 0.12]], [0.016, 0.01, 0.005], { c: '#d8d2bd' }, { radial: 5, seg: 2, cap: 1 })
+    b.ell([2.16, -0.46, k * 0.18], [0.2, 0.15, 0.2], '#97958e', [0, 0, 0.3], 16, 12)
+    b.ell([2.17, -0.1, k * 0.14], [0.065, 0.035, 0.05], '#22262a', [0, 0, 0.5], 8, 6)
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 5 - 0.5) * 1.6
+      const z0 = k * (0.04 + i * 0.05)
+      b.limb([[2.3, -0.5, z0], [2.42, -0.56 - i * 0.012, z0 + k * 0.02 + Math.sin(a) * 0.04], [2.5, -0.65, z0 + k * 0.03 + Math.sin(a) * 0.1]], [0.016, 0.01, 0.004], { c: '#e0dac4' }, { radial: 5, seg: 2, cap: 1 })
     }
-    eye(b, [1.6, 0.14, k * 0.52], 0.06, [0.3, 0.2, k], '#c9c1ad', false, '#14181b', '#74787c')
-    // flipper: paddle with three small nails
-    b.limb([[0.85, -0.38, k * 0.5], [1.2, -0.58, k * 1.0], [1.5, -0.8, k * 1.4], [1.62, -0.95, k * 1.55]], [[0.2, 0.12], [0.26, 0.08], [0.23, 0.055], [0.15, 0.04]], { c: '#74787d', m: THIN }, { radial: 16, seg: 7, cap: 6, paint: mottle(countershade('#767a7f', '#8f9396', 0, 0.5), 0.08, 1.4, 12) })
-    for (let i = -1; i <= 1; i++) b.ell([1.66 + i * 0.01, -1.0 - Math.abs(i) * 0.01, k * (1.56 + i * 0.06)], [0.03, 0.02, 0.035], '#c2bba7', [0, 0, 0], 6, 5)
+    eye(b, [1.62, 0.14, k * 0.52], 0.06, [0.3, 0.2, k], '#c9c1ad', false, '#14181b', '#6b6c68')
+    // paddle flipper: wide and rounded, held out and back from the shoulder, with three small nails
+    b.limb([[0.85, -0.36, k * 0.5], [0.95, -0.54, k * 0.92], [0.85, -0.66, k * 1.32], [0.68, -0.7, k * 1.58]], [[0.19, 0.14], [0.27, 0.095], [0.3, 0.065], [0.2, 0.042]], { c: '#6f6e69', m: THIN }, { radial: 20, seg: 8, cap: 8, paint: mottle(countershade('#706f6a', '#8d8a82', 0, 0.5), 0.06, 1.2, 12) })
+    for (let i = -1; i <= 1; i++) b.ell([0.58 - Math.abs(i) * 0.03, -0.71, k * (1.66 + i * 0.09)], [0.04, 0.025, 0.04], '#cdc6b0', [0, 0, 0], 6, 5)
   }
 }
 
@@ -212,10 +217,13 @@ export function bassModel(b: Builder): void {
   const spine: V3[] = [[-2.3, 0.14, 0], [-1.5, 0.07, 0], [-0.5, 0, 0], [0.5, -0.03, 0], [1.25, -0.03, 0], [1.9, -0.08, 0], [2.35, -0.14, 0]]
   const radii: Radii = [[0.04, 0.12], [0.15, 0.34], [0.36, 0.7], [0.44, 0.78], [0.4, 0.66], [0.3, 0.44], [0.24, 0.24]]
   const coat = paintWith(countershade(back, belly, -0.05, 0.28), (t, cs, sn, out) => {
-    // pale olive flank under a dark broken lateral band that fades toward the head and tail
+    // pale olive flank, then one clear dark lateral stripe from the gill cover to the tail base with a slightly wavy edge
     lerpHex(out, flank, (1 - smooth(0.0, 0.5, Math.abs(sn + 0.12))) * 0.55)
-    const band = smooth(0.14, 0.3, t) * (1 - smooth(0.76, 0.92, t)) * (1 - smooth(0.12, 0.34, Math.abs(sn - 0.04))) * smooth(0.12, 0.4, Math.abs(cs))
-    lerpHex(out, '#27391f', band * (0.55 + 0.4 * Math.sin(t * 60) * Math.sin(t * 23 + 1)))
+    const mid = 0.06 + 0.03 * Math.sin(t * 17)
+    const band = smooth(0.2, 0.3, t) * (1 - smooth(0.9, 0.99, t)) * (1 - smooth(0.14, 0.27, Math.abs(sn - mid))) * smooth(0.1, 0.35, Math.abs(cs))
+    lerpHex(out, '#1f2e19', band * (0.82 + 0.15 * Math.sin(t * 31)))
+    // faint vertical parr bars above the stripe
+    lerpHex(out, '#3b5530', smooth(0.9, 1, Math.sin(t * 46)) * smooth(0.1, 0.4, sn) * smooth(0.2, 0.4, t) * 0.25)
     if (t > 0.7) lerpHex(out, '#d7e0a3', smooth(0.72, 1, t) * 0.3 * (1 - smooth(-0.2, 0.3, sn)))
   })
   b.limb(spine, radii, {}, { paint: mottle(coat, 0.07, 1.4, 2), radial: 36, seg: 11, cap: 8 })
@@ -227,12 +235,12 @@ export function bassModel(b: Builder): void {
     b.limb([[1.28, 0.34, k * 0.3], [1.14, 0.0, k * 0.37], [1.2, -0.3, k * 0.34]], 0.015, { c: '#31482a' }, { radial: 6, seg: 6, cap: 1 })
     eye(b, [1.72, 0.2, k * 0.27], 0.115, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
     // pectoral fin
-    fin(b, [[0.95, -0.14, k * 0.34], [0.62, -0.26, k * 0.6], [0.3, -0.4, k * 0.82]], [0.17, 0.2, 0.05], 0.03, '#9bb96b', 'xz', undefined, 9)
+    fin(b, [[1.0, -0.16, k * 0.34], [0.72, -0.26, k * 0.62], [0.44, -0.38, k * 0.84], [0.28, -0.43, k * 0.92]], [0.1, 0.2, 0.19, 0.05], 0.03, '#8da35e', 'xz', undefined, 12)
   }
   // spiny front dorsal: stiff spines with a scalloped membrane between them, a notch, then the soft rear dorsal
   const tops = [0.7, 0.71, 0.72, 0.72, 0.71, 0.7, 0.68, 0.66]
   const spineX = [1.0, 0.86, 0.72, 0.58, 0.45, 0.32, 0.2, 0.08]
-  const spineH = [0.86, 1.02, 1.1, 1.08, 1.0, 0.92, 0.84, 0.74]
+  const spineH = [0.9, 1.08, 1.18, 1.16, 1.08, 0.98, 0.88, 0.76]
   const tipsF: V3[] = spineX.map((x, i) => [x - 0.2 - i * 0.012, spineH[i], 0])
   const m = 3
   const baseF: V3[] = []
@@ -248,8 +256,8 @@ export function bassModel(b: Builder): void {
     baseF.push([bx, by, 0])
     edgeF.push([tx, ty - dip * (ty - by) * 1.4, 0])
   }
-  sail(b, baseF, edgeF, 0.016, '#51794a', { rows: 5, rays: 0 })
-  spineX.forEach((x, i) => finSpine(b, [x, tops[i] - 0.1, 0], [tipsF[i][0] - 0.02, tipsF[i][1] + 0.03, 0], 0.024, '#25381f'))
+  sail(b, baseF, edgeF, 0.016, '#5f8a48', { rows: 5, rays: 0 })
+  spineX.forEach((x, i) => finSpine(b, [x, tops[i] - 0.1, 0], [tipsF[i][0] - 0.02, tipsF[i][1] + 0.03, 0], 0.024, '#2f4526'))
   // soft rear dorsal: rounded, with branching rays
   {
     const n = 14
@@ -272,7 +280,7 @@ export function bassModel(b: Builder): void {
     for (let j = 0; j < n; j++) {
       const u = (j / (n - 1)) * 2 - 1
       baseT.push([-2.3, 0.1 + u * 0.1, 0])
-      edgeT.push([-3.12 + 0.2 * (1 - Math.abs(u) ** 1.7) - 0.05 * (1 - u * u), 0.06 + u * 0.88, 0])
+      edgeT.push([-3.2 + 0.36 * (1 - Math.abs(u) ** 1.3) - 0.06 * (1 - u * u), 0.06 + u * 0.95, 0])
     }
     sail(b, baseT, edgeT, 0.022, '#5d8a3c', { rows: 6, rays: 34 })
   }
