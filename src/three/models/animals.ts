@@ -272,52 +272,6 @@ export function sharkModel(b: Builder): void {
   fin(b, [[-2.3, 0.2, -0.28], [-2.58, -0.18, -0.34], [-2.85, -0.6, -0.4]], [0.17, 0.2, 0.03], 0.04, '#7b8997', 'xy', undefined, 5)
 }
 
-// ---------- Florida panther ----------
-
-export function pantherModel(b: Builder): void {
-  const tawny = '#b3834f'
-  const belly = '#e3d2ac'
-  const dk = '#2e231b'
-  const coat = mottle(
-    paintWith(countershade(tawny, belly, -0.15, 0.5), (_t, _cs, sn, out) => lerpHex(out, '#7b5a35', smooth(0.45, 1, sn) * 0.4)),
-    0.07,
-    1.6,
-    6,
-  )
-  // Long, low torso with a deep chest, tucked waist and a soft dip behind the shoulders.
-  const torso: V3[] = [[-1.5, 1.38, 0], [-0.75, 1.32, 0], [0.0, 1.22, 0], [0.8, 1.3, 0], [1.4, 1.38, 0]]
-  b.limb(torso, [[0.34, 0.42], [0.32, 0.38], [0.27, 0.33], [0.36, 0.45], [0.31, 0.38]], {}, { paint: coat, radial: 28, seg: 10, cap: 7 })
-  // Thick, muscular neck carrying a smallish head low and forward.
-  b.limb([[1.0, 1.32, 0], [1.5, 1.5, 0], [1.9, 1.58, 0]], [[0.28, 0.35], [0.23, 0.27], [0.21, 0.23]], {}, { paint: coat, radial: 22, seg: 8, cap: 5 })
-  // Head: rounded skull, short broad muzzle with pale chin and lip, dark nose pad, small ears set back.
-  b.ell([2.02, 1.61, 0], [0.3, 0.195, 0.255], tawny, [0, 0, -0.06], 28, 18)
-    .ell([2.34, 1.5, 0], [0.24, 0.125, 0.17], '#d8c196', [0, 0, -0.12], 22, 14)
-    .ell([2.3, 1.4, 0], [0.19, 0.055, 0.13], belly, [0, 0, -0.05], 16, 10)
-    .ell([2.56, 1.54, 0], [0.045, 0.035, 0.07], '#5b3b36', [0, 0, 0], 12, 8, WET)
-    .limb([[2.55, 1.51, 0], [2.52, 1.44, 0], [2.44, 1.42, 0]], 0.009, { c: dk }, { radial: 6, seg: 4, cap: 2 })
-  for (const k of mirrorZ) {
-    // ears: small, rounded, dark behind with a pale spot
-    b.ell([1.93, 1.79, k * 0.23], [0.055, 0.085, 0.065], '#a07845', [k * 0.35, 0, 0.1], 14, 10)
-    b.ell([1.915, 1.8, k * 0.235], [0.04, 0.068, 0.042], '#2b2018', [k * 0.35, 0, 0.1], 10, 8)
-    // shoulder and haunch muscle that blend the legs into the body
-    b.ell([0.84, 1.1, k * 0.2], [0.24, 0.3, 0.17], '#b0804c', [0, 0, 0.1], 18, 12)
-    b.ell([-1.22, 1.12, k * 0.22], [0.32, 0.34, 0.2], '#b0804c', [0, 0, -0.1], 18, 12)
-    eye(b, [2.24, 1.67, k * 0.18], 0.056, [0.6, 0.1, k], '#cdbb4a', false, DARK, '#2e2118')
-    b.limb([[2.22, 1.62, k * 0.22], [2.3, 1.54, k * 0.2]], 0.01, { c: dk }, { radial: 6, seg: 4, cap: 2 })
-    for (let i = 0; i < 4; i++) b.ell([2.4 - i * 0.03, 1.5 - i * 0.02, k * (0.09 + i * 0.03)], [0.011, 0.011, 0.011], dk, [0, 0, 0], 6, 5)
-    // walking pose: the far foreleg and the near hindleg reach forward
-    const fs = k > 0 ? 0.3 : -0.18
-    const hs = k > 0 ? -0.22 : 0.26
-    b.limb([[0.82, 1.24, k * 0.26], [0.8 + fs * 0.4, 0.72, k * 0.24], [0.84 + fs * 0.8, 0.32, k * 0.22], [0.88 + fs, 0.1, k * 0.22]], [[0.2, 0.24], [0.125, 0.14], [0.085, 0.09], [0.078, 0.08]], {}, { paint: mottle(countershade('#b0804c', '#d2b88a', 0, 0.9), 0.06, 2, 3), radial: 18, seg: 7, cap: 5 })
-    paw(b, [0.97 + fs, 0, k * 0.22], 0.12, '#c49358', 0.0)
-    b.limb([[-1.28, 1.3, k * 0.28], [-0.9 + hs * 0.5, 0.82, k * 0.27], [-1.2 + hs * 0.9, 0.4, k * 0.24], [-1.12 + hs, 0.1, k * 0.23]], [[0.26, 0.31], [0.16, 0.2], [0.09, 0.105], [0.08, 0.08]], {}, { paint: mottle(countershade('#b0804c', '#d2b88a', 0, 0.9), 0.06, 2, 4), radial: 18, seg: 7, cap: 5 })
-    paw(b, [-1.0 + hs, 0, k * 0.23], 0.12, '#c49358', 0.0)
-  }
-  // Long, thick tail that droops, then lifts at the end, with a dark tip.
-  const tail = paintWith(countershade(tawny, '#d2b98c', 0, 0.5), (t, _c, _s, out) => lerpHex(out, dk, smooth(0.8, 0.93, t)))
-  b.limb([[-1.45, 1.4, 0], [-2.05, 1.27, 0], [-2.6, 0.88, 0], [-3.0, 0.5, 0], [-3.45, 0.4, 0], [-3.9, 0.62, 0]], [0.19, 0.17, 0.16, 0.15, 0.145, 0.13], {}, { paint: mottle(tail, 0.06, 1.5, 7), radial: 18, seg: 9, cap: 6 })
-}
-
 // ---------- Blue crab ----------
 
 export function crabModel(b: Builder): void {
