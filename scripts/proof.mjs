@@ -437,7 +437,7 @@ let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: CHROME_ARGS })
+  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
   writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
