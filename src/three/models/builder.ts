@@ -67,7 +67,9 @@ export class Builder {
     const n = flat.attributes.position.count
     const col = new Float32Array(n * 3)
     const pt = flat.getAttribute('paint') as THREE.BufferAttribute | undefined
-    for (let i = 0; i < n; i++) {
+    // A geometry that arrives with its own vertex colors (sculpted bodies) keeps them.
+    const own = flat.getAttribute('color') as THREE.BufferAttribute | undefined
+    for (let i = 0; i < n && !own; i++) {
       if (paint && pt) {
         paint(pt.getX(i), pt.getY(i), pt.getZ(i), tmpColor, tint)
         tint.set(o.c ?? '#ffffff')
@@ -78,7 +80,7 @@ export class Builder {
       col[i * 3 + 2] = tmpColor.b
     }
     flat.deleteAttribute('paint')
-    flat.setAttribute('color', new THREE.BufferAttribute(col, 3))
+    if (!own) flat.setAttribute('color', new THREE.BufferAttribute(col, 3))
     const surf = new Float32Array(n * 2)
     if (o.m) for (let i = 0; i < n; i++) surf.set(o.m, i * 2)
     flat.setAttribute('surf', new THREE.BufferAttribute(surf, 2))
@@ -148,6 +150,11 @@ export class Builder {
   /** Adds a prepared geometry (needs position and uv). A `paint` attribute, if present, is fed to `paint` per vertex. */
   geo(g: THREE.BufferGeometry, o?: PartOpts, paint?: Paint): this {
     return this.push(g, o, paint)
+  }
+
+  /** Adds a geometry that already carries position, normal, uv and color (see sculpt.ts). */
+  colored(g: THREE.BufferGeometry): this {
+    return this.push(g)
   }
 
   build(): THREE.BufferGeometry {

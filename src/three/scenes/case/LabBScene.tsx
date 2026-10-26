@@ -92,7 +92,8 @@ function ModelParts({ side }: { side: 'a' | 'p' }) {
 }
 
 // Both models with their pedestals: animal at x -3.4, plant at x 3.4, roots down to about -1.4.
-const VIEW = { box: { min: [-5.9, -1.5, -2.4], max: [5.7, 3.7, 2.4] } as Box, elevation: 0.12 }
+// The margin sits a little above the default 0.08: leaf tips and the animal's sway once reached 0.9 percent past the frame in the wide phone landscape.
+const VIEW = { box: { min: [-5.9, -1.5, -2.4], max: [5.7, 3.7, 2.4] } as Box, elevation: 0.12, margin: 0.115 }
 
 export default function LabBScene() {
   const reduced = useReduced()
