@@ -10,7 +10,7 @@
 // boxes, a 3D canvas fit overshoot, a hologram tap that does not select the organ, or a reload on rotation.
 // Usage: npm run build && node scripts/mobile.mjs [s23-portrait s23-landscape tab-portrait tab-landscape] [--tab-dpr=1]
 import puppeteer from 'puppeteer-core'
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CHROME_ARGS, CONTENT, freePort, startPreview } from './lib/drive.mjs'
@@ -28,7 +28,11 @@ const ALL = [
 ]
 const wanted = args.filter((a) => !a.startsWith('--'))
 const DEVICES = wanted.length ? ALL.filter((d) => wanted.includes(d.tag)) : ALL
-const QS = '?tier=low'
+// S11: ?qaitems makes the case play the human organ item, owl and pelican, grasshopper and spider, panther and crab
+// and manatee, so specimens are shown and checked in the real item player on every device.
+const GAMEPLAY = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L142-07']
+const QS = `?tier=low&qaitems=${GAMEPLAY.join(',')}`
+const PROOF = '/workspace/anomaly-proof'
 
 mkdirSync(OUT, { recursive: true })
 // Clear only what this run regenerates: a full run clears every PNG and JSON, a subset run only its own devices.
@@ -365,7 +369,10 @@ async function runDevice(dev, base) {
         if (n === 0) {
           await audit(`${kind}-item`, 2500)
           await tapId('word-2')
+        } else if (kind === 'case') {
+          await audit(`${kind}-item-${item.id}`, 3500)
         }
+        if (kind === 'case') copyFileSync(join(OUT, `${tag}-${n === 0 ? 'case-item' : `case-item-${item.id}`}.png`), `${PROOF}/s11-gameplay-${item.id}-${tag}.png`)
         await tapId(`option-${item.key}`)
         await tapId('lock-in')
         await page.waitForSelector(tid('item-result'))

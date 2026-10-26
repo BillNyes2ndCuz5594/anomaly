@@ -66,16 +66,21 @@ function OrganVisual({ highlight }: { highlight: string[] }) {
 const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
 const FIT = 3.0
 
-/** Centers of a row of specimens, spaced by their own base rings so wide and narrow animals sit evenly. */
+/** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
 function rowX(ids: string[]): number[] {
-  const r = ids.map((id) => specimenRing(id, FIT))
+  const yaw = STILL ? STILL_YAW : SPECIMEN_YAW
+  const sway = STILL ? 0.02 : SWAY_SPECIMEN
+  const ext = ids.map((id) => {
+    const xs = specimenOutline(id, FIT, yaw, sway).map((p) => p[0])
+    return { l: -Math.min(...xs), r: Math.max(...xs) }
+  })
   const xs: number[] = []
   let x = 0
-  r.forEach((ri, i) => {
-    if (i > 0) x += r[i - 1] + ri + 0.5
+  ext.forEach((e, i) => {
+    if (i > 0) x += ext[i - 1].r + e.l + 0.5
     xs.push(x)
   })
-  const mid = (xs[0] + xs[xs.length - 1]) / 2
+  const mid = (xs[0] - ext[0].l + xs[xs.length - 1] + ext[ext.length - 1].r) / 2
   return xs.map((v) => v - mid)
 }
 

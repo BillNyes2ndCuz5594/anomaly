@@ -708,6 +708,35 @@ try {
     await page.close()
   }
 
+  // S11: specimens in the real item player. ?qaitems deep links the case to the organ item, owl and pelican,
+  // grasshopper and spider, panther and crab, and the four-animal group item, shot at 1920 as s11-gameplay-<id>-1920.png.
+  {
+    const ids = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L315-01', 'L142-07']
+    const page = await profilePage(browser, BASE, `${QS}&qaitems=${ids.join(',')}`, VIEWPORTS[0], errors)
+    await toCaseStep(page, 'items')
+    for (const id of ids) {
+      const item = CONTENT.items.find((x) => x.id === id)
+      await page.waitForSelector('[data-testid="stem"]')
+      check(`gameplay deep link shows ${id} in the real item player`, tokenize(await text(page, 'stem')).join(' ') === tokenize(item.stem).join(' '))
+      await sleep(5500)
+      const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+      await page.waitForFunction((f) => (window.__anomaly?.frame ?? 0) >= f + 3, { timeout: 60000, polling: 200 }, f0).catch(() => {})
+      const a = await page.evaluate(() => window.__anomaly)
+      sceneStats[`gameplay-${id}`] = { tier: a.tier, backend: a.backend, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures }
+      const fits = await fitReport(page)
+      check(`gameplay ${id} model fully inside its canvas with margin (1920)`, fits.length >= 1 && fits.every((f) => f.over <= -0.02), fits.map((f) => f.over.toFixed(3)).join(','))
+      await page.screenshot({ path: `${OUT}/s11-gameplay-${id}-1920.png` })
+      shots.push(`s11-gameplay-${id}-1920.png`)
+      await click(page, `option-${item.key}`)
+      await click(page, 'lock-in')
+      await page.waitForSelector('[data-testid="item-result"]')
+      await sleep(300)
+      await click(page, 'next-item')
+      await sleep(400)
+    }
+    await page.close()
+  }
+
   // ?debug=1 forces the readout on
   {
     const page = await browser.newPage()

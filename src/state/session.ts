@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Item } from '../content/schema'
 import { content } from '../content/schema'
+import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
 import { toISODate } from './mastery'
@@ -85,8 +86,11 @@ export const useSession = create<SessionState>((set, get) => ({
   paint: null,
   start: (caseId, kind = 'case') => {
     const st = useGame.getState()
+    const qa = kind === 'case' ? QA_ITEMS.map((id) => content.items.find((it) => it.id === id)) : []
     const items =
-      kind === 'cold'
+      qa.length > 0 && qa.every(Boolean)
+        ? (qa as Item[])
+        : kind === 'cold'
         ? pickReview(content.items, st.progress, st.itemHistory, toISODate(), newSeed())
         : pickEvidence(content.items, st.itemHistory, newSeed())
     const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : content.case.benchmarks
