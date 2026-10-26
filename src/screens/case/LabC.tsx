@@ -137,7 +137,10 @@ export default function LabC() {
                   onClick={() => choose(s.id)}
                 >
                   {prog[s.id]?.group ? <span aria-hidden="true">{'\u2714 '}</span> : null}
-                  {s.name}
+                  <span className="chip-n" aria-hidden="true">
+                    {i + 1}
+                  </span>
+                  <span className="chip-name">{s.name}</span>
                   {prog[s.id]?.group ? <span className="sr-only"> (sorted)</span> : null}
                 </button>
               ))}

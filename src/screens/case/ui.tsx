@@ -9,22 +9,36 @@ export function StepBar({ step, kind = 'case' }: { step: CaseStep; kind?: CaseKi
   const steps = stepsFor(kind)
   const idx = steps.findIndex((s) => s.id === step)
   return (
-    <ol className="stepbar" data-testid="step-indicator" aria-label="Case progress">
-      {steps.map((s, i) => (
-        <li
-          key={s.id}
-          className={i < idx ? 'done' : i === idx ? 'now' : ''}
-          aria-current={i === idx ? 'step' : undefined}
-          data-step={s.id}
-        >
-          <span className="step-mark" aria-hidden="true">
-            {i < idx ? '\u2713' : i + 1}
-          </span>
-          <span>{s.label}</span>
-          {i < idx ? <span className="sr-only"> (done)</span> : null}
-        </li>
-      ))}
-    </ol>
+    <div className="stepwrap">
+      <ol className="stepbar" data-testid="step-indicator" aria-label="Case progress">
+        {steps.map((s, i) => (
+          <li
+            key={s.id}
+            className={i < idx ? 'done' : i === idx ? 'now' : ''}
+            aria-current={i === idx ? 'step' : undefined}
+            data-step={s.id}
+          >
+            <span className="step-mark" aria-hidden="true">
+              {i < idx ? '\u2713' : i + 1}
+            </span>
+            <span className="step-label">{s.label}</span>
+            {i < idx ? <span className="sr-only"> (done)</span> : null}
+          </li>
+        ))}
+      </ol>
+      {/* Narrow and short screens show this single row instead of the seven step pills. */}
+      <p className="step-compact" data-testid="step-compact" aria-hidden="true">
+        <span className="mono step-compact-label">{steps[idx]?.label}</span>
+        <span className="mono step-compact-count">
+          {idx + 1}/{steps.length}
+        </span>
+        <span className="step-dots">
+          {steps.map((s, i) => (
+            <i key={s.id} className={i < idx ? 'done' : i === idx ? 'now' : ''} />
+          ))}
+        </span>
+      </p>
+    </div>
   )
 }
 
