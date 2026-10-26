@@ -361,39 +361,6 @@ export function crabModel(b: Builder): void {
 
 // ---------- Brown pelican ----------
 
-export function pelicanModel(b: Builder): void {
-  const brown = '#7a6a5a'
-  const wing = paintWith(countershade(brown, '#a99887', 0, 0.6), (t, _c, _s, out) => {
-    lerpHex(out, '#cfc6b4', (1 - smooth(0.0, 0.3, t)) * 0.4)
-    lerpHex(out, '#3f342a', smooth(0.5, 0.85, t) * 0.85)
-  })
-  // Plump body with a deep chest, held a little tilted.
-  b.limb([[-1.15, 1.05, 0], [-0.3, 1.15, 0], [0.55, 1.22, 0], [0.95, 1.3, 0]], [[0.3, 0.3], [0.78, 0.68], [0.66, 0.6], [0.38, 0.36]], {}, { paint: mottle(countershade('#8a7966', '#b3a68f', 0, 0.5), 0.07, 1.4, 4), radial: 28, seg: 9, cap: 7 })
-  // S curved neck: dark chestnut at the back, white in front, rising into a pale head.
-  const neck = paintWith(countershade('#e6dcc0', '#e6dcc0'), (t, _c, sn, out) => {
-    lerpHex(out, '#4f3b2c', (1 - smooth(0.15, 0.6, t)) * 0.85 * smooth(-0.2, 0.7, sn))
-    lerpHex(out, '#f4ecc4', smooth(0.75, 1, t) * 0.7)
-  })
-  b.limb([[0.7, 1.4, 0], [1.05, 1.75, 0], [0.8, 2.1, 0], [0.95, 2.42, 0], [1.3, 2.58, 0]], [[0.3, 0.3], [0.2, 0.2], [0.14, 0.14], [0.15, 0.15], [0.2, 0.2]], {}, { paint: neck, radial: 20, seg: 9, cap: 6 })
-  // pale, yellow washed crown
-  b.ell([1.38, 2.64, 0], [0.26, 0.19, 0.19], '#f3e6b8', [0, 0, -0.1], 20, 14)
-  // long slender bill, pale gray with a hooked tip, and the pouch slung beneath it
-  b.limb([[1.5, 2.6, 0], [2.15, 2.44, 0], [2.85, 2.2, 0]], [[0.09, 0.075], [0.08, 0.06], [0.04, 0.03]], { c: '#bda987' }, { radial: 14, seg: 8, cap: 5 })
-  b.limb([[2.82, 2.21, 0], [2.95, 2.14, 0], [2.97, 2.05, 0]], [0.036, 0.03, 0.012], { c: '#a08558' }, { radial: 8, seg: 4, cap: 3 })
-  const pouch = paintWith(countershade('#c9a27a', '#dcbb95', 0, 0.5), (t, _c, _s, out) => lerpHex(out, '#8f7253', smooth(0.7, 1, t) * 0.6))
-  b.limb([[1.5, 2.52, 0], [2.0, 2.32, 0], [2.7, 2.14, 0]], [[0.1, 0.09], [0.15, 0.22], [0.04, 0.04]], { m: THIN }, { radial: 18, seg: 9, cap: 5, paint: pouch })
-  b.limb([[1.5, 2.5, 0], [1.2, 2.38, 0], [0.98, 2.28, 0]], [[0.1, 0.09], [0.11, 0.09], [0.07, 0.06]], { m: THIN }, { radial: 12, seg: 6, cap: 3, paint: pouch })
-  for (const k of mirrorZ) {
-    eye(b, [1.42, 2.7, k * 0.15], 0.06, [0.4, 0.2, k], '#f3ecd0', false, DARK, '#7d6a52')
-    // folded wing: deep shoulder tapering into long dark primaries that cross over the tail
-    b.limb([[0.5, 1.46, k * 0.6], [-0.2, 1.36, k * 0.68], [-0.95, 1.1, k * 0.58], [-1.7, 0.82, k * 0.4], [-2.2, 0.68, k * 0.3]], [[0.1, 0.22], [0.14, 0.42], [0.1, 0.32], [0.05, 0.14], [0.02, 0.04]], { m: THIN }, { radial: 16, seg: 7, cap: 4, paint: mottle(wing, 0.07, 1.5, 5) })
-    // short dark legs with webbed feet
-    b.limb([[0.14, 0.8, k * 0.25], [0.14, 0.42, k * 0.25], [0.16, 0.06, k * 0.25]], [0.1, 0.07, 0.055], { c: '#4a4339' }, { radial: 10, seg: 5, cap: 3 })
-    b.ell([0.4, 0.04, k * 0.25], [0.36, 0.035, 0.21], '#595044', [0, k * 0.15, 0], 16, 8)
-  }
-  fin(b, [[-0.95, 1.02, 0], [-1.5, 0.78, 0], [-1.95, 0.58, 0]], [0.28, 0.24, 0.04], 0.05, '#5e5145', 'xz')
-}
-
 // ---------- Green tree frog ----------
 
 export function frogModel(b: Builder): void {

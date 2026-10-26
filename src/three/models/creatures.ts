@@ -4,8 +4,9 @@ import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, mott
 
 import { pantherModel } from './panther'
 import { owlModel } from './owl'
+import { pelicanModel } from './pelican'
 import { grasshopperModel } from './grasshopper'
-import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, manateeModel, mirrorZ, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
+import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, manateeModel, mirrorZ, paw, sharkModel, spiderModel, toes } from './animals'
 
 // ---------- Lab B: dog-like mammal and flowering tree ----------
 

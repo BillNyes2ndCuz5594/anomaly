@@ -3,6 +3,7 @@ import { chain, cone, ellipsoid, makeField, makeSdf, meshField, primBounds, rayc
 import { humanModel } from './human'
 import { humanSkinField } from './humanSkin'
 import { pantherPrims, pawSpots } from './panther'
+import { pelicanBody, pelicanNeck, pelicanWings } from './pelican'
 import { BRANCH, owlPrims, owlTail, owlWings } from './owl'
 import { HIND, grasshopperBody, grasshopperEyes, grasshopperFemora, grasshopperHead, grasshopperPrims, grasshopperWings } from './grasshopper'
 import { Builder } from './builder'
@@ -205,5 +206,17 @@ describe('grasshopper sculpt', () => {
       expect(head(...c)).toBeLessThan(0.1)
       expect(f(...c)).toBeLessThan(0)
     }
+  })
+})
+
+describe('brown pelican sculpt', () => {
+  it('has a deep body, long folded wings and a neck rising well above the back', () => {
+    const body = primBounds(pelicanBody(), 0)
+    const wings = primBounds(pelicanWings(), 0)
+    const neck = primBounds(pelicanNeck(), 0)
+    expect(body.hi[1] - body.lo[1]).toBeGreaterThan(1.0)
+    expect(wings.lo[0]).toBeLessThan(body.lo[0] - 0.8)
+    expect(neck.hi[1]).toBeGreaterThan(body.hi[1] + 0.8)
+    expect(neck.hi[0]).toBeGreaterThan(1.2)
   })
 })
