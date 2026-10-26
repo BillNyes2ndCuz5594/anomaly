@@ -2390,6 +2390,17 @@ a,
   }
 }
 
+/* ---------- tablet portrait: a fixed height sheet, so the job card sits right on it and the model gets the top half ---------- */
+@media (min-width: 601px) and (max-width: 900px) and (orientation: portrait) {
+  :root {
+    --sheet-h: 48dvh;
+  }
+  .side-panel {
+    height: var(--sheet-h);
+    max-height: none;
+  }
+}
+
 /* ---------- compact header: one row, never wraps or overlaps ---------- */
 @media (max-width: 600px), (max-height: 500px) and (orientation: landscape) {
   :root {
