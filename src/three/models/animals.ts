@@ -438,52 +438,6 @@ export function frogModel(b: Builder): void {
   b.limb([[1.52, 0.64, 0.0], [1.22, 0.72, -0.3], [0.78, 0.72, -0.42]], 0.012, { c: '#2d6a2a' }, { radial: 6, seg: 5, cap: 2 })
 }
 
-// ---------- Barred owl ----------
-
-export function owlModel(b: Builder): void {
-  const brown = '#6a5440'
-  const cream = '#dccfb2'
-  const bars = mottle(
-    (t, cs, sn, out) => {
-      // On this upright body cs runs front (negative) to back, so the pale breast is the front half. It is crossed by
-      // dark bars high up and streaked lower down; the back is dark brown flecked with pale spots.
-      const front = smooth(-0.1, 0.55, -cs)
-      out.set(brown)
-      lerpHex(out, cream, front * 0.9)
-      const bar = smooth(0.2, 0.5, 0.5 - Math.abs(((t * 13) % 1) - 0.5)) * smooth(0.1, 0.5, front)
-      lerpHex(out, '#4b3a2b', bar * 0.75 * smooth(0.2, 0.55, t) * (1 - smooth(0.7, 0.9, t)))
-      const streak = smooth(0.55, 0.8, Math.sin(sn * 22 + cs * 9)) * smooth(0.1, 0.5, front) * (1 - smooth(0.2, 0.4, t)) * smooth(0.05, 0.2, t)
-      lerpHex(out, '#5a4634', streak * 0.6)
-      const fleck = smooth(0.78, 0.9, Math.sin(t * 61 + cs * 13) * Math.sin(sn * 17 + t * 29))
-      lerpHex(out, '#e6dcc4', fleck * 0.5 * (1 - front))
-    },
-    0.08,
-    2.2,
-    11,
-  )
-  // upright teardrop body and a big round head with no neck
-  b.limb([[0, 0.45, 0], [0, 1.2, 0], [0.03, 1.9, 0]], [[0.3, 0.3], [0.58, 0.64], [0.5, 0.56]], {}, { paint: bars, radial: 32, seg: 10, cap: 8 })
-  b.ell([0.06, 2.22, 0], [0.5, 0.44, 0.56], '#7d6853', [0, 0, 0], 32, 22)
-  for (const k of mirrorZ) {
-    // pale facial discs with a darker ruff, dark brow, and large dark eyes
-    b.ell([0.4, 2.22, k * 0.25], [0.12, 0.34, 0.3], '#ddd2b9', [0, k * 0.12, 0], 20, 14)
-    b.torus(0.3, 0.035, { p: [0.47, 2.22, k * 0.25], r: [0, Math.PI / 2 - k * 0.15, 0], s: [0.95, 1.2, 1], c: '#6d5a46' }, 8, 28)
-    b.ell([0.42, 2.46, k * 0.22], [0.12, 0.05, 0.2], '#4a3a2c', [0, k * 0.1, -0.15], 12, 8)
-    eye(b, [0.47, 2.26, k * 0.22], 0.105, [0.7, 0.1, k * 0.5], '#1a120d', false, '#030303', '#4a3a2c')
-    // folded wing along the side, long primaries toward the tail
-    b.limb([[0.0, 1.8, k * 0.58], [-0.12, 1.2, k * 0.66], [-0.28, 0.6, k * 0.54], [-0.5, 0.15, k * 0.38]], [[0.4, 0.1], [0.42, 0.11], [0.28, 0.08], [0.06, 0.03]], { m: THIN }, { radial: 16, seg: 8, cap: 5, paint: mottle(countershade('#5d4938', '#7a6650', 0, 0.8), 0.14, 2, 5) })
-    // feathered legs and gripping feet
-    b.limb([[0.15, 0.5, k * 0.22], [0.16, 0.2, k * 0.22]], [0.1, 0.085], { c: '#cbbd9f' }, { radial: 10, seg: 3, cap: 3 })
-    toes(b, [0.2, 0.05, k * 0.22], [-0.45, 0, 0.45], 0.2, 0.045, '#d3c69c', '#2a2218', k)
-  }
-  b.limb([[0.6, 2.2, 0], [0.7, 2.13, 0], [0.74, 2.02, 0]], [0.065, 0.055, 0.018], { c: '#d9b648' }, { radial: 10, seg: 4, cap: 4 })
-  // barred tail
-  fin(b, [[-0.35, 0.75, 0], [-0.55, 0.35, 0], [-0.78, 0.05, 0]], [0.3, 0.26, 0.06], 0.06, '#5f4e3a', 'xy', (t, _c, _s, out) => {
-    out.set('#6d5a45')
-    lerpHex(out, '#3b2f24', smooth(0.2, 0.4, 0.5 - Math.abs(((t * 5) % 1) - 0.5)) * 0.7)
-  })
-}
-
 // ---------- Grasshopper ----------
 
 export function grasshopperModel(b: Builder): void {

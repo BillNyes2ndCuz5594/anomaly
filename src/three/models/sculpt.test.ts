@@ -3,6 +3,7 @@ import { chain, cone, ellipsoid, makeField, meshField, primBounds, raycast, smin
 import { humanModel } from './human'
 import { humanSkinField } from './humanSkin'
 import { pantherPrims, pawSpots } from './panther'
+import { BRANCH, owlPrims, owlTail, owlWings } from './owl'
 import { Builder } from './builder'
 import { sail } from './animals'
 
@@ -122,5 +123,54 @@ describe('fin membrane', () => {
     expect(zmax).toBeGreaterThan(0.005)
     expect(zmin).toBeLessThan(-0.005)
     expect(zmax - zmin).toBeLessThan(0.05)
+  })
+})
+
+describe('barred owl sculpt', () => {
+  const f = makeField(owlPrims()).f
+  const { lo, hi } = primBounds(owlPrims(), 0)
+
+  it('is a compact upright bird: tall, broad across the chest, with a head as wide as the body and no ear tufts', () => {
+    const h = hi[1] - lo[1]
+    const w = hi[2] - lo[2]
+    expect(h).toBeGreaterThan(1.8)
+    expect(h).toBeLessThan(2.8)
+    expect(w).toBeGreaterThan(h * 0.38)
+    expect(w).toBeLessThan(h * 0.65)
+    // widest point of the head is within 15 percent of the widest point of the chest
+    const widthAt = (y: number): number => {
+      let m = 0
+      for (let z = 0; z < 1; z += 0.01) if (f(0.1, y, z) < 0) m = z
+      return m
+    }
+    expect(widthAt(2.14)).toBeGreaterThan(widthAt(1.4) * 0.85)
+    // nothing rises above a smooth dome: the top of the head is a single bump at the middle
+    const top = (z: number): number => {
+      for (let y = 3; y > 1.8; y -= 0.01) if (f(0.12, y, z) < 0) return y
+      return 0
+    }
+    expect(top(0)).toBeGreaterThanOrEqual(top(0.3))
+    expect(top(0.3)).toBeGreaterThanOrEqual(top(0.45))
+  })
+
+  it('has folded wings that wrap the sides and a short tail behind', () => {
+    const wings = makeField(owlWings()).f
+    const wb = primBounds(owlWings(), 0)
+    expect(wb.hi[1]).toBeGreaterThan(1.8)
+    expect(wb.lo[1]).toBeLessThan(0.4)
+    // each wing is thin across the body and sits on the flank
+    expect(wings(0.0, 1.2, 0.54)).toBeLessThan(0)
+    expect(wings(0.0, 1.2, -0.54)).toBeLessThan(0)
+    const tb = primBounds(owlTail(), 0)
+    expect(tb.lo[0]).toBeLessThan(-0.5)
+    expect(tb.hi[2] - tb.lo[2]).toBeGreaterThan(0.3)
+    expect(tb.lo[1]).toBeGreaterThanOrEqual(-0.01)
+  })
+
+  it('perches on a branch under the feet', () => {
+    const ys = BRANCH.map((p) => p[1])
+    expect(Math.min(...ys)).toBeGreaterThan(0.05)
+    const mid = BRANCH.find((p) => Math.abs(p[2]) < 0.1)!
+    expect(mid[1]).toBeLessThan(lo[1] + 0.5)
   })
 })
