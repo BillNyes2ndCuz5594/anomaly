@@ -45,11 +45,11 @@ const SWAY_BODY = 0.5
 const SWAY_SPECIMEN = 0.3
 const SPECIMEN_YAW = DISPLAY_YAW
 
-function OrganVisual({ highlight }: { highlight: string[] }) {
+function OrganVisual({ highlight, low }: { highlight: string[]; low: boolean }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const content = useRef<THREE.Group>(null)
   // The whole body at every point of its sway, plus the base ring.
-  const box = useMemo(() => unionBox(sweepYaw(humanModel().box, STILL ? 0.4 : SWAY_BODY, 24, STILL ? 0.3 : 0), ringBox(RING)), [])
+  const box = useMemo(() => unionBox(sweepYaw(humanModel(low).box, STILL ? 0.4 : low ? 0.2 : SWAY_BODY, 24, STILL ? 0.3 : 0), ringBox(RING)), [low])
   const view = useMemo(() => ({ box, elevation: 0.14 }), [box])
   return (
     <>
@@ -66,16 +66,21 @@ function OrganVisual({ highlight }: { highlight: string[] }) {
 const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
 const FIT = 3.0
 
-/** Centers of a row of specimens, spaced by their own base rings so wide and narrow animals sit evenly. */
+/** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
 function rowX(ids: string[]): number[] {
-  const r = ids.map((id) => specimenRing(id, FIT))
+  const yaw = STILL ? STILL_YAW : SPECIMEN_YAW
+  const sway = STILL ? 0.02 : SWAY_SPECIMEN
+  const ext = ids.map((id) => {
+    const xs = specimenOutline(id, FIT, yaw, sway).map((p) => p[0])
+    return { l: -Math.min(...xs), r: Math.max(...xs) }
+  })
   const xs: number[] = []
   let x = 0
-  r.forEach((ri, i) => {
-    if (i > 0) x += r[i - 1] + ri + 0.5
+  ext.forEach((e, i) => {
+    if (i > 0) x += ext[i - 1].r + e.l + 0.5
     xs.push(x)
   })
-  const mid = (xs[0] + xs[xs.length - 1]) / 2
+  const mid = (xs[0] - ext[0].l + xs[xs.length - 1] + ext[ext.length - 1].r) / 2
   return xs.map((v) => v - mid)
 }
 
@@ -130,15 +135,16 @@ export default function ItemVisualCanvas({ visual }: { visual: Visual }) {
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
   const tierRef = useRef(tier)
-  const dpr = dprForTier(tier, window.devicePixelRatio)
-  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}), [])
+  // These canvases are small, so Low tier still gets a sharp image: up to 2x pixels and edge smoothing.
+  const dpr = tier === 'low' ? Math.max(dprForTier(tier, window.devicePixelRatio), Math.min(window.devicePixelRatio || 1, 2)) : dprForTier(tier, window.devicePixelRatio)
+  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}, tierRef.current === 'low'), [])
   const camera = useMemo(() => ({ fov: 35, near: 0.1, far: 120, position: [0, 3, 12] as [number, number, number] }), [])
 
   return (
     <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
       <color attach="background" args={['#091222']} />
       {visual.kind === 'specimen' ? <SpecimenLights /> : <Lights />}
-      {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} /> : null}
+      {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} low={tier === 'low'} /> : null}
       {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} /> : null}
       {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} /> : null}
     </Canvas>

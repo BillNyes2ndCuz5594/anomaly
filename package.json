@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "node scripts/check-assets.mjs && vitest run",
     "proof": "node scripts/proof.mjs",
     "mobile": "node scripts/mobile.mjs",
     "icons": "node scripts/gen-icons.mjs"

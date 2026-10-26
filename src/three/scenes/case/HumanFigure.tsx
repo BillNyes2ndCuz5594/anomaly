@@ -5,7 +5,7 @@ import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, humanShell, organMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
-import { pointerHandlers } from './common'
+import { pointerHandlers, useTier } from './common'
 
 export interface HumanFigureProps {
   /** lab: interactive with hover and flashes. visual: static highlights for item art. */
@@ -122,7 +122,8 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
  */
 export default function HumanFigure({ mode, highlight = [], spin = false, reduced = false, showMuscles = false, scale = 1, children }: HumanFigureProps) {
   const group = useRef<THREE.Group>(null)
-  const model = useMemo(() => humanModel(), [])
+  const low = useTier() === 'low'
+  const model = useMemo(() => humanModel(low), [low])
   const skinMat = useMemo(() => humanShell(SKIN_TINT, 0.9), [])
   const depthMat = useMemo(() => depthOnlyMaterial(), [])
   const muscleMat = useMemo(() => tintedHolo('#E69F00', 0.9, true, false), [])
@@ -150,7 +151,10 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
       if (STILL) {
         g.rotation.y = 0.3
       } else if (mode === 'visual') {
-        g.rotation.y = reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.6) * 0.5
+        // Low tier keeps the body facing the viewer: a small sway instead of the wider turn.
+        g.rotation.y = reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.6) * (low ? 0.2 : 0.5)
+      } else if (low && spin) {
+        g.rotation.y = reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.4) * 0.55
       } else if (spin && !reduced) {
         const hovering = mode === 'lab' && useFx.getState().hover !== null
         speed.current += ((hovering ? 0 : 1) - speed.current) * Math.min(1, dt * 6)

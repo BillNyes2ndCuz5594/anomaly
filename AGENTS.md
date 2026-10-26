@@ -7,3 +7,5 @@
 - Content accuracy: never edit item science content without keeping the schema test green; do not invent new items unless the stage says so.
 - Never push, never touch git remotes. Commit locally on the current branch with clear messages. The human pushes.
 - Before finishing: `npm run build` and `npm test` must pass and `node scripts/proof.mjs` must report zero console errors.
+- Orphan-asset guard: `npm test` runs scripts/check-assets.mjs first. Every file under public/art/ or src/assets/ must be referenced by file name in src/, index.html, teacher.html or vite.config.ts, else the test run fails with the list.
+- Self-test lives in src/lib/checkAssets.test.ts (uses a temp dir). Do not leave fixtures in public/.

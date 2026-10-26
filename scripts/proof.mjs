@@ -437,7 +437,7 @@ let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: CHROME_ARGS })
+  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
   writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
@@ -705,6 +705,35 @@ try {
     await shot(page, 'item-rkea', 1280)
     const fits = await fitReport(page)
     check('organ item model fits at 1280x720', fits.length >= 1 && fits.every((f) => f.over <= 0.001), fits.map((f) => f.over.toFixed(3)).join(','))
+    await page.close()
+  }
+
+  // S11: specimens in the real item player. ?qaitems deep links the case to the organ item, owl and pelican,
+  // grasshopper and spider, panther and crab, and the four-animal group item, shot at 1920 as s11-gameplay-<id>-1920.png.
+  {
+    const ids = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L315-01', 'L142-07']
+    const page = await profilePage(browser, BASE, `${QS}&qaitems=${ids.join(",")}`, VIEWPORTS.find((v) => v.width === 1920), errors)
+    await toCaseStep(page, 'items')
+    for (const id of ids) {
+      const item = CONTENT.items.find((x) => x.id === id)
+      await page.waitForSelector('[data-testid="stem"]')
+      check(`gameplay deep link shows ${id} in the real item player`, tokenize(await text(page, 'stem')).join(' ') === tokenize(item.stem).join(' '))
+      await sleep(5500)
+      const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+      await page.waitForFunction((f) => (window.__anomaly?.frame ?? 0) >= f + 3, { timeout: 60000, polling: 200 }, f0).catch(() => {})
+      const a = await page.evaluate(() => window.__anomaly)
+      sceneStats[`gameplay-${id}`] = { tier: a.tier, backend: a.backend, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures }
+      const fits = await fitReport(page)
+      check(`gameplay ${id} model fully inside its canvas with margin (1920)`, fits.length >= 1 && fits.every((f) => f.over <= -0.02), fits.map((f) => f.over.toFixed(3)).join(','))
+      await page.screenshot({ path: `${OUT}/s11-gameplay-${id}-1920.png` })
+      shots.push(`s11-gameplay-${id}-1920.png`)
+      await click(page, `option-${item.key}`)
+      await click(page, 'lock-in')
+      await page.waitForSelector('[data-testid="item-result"]')
+      await sleep(300)
+      await click(page, 'next-item')
+      await sleep(400)
+    }
     await page.close()
   }
 
@@ -996,7 +1025,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1
+  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 // 6 = s11-gameplay shots at 1920
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
