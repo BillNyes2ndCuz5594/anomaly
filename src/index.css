@@ -3118,3 +3118,77 @@ a,
     font-size: 0.875rem;
   }
 }
+
+/* S12: evidence on large screens (1500+ wide, 900+ tall). The stage is the hero: wider left column, bigger question,
+   and the answer panel stretches to the full height so there is no dead half screen. 1280 and 1366 are untouched. */
+@media (min-width: 1500px) and (min-height: 900px) {
+  .item-grid {
+    left: 48px;
+    right: 48px;
+    bottom: 40px;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: 32px;
+  }
+  .item-main {
+    gap: 16px;
+  }
+  .stem-panel {
+    padding: 18px 28px 12px;
+  }
+  .stem {
+    font-size: 1.4rem;
+  }
+  .visual-3d {
+    min-height: 320px;
+  }
+  .captions {
+    font-size: 1.05rem;
+    padding: 10px 18px 14px;
+  }
+  .item-side .options-panel {
+    flex: 1;
+    min-height: 0;
+    padding: 28px 30px 24px;
+    gap: 16px;
+  }
+  .item-side .options {
+    flex: 1;
+    gap: 16px;
+  }
+  .item-side .opt {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .item-side .opt-btn {
+    flex: 1;
+    min-height: 88px;
+    font-size: 1.3rem;
+    gap: 20px;
+    padding: 12px 22px;
+  }
+  .item-side .opt-letter {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+  .item-side .opt-why {
+    font-size: 1.05rem;
+    padding: 0 22px 14px 86px;
+  }
+  .item-side .dispatch-line {
+    font-size: 1.05rem;
+  }
+  .item-side .item-actions {
+    gap: 12px;
+  }
+  .item-side .item-actions .btn {
+    min-height: 56px;
+    font-size: 1rem;
+    padding: 0 22px;
+  }
+  .item-side .kbd-hint {
+    font-size: 0.85rem;
+  }
+}
