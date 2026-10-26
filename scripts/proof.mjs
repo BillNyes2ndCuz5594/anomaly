@@ -712,7 +712,7 @@ try {
   // grasshopper and spider, panther and crab, and the four-animal group item, shot at 1920 as s11-gameplay-<id>-1920.png.
   {
     const ids = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L315-01', 'L142-07']
-    const page = await profilePage(browser, BASE, `${QS}&qaitems=${ids.join(',')}`, VIEWPORTS[0], errors)
+    const page = await profilePage(browser, BASE, `${QS}&qaitems=${ids.join(",")}`, VIEWPORTS.find((v) => v.width === 1920), errors)
     await toCaseStep(page, 'items')
     for (const id of ids) {
       const item = CONTENT.items.find((x) => x.id === id)
@@ -1025,7 +1025,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1
+  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 // 6 = s11-gameplay shots at 1920
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
