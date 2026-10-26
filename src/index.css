@@ -3045,3 +3045,76 @@ a,
     min-height: 48px;
   }
 }
+
+/* ======================================================================
+   S12: evidence screen with a 3D stage.
+   Compact landscape (phone on its side): the specimen stage is pinned on the left for the whole item, the
+   header, question and answers scroll together on the right, so the models and the question share the first view.
+   ====================================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .item-grid.stage-3d {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    align-items: start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    gap: 8px 10px;
+  }
+  .item-grid.stage-3d .item-main {
+    display: contents;
+  }
+  .item-grid.stage-3d .item-head {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .item-grid.stage-3d .stem-panel {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .item-grid.stage-3d .item-side {
+    grid-column: 2;
+    grid-row: 3;
+    overflow: visible;
+  }
+  .item-grid.stage-3d .visual-panel {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: calc(100dvh - var(--bar-h) - var(--sa-b) - 6px);
+    min-height: 0;
+  }
+  .item-grid.stage-3d .visual-3d {
+    min-height: 0;
+  }
+  .item-grid.stage-3d .captions {
+    font-size: 0.875rem;
+    line-height: 1.2;
+    padding: 4px 8px 6px;
+    gap: 6px;
+  }
+  .item-grid.stage-3d .captions li {
+    padding-top: 3px;
+  }
+  .item-grid.stage-3d .part-chips {
+    padding: 4px 8px 6px;
+  }
+  .item-grid.stage-3d .stem {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  .item-grid.stage-3d .stem-panel {
+    padding: 6px 10px 4px;
+  }
+  .item-grid.stage-3d .stem-foot .muted {
+    display: none;
+  }
+  .item-grid.stage-3d .chip-r {
+    font-size: 0.875rem;
+  }
+  .item-grid.stage-3d .item-head .tiny {
+    font-size: 0.875rem;
+  }
+}
