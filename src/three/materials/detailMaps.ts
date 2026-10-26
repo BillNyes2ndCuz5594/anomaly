@@ -224,7 +224,7 @@ export const SPECIMEN_LOOK: Record<string, DetailLook> = {
   'brown-pelican': { kind: 'feather', freq: 0.7, bump: 0.01, rough: 0.7, roughVar: 0.3, cavity: 0.35 },
   'barred-owl': { kind: 'fur', freq: 1.1, bump: 0.006, rough: 0.85, roughVar: 0.25, cavity: 0.25 },
   'green-tree-frog': { kind: 'skin', freq: 0.9, bump: 0.02, rough: 0.3, roughVar: 0.3, cavity: 0.3 },
-  grasshopper: { kind: 'grain', freq: 1.2, bump: 0.01, rough: 0.42, roughVar: 0.3, cavity: 0.3 },
+  grasshopper: { kind: 'grain', freq: 2.2, bump: 0.0035, rough: 0.36, roughVar: 0.3, cavity: 0.22 },
   'garden-spider': { kind: 'grain', freq: 1.6, bump: 0.008, rough: 0.5, roughVar: 0.3, cavity: 0.3 },
 }
 

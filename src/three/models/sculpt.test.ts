@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { chain, cone, ellipsoid, makeField, meshField, primBounds, raycast, smin } from './sculpt'
+import { chain, cone, ellipsoid, makeField, makeSdf, meshField, primBounds, raycast, smin } from './sculpt'
 import { humanModel } from './human'
 import { humanSkinField } from './humanSkin'
 import { pantherPrims, pawSpots } from './panther'
 import { BRANCH, owlPrims, owlTail, owlWings } from './owl'
+import { HIND, grasshopperBody, grasshopperEyes, grasshopperFemora, grasshopperHead, grasshopperPrims, grasshopperWings } from './grasshopper'
 import { Builder } from './builder'
 import { sail } from './animals'
 
@@ -172,5 +173,37 @@ describe('barred owl sculpt', () => {
     expect(Math.min(...ys)).toBeGreaterThan(0.05)
     const mid = BRANCH.find((p) => Math.abs(p[2]) < 0.1)!
     expect(mid[1]).toBeLessThan(lo[1] + 0.5)
+  })
+})
+
+describe('grasshopper sculpt', () => {
+  const all = grasshopperPrims()
+  const f = makeField(all).f
+  const { lo, hi } = primBounds(all, 0)
+
+  it('is long and low, with the head at the front and wings folded past the abdomen', () => {
+    expect(hi[0] - lo[0]).toBeGreaterThan((hi[1] - lo[1]) * 2.2)
+    const wb = primBounds(grasshopperWings(), 0)
+    const ab = primBounds(grasshopperBody(), 0)
+    // forewings run back to the tip of the abdomen (the cerci) and start behind the head
+    expect(wb.lo[0]).toBeLessThan(ab.lo[0] + 0.2)
+    expect(wb.hi[0]).toBeLessThan(primBounds(grasshopperHead(), 0).hi[0])
+  })
+
+  it('has hind femora far thicker than the tibiae and the other legs, and compound eyes set flush in the head', () => {
+    const rs = HIND(1).length
+    expect(rs).toBe(4)
+    const femur = makeSdf(grasshopperFemora())
+    // the thick part of the femur is at least 0.15 deep at its middle
+    let depth = 0
+    for (let y = 0.7; y < 1.5; y += 0.01) if (femur(-0.65, y, 0.33) < 0) depth += 0.01
+    expect(depth).toBeGreaterThan(0.28)
+    // an eye center is inside the head shell: nothing sticks out of it by more than a small bump
+    const head = makeSdf(grasshopperHead())
+    for (const e of grasshopperEyes()) {
+      const c: [number, number, number] = [(e.lo[0] + e.hi[0]) / 2, (e.lo[1] + e.hi[1]) / 2, (e.lo[2] + e.hi[2]) / 2]
+      expect(head(...c)).toBeLessThan(0.1)
+      expect(f(...c)).toBeLessThan(0)
+    }
   })
 })

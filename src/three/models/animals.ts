@@ -438,41 +438,6 @@ export function frogModel(b: Builder): void {
   b.limb([[1.52, 0.64, 0.0], [1.22, 0.72, -0.3], [0.78, 0.72, -0.42]], 0.012, { c: '#2d6a2a' }, { radial: 6, seg: 5, cap: 2 })
 }
 
-// ---------- Grasshopper ----------
-
-export function grasshopperModel(b: Builder): void {
-  const green = '#86b53a'
-  const body = mottle(
-    paintWith(countershade('#8cbc3a', '#d3df8a', -0.1, 0.5), (t, _cs, sn, out) => {
-      lerpHex(out, '#e7e07a', smooth(0, 0.18, 0.12 - Math.abs(sn - 0.4)) * 0.7)
-      // fine dark lines between the abdomen segments
-      lerpHex(out, '#4c6420', smooth(0.82, 0.98, Math.sin(t * 95)) * 0.5 * (1 - smooth(0.5, 0.8, t)))
-    }),
-    0.07,
-    1.6,
-    2,
-  )
-  b.limb([[-1.5, 0.8, 0], [-0.7, 0.84, 0], [0.1, 0.86, 0], [0.6, 0.88, 0]], [[0.06, 0.06], [0.2, 0.22], [0.2, 0.22], [0.14, 0.16]], {}, { paint: body, radial: 20, seg: 12, cap: 6 })
-  // head: tall face, big compound eyes, short antennae
-  b.ell([0.95, 0.86, 0], [0.3, 0.3, 0.24], '#7fae36', [0, 0, -0.1], 24, 16)
-  b.ell([1.1, 0.68, 0], [0.16, 0.12, 0.17], '#b9d062', [0, 0, 0], 14, 10)
-  for (const k of mirrorZ) {
-    b.ell([1.0, 0.99, k * 0.17], [0.13, 0.14, 0.09], '#5c7f2a', [0, 0, 0], 14, 10)
-    eye(b, [1.04, 1.0, k * 0.2], 0.1, [0.4, 0.3, k], '#c9b44f', false, '#1a1608', '#6b8a2d')
-    b.limb([[1.15, 1.08, k * 0.07], [1.5, 1.45, k * 0.2], [1.95, 1.7, k * 0.35]], [0.026, 0.02, 0.012], { c: '#3a4a20' }, { radial: 6, seg: 6, cap: 2 })
-    // long folded wings with veins, lying along the back
-    fin(b, [[0.45, 1.05, k * 0.1], [-0.4, 1.08, k * 0.18], [-1.15, 1.0, k * 0.2], [-1.65, 0.9, k * 0.17]], [0.1, 0.14, 0.11, 0.02], 0.014, '#b3d56a', 'xz', undefined, 14)
-    // jumping hind leg: heavy ridged femur, long spiny tibia, foot
-    b.limb([[-0.15, 0.74, k * 0.2], [-0.6, 1.22, k * 0.34], [-1.3, 0.62, k * 0.36]], [0.12, 0.135, 0.05], { c: '#7da82e' }, { radial: 14, seg: 8, cap: 4, paint: mottle(countershade('#7fab30', '#a9c850', 0, 0.8), 0.1, 2, 3) })
-    b.ell([-1.3, 0.62, k * 0.36], [0.07, 0.07, 0.07], '#2f3c18', [0, 0, 0], 8, 6)
-    b.limb([[-1.3, 0.62, k * 0.36], [-1.58, 0.28, k * 0.38], [-1.5, 0.05, k * 0.38]], [0.05, 0.04, 0.03], { c: '#58792a' }, { radial: 10, seg: 5, cap: 3 })
-    for (let i = 0; i < 4; i++) b.ell([-1.38 - i * 0.05, 0.5 - i * 0.1, k * 0.4], [0.025, 0.04, 0.02], '#2f3c18', [0, 0, 0], 5, 4)
-    for (const [x0, dx] of [[0.5, 0.25], [0.2, 0.1]] as [number, number][]) {
-      b.limb([[x0, 0.72, k * 0.15], [x0 + dx * 0.8, 0.4, k * 0.42], [x0 + dx * 1.3, 0.04, k * 0.5]], [0.055, 0.042, 0.03], { c: green }, { radial: 10, seg: 5, cap: 3 })
-    }
-  }
-}
-
 // ---------- Fin membranes ----------
 
 /**
