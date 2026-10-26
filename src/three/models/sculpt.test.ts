@@ -3,6 +3,8 @@ import { chain, cone, ellipsoid, makeField, meshField, primBounds, raycast, smin
 import { humanModel } from './human'
 import { humanSkinField } from './humanSkin'
 import { pantherPrims, pawSpots } from './panther'
+import { Builder } from './builder'
+import { sail } from './animals'
 
 describe('sculpt kit', () => {
   it('blends two distances smoothly and never above the plain minimum', () => {
@@ -97,5 +99,28 @@ describe('human skin sculpt', () => {
     expect(widthAt(5.62)).toBeLessThan(widthAt(5.0) * 0.6)
     // waist narrower than the ribs
     expect(widthAt(3.85)).toBeLessThan(widthAt(4.7))
+  })
+})
+
+describe('fin membrane', () => {
+  it('builds a thin indexed two faced sheet that faces along its plane normal', () => {
+    const base: [number, number, number][] = [0, 1, 2, 3].map((i) => [i * 0.2, 0, 0])
+    const edge: [number, number, number][] = [0, 1, 2, 3].map((i) => [i * 0.2, 1, 0])
+    const b = new Builder()
+    sail(b, base, edge, 0.02, '#5d8a3c', { rows: 3, rays: 10 })
+    const g = b.build()
+    expect(g.index).not.toBeNull()
+    const pos = g.getAttribute('position')
+    const nor = g.getAttribute('normal')
+    let zmin = Infinity
+    let zmax = -Infinity
+    for (let i = 0; i < pos.count; i++) {
+      zmin = Math.min(zmin, pos.getZ(i))
+      zmax = Math.max(zmax, pos.getZ(i))
+      expect(Math.abs(Math.hypot(nor.getX(i), nor.getY(i), nor.getZ(i)) - 1)).toBeLessThan(1e-3)
+    }
+    expect(zmax).toBeGreaterThan(0.005)
+    expect(zmin).toBeLessThan(-0.005)
+    expect(zmax - zmin).toBeLessThan(0.05)
   })
 })

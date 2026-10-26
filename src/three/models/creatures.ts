@@ -3,7 +3,7 @@ import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, mottle, recenter, smooth, spineAt, type V3 } from './builder'
 
 import { pantherModel } from './panther'
-import { alignX, bassModel, DARK, crabModel, eye, frogModel, gatorModel, grasshopperModel, manateeModel, mirrorZ, owlModel, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
+import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, grasshopperModel, manateeModel, mirrorZ, owlModel, paw, pelicanModel, sharkModel, spiderModel, toes } from './animals'
 
 // ---------- Lab B: dog-like mammal and flowering tree ----------
 
@@ -123,6 +123,34 @@ export const plantParts = () => (plantCache ??= buildPlant())
 
 // ---------- Tortoise shell ----------
 
+/**
+ * Overlapping horny scales over a vertical limb: rows down the spine, a few plates around the front and outer face,
+ * each lying on the surface and tipped down so every row laps over the one below.
+ */
+function scalePlates(b: Builder, spine: V3[], radii: [number, number][], k: number, rows: number, angles: number[], size: number, colors: [string, string]): void {
+  for (let i = 0; i < rows; i++) {
+    const t = 0.08 + (0.84 * i) / Math.max(1, rows - 1)
+    const { p } = spineAt(spine, t)
+    const u = t * (spine.length - 1)
+    const i0 = Math.min(spine.length - 2, Math.floor(u))
+    const f = u - i0
+    const w = radii[i0][0] + (radii[i0 + 1][0] - radii[i0][0]) * f
+    const h = radii[i0][1] + (radii[i0 + 1][1] - radii[i0][1]) * f
+    angles.forEach((a, j) => {
+      const aa = a + (i % 2 ? 0.12 : -0.12)
+      const n = new THREE.Vector3(Math.cos(aa) / w, 0, (k * Math.sin(aa)) / h).normalize()
+      const pos: V3 = [p[0] + Math.cos(aa) * w * 0.97, p[1], p[2] + k * Math.sin(aa) * h * 0.97]
+      // local z is the surface normal, tipped down; local x stays horizontal
+      const zA = n.clone().add(new THREE.Vector3(0, -0.3, 0)).normalize()
+      const xA = new THREE.Vector3(0, 1, 0).cross(zA).normalize()
+      const yA = zA.clone().cross(xA)
+      const e = new THREE.Euler().setFromRotationMatrix(new THREE.Matrix4().makeBasis(xA, yA, zA))
+      b.ell(pos, [size * 1.05, size * 0.8, size * 0.32], (i + j) % 2 ? colors[0] : colors[1], [e.x, e.y, e.z], 12, 8)
+    })
+  }
+}
+
+
 /** Seeds of the scute plates in shell space (x along the body, z across), both in -1..1: 5 vertebral, 4 pairs of costal, a marginal ring. */
 export const SCUTE_SEEDS: [number, number][] = (() => {
   const out: [number, number][] = []
@@ -219,17 +247,21 @@ function buildSpecimen(id: string): THREE.BufferGeometry {
       b.limb([[-1.2, 0.34, 0], [-1.6, 0.28, 0], [-1.85, 0.22, 0]], [0.15, 0.09, 0.03], { c: '#7a6844' }, { radial: 10, seg: 4, cap: 3 })
       for (const k of mirrorZ) {
         eye(b, [1.9, 0.72, k * 0.15], 0.045, [0.3, 0.3, k], '#3b3426', false, DARK, '#8d7a50')
-        // forelimb: broad and flattened, armored with overlapping scales, four blunt claws
-        const foreLimb: V3[] = [[0.95, 0.62, k * 0.62], [1.14, 0.36, k * 0.92], [1.28, 0.1, k * 1.0]]
-        b.limb(foreLimb, [[0.3, 0.26], [0.24, 0.17], [0.25, 0.09]], {}, { paint: hide, radial: 20, seg: 7, cap: 4 })
-        for (let i = 0; i < 5; i++) {
-          const { p, tan } = spineAt(foreLimb, 0.14 + i * 0.17)
-          b.ell([p[0] + 0.15, p[1] + 0.03, p[2] + k * 0.05], [0.045, 0.07, 0.1], i % 2 ? '#9a8658' : '#8c784d', alignX(tan), 10, 8)
-        }
-        toes(b, [1.36, 0.06, k * 1.0], [-0.5, -0.17, 0.17, 0.5], 0.14, 0.05, '#7a6a47', '#3d3325', k)
-        // hindlimb: stout and columnar like an elephant's
-        b.limb([[-0.92, 0.58, k * 0.7], [-0.98, 0.32, k * 0.9], [-1.0, 0.1, k * 0.95]], [[0.42, 0.36], [0.32, 0.28], [0.3, 0.22]], {}, { paint: hide, radial: 20, seg: 7, cap: 4 })
-        paw(b, [-0.9, 0, k * 0.97], 0.24, '#8f7b52')
+        // forelimb: a thick, slightly flattened column armored with overlapping scales, blunt dark claws
+        const foreLimb: V3[] = [[0.95, 0.66, k * 0.6], [1.1, 0.38, k * 0.88], [1.22, 0.1, k * 0.98]]
+        const foreR: [number, number][] = [[0.32, 0.27], [0.28, 0.24], [0.28, 0.19]]
+        b.limb(foreLimb, foreR, {}, { paint: hide, radial: 24, seg: 8, cap: 4 })
+        scalePlates(b, foreLimb, foreR, k, 6, [-0.1, 0.45, 1.0, 1.55], 0.1, ['#9d8c65', '#8c7b55'])
+        // broad foot with blunt claws
+        b.ell([1.3, 0.07, k * 1.0], [0.24, 0.07, 0.24], '#8f7b52', [0, 0, 0], 16, 10)
+        toes(b, [1.4, 0.06, k * 1.0], [-0.55, -0.18, 0.18, 0.55], 0.2, 0.06, '#7a6a47', '#2b241a', k)
+        // hindlimb: stout and columnar like an elephant's, with scales
+        const hind: V3[] = [[-0.92, 0.62, k * 0.7], [-0.98, 0.34, k * 0.9], [-1.0, 0.1, k * 0.95]]
+        const hindR: [number, number][] = [[0.42, 0.36], [0.35, 0.3], [0.33, 0.24]]
+        b.limb(hind, hindR, {}, { paint: hide, radial: 24, seg: 8, cap: 4 })
+        scalePlates(b, hind, hindR, k, 5, [0.2, 0.8, 1.4], 0.11, ['#9d8c65', '#8c7b55'])
+        paw(b, [-0.9, 0, k * 0.97], 0.27, '#8f7b52')
+        toes(b, [-0.75, 0.05, k * 0.97], [-0.4, 0, 0.4], 0.17, 0.055, '#7a6a47', '#2b241a', k)
       }
       break
     }

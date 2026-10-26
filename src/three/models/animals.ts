@@ -229,12 +229,53 @@ export function bassModel(b: Builder): void {
     // pectoral fin
     fin(b, [[0.95, -0.14, k * 0.34], [0.62, -0.26, k * 0.6], [0.3, -0.4, k * 0.82]], [0.17, 0.2, 0.05], 0.03, '#9bb96b', 'xz', undefined, 9)
   }
-  // spiny front dorsal fin, notch, then the soft rear dorsal
-  fin(b, [[0.95, 0.55, 0], [0.62, 0.98, 0], [0.15, 1.08, 0]], [0.3, 0.25, 0.03], 0.03, '#2f4b27', 'xy', undefined, 12)
-  fin(b, [[-0.05, 0.54, 0], [-0.38, 0.86, 0], [-0.82, 0.96, 0]], [0.3, 0.22, 0.03], 0.025, fn, 'xy', undefined, 11)
-  // forked tail
-  fin(b, [[-2.3, 0.12, 0], [-2.78, 0.5, 0], [-3.1, 0.92, 0]], [0.14, 0.3, 0.03], 0.03, fn, 'xy', undefined, 10)
-  fin(b, [[-2.3, 0.1, 0], [-2.78, -0.3, 0], [-3.1, -0.74, 0]], [0.14, 0.3, 0.03], 0.03, fn, 'xy', undefined, 10)
+  // spiny front dorsal: stiff spines with a scalloped membrane between them, a notch, then the soft rear dorsal
+  const tops = [0.7, 0.71, 0.72, 0.72, 0.71, 0.7, 0.68, 0.66]
+  const spineX = [1.0, 0.86, 0.72, 0.58, 0.45, 0.32, 0.2, 0.08]
+  const spineH = [0.86, 1.02, 1.1, 1.08, 1.0, 0.92, 0.84, 0.74]
+  const tipsF: V3[] = spineX.map((x, i) => [x - 0.2 - i * 0.012, spineH[i], 0])
+  const m = 3
+  const baseF: V3[] = []
+  const edgeF: V3[] = []
+  for (let c = 0; c <= (spineX.length - 1) * m; c++) {
+    const i = Math.min(spineX.length - 2, Math.floor(c / m))
+    const f = (c - i * m) / m
+    const bx = spineX[i] + (spineX[i + 1] - spineX[i]) * f
+    const by = tops[i] + (tops[i + 1] - tops[i]) * f - 0.1
+    const tx = tipsF[i][0] + (tipsF[i + 1][0] - tipsF[i][0]) * f
+    const ty = tipsF[i][1] + (tipsF[i + 1][1] - tipsF[i][1]) * f
+    const dip = Math.sin(Math.PI * f) * 0.16
+    baseF.push([bx, by, 0])
+    edgeF.push([tx, ty - dip * (ty - by) * 1.4, 0])
+  }
+  sail(b, baseF, edgeF, 0.016, '#51794a', { rows: 5, rays: 0 })
+  spineX.forEach((x, i) => finSpine(b, [x, tops[i] - 0.1, 0], [tipsF[i][0] - 0.02, tipsF[i][1] + 0.03, 0], 0.024, '#25381f'))
+  // soft rear dorsal: rounded, with branching rays
+  {
+    const n = 14
+    const baseS: V3[] = []
+    const edgeS: V3[] = []
+    for (let j = 0; j < n; j++) {
+      const u = j / (n - 1)
+      const x = -0.12 - u * 0.78
+      const top = 0.6 - u * 0.1
+      baseS.push([x, top - 0.06, 0])
+      edgeS.push([x - 0.1 - 0.12 * u, top + 0.46 * Math.sin(Math.PI * Math.min(1, 0.15 + u * 0.95)) * (1 - 0.35 * u) + 0.05, 0])
+    }
+    sail(b, baseS, edgeS, 0.014, '#5d8a3c', { rows: 5, rays: 26 })
+  }
+  // tail: one fan with a shallow notch, fine rays, rounded tips
+  {
+    const n = 17
+    const baseT: V3[] = []
+    const edgeT: V3[] = []
+    for (let j = 0; j < n; j++) {
+      const u = (j / (n - 1)) * 2 - 1
+      baseT.push([-2.3, 0.1 + u * 0.1, 0])
+      edgeT.push([-3.12 + 0.2 * (1 - Math.abs(u) ** 1.7) - 0.05 * (1 - u * u), 0.06 + u * 0.88, 0])
+    }
+    sail(b, baseT, edgeT, 0.022, '#5d8a3c', { rows: 6, rays: 34 })
+  }
   // anal and pelvic fins
   fin(b, [[-0.6, -0.5, 0], [-0.95, -0.78, 0], [-1.25, -0.9, 0]], [0.22, 0.2, 0.03], 0.025, fn, 'xy', undefined, 9)
   fin(b, [[0.55, -0.55, 0], [0.38, -0.88, 0], [0.22, -1.0, 0]], [0.16, 0.14, 0.03], 0.025, '#d9d6a0', 'xy', undefined, 8)
@@ -476,4 +517,69 @@ export function grasshopperModel(b: Builder): void {
       b.limb([[x0, 0.72, k * 0.15], [x0 + dx * 0.8, 0.4, k * 0.42], [x0 + dx * 1.3, 0.04, k * 0.5]], [0.055, 0.042, 0.03], { c: green }, { radial: 10, seg: 5, cap: 3 })
     }
   }
+}
+
+// ---------- Fin membranes ----------
+
+/**
+ * Thin fin membrane between a base curve and a free edge: a grid of rows (base to edge) and columns (along the fin),
+ * two faces that meet at the rim, smooth normals. `rays` paints fine ribs along the columns (radians over the whole fin). One indexed mesh, so it merges into the specimen and shares its material.
+ */
+export function sail(b: Builder, base: V3[], edge: V3[], thick: number, color: string, opts: { rows?: number; rays?: number; plane?: V3 } = {}): void {
+  const rows = opts.rows ?? 5
+  const n = base.length
+  const nrm = new THREE.Vector3(...(opts.plane ?? [0, 0, 1]))
+  const pos: number[] = []
+  const pnt: number[] = []
+  const ids = new Map<string, number>()
+  const vert = (layer: number, r: number, j: number): number => {
+    const rim = r === rows || j === 0 || j === n - 1
+    const key = `${rim ? 0 : layer}:${r}:${j}`
+    let id = ids.get(key)
+    if (id === undefined) {
+      const t = r / rows
+      const p = base[j]
+      const e = edge[j]
+      // the membrane thins toward its free edge
+      const w = thick * (rim ? 0 : layer) * (1 - t * 0.7)
+      pos.push(p[0] + (e[0] - p[0]) * t + nrm.x * w, p[1] + (e[1] - p[1]) * t + nrm.y * w, p[2] + (e[2] - p[2]) * t + nrm.z * w)
+      pnt.push(t, (j / (n - 1)) * (opts.rays ?? 0), 0)
+      id = pos.length / 3 - 1
+      ids.set(key, id)
+    }
+    return id
+  }
+  const idx: number[] = []
+  // the +layer faces along `plane`, whichever way the columns run
+  const e0 = new THREE.Vector3(...base[1]).sub(new THREE.Vector3(...base[0]))
+  const up = new THREE.Vector3(...edge[0]).sub(new THREE.Vector3(...base[0]))
+  const flip = e0.cross(up).dot(nrm) < 0 ? -1 : 1
+  for (const layer of [1, -1]) {
+    for (let r = 0; r < rows; r++) {
+      for (let j = 0; j < n - 1; j++) {
+        const a = vert(layer, r, j)
+        const c = vert(layer, r, j + 1)
+        const d = vert(layer, r + 1, j)
+        const e = vert(layer, r + 1, j + 1)
+        if (layer * flip > 0) idx.push(a, c, d, c, e, d)
+        else idx.push(a, d, c, c, d, e)
+      }
+    }
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0), 2))
+  g.setAttribute('paint', new THREE.Float32BufferAttribute(pnt, 3))
+  g.setIndex(idx)
+  g.computeVertexNormals()
+  const rays = opts.rays ?? 0
+  b.geo(g, { c: color, m: THIN }, (t, cs, _sn, out) => {
+    const rib = rays ? 0.5 + 0.5 * Math.cos(cs) : 1
+    out.set('#ffffff').multiplyScalar(0.84 + 0.2 * rib * smooth(0.0, 0.3, t))
+  })
+}
+
+/** Spine (a stiff thin ray) from a base point to a tip, tapering. */
+export function finSpine(b: Builder, a: V3, tip: V3, r: number, color: string): void {
+  b.limb([a, [(a[0] + tip[0]) / 2, (a[1] + tip[1]) / 2, (a[2] + tip[2]) / 2], tip], [r, r * 0.7, r * 0.3], { c: color }, { radial: 6, seg: 3, cap: 2 })
 }
