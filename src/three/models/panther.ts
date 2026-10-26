@@ -81,6 +81,14 @@ export function pantherPrims(): Prim[] {
       ),
     )
   }
+  // elbow, wrist and hock points give the limbs their joints
+  for (const k of mirrorZ) {
+    const fs = k > 0 ? 0.28 : -0.26
+    const hs = k > 0 ? -0.28 : 0.32
+    add(ellipsoid([0.55 + fs * 0.05, 0.93 + H * 0.5, k * 0.26], [0.1, 0.1, 0.075], 0.06))
+    add(ellipsoid([0.74 + fs * 0.55, 0.4, k * 0.24], [0.075, 0.1, 0.07], 0.05))
+    add(ellipsoid([R(-1.5) + hs * 0.8, 0.56, k * 0.25], [0.085, 0.12, 0.07], 0.06))
+  }
   for (const [x, z] of pawSpots()) add(ellipsoid([x - 0.02, 0.09, z], [0.2, 0.09, 0.125], 0.06))
   // ----- tail: long, thick, drooping behind the hips, curving down then up
   add(...chain([[R(-1.4), 1.34 + H, 0], [R(-1.9), 1.17 + H, 0], [R(-2.4), 0.84, 0], [R(-2.85), 0.52, 0], [R(-3.3), 0.4, 0], [R(-3.75), 0.52, 0], [R(-4.1), 0.8, 0]], [0.185, 0.17, 0.158, 0.148, 0.14, 0.13, 0.105], 0.12, 1, 6))
