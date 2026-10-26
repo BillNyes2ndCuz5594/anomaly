@@ -21,11 +21,13 @@ export async function createRenderer(
   props: Record<string, unknown>,
   tier: Tier,
   onBackend: (b: Backend) => void,
+  /** Smooth edges even when the tier has antialiasing off (small item canvases). */
+  forceAntialias = false,
 ): Promise<THREE.WebGPURenderer> {
   const renderer = new THREE.WebGPURenderer({
     ...props,
     canvas: props.canvas as HTMLCanvasElement,
-    antialias: TIER_CONFIG[tier].antialias,
+    antialias: forceAntialias || TIER_CONFIG[tier].antialias,
     alpha: false,
     forceWebGL: urlForceWebGL(),
     powerPreference: 'high-performance',

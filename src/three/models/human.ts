@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
-import { Builder, recenter, type V3 } from './builder'
+import { Builder, getBuilderLod, recenter, setBuilderLod, type V3 } from './builder'
 import { translateBox, unionBox, type Box } from '../fit'
 
 export interface OrganDef {
@@ -145,7 +145,7 @@ const grayPaint = (t: number, _cs: number, _sn: number, out: THREE.Color): void 
  * the cerebellum, which gets fine parallel ridges instead.
  */
 function foldedLobe(c: V3, r: V3, side: number, kind: 'cortex' | 'cerebellum'): THREE.BufferGeometry {
-  let g: THREE.BufferGeometry = new THREE.SphereGeometry(1, 56, 38)
+  let g: THREE.BufferGeometry = new THREE.SphereGeometry(1, getBuilderLod() < 1 ? 38 : 56, getBuilderLod() < 1 ? 26 : 38)
   g.deleteAttribute('normal')
   g.deleteAttribute('uv')
   g = mergeVertices(g, 1e-4)
@@ -191,8 +191,8 @@ const smoothstep = (a: number, b: number, x: number): number => {
 }
 
 /** Whole body outer shell: one smooth sculpted surface, see humanSkin.ts. Feet at y = 0, facing +z. */
-function buildSkin(): THREE.BufferGeometry {
-  return new Builder().colored(buildHumanSkin()).build()
+function buildSkin(cell?: number): THREE.BufferGeometry {
+  return new Builder().colored(buildHumanSkin(cell)).build()
 }
 
 /** General muscle bulk shown on the figure when an item asks about muscles. */
@@ -207,11 +207,18 @@ function buildMuscles(): THREE.BufferGeometry {
   return b.build()
 }
 
-let cache: { organs: Map<string, OrganDef>; skin: THREE.BufferGeometry; muscles: THREE.BufferGeometry; box: Box } | null = null
+type HumanModel = { organs: Map<string, OrganDef>; skin: THREE.BufferGeometry; muscles: THREE.BufferGeometry; box: Box }
+const cache: { full: HumanModel | null; low: HumanModel | null } = { full: null, low: null }
+/** Low tier: same sculpt and organs, a coarser skin grid and fewer organ segments (about half the triangles). */
+const LOW_LOD = 0.7
+const LOW_SKIN_CELL = 0.065
 
-/** CPU side geometry cache shared by Lab A, the briefing and the item visuals. */
-export function humanModel() {
-  if (cache) return cache
+/** CPU side geometry cache shared by Lab A, the briefing and the item visuals. `low` is the lighter Low tier build. */
+export function humanModel(low = false): HumanModel {
+  const hit = low ? cache.low : cache.full
+  if (hit) return hit
+  const prevLod = getBuilderLod()
+  setBuilderLod(low ? LOW_LOD : 1)
   const organs = new Map<string, OrganDef>()
   for (const o of ORGAN_LIST) {
     if (o.id === 'skin') continue
@@ -219,7 +226,7 @@ export function humanModel() {
     const center = recenter(geo)
     organs.set(o.id, { ...o, center, geo })
   }
-  const skin = buildSkin()
+  const skin = buildSkin(low ? LOW_SKIN_CELL : undefined)
   skin.computeBoundingBox()
   const bb = skin.boundingBox!
   let box: Box = { min: [bb.min.x, bb.min.y, bb.min.z], max: [bb.max.x, bb.max.y, bb.max.z] }
@@ -228,8 +235,11 @@ export function humanModel() {
     const ob = o.geo.boundingBox!
     box = unionBox(box, translateBox({ min: [ob.min.x, ob.min.y, ob.min.z], max: [ob.max.x, ob.max.y, ob.max.z] }, o.center))
   }
-  cache = { organs, skin, muscles: buildMuscles(), box }
-  return cache
+  const model = { organs, skin, muscles: buildMuscles(), box }
+  setBuilderLod(prevLod)
+  if (low) cache.low = model
+  else cache.full = model
+  return model
 }
 
 export const BODY_CENTER: V3 = [0, 3.3, 0]

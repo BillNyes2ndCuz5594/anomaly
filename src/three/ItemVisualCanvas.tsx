@@ -45,11 +45,11 @@ const SWAY_BODY = 0.5
 const SWAY_SPECIMEN = 0.3
 const SPECIMEN_YAW = DISPLAY_YAW
 
-function OrganVisual({ highlight }: { highlight: string[] }) {
+function OrganVisual({ highlight, low }: { highlight: string[]; low: boolean }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const content = useRef<THREE.Group>(null)
   // The whole body at every point of its sway, plus the base ring.
-  const box = useMemo(() => unionBox(sweepYaw(humanModel().box, STILL ? 0.4 : SWAY_BODY, 24, STILL ? 0.3 : 0), ringBox(RING)), [])
+  const box = useMemo(() => unionBox(sweepYaw(humanModel(low).box, STILL ? 0.4 : low ? 0.2 : SWAY_BODY, 24, STILL ? 0.3 : 0), ringBox(RING)), [low])
   const view = useMemo(() => ({ box, elevation: 0.14 }), [box])
   return (
     <>
@@ -135,15 +135,16 @@ export default function ItemVisualCanvas({ visual }: { visual: Visual }) {
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
   const tierRef = useRef(tier)
-  const dpr = dprForTier(tier, window.devicePixelRatio)
-  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}), [])
+  // These canvases are small, so Low tier still gets a sharp image: up to 2x pixels and edge smoothing.
+  const dpr = tier === 'low' ? Math.max(dprForTier(tier, window.devicePixelRatio), Math.min(window.devicePixelRatio || 1, 2)) : dprForTier(tier, window.devicePixelRatio)
+  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}, tierRef.current === 'low'), [])
   const camera = useMemo(() => ({ fov: 35, near: 0.1, far: 120, position: [0, 3, 12] as [number, number, number] }), [])
 
   return (
     <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
       <color attach="background" args={['#091222']} />
       {visual.kind === 'specimen' ? <SpecimenLights /> : <Lights />}
-      {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} /> : null}
+      {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} low={tier === 'low'} /> : null}
       {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} /> : null}
       {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} /> : null}
     </Canvas>
