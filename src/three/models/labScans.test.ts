@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three/webgpu'
-import { acornSet, fitOrgan, kidneyPair, ORGAN_SCAN_IDS, sprigCluster } from './labScans'
+import { acornSet, earPair, eyePair, fitOrgan, kidneyPair, ORGAN_SCAN_IDS, sprigCluster } from './labScans'
 import { humanModel } from './human'
 import { oakLeafEnds, OAK_ACORNS } from './labB'
 
@@ -15,11 +15,12 @@ describe('lab scans', () => {
   it('ships both scan packs', () => {
     expect(existsSync(new URL('../../assets/scans/organ-scans.glb', import.meta.url))).toBe(true)
     expect(existsSync(new URL('../../assets/scans/oak-scans.glb', import.meta.url))).toBe(true)
+    expect(existsSync(new URL('../../assets/scans/body-scan.glb', import.meta.url))).toBe(true)
   })
 
   it('every scanned organ has a procedural organ and fits exactly in its box', () => {
     const organs = humanModel(false).organs
-    for (const id of ORGAN_SCAN_IDS.filter((o) => o !== 'kidneys')) {
+    for (const id of ORGAN_SCAN_IDS.filter((o) => !['kidneys', 'eyes', 'ears', 'nose'].includes(o))) {
       const def = organs.get(id)
       expect(def, id).toBeTruthy()
       const proc = def!.geo
@@ -50,6 +51,25 @@ describe('lab scans', () => {
     // one kidney each side of the spine
     expect(a.min.x + def.center[0]).toBeLessThan(-0.5)
     expect(a.max.x + def.center[0]).toBeGreaterThan(0.5)
+  })
+
+  it('builds both eyes and both ears as mirrored pairs on the head', () => {
+    const organs = humanModel(false).organs
+    for (const [id, build, x] of [
+      ['eyes', eyePair, 0.165],
+      ['ears', earPair, 0.452],
+    ] as const) {
+      const def = organs.get(id)!
+      const scan = new THREE.SphereGeometry(1, 10, 8).scale(1, 1, 0.6).translate(0.3, 0, 0)
+      scan.setAttribute('color', new THREE.BufferAttribute(new Float32Array(scan.getAttribute('position').count * 3).fill(0.8), 3))
+      const pair = build(scan, def.center)
+      const a = pair.boundingBox!
+      // symmetric about the midline and at head height
+      expect(a.min.x + def.center[0], id).toBeCloseTo(-(a.max.x + def.center[0]), 3)
+      expect(a.max.x + def.center[0], id).toBeGreaterThan(x)
+      expect(a.min.y + def.center[1], id).toBeGreaterThan(5.9)
+      expect(pair.getAttribute('normal'), id).toBeTruthy()
+    }
   })
 
   it('grows sprigs from every leaf cluster and keeps them near it', () => {

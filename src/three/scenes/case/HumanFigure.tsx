@@ -6,7 +6,7 @@ import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, humanShell, organMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
 import { pointerHandlers, useTier } from './common'
-import { useOrganGeo } from '../../models/labScans'
+import { useBodyScan, useOrganGeo } from '../../models/labScans'
 
 export interface HumanFigureProps {
   /** lab: interactive with hover and flashes. visual: static highlights for item art. */
@@ -126,6 +126,10 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
   const group = useRef<THREE.Group>(null)
   const low = useTier() === 'low'
   const model = useMemo(() => humanModel(low), [low])
+  // Medium tier and up: the scanned body (warped to the sculpted proportions) replaces the sculpted shell and muscles.
+  const bodyScan = useBodyScan(low)
+  const skinGeo = bodyScan?.skin ?? model.skin
+  const muscleGeo = bodyScan?.muscles ?? model.muscles
   const skinMat = useMemo(() => humanShell(SKIN_TINT, 0.9), [])
   const depthMat = useMemo(() => depthOnlyMaterial(), [])
   const muscleMat = useMemo(() => tintedHolo('#E69F00', 0.9, true, false), [])
@@ -195,14 +199,14 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
 
   return (
     <group ref={group} scale={scale}>
-      <mesh geometry={model.skin} renderOrder={1}>
+      <mesh geometry={skinGeo} renderOrder={1}>
         <primitive object={depthMat} attach="material" />
       </mesh>
-      <mesh geometry={model.skin} renderOrder={2} userData={{ part: 'skin', prio: 0 }} {...(skinHand ?? {})}>
+      <mesh geometry={skinGeo} renderOrder={2} userData={{ part: 'skin', prio: 0 }} {...(skinHand ?? {})}>
         <primitive object={skinMat} attach="material" />
       </mesh>
       {muscles ? (
-        <mesh geometry={model.muscles}>
+        <mesh geometry={muscleGeo}>
           <primitive object={muscleMat} attach="material" />
         </mesh>
       ) : null}
