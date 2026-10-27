@@ -5,6 +5,8 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { resolveTier } from '../../../state/quality'
 import { useRuntime } from '../../../state/runtime'
 import { useGame } from '../../../state/store'
+import { useSession } from '../../../state/session'
+import type { LoopClip } from '../LoopSky'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from '../common'
 import { tintedHolo } from '../../materials/tinted'
 import { useFitPose, usePublishFit, type FitView } from '../../FitCamera'
@@ -92,14 +94,20 @@ export function FitRig({
   return <CameraRig pos={pose.position} look={pose.target} from={from} parallax={parallax} />
 }
 
+/** Ambient sky loop for each case step. */
+const STEP_CLIP: Partial<Record<string, LoopClip>> = { briefing: 'swamp', 'lab-a': 'cells', 'lab-b': 'canopy', 'lab-c': 'water' }
+
 /** Shared lab environment: deck, grid, console ring, fog, dust. */
 export function LabEnvironment({ children, ring = true, floorY = 0 }: { children?: ReactNode; ring?: boolean; floorY?: number }) {
   const tier = useTier()
+  const step = useSession((s) => s.step)
+  const kind = useSession((s) => s.kind)
+  const clip = kind === 'cold' ? undefined : STEP_CLIP[step]
   return (
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.017]} />
       <DeckLights rim={0.7} />
-      <Backdrop />
+      <Backdrop clip={clip} />
       <DeckPlate y={floorY - 0.02} />
       <GridFloor y={floorY} fade={34} intensity={0.55} />
       {ring ? (

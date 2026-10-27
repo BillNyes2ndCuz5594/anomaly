@@ -179,7 +179,7 @@ export default function TitleScene() {
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.018]} />
       <DeckLights />
-      <Backdrop />
+      <Backdrop clip="swamp" />
       <DeckPlate />
       <GridFloor fade={34} />
       <ConsoleRing radius={17} count={20} arc={Math.PI * 1.3} />
