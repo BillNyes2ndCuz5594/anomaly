@@ -15,7 +15,7 @@ const rnd = (seed: number) => {
  * text, fades out fully and then removes itself from the DOM. Not rendered at all for reduced
  * motion. Spark count follows the quality tier, so Low gets a lighter version.
  */
-export default function Burst({ color = '#37e8b4', spread = 120, delay = 0.38, big = true }: { color?: string; spread?: number; delay?: number; big?: boolean }) {
+export default function Burst({ color = '#37e8b4', spread = 120, delay = 0.3, big = true }: { color?: string; spread?: number; delay?: number; big?: boolean }) {
   const quality = useGame((s) => s.settings.quality)
   const reduced = useGame((s) => s.settings.reducedMotion)
   const autoTier = useRuntime((s) => s.autoTier)
