@@ -81,10 +81,10 @@ export default function SettingsScreen() {
   return (
     <div className="screen settings-screen" data-testid="settings">
       <div className="topbar">
-        <button type="button" className="btn small" data-testid="settings-back" onClick={() => navigate(hasProfile ? '/hub' : '/')}>
+        <button type="button" className="btn small ghost" data-testid="settings-back" onClick={() => navigate(hasProfile ? '/hub' : '/')}>
           Back
         </button>
-        <span className="mono label">SETTINGS</span>
+        <span className="label">SETTINGS</span>
       </div>
 
       <main className="panel brackets settings-panel">

@@ -34,12 +34,12 @@ export default function Debrief() {
               <span className="stamp-icon" aria-hidden="true">
                 {closed ? '\u2714' : '\u25CB'}
               </span>
-              <span className="mono stamp-word">{closed ? (kind === 'cold' ? 'RESIDUE CLEARED' : 'CASE CLOSED') : 'CASE STILL OPEN'}</span>
+              <span className="stamp-word">{closed ? (kind === 'cold' ? 'RESIDUE CLEARED' : 'CASE CLOSED') : 'CASE STILL OPEN'}</span>
             </div>
             {closed ? <Burst spread={90} /> : null}
           </div>
           <div className="debrief-summary">
-            <p className="debrief-score mono" data-testid="debrief-score">
+            <p className="debrief-score" data-testid="debrief-score">
               {score} OF {total} CORRECT
             </p>
             <p className="debrief-line">
@@ -58,7 +58,7 @@ export default function Debrief() {
             return (
               <article key={it.id} className={`panel debrief-item ${a.correct ? 'ok' : 'bad'}`} data-testid={`debrief-item-${n}`}>
                 <header>
-                  <span className="mono label">
+                  <span className="label">
                     ITEM {n + 1} <span className="muted">{it.benchmark}</span>
                   </span>
                   <span className={`verdict-chip ${a.correct ? 'ok' : 'bad'}`}>
@@ -78,7 +78,7 @@ export default function Debrief() {
                 <ul className="why-list">
                   {it.options.map((o, i) => (
                     <li key={i} className={i === it.key ? 'key' : ''}>
-                      <span className="mono why-letter">
+                      <span className="why-letter">
                         <span aria-hidden="true">{i === it.key ? '\u2714' : '\u2716'}</span> {LETTERS[i]}
                       </span>
                       <span>

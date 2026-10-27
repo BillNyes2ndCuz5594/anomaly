@@ -73,7 +73,7 @@ export default function Results() {
       <CaseTop step="results" />
       <main className="results-body">
         <section className="panel brackets results-panel" aria-label="Mastery changes">
-          <h1 className="mono panel-title">MASTERY UPDATE</h1>
+          <h1 className="panel-title">MASTERY UPDATE</h1>
           <ul className="bars" data-testid="mastery-bars">
             {rows.map((r) => {
               const frac = shown ? stageFraction(r.to) : stageFraction(r.from)
@@ -122,13 +122,8 @@ export default function Results() {
         </section>
 
         <aside className="panel brackets results-side" aria-label="Rewards">
-          <div className="reward" data-testid="intel-earned">
-            <span className="mono label amber">INTEL EARNED</span>
-            <strong className="reward-num mono" aria-label={`${intel} Intel earned`}>{intelShown}</strong>
-            <span className="muted tiny">Total Intel: {intelTotal}</span>
-          </div>
-          <div className="reward" data-testid="case-status" data-closed={cases[caseId]?.closed ? 'yes' : 'no'}>
-            <span className="mono label amber">{caseLabel}</span>
+          <div className="reward verdict-block" data-testid="case-status" data-closed={cases[caseId]?.closed ? 'yes' : 'no'}>
+            <span className="label amber">{caseLabel}</span>
             <p>
               <span aria-hidden="true">{cases[caseId]?.closed ? '\u2714' : '\u25CB'}</span>{' '}
               <strong>{cases[caseId]?.closed ? (kind === 'cold' ? 'Residue cleared' : 'Case closed') : 'Case still open'}</strong>
@@ -137,9 +132,14 @@ export default function Results() {
               {cases[caseId] ? `${cases[caseId].score} of ${cases[caseId].total} correct` : ''}
             </span>
           </div>
+          <div className="reward" data-testid="intel-earned">
+            <span className="label amber">INTEL EARNED</span>
+            <strong className="reward-num" aria-label={`${intel} Intel earned`}>{intelShown}</strong>
+            <span className="muted tiny">Total Intel: {intelTotal}</span>
+          </div>
           <div className={paint ? 'reward unlocked' : 'reward'} data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
             {paint ? <Burst color="#ffb547" spread={90} delay={0.9} big={false} /> : null}
-            <span className="mono label amber">DRONE PAINT</span>
+            <span className="label amber">DRONE PAINT</span>
             {paint ? (
               <p>
                 <span aria-hidden="true">{'\u2605'}</span> Unlocked: <strong>{paint}</strong>
@@ -149,7 +149,7 @@ export default function Results() {
             )}
           </div>
           <div className="reward">
-            <span className="mono label amber">AGENT</span>
+            <span className="label amber">AGENT</span>
             <p>
               Rank: <strong data-testid="results-rank">{rankFor(mastery)}</strong>
             </p>
