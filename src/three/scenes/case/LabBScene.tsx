@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { useFx } from '../../../state/session'
 import { animalParts, plantParts, type PartGeo } from '../../models/creatures'
-import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { FitRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
 import type { Box } from '../../fit'
 import PartMesh from './PartMesh'
 import { PAIR_TINTS } from './pairTints'
@@ -14,8 +14,10 @@ export const PLANT_POS: [number, number, number] = [3.4, 0, 0]
 /** Pickable parts and their pick priority. Inner structures win over the covering that wraps them. */
 const PICK: Record<string, number> = { skeleton: 1, skin: 0, stem: 0, bark: 1 }
 
-function worldCenter(side: 'a' | 'p', id: string): THREE.Vector3 | null {
-  const parts = side === 'a' ? animalParts() : plantParts()
+const lodFor = (tier: string): number => (tier === 'low' ? 0.6 : 1)
+
+function worldCenter(side: 'a' | 'p', id: string, lod: number): THREE.Vector3 | null {
+  const parts = side === 'a' ? animalParts(lod) : plantParts(lod)
   const p = parts.find((x) => x.id === id)
   if (!p) return null
   const o = side === 'a' ? ANIMAL_POS : PLANT_POS
@@ -24,15 +26,16 @@ function worldCenter(side: 'a' | 'p', id: string): THREE.Vector3 | null {
 
 function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
   const packet = useRef<THREE.Mesh>(null)
+  const lod = lodFor(useTier())
   const { geo, curve } = useMemo(() => {
-    const a = worldCenter('a', ids[0].slice(2)) ?? new THREE.Vector3()
-    const b = worldCenter('p', ids[1].slice(2)) ?? new THREE.Vector3()
+    const a = worldCenter('a', ids[0].slice(2), lod) ?? new THREE.Vector3()
+    const b = worldCenter('p', ids[1].slice(2), lod) ?? new THREE.Vector3()
     const mid = a.clone().add(b).multiplyScalar(0.5)
     mid.y += 1.1
     mid.z += 1.0
     const c = new THREE.QuadraticBezierCurve3(a, mid, b)
     return { geo: new THREE.TubeGeometry(c, 40, 0.045, 6, false), curve: c }
-  }, [ids])
+  }, [ids, lod])
   const mat = useMemo(() => {
     const m = new THREE.MeshBasicNodeMaterial()
     m.color.set(tint).multiplyScalar(2.2)
@@ -79,7 +82,8 @@ function Bridges() {
 }
 
 function ModelParts({ side }: { side: 'a' | 'p' }) {
-  const parts: PartGeo[] = side === 'a' ? animalParts() : plantParts()
+  const lod = lodFor(useTier())
+  const parts: PartGeo[] = side === 'a' ? animalParts(lod) : plantParts(lod)
   return (
     <>
       {parts.map((p) => {
