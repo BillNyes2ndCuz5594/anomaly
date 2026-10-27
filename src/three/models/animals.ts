@@ -195,12 +195,28 @@ export function manateeModel(b: Builder): void {
   for (const k of mirrorZ) {
     b.ell([2.16, -0.46, k * 0.18], [0.2, 0.15, 0.2], '#97958e', [0, 0, 0.3], 16, 12)
     b.ell([2.17, -0.1, k * 0.14], [0.065, 0.035, 0.05], '#22262a', [0, 0, 0.5], 8, 6)
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 5 - 0.5) * 1.6
-      const z0 = k * (0.04 + i * 0.05)
-      b.limb([[2.3, -0.5, z0], [2.42, -0.56 - i * 0.012, z0 + k * 0.02 + Math.sin(a) * 0.04], [2.5, -0.65, z0 + k * 0.03 + Math.sin(a) * 0.1]], [0.016, 0.01, 0.004], { c: '#e0dac4' }, { radial: 5, seg: 2, cap: 1 })
+    // fine short whiskers (vibrissae) scattered over the front of each lip pad, curving forward and down, uneven in length
+    for (let i = 0; i < 16; i++) {
+      const u = (i % 4) / 3
+      const v = Math.floor(i / 4) / 3
+      const j = Math.sin(i * 12.9898) * 0.5
+      const z0 = k * (0.03 + u * 0.28 + j * 0.02)
+      const y0 = -0.5 - v * 0.1 - Math.abs(j) * 0.015
+      const x0 = 2.27 - v * 0.015 - u * 0.05
+      const len = 0.05 + 0.04 * (0.5 + 0.5 * Math.sin(i * 7.3 + 1))
+      const out = k * (0.015 + 0.06 * u + j * 0.02)
+      b.limb([[x0, y0, z0], [x0 + len * 0.55, y0 - len * 0.22, z0 + out * 0.5], [x0 + len * 0.85, y0 - len * 0.62, z0 + out]], [0.0085, 0.0055, 0.0025], { c: '#9a927d' }, { radial: 5, seg: 2, cap: 1 })
     }
-    eye(b, [1.62, 0.14, k * 0.52], 0.06, [0.3, 0.2, k], '#c9c1ad', false, '#14181b', '#6b6c68')
+    // small dark eye sunk into a soft skin fold: a flat dark eye inside a lid ring that hugs the skin, no white, no catchlight
+    {
+      const ep: V3 = [1.62, 0.14, k * 0.52]
+      const d = unit([0.3, 0.2, k])
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(...d))
+      const e = new THREE.Euler().setFromQuaternion(q)
+      const at = (o: number): V3 => [ep[0] + d[0] * o, ep[1] + d[1] * o, ep[2] + d[2] * o]
+      b.ell(at(0.0), [0.034, 0.03, 0.012], '#14110e', [e.x, e.y, e.z], 14, 10, [0.7, 0])
+      b.torus(0.038, 0.015, { p: at(-0.006), r: [e.x, e.y, e.z], c: '#7d7c75' }, 8, 20)
+    }
     // paddle flipper: wide and rounded, held out and back from the shoulder, with three small nails
     b.limb([[0.85, -0.36, k * 0.5], [0.95, -0.54, k * 0.92], [0.85, -0.66, k * 1.32], [0.68, -0.7, k * 1.58]], [[0.19, 0.14], [0.27, 0.095], [0.3, 0.065], [0.2, 0.042]], { c: '#6f6e69', m: THIN }, { radial: 20, seg: 8, cap: 8, paint: mottle(countershade('#706f6a', '#8d8a82', 0, 0.5), 0.06, 1.2, 12) })
     for (let i = -1; i <= 1; i++) b.ell([0.58 - Math.abs(i) * 0.03, -0.71, k * (1.66 + i * 0.09)], [0.04, 0.025, 0.04], '#cdc6b0', [0, 0, 0], 6, 5)
