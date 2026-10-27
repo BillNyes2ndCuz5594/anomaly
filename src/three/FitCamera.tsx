@@ -1,5 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber'
-import { useMemo, useRef, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import * as THREE from 'three/webgpu'
 import { boxCorners, fitBox, fitPoints, outlinePoints, projectPoints, type Box, type V3 } from './fit'
 import { useInsets } from './insets'
@@ -71,6 +71,13 @@ export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefOb
   const size = useThree((s) => s.size)
   const frame = useFrameFractions()
   const n = useRef(0)
+  // The Stage canvas outlives its scenes: drop the published fit when the model goes away, so a screen without a model never reports a stale one.
+  useEffect(() => {
+    const el = gl.domElement as HTMLCanvasElement
+    return () => {
+      delete el.dataset.fit
+    }
+  }, [gl])
   useFrame((state) => {
     if (n.current++ % 20 !== 0) return
     let pts = boxCorners(fallback)
