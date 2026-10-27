@@ -13,7 +13,7 @@ import { createServer } from 'node:net'
 import { fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const OUT = '/workspace/anomaly-proof'
+const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 const ROOT = new URL('..', import.meta.url).pathname
 const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
 // A free port, so a stale preview server from an earlier run can never be tested by accident.
@@ -431,14 +431,14 @@ async function playCold(page, w) {
 }
 
 const preview = await startPreview()
-writeFileSync('/tmp/an-preview.pid', String(preview.pid))
+writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(preview.pid))
 let browser
 let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
   browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
-  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
   for (const vp of VIEWPORTS) {
@@ -638,7 +638,7 @@ try {
     const urls = []
     tp.on('request', (r) => urls.push(r.url()))
     const cdp = await browser.target().createCDPSession()
-    const dl = `/tmp/anomaly-proof-dl-${w}`
+    const dl = `/tmp/anomaly-proof-dl${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-${w}`
     rmSync(dl, { recursive: true, force: true })
     mkdirSync(dl, { recursive: true })
     await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl })
@@ -1024,7 +1024,7 @@ try {
 
   // ---------- test counts and summary ----------
   console.log('\n== unit tests ==')
-  const jsonOut = '/tmp/anomaly-vitest.json'
+  const jsonOut = `/tmp/anomaly-vitest${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}.json`
   rmSync(jsonOut, { force: true })
   spawnSync('npx', ['vitest', 'run', '--reporter=json', `--outputFile=${jsonOut}`], { cwd: ROOT, stdio: 'ignore' })
   let tests = { total: 0, passed: 0, failed: 0, files: 0 }
