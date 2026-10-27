@@ -149,7 +149,17 @@ function pageChecks() {
     }
     canv.push({ w: Math.round(cv.getBoundingClientRect().width), h: Math.round(cv.getBoundingClientRect().height), over })
   }
-  return { problems, metrics: { vw, vh, ctrls: ctrls.length, svgMin: svgMin === Infinity ? null : +svgMin.toFixed(1), canv, boxes: named.map(([n, e]) => [n, ...['left', 'top', 'right', 'bottom'].map((k) => Math.round(e.getBoundingClientRect()[k]))]), an: window.__anomaly ? { fps: Math.round(window.__anomaly.fps), tier: window.__anomaly.tier, backend: window.__anomaly.backend } : null } }
+  // S12: on an evidence item with 3D art, the stage must be in the first view: at least 60 percent of the canvas inside the viewport.
+  const stage = document.querySelector('[data-testid="item-visual"] canvas')
+  let stageInside = null
+  if (stage && vis(stage)) {
+    const r = stage.getBoundingClientRect()
+    const area = r.width * r.height
+    const inside = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) * Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0))
+    stageInside = area > 0 ? +(inside / area).toFixed(2) : 0
+    if (stageInside < 0.6) problems.push(`specimen stage only ${Math.round(stageInside * 100)}% inside the first viewport (need 60%)`)
+  }
+  return { problems, metrics: { stageInside, vw, vh, ctrls: ctrls.length, svgMin: svgMin === Infinity ? null : +svgMin.toFixed(1), canv, boxes: named.map(([n, e]) => [n, ...['left', 'top', 'right', 'bottom'].map((k) => Math.round(e.getBoundingClientRect()[k]))]), an: window.__anomaly ? { fps: Math.round(window.__anomaly.fps), tier: window.__anomaly.tier, backend: window.__anomaly.backend } : null } }
 }
 
 async function runDevice(dev, base) {
@@ -226,7 +236,7 @@ async function runDevice(dev, base) {
       const file = `${tag}-${name}.png`
       await page.screenshot({ path: join(OUT, file) })
       report.shots.push(file)
-      console.log(`${tag} ${name}: ${r.problems.length} problems, ${r.metrics.ctrls} controls, canvas ${JSON.stringify(r.metrics.canv)}`)
+      console.log(`${tag} ${name}: ${r.problems.length} problems, ${r.metrics.ctrls} controls, canvas ${JSON.stringify(r.metrics.canv)}${r.metrics.stageInside !== null ? ` stage inside ${r.metrics.stageInside}` : ''}`)
     }
     const fail = async (e) => {
       problem(screen, `flow failed: ${e.message.slice(0, 200)}`)

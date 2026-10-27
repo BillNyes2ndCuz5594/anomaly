@@ -18,7 +18,7 @@ const port = await freePort()
 const { proc, base } = await startPreview(port)
 const browser = await launch()
 const errors = []
-const QS = '?tier=high&still=1' + (opt('yaw', '') ? '&yaw=' + opt('yaw', '') : '')
+const QS = '?tier=' + opt('tier', 'high') + '&still=1' + (opt('yaw', '') ? '&yaw=' + opt('yaw', '') : '')
 try {
   for (const vp of sizes) {
     for (const target of targets) {

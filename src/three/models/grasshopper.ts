@@ -10,34 +10,34 @@ import { frame, off, wob } from './placement'
 const mirrorZ = [1, -1]
 
 const COL = {
-  olive: new THREE.Color('#6a7632'),
-  oliveDark: new THREE.Color('#4c5626'),
-  yellow: new THREE.Color('#cfc24f'),
-  pale: new THREE.Color('#dcd49c'),
+  olive: new THREE.Color('#5f8a2a'),
+  oliveDark: new THREE.Color('#3b5f1c'),
+  yellow: new THREE.Color('#c4d052'),
+  pale: new THREE.Color('#b9c97a'),
   brown: new THREE.Color('#4b3a22'),
   dark: new THREE.Color('#2a2114'),
-  wing: new THREE.Color('#9a8a52'),
-  wingDark: new THREE.Color('#4d3d24'),
-  face: new THREE.Color('#98a048'),
+  wing: new THREE.Color('#7f9a3e'),
+  wingDark: new THREE.Color('#3f4a1f'),
+  face: new THREE.Color('#8cc03a'),
 }
 
 export const HIND = (k: number): V3[] => [[-0.1, 0.88, k * 0.28], [-0.65, 1.04, k * 0.33], [-1.2, 1.1, k * 0.3], [-1.62, 1.08, k * 0.26]]
 const GROUND = 0.3
-const HIND_R = [0.13, 0.17, 0.11, 0.04]
+const HIND_R = [0.15, 0.215, 0.14, 0.045]
 
 export function grasshopperHead(): Prim[] {
   const P: Prim[] = [
     // long narrow head sloping down toward the mouth
-    ellipsoid([1.2, 0.99, 0], [0.21, 0.19, 0.165], 0.1),
-    ellipsoid([1.38, 0.84, 0], [0.15, 0.21, 0.13], 0.1),
-    ellipsoid([1.44, 0.68, 0], [0.1, 0.1, 0.12], 0.08),
+    ellipsoid([1.2, 0.99, 0], [0.25, 0.22, 0.19], 0.1),
+    ellipsoid([1.38, 0.82, 0], [0.18, 0.24, 0.16], 0.1),
+    ellipsoid([1.45, 0.64, 0], [0.12, 0.12, 0.14], 0.08),
   ]
   for (const k of mirrorZ) P.push(ellipsoid([1.5, 0.6, k * 0.07], [0.05, 0.05, 0.045], 0.03))
   return P
 }
 
 export function grasshopperEyes(): Prim[] {
-  return mirrorZ.map((k) => ellipsoid([1.26, 1.01, k * 0.135], [0.1, 0.145, 0.07], 0.02))
+  return mirrorZ.map((k) => ellipsoid([1.26, 1.03, k * 0.16], [0.12, 0.17, 0.08], 0.02))
 }
 
 export function grasshopperBody(): Prim[] {
@@ -62,7 +62,7 @@ export function grasshopperBody(): Prim[] {
 export function grasshopperWings(): Prim[] {
   const P: Prim[] = []
   // narrow forewings folded along the back like a roof, reaching past the abdomen tip
-  for (const k of mirrorZ) P.push(...chain([[0.5, 1.14, k * 0.12], [-0.4, 1.16, k * 0.15], [-1.3, 1.08, k * 0.13], [-2.0, 1.04, k * 0.09], [-2.55, 1.02, k * 0.04]], [0.04, 0.06, 0.055, 0.04, 0.012], 0.03, 2.6, 5))
+  for (const k of mirrorZ) P.push(...chain([[0.5, 1.14, k * 0.12], [-0.4, 1.16, k * 0.15], [-1.3, 1.08, k * 0.13], [-2.0, 1.04, k * 0.09], [-2.4, 1.02, k * 0.05]], [0.04, 0.065, 0.06, 0.045, 0.014], 0.03, 2.6, 5))
   return P
 }
 
@@ -92,7 +92,7 @@ export const paint: SculptPaint = (p, n, out) => {
   out.copy(COL.olive).lerp(COL.oliveDark, 0.5 + 0.5 * wob(x, y, z))
   // darker flanks, pale belly
   out.lerp(COL.oliveDark, smooth(0.5, -0.2, n[1]) * smooth(-0.3, 0.1, n[1] + 0.3) * 0.35)
-  out.lerp(COL.pale, smooth(0.05, -0.55, n[1]) * 0.85)
+  out.lerp(COL.pale, smooth(0.05, -0.55, n[1]) * 0.6)
   // abdomen: fine dark lines between segments and a dark spot row on the flank
   if (x < -0.25) {
     const seam = smooth(0.78, 0.95, Math.sin(x * 33.1 + 0.4))
@@ -141,7 +141,7 @@ export const paint: SculptPaint = (p, n, out) => {
     const f = new THREE.Color().copy(COL.olive).lerp(COL.yellow, 0.5)
     const cy = Math.abs(y - (1.1 + 0.1 * Math.min(0, x + 0.6))) * 2.4
     f.lerp(COL.brown, smooth(0.15, 0.55, Math.sin((x + cy) * 30)) * 0.9 * smooth(0.5, 0.0, Math.abs(n[1])) * smooth(0.0, 0.2, az))
-    f.lerp(new THREE.Color('#b9733f'), smooth(-0.3, -0.8, n[1]) * 0.6)
+    f.lerp(new THREE.Color('#a8a03a'), smooth(-0.3, -0.8, n[1]) * 0.5)
     f.lerp(COL.dark, smooth(-1.42, -1.62, x) * 0.85)
     out.lerp(f, fm)
   }
@@ -202,10 +202,10 @@ export function grasshopperModel(b: Builder): void {
     const knee = HIND(k)[3]
     const heel: V3 = [-0.5, GROUND + 0.03, k * 0.44]
     const mid: V3 = [-1.05, 0.7, k * 0.4]
-    b.limb([knee, mid, heel], [0.052, 0.04, 0.032], { c: '#a8724a' }, { radial: 8, seg: 7, cap: 3, paint: (t, _c, _s, out) => {
-      out.set('#a8724a')
+    b.limb([knee, mid, heel], [0.052, 0.04, 0.032], { c: '#8e8a3e' }, { radial: 8, seg: 7, cap: 3, paint: (t, _c, _s, out) => {
+      out.set('#8e8a3e')
       lerpHex(out, '#3a281a', smooth(0.12, 0.0, t) * 0.9)
-      lerpHex(out, '#d8a06a', smooth(0.5, 1, t) * 0.25)
+      lerpHex(out, '#b9b25a', smooth(0.5, 1, t) * 0.25)
     } })
     spines(knee, heel, 8, 1, 0.03)
     spines(knee, heel, 8, -1, 0.03)
@@ -227,6 +227,6 @@ export function grasshopperModel(b: Builder): void {
       foot(an, toe, an[2], '#8c6a3c')
     }
     // short thread antenna
-    b.limb([[1.36, 1.1, k * 0.07], [1.52, 1.25, k * 0.12], [1.68, 1.33, k * 0.17], [1.82, 1.34, k * 0.21]], [0.018, 0.013, 0.01, 0.005], { c: '#4a3b22' }, { radial: 6, seg: 8, cap: 2 })
+    b.limb([[1.34, 1.14, k * 0.07], [1.55, 1.34, k * 0.12], [1.8, 1.5, k * 0.2], [2.05, 1.55, k * 0.3], [2.28, 1.5, k * 0.38]], [0.024, 0.017, 0.012, 0.008, 0.004], { c: '#3a4a1f' }, { radial: 6, seg: 9, cap: 2 })
   }
 }

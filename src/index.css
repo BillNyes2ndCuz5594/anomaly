@@ -3045,3 +3045,157 @@ a,
     min-height: 48px;
   }
 }
+
+/* ======================================================================
+   S12: evidence screen with a 3D stage.
+   Compact landscape (phone on its side): the specimen stage is pinned on the left for the whole item, the
+   header, question and answers scroll together on the right, so the models and the question share the first view.
+   ====================================================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .item-grid.stage-3d {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    align-items: start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    gap: 8px 10px;
+  }
+  .item-grid.stage-3d.stage-many {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+  .item-grid.stage-3d .item-main {
+    display: contents;
+  }
+  .item-grid.stage-3d .item-head {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .item-grid.stage-3d .stem-panel {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .item-grid.stage-3d .item-side {
+    grid-column: 2;
+    grid-row: 3;
+    overflow: visible;
+  }
+  .item-grid.stage-3d .visual-panel {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: calc(100dvh - var(--bar-h) - var(--sa-b) - 6px);
+    min-height: 0;
+  }
+  .item-grid.stage-3d .visual-3d {
+    min-height: 0;
+  }
+  .item-grid.stage-3d .captions {
+    font-size: 0.875rem;
+    line-height: 1.2;
+    padding: 4px 8px 6px;
+    gap: 6px;
+  }
+  .item-grid.stage-3d .captions li {
+    padding-top: 3px;
+  }
+  .item-grid.stage-3d .part-chips {
+    padding: 4px 8px 6px;
+  }
+  .item-grid.stage-3d .stem {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  .item-grid.stage-3d .stem-panel {
+    padding: 6px 10px 4px;
+  }
+  .item-grid.stage-3d .stem-foot .muted {
+    display: none;
+  }
+  .item-grid.stage-3d .rkea {
+    flex-wrap: wrap;
+  }
+  .item-grid.stage-3d .chip-r {
+    font-size: 0.875rem;
+    flex: 1 1 auto;
+  }
+  .item-grid.stage-3d .item-head .tiny {
+    font-size: 0.875rem;
+  }
+}
+
+/* S12: evidence on large screens (1500+ wide, 900+ tall). The stage is the hero: wider left column, bigger question,
+   and the answer panel stretches to the full height so there is no dead half screen. 1280 and 1366 are untouched. */
+@media (min-width: 1500px) and (min-height: 900px) {
+  .item-grid {
+    left: 48px;
+    right: 48px;
+    bottom: 40px;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: 32px;
+  }
+  .item-main {
+    gap: 16px;
+  }
+  .stem-panel {
+    padding: 18px 28px 12px;
+  }
+  .stem {
+    font-size: 1.4rem;
+  }
+  .visual-3d {
+    min-height: 320px;
+  }
+  .captions {
+    font-size: 1.05rem;
+    padding: 10px 18px 14px;
+  }
+  .item-side .options-panel {
+    flex: 1;
+    min-height: 0;
+    padding: 28px 30px 24px;
+    gap: 16px;
+  }
+  .item-side .options {
+    flex: 1;
+    gap: 16px;
+  }
+  .item-side .opt {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .item-side .opt-btn {
+    flex: 1;
+    min-height: 88px;
+    font-size: 1.3rem;
+    gap: 20px;
+    padding: 12px 22px;
+  }
+  .item-side .opt-letter {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+  .item-side .opt-why {
+    font-size: 1.05rem;
+    padding: 0 22px 14px 86px;
+  }
+  .item-side .dispatch-line {
+    font-size: 1.05rem;
+  }
+  .item-side .item-actions {
+    gap: 12px;
+  }
+  .item-side .item-actions .btn {
+    min-height: 56px;
+    font-size: 1rem;
+    padding: 0 22px;
+  }
+  .item-side .kbd-hint {
+    font-size: 0.85rem;
+  }
+}

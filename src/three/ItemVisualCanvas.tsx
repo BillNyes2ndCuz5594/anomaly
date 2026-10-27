@@ -1,4 +1,4 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useCallback, useMemo, useRef } from 'react'
 import type * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
@@ -87,11 +87,15 @@ function rowX(ids: string[]): number[] {
 function SpecimenVisual({ ids }: { ids: string[] }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const content = useRef<THREE.Group>(null)
+  // A stage that is close to square (phones, tablets, big screens with a tall stage) looks down a little more, so the
+  // pedestals and animals use more of its height instead of leaving a dark band above and below.
+  const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height))
+  const elevation = aspect < 1.9 ? 0.42 : 0.28
   const view = useMemo(() => {
     const xs = rowX(ids)
     const pts: V3[] = ids.flatMap((id, i) => translatePoints(specimenOutline(id, FIT, STILL ? STILL_YAW : SPECIMEN_YAW, STILL ? 0.02 : SWAY_SPECIMEN), [xs[i], 0, 0]))
-    return { box: pointsBox(pts), points: pts, elevation: 0.28, margin: 0.14 }
-  }, [ids])
+    return { box: pointsBox(pts), points: pts, elevation, margin: 0.14 }
+  }, [ids, elevation])
   const xs = useMemo(() => rowX(ids), [ids])
   return (
     <>

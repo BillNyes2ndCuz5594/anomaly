@@ -725,6 +725,13 @@ try {
       sceneStats[`gameplay-${id}`] = { tier: a.tier, backend: a.backend, calls: a.calls, triangles: a.triangles, geometries: a.geometries, textures: a.textures }
       const fits = await fitReport(page)
       check(`gameplay ${id} model fully inside its canvas with margin (1920)`, fits.length >= 1 && fits.every((f) => f.over <= -0.02), fits.map((f) => f.over.toFixed(3)).join(','))
+      const inside = await page.evaluate(() => {
+        const c = document.querySelector('[data-testid="item-visual"] canvas')
+        if (!c) return null
+        const r = c.getBoundingClientRect()
+        return (Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)) * Math.max(0, Math.min(r.right, innerWidth) - Math.max(r.left, 0))) / (r.width * r.height)
+      })
+      check(`gameplay ${id} specimen canvas at least 60% inside the first viewport (1920)`, inside !== null && inside >= 0.6, String(inside?.toFixed(2)))
       await page.screenshot({ path: `${OUT}/s11-gameplay-${id}-1920.png` })
       shots.push(`s11-gameplay-${id}-1920.png`)
       await click(page, `option-${item.key}`)
