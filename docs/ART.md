@@ -57,8 +57,8 @@ Rules for video clips
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
 | 6b | Manatee | Lab C close-up, items | Scan made in wave 2, held until S14 (Lab C close-up rework) merges |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
-| 8 | Plants and organ models | Lab A, Lab B | Wave 4 (after S13) |
-| 9 | App icons and share art | Install, share | Wave 4 |
+| 8 | Plants and organ models | Lab A, Lab B | Wave 4b (after S14) |
+| 9 | App icons and share art | Install, share | Wave 4: shipped, rendered in house with no fal spend |
 
 ## Wave plan
 
@@ -71,4 +71,7 @@ Rules for video clips
   shader (`LoopSky`) as a soft window above the horizon, graded to the navy and cyan palette, never a box. The
   precached WebP poster shows first and the video crosses in after its first decoded frame. Low tier and reduced
   motion get the poster only. Videos are not precached, so offline play keeps the poster. Spend $1.84.
-- Wave 4: plants, organs and icons once S14 lands (about $5).
+- Wave 4a: app icons, favicon and a 1200x630 share image. The icons are drawn by `scripts/gen-icons.mjs` in the
+  title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
+  screen. No fal spend.
+- Wave 4b: plants and organ models once S14 (Lab A organs) lands (about $5).
