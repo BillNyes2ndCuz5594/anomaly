@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CHROME_ARGS, CONTENT, freePort, startPreview } from './lib/drive.mjs'
 
-const OUT = '/workspace/anomaly-proof/mobile'
+const OUT = (process.env.PROOF_OUT || '/workspace/anomaly-proof') + '/mobile'
 const PHONE_UA = 'Mozilla/5.0 (Linux; Android 14; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'
 const TAB_UA = 'Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 const args = process.argv.slice(2)
@@ -30,9 +30,9 @@ const wanted = args.filter((a) => !a.startsWith('--'))
 const DEVICES = wanted.length ? ALL.filter((d) => wanted.includes(d.tag)) : ALL
 // S11: ?qaitems makes the case play the human organ item, owl and pelican, grasshopper and spider, panther and crab
 // and manatee, so specimens are shown and checked in the real item player on every device.
-const GAMEPLAY = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L142-07']
+const GAMEPLAY = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L142-07', 'L142-03']
 const QS = `?tier=low&qaitems=${GAMEPLAY.join(',')}`
-const PROOF = '/workspace/anomaly-proof'
+const PROOF = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 
 mkdirSync(OUT, { recursive: true })
 // Clear only what this run regenerates: a full run clears every PNG and JSON, a subset run only its own devices.
@@ -173,7 +173,7 @@ async function runDevice(dev, base) {
     }
   }
   const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
-  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   let screen = 'start'
   try {
     const page = await browser.newPage()
@@ -288,6 +288,7 @@ async function runDevice(dev, base) {
     await page.waitForSelector(tid('hub'))
     await audit('hub', 4500)
     copyFileSync(join(OUT, `${tag}-hub.png`), `${PROOF}/s15-hub-${tag}.png`)
+    copyFileSync(join(OUT, `${tag}-hub.png`), `${PROOF}/s16-hub-${tag}.png`)
 
     screen = 'settings'
     await tapId('open-settings')
@@ -387,6 +388,7 @@ async function runDevice(dev, base) {
         if (kind === 'case' && (tag === 's23-landscape' || tag === 'tab-portrait') && (item.id === 'L142-02' || item.id === 'L315-07')) {
           copyFileSync(join(OUT, `${tag}-${n === 0 ? 'case-item' : `case-item-${item.id}`}.png`), `${PROOF}/s15-stage-${tag}-${item.id}.png`)
         }
+        if (kind === 'case' && item.id === 'L142-03') copyFileSync(join(OUT, `${tag}-${n === 0 ? 'case-item' : `case-item-${item.id}`}.png`), `${PROOF}/s16-plantanimal-${tag}.png`)
         await tapId(`option-${item.key}`)
         await tapId('lock-in')
         await page.waitForSelector(tid('item-result'))

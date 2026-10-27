@@ -33,7 +33,7 @@ export const freePort = () =>
 export async function startPreview(port) {
   const base = `http://localhost:${port}/`
   const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
-  writeFileSync('/tmp/an-preview.pid', String(proc.pid))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(proc.pid))
   let log = ''
   proc.stdout.on('data', (d) => (log += d))
   proc.stderr.on('data', (d) => (log += d))
@@ -51,7 +51,7 @@ export async function startPreview(port) {
 
 export async function launch() {
   const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: CHROME_ARGS })
-  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   return browser
 }
 

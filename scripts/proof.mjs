@@ -13,7 +13,7 @@ import { createServer } from 'node:net'
 import { fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const OUT = '/workspace/anomaly-proof'
+const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 const ROOT = new URL('..', import.meta.url).pathname
 const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
 // A free port, so a stale preview server from an earlier run can never be tested by accident.
@@ -431,14 +431,14 @@ async function playCold(page, w) {
 }
 
 const preview = await startPreview()
-writeFileSync('/tmp/an-preview.pid', String(preview.pid))
+writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(preview.pid))
 let browser
 let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
   browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
-  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
   for (const vp of VIEWPORTS) {
@@ -485,6 +485,11 @@ try {
     await page.waitForSelector('[data-testid="hub"]')
     await sleep(3500)
     await shot(page, 'hub', w)
+    // S16: the hub with the hero drone, again under its own name for before and after review.
+    if (w === 1920) {
+      await page.screenshot({ path: `${OUT}/s16-hub-1920.png` })
+      shots.push('s16-hub-1920.png')
+    }
     const codename = await page.$eval('[data-testid="codename"]', (el) => el.textContent)
     check(`hub shows codename (${w})`, codename === preview14, codename)
     check(`case marker button (${w})`, !!(await page.$('[data-testid="case-marker-03-1"]')))
@@ -638,7 +643,7 @@ try {
     const urls = []
     tp.on('request', (r) => urls.push(r.url()))
     const cdp = await browser.target().createCDPSession()
-    const dl = `/tmp/anomaly-proof-dl-${w}`
+    const dl = `/tmp/anomaly-proof-dl${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-${w}`
     rmSync(dl, { recursive: true, force: true })
     mkdirSync(dl, { recursive: true })
     await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl })
@@ -746,6 +751,21 @@ try {
       await click(page, 'next-item')
       await sleep(400)
     }
+    await page.close()
+  }
+
+  // S16: the plant and animal item (hologram skeleton and cabbage palm on lit plinths) in the real item player.
+  {
+    const page = await profilePage(browser, BASE, `${QS}&qaitems=L142-03`, VIEWPORTS.find((v) => v.width === 1920), errors)
+    await toCaseStep(page, 'items')
+    await page.waitForSelector('[data-testid="stem"]')
+    await sleep(5500)
+    const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+    await page.waitForFunction((f) => (window.__anomaly?.frame ?? 0) >= f + 3, { timeout: 60000, polling: 200 }, f0).catch(() => {})
+    const fits = await fitReport(page)
+    check('plantanimal L142-03 model and pedestals fully inside their canvas with margin (1920)', fits.length >= 1 && fits.every((f) => f.over <= -0.02), fits.map((f) => f.over.toFixed(3)).join(','))
+    await page.screenshot({ path: `${OUT}/s16-plantanimal-1920.png` })
+    shots.push('s16-plantanimal-1920.png')
     await page.close()
   }
 
@@ -1024,7 +1044,7 @@ try {
 
   // ---------- test counts and summary ----------
   console.log('\n== unit tests ==')
-  const jsonOut = '/tmp/anomaly-vitest.json'
+  const jsonOut = `/tmp/anomaly-vitest${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}.json`
   rmSync(jsonOut, { force: true })
   spawnSync('npx', ['vitest', 'run', '--reporter=json', `--outputFile=${jsonOut}`], { cwd: ROOT, stdio: 'ignore' })
   let tests = { total: 0, passed: 0, failed: 0, files: 0 }
@@ -1037,7 +1057,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
+  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 2 = s16 hub and plantanimal shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
