@@ -10,7 +10,7 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, 
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { createServer } from 'node:net'
-import { fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
+import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
@@ -115,6 +115,12 @@ const click = async (page, id) => {
 }
 const text = (page, id) => page.$eval(`[data-testid="${id}"]`, (e) => e.textContent)
 const attr = (page, id, a) => page.$eval(`[data-testid="${id}"]`, (e, a) => e.getAttribute(a), a)
+
+/** Waits for a few fresh rendered frames (software GPUs are slow). */
+async function waitFrames(page, n = 3) {
+  const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+  await page.waitForFunction((f, k) => (window.__anomaly?.frame ?? 0) >= f + k, { timeout: 60000, polling: 200 }, f0, n).catch(() => {})
+}
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
 const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl']
@@ -749,6 +755,78 @@ try {
     await page.close()
   }
 
+  // S18: HUD typography and layout shots (s18-ui-*): title, hub, briefing, results at 1920, title and hub at 2560x1440.
+  // Also asserts the type floor on those screens: body text at least 16 px, every label at least 12 px, no horizontal overflow.
+  {
+    const page = await browser.newPage()
+    watch(page, 's18-ui')
+    const vp1920 = { width: 1920, height: 1080, deviceScaleFactor: 1 }
+    await page.setViewport(vp1920)
+    await page.goto(BASE + QS + '#/', { waitUntil: 'load' })
+    await page.evaluate(() => localStorage.clear())
+    await page.reload({ waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="start-shift"]')
+    await waitFrames(page)
+    const snap18 = async (name) => {
+      await waitFrames(page)
+      const file = `s18-ui-${name}.png`
+      await page.screenshot({ path: `${OUT}/${file}` })
+      shots.push(file)
+    }
+    const typeFloor = async (screen) => {
+      const r = await page.evaluate(() => {
+        const bodySel = '.dispatch-lines p, .dispatch-hook, .debrief-stem, .debrief-line, .why-list li > span, .bench-label, .case-sub, .bar-foot, .bar-label, .report-panel > p, .reward p, .intro, .hint, .picked'
+        const bad = []
+        for (const el of document.querySelectorAll('.hud-layer *')) {
+          const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())
+          if (!own || !el.offsetParent) continue
+          const px = parseFloat(getComputedStyle(el).fontSize)
+          const isBody = el.matches(bodySel)
+          if ((isBody && px < 15.99) || px < 11.99) bad.push(`${el.className || el.tagName}:${px.toFixed(1)}`)
+        }
+        return { bad: [...new Set(bad)], overflowX: document.documentElement.scrollWidth - innerWidth }
+      })
+      check(`s18 type floor on ${screen} (body 16 px, labels 12 px)`, r.bad.length === 0, r.bad.join(', '))
+      check(`s18 no horizontal overflow on ${screen}`, r.overflowX <= 0, String(r.overflowX))
+    }
+    await snap18('title-1920')
+    await typeFloor('title')
+    await page.click('[data-testid="start-shift"]')
+    await page.waitForSelector('[data-testid="firstrun-modal"]')
+    await page.type('[data-testid="classcode-input"]', 'DEMO')
+    await page.click('[data-testid="agent-input"]', { clickCount: 3 })
+    await page.type('[data-testid="agent-input"]', '14')
+    await page.click('[data-testid="firstrun-confirm"]')
+    await page.waitForSelector('[data-testid="hub"]')
+    page.setDefaultTimeout(60000)
+    await sleep(3500)
+    await snap18('hub-1920')
+    await typeFloor('hub')
+    await toCaseStep(page, 'briefing')
+    await sleep(2500)
+    await snap18('briefing-1920')
+    await typeFloor('briefing')
+    await toCaseStep(page, 'items')
+    await finishItems(page)
+    await sleep(2000)
+    await typeFloor('debrief')
+    await click(page, 'debrief-continue')
+    await page.waitForSelector('[data-testid="results"]')
+    await sleep(4000)
+    await snap18('results-1920')
+    await typeFloor('results')
+    await page.setViewport({ width: 2560, height: 1440, deviceScaleFactor: 1 })
+    await page.evaluate(() => (location.hash = '#/'))
+    await page.waitForSelector('[data-testid="title"]')
+    await sleep(2500)
+    await snap18('title-2560')
+    await page.evaluate(() => (location.hash = '#/hub'))
+    await page.waitForSelector('[data-testid="hub"]')
+    await sleep(3500)
+    await snap18('hub-2560')
+    await page.close()
+  }
+
   // ?debug=1 forces the readout on
   {
     const page = await browser.newPage()
@@ -1037,7 +1115,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
+  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 + 6 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
