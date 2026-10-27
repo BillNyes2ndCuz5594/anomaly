@@ -55,9 +55,10 @@ Rules for video clips
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
-| 6b | Manatee | Lab C close-up, items | Wave 4b: scan registered (made in wave 2, held for S14) |
+| 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot) |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
-| 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; bladder and small intestine stay procedural |
+| 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue |
+| 8b | Lab A human body | Lab A, Briefing | Wave 5a: scanned body shell and muscle layer replace the sculpted mannequin on Medium and up |
 | 9 | App icons and share art | Install, share | Wave 4: shipped, rendered in house with no fal spend |
 
 ## Wave plan
@@ -75,3 +76,9 @@ Rules for video clips
   title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
   screen. No fal spend.
 - Wave 4b: shipped. FLUX reference photos turned into Hunyuan3D scans, then baked offline to plain meshes with the scan light and dark kept as vertex shade (no textures). Each organ scan is fitted to the box of the procedural organ it replaces, so framing, picking and the highlight states stay put. The two kidneys come from one scan, mirrored. The Lab B oak wears scanned leaf sprigs on every leaf cluster and scanned acorns on the acorn spots. Low tier and any load failure keep the procedural parts. Packs: src/assets/scans/organ-scans.glb and oak-scans.glb (meshopt). Spend about $6.9.
+- Wave 5a: the Lab A human. A scanned body (one FLUX front photo into Hunyuan3D, 16k triangles) is warped offline
+  to the sculpted figure's landmarks (crotch, shoulders, neck, nose tip) and build, so every organ still sits inside
+  it, then ships as `src/assets/scans/body-scan.glb` with a slightly inset copy without head and hands for the muscle
+  layer. Eyes, ears, nose, tongue, bladder and small intestine are scanned and baked like wave 4b (eyes and ears as
+  mirrored pairs; the ears sit on the scanned body's own ears). The manatee is rescanned. Low tier keeps the
+  procedural hologram and face, which also has a straighter nose and a shaped tongue now. Spend about $5.85.

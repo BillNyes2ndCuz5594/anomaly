@@ -36,8 +36,9 @@ export function humanSkinPrims(): Prim[] {
   add(ellipsoid([0, 5.95, 0.2], [0.28, 0.2, 0.26], 0.14))
   add(ellipsoid([0, 5.87, 0.38], [0.13, 0.1, 0.11], 0.08))
   add(ellipsoid([0, 6.31, 0.41], [0.3, 0.06, 0.09], 0.07))
-  add(cone([0, 6.26, 0.43], [0, 6.04, 0.63], 0.05, 0.075, 0.07))
-  add(ellipsoid([0, 5.97, 0.63], [0.09, 0.07, 0.08], 0.05))
+  // nose: a straight bridge to a rounded tip that projects about a fifth of the face width
+  add(cone([0, 6.26, 0.43], [0, 6.03, 0.57], 0.045, 0.065, 0.06))
+  add(ellipsoid([0, 5.985, 0.575], [0.075, 0.06, 0.065], 0.05))
   for (const k of sides) {
     add(ellipsoid([k * 0.23, 6.1, 0.36], [0.1, 0.07, 0.08], 0.08))
     add(ellipsoid([k * 0.4, 6.14, -0.02], [0.07, 0.13, 0.09], 0.05))
