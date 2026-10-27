@@ -215,7 +215,16 @@ export function manateeModel(b: Builder): void {
       const e = new THREE.Euler().setFromQuaternion(q)
       const at = (o: number): V3 => [ep[0] + d[0] * o, ep[1] + d[1] * o, ep[2] + d[2] * o]
       b.ell(at(0.0), [0.034, 0.03, 0.012], '#14110e', [e.x, e.y, e.z], 14, 10, [0.7, 0])
-      b.torus(0.036, 0.008, { p: at(-0.004), r: [e.x, e.y, e.z], c: '#69685f' }, 8, 20)
+      // soft lid fold: a low skin mound around the eye instead of a hard ring
+      b.ell(at(-0.012), [0.058, 0.05, 0.018], '#6c6b65', [e.x, e.y, e.z], 14, 10)
+    }
+    // the ear is only a pinhole behind the eye: manatees have no outer ear
+    {
+      const hp: V3 = [1.42, 0.12, k * 0.55]
+      const d = unit([0.05, 0.15, k])
+      const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(...d))
+      const e = new THREE.Euler().setFromQuaternion(q)
+      b.ell(hp, [0.009, 0.009, 0.004], '#2a2824', [e.x, e.y, e.z], 8, 6)
     }
     // paddle flipper: wide and rounded, held out and back from the shoulder, with three small nails
     b.limb([[0.85, -0.36, k * 0.5], [0.95, -0.54, k * 0.92], [0.85, -0.66, k * 1.32], [0.68, -0.7, k * 1.58]], [[0.19, 0.14], [0.27, 0.095], [0.3, 0.065], [0.2, 0.042]], { c: '#6f6e69', m: THIN }, { radial: 20, seg: 8, cap: 8, paint: mottle(countershade('#706f6a', '#8d8a82', 0, 0.5), 0.06, 1.2, 12) })

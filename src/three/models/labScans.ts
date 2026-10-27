@@ -5,11 +5,12 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import organsUrl from '../../assets/scans/organ-scans.glb?url'
 import oakUrl from '../../assets/scans/oak-scans.glb?url'
+import bodyUrl from '../../assets/scans/body-scan.glb?url'
 import { toFloat } from './heroSpecimens'
 import { OAK_ACORNS, oakLeafEnds, rng } from './labB'
 import type { V3 } from './builder'
 
-// Lab scans (fal wave 4b): organs for Lab A and live oak sprigs and acorns for Lab B, made with fal.ai (FLUX reference
+// Lab scans (fal waves 4b and 5a): organs, sense organs and the body shell for Lab A and live oak sprigs and acorns for Lab B, made with fal.ai (FLUX reference
 // photo, then Hunyuan3D v3), decimated and baked offline to plain meshes whose COLOR_0 is the scan's own light and dark
 // (grey shade, no texture). The organ and hologram materials multiply that shade into their glow, so each part keeps
 // its tint and states while showing real surface detail. Each scan is fitted to the procedural part it replaces, so
@@ -70,14 +71,24 @@ function finish(geo: THREE.BufferGeometry): THREE.BufferGeometry {
 // ---------- organs ----------
 
 /** Organs that have a scan in organ-scans.glb (mesh names). The rest stay procedural. */
-export const ORGAN_SCAN_IDS = ['brain', 'heart', 'lungs', 'liver', 'stomach', 'pancreas', 'large-intestine', 'kidneys'] as const
+export const ORGAN_SCAN_IDS = ['brain', 'heart', 'lungs', 'liver', 'stomach', 'pancreas', 'small-intestine', 'large-intestine', 'kidneys', 'bladder', 'eyes', 'ears', 'nose', 'tongue'] as const
+/** Organs built as a left and right pair from one scan (the pack holds one side under the singular name). */
+const PAIRED: Record<string, string> = { kidneys: 'kidney', eyes: 'eye', ears: 'ear' }
 const organCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>()
 
 /** The scan fitted into the procedural organ's own box (the organ geometry is centered on its origin). */
-export function fitOrgan(scan: THREE.BufferGeometry, procedural: THREE.BufferGeometry): THREE.BufferGeometry {
+export function fitOrgan(scan: THREE.BufferGeometry, procedural: THREE.BufferGeometry, inset?: [number, number, number]): THREE.BufferGeometry {
   procedural.computeBoundingBox()
   const b = procedural.boundingBox!
-  return finish(fitBox(scan.clone(), b.getSize(new THREE.Vector3()), b.getCenter(new THREE.Vector3())))
+  const size = b.getSize(new THREE.Vector3())
+  const at = b.getCenter(new THREE.Vector3())
+  if (inset) {
+    // shrink toward the box's -x side (the figure's right), so the +x flank comes in and the rest stays put
+    const full = size.clone()
+    size.multiply(new THREE.Vector3(...inset))
+    at.x -= (full.x - size.x) / 2
+  }
+  return finish(fitBox(scan.clone(), size, at))
 }
 
 // Kidney spots copied from the procedural kidneys (humanOrgans.ts), figure space. k = -1 is the figure's right (-x).
@@ -119,13 +130,68 @@ export function kidneyPair(scan: THREE.BufferGeometry, center: V3): THREE.Buffer
   return finish(mergeGeometries(parts))
 }
 
+// Eye and ear spots in figure space. The eyes sit in the procedural sockets; the ears sit on the scanned body's own
+// ears (a little further back and out than the procedural ear bumps), since both scans load on the same tiers.
+const EYE_AT = (k: number): V3 => [k * 0.165, 6.18, 0.33]
+const EYE_SIZE = new THREE.Vector3(0.112, 0.108, 0.112)
+const EAR_AT = (k: number): V3 => [k * 0.452, 6.15, -0.095]
+const EAR_SIZE = new THREE.Vector3(0.05, 0.25, 0.15)
+
+/** Both eyeballs from one scan (cornea facing +z), each fitted into its socket. */
+export function eyePair(scan: THREE.BufferGeometry, center: V3): THREE.BufferGeometry {
+  const parts = [-1, 1].map((k) => {
+    const c = EYE_AT(k)
+    const g = keepShade(scan.clone())
+    if (k > 0) mirrorX(g)
+    return fitBox(g, EYE_SIZE, new THREE.Vector3(c[0] - center[0], c[1] - center[1], c[2] - center[2]))
+  })
+  return finish(mergeGeometries(parts))
+}
+
+/**
+ * Both outer ears from one scan of a right ear (bowl facing +z, front edge at +x): turned so the bowl faces out to the
+ * figure's right and the front edge points forward, then mirrored for the left ear.
+ */
+export function earPair(scan: THREE.BufferGeometry, center: V3): THREE.BufferGeometry {
+  const parts = [-1, 1].map((k) => {
+    const c = EAR_AT(k)
+    const g = keepShade(scan.clone()).rotateY(-Math.PI / 2)
+    if (k > 0) mirrorX(g)
+    return fitBox(g, EAR_SIZE, new THREE.Vector3(c[0] - center[0], c[1] - center[1], c[2] - center[2]))
+  })
+  return finish(mergeGeometries(parts))
+}
+
+/**
+ * Organs cut from the scanned body itself, already shaped and placed in figure space: the nose is the body scan's own
+ * nose as a thin closed shell, so it sits exactly on the scanned face. The value is its baked box center.
+ */
+const IN_PLACE: Record<string, V3> = { nose: [0.0009, 6.0351, 0.5924] }
+
+/** A scan baked in figure space, moved from loadPack's centered frame into the organ's frame (relative to `center`). */
+export function placeInFigure(scan: THREE.BufferGeometry, at: V3, center: V3): THREE.BufferGeometry {
+  return finish(scan.clone().translate(at[0] - center[0], at[1] - center[1], at[2] - center[2]))
+}
+
+/** The scanned stomach fills a little less of the procedural box toward the left flank, so it stays inside the scanned body. */
+const INSET: Record<string, [number, number, number]> = { stomach: [0.9, 1, 0.94] }
+
 function organScan(id: string, procedural: THREE.BufferGeometry, center: V3): THREE.BufferGeometry | undefined {
   const have = organCache.get(procedural)
   if (have) return have
   const pack = done.get(organsUrl)
-  const scan = pack?.get(id === 'kidneys' ? 'kidney' : id)
+  const scan = pack?.get(PAIRED[id] ?? id)
   if (!scan) return undefined
-  const geo = id === 'kidneys' ? kidneyPair(scan, center) : fitOrgan(scan, procedural)
+  const geo =
+    id === 'kidneys'
+      ? kidneyPair(scan, center)
+      : id === 'eyes'
+        ? eyePair(scan, center)
+        : id === 'ears'
+          ? earPair(scan, center)
+          : IN_PLACE[id]
+            ? placeInFigure(scan, IN_PLACE[id], center)
+            : fitOrgan(scan, procedural, INSET[id])
   organCache.set(procedural, geo)
   return geo
 }
@@ -143,6 +209,47 @@ export function useOrganGeo(id: string, procedural: THREE.BufferGeometry, center
     }
   }, [wanted])
   return (wanted && organScan(id, procedural, center)) || procedural
+}
+
+// ---------- body ----------
+
+export interface BodyScan {
+  /** Outer skin shell, already in figure space (feet at y = 0, facing +z), warped offline so every organ sits inside. */
+  skin: THREE.BufferGeometry
+  /** The same surface pulled in a little, without the head and hands, for the muscle overlay. */
+  muscles: THREE.BufferGeometry
+}
+let body: BodyScan | null = null
+
+function bodyFromPack(pack: Pack): BodyScan | null {
+  const skin = pack.get('body')
+  const muscles = pack.get('muscles')
+  if (!skin || !muscles) return null
+  // loadPack centers each mesh on its box; both were baked in figure space, so move them back to their baked centers
+  return { skin: finish(skin.clone().translate(...BODY_CENTER)), muscles: finish(muscles.clone().translate(...MUSCLE_CENTER)) }
+}
+
+// Box centers of the baked meshes in body-scan.glb (figure space, feet at y = 0).
+const BODY_CENTER: V3 = [-0.0004, 3.3839, 0.1795]
+const MUSCLE_CENTER: V3 = [-0.0005, 2.7674, 0.181]
+
+/** The scanned body shell and muscle overlay once loaded (never on the Low tier); null keeps the sculpted shell. */
+export function useBodyScan(low: boolean): BodyScan | null {
+  const [, bump] = useState(0)
+  useEffect(() => {
+    if (low || done.has(bodyUrl)) return
+    let live = true
+    loadPack(bodyUrl).then(() => live && bump((n) => n + 1))
+    return () => {
+      live = false
+    }
+  }, [low])
+  if (low) return null
+  if (!body) {
+    const pack = done.get(bodyUrl)
+    if (pack) body = bodyFromPack(pack)
+  }
+  return body
 }
 
 // ---------- oak ----------
