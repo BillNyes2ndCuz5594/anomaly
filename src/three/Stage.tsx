@@ -3,11 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   autoStartTier,
   dprForTier,
-  initialAutoState,
+  DPR_STEPS,
+  initialAdaptiveState,
   resolveTier,
   rollingFps,
-  stepAuto,
-  type AutoState,
+  stepAdaptive,
+  type AdaptiveState,
   type Backend,
   type Tier,
   isAutoActive,
@@ -35,9 +36,9 @@ const GRACE_MS = 2500
 /** Measures fps, runs the Auto tier controller, exposes window.__anomaly. Renders nothing. */
 function Runtime() {
   const stamps = useRef<number[]>([])
-  const auto = useRef<AutoState>(initialAutoState(useRuntime.getState().autoTier))
+  const auto = useRef<AdaptiveState>(initialAdaptiveState(useRuntime.getState().autoTier, useRuntime.getState().dprStep))
   const graceUntil = useRef(performance.now() + GRACE_MS)
-  const lastTier = useRef<Tier | null>(null)
+  const lastKey = useRef<string | null>(null)
   const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
   // Draw stats of the last finished frame, including post passes. Info resets once per frame here.
   const stats = useRef({ calls: 0, triangles: 0 })
@@ -65,14 +66,15 @@ function Runtime() {
   useEffect(() => {
     const id = window.setInterval(() => {
       const now = performance.now()
-      const { backend, setFps, setAutoTier } = useRuntime.getState()
+      const { backend, setFps, setAutoTier, setDprStep } = useRuntime.getState()
       const quality = useGame.getState().settings.quality
       const tier = resolveTier(quality, useRuntime.getState().autoTier)
-      if (lastTier.current !== null && lastTier.current !== tier) {
+      const key = `${tier}:${useRuntime.getState().dprStep}`
+      if (lastKey.current !== null && lastKey.current !== key) {
         stamps.current.length = 0
         graceUntil.current = now + GRACE_MS
       }
-      lastTier.current = tier
+      lastKey.current = key
 
       const fps = rollingFps(stamps.current, now)
       const rounded = Math.round(fps * 10) / 10
@@ -89,11 +91,23 @@ function Runtime() {
       }
 
       if (!isAutoActive(quality) || document.hidden || now < graceUntil.current || fps === 0) return
-      const next = stepAuto({ ...auto.current, tier: useRuntime.getState().autoTier }, fps, SAMPLE_MS)
+      const rt = useRuntime.getState()
+      const next = stepAdaptive({ ...auto.current, tier: rt.autoTier, dprStep: rt.dprStep }, fps, SAMPLE_MS)
       auto.current = next
-      if (next.tier !== useRuntime.getState().autoTier) setAutoTier(next.tier)
+      if (next.dprStep !== rt.dprStep) setDprStep(next.dprStep)
+      if (next.tier !== rt.autoTier) setAutoTier(next.tier)
     }, SAMPLE_MS)
-    return () => window.clearInterval(id)
+    // Coming back to a hidden tab: the old frame stamps would read as a long stall, so start the window over.
+    const onVisible = () => {
+      if (document.hidden) return
+      stamps.current.length = 0
+      graceUntil.current = performance.now() + GRACE_MS
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [gl])
 
   return null
@@ -157,13 +171,28 @@ export interface StageProps {
   verticalInsets?: boolean
 }
 
+/** True while the tab is hidden: the canvas stops rendering completely instead of relying on throttled rAF. */
+function useDocumentHidden(): boolean {
+  const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
+  useEffect(() => {
+    const on = () => setHidden(document.hidden)
+    document.addEventListener('visibilitychange', on)
+    return () => document.removeEventListener('visibilitychange', on)
+  }, [])
+  return hidden
+}
+
 /** Persistent R3F canvas running on WebGPURenderer (WebGL2 fallback). */
 export default function Stage({ children, rightInset = 0, verticalInsets = false }: StageProps) {
   const insets = useHudInsets(rightInset, verticalInsets)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
-  const dpr = dprForTier(tier, window.devicePixelRatio)
+  const dprStep = useRuntime((s) => s.dprStep)
+  // Adaptive resolution only applies while Auto is in charge; a pinned tier always renders at its full cap.
+  const dprScale = isAutoActive(quality) ? DPR_STEPS[Math.min(dprStep, DPR_STEPS.length - 1)] : 1
+  const dpr = dprForTier(tier, window.devicePixelRatio, dprScale)
+  const hidden = useDocumentHidden()
   // Hero scans download in the background as soon as the 3D stage is up, so items show them without a visible swap.
   useEffect(() => {
     if (tier !== 'low') void preloadHeroes()
@@ -187,7 +216,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       gl={gl as never}
       dpr={dpr}
       camera={camera}
-      frameloop="always"
+      frameloop={hidden ? 'never' : 'always'}
       aria-hidden="true"
       style={{ position: 'absolute', inset: 0 }}
     >

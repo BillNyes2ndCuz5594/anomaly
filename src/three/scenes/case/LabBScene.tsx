@@ -24,6 +24,8 @@ function worldCenter(side: 'a' | 'p', id: string, lod: number): THREE.Vector3 | 
   return new THREE.Vector3(o[0] + p.center[0], o[1] + p.center[1], o[2] + p.center[2])
 }
 
+const tmpPoint = new THREE.Vector3()
+
 function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
   const packet = useRef<THREE.Mesh>(null)
   const lod = lodFor(useTier())
@@ -55,7 +57,7 @@ function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
   useFrame((state) => {
     const t = (state.clock.elapsedTime * 0.5) % 1
     const p = packet.current
-    if (p) p.position.copy(curve.getPoint(t))
+    if (p) p.position.copy(curve.getPoint(t, tmpPoint))
   })
   return (
     <group>
