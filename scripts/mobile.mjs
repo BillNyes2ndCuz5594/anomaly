@@ -287,6 +287,7 @@ async function runDevice(dev, base) {
     await tapId('firstrun-confirm')
     await page.waitForSelector(tid('hub'))
     await audit('hub', 4500)
+    copyFileSync(join(OUT, `${tag}-hub.png`), `${PROOF}/s15-hub-${tag}.png`)
 
     screen = 'settings'
     await tapId('open-settings')
@@ -383,6 +384,9 @@ async function runDevice(dev, base) {
           await audit(`${kind}-item-${item.id}`, 3500)
         }
         if (kind === 'case') copyFileSync(join(OUT, `${tag}-${n === 0 ? 'case-item' : `case-item-${item.id}`}.png`), `${PROOF}/s11-gameplay-${item.id}-${tag}.png`)
+        if (kind === 'case' && (tag === 's23-landscape' || tag === 'tab-portrait') && (item.id === 'L142-02' || item.id === 'L315-07')) {
+          copyFileSync(join(OUT, `${tag}-${n === 0 ? 'case-item' : `case-item-${item.id}`}.png`), `${PROOF}/s15-stage-${tag}-${item.id}.png`)
+        }
         await tapId(`option-${item.key}`)
         await tapId('lock-in')
         await page.waitForSelector(tid('item-result'))

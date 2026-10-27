@@ -12,7 +12,7 @@ import { useGame } from '../state/store'
 import { createRenderer } from './renderer'
 import { animalParts, plantParts } from './models/creatures'
 import { humanModel } from './models/human'
-import { Pedestal } from './scenes/case/common'
+import { StageBackdrop, StagePedestal } from './scenes/case/stageSet'
 import HumanFigure from './scenes/case/HumanFigure'
 import PartMesh from './scenes/case/PartMesh'
 import Specimen from './scenes/case/Specimen'
@@ -31,9 +31,10 @@ function Lights() {
 function SpecimenLights() {
   return (
     <>
-      <hemisphereLight args={['#b4c8e4', '#2b2824', 0.95]} />
-      <directionalLight position={[4, 7, 6]} intensity={2.3} color="#fff0dc" />
-      <directionalLight position={[-6, 3, -5]} intensity={1.7} color="#4fe6ff" />
+      <hemisphereLight args={['#b4c8e4', '#22344a', 0.9]} />
+      <directionalLight position={[3.5, 7.5, 6.5]} intensity={2.4} color="#fff0dc" />
+      <directionalLight position={[-6, 3, -5]} intensity={2.0} color="#4fe6ff" />
+      <directionalLight position={[6, 2.5, -5]} intensity={0.9} color="#6fdcff" />
       <pointLight position={[-4, 2, 5]} intensity={6} color="#ffd9b0" distance={24} decay={2} />
     </>
   )
@@ -55,7 +56,7 @@ function OrganVisual({ highlight, low }: { highlight: string[]; low: boolean }) 
     <>
       <FitCamera view={view} measure={content} />
       <group ref={content}>
-        <Pedestal radius={RING} />
+        <StagePedestal radius={RING} low={low} />
         <HumanFigure mode="visual" highlight={highlight} reduced={reduced} />
       </group>
     </>
@@ -84,7 +85,7 @@ function rowX(ids: string[]): number[] {
   return xs.map((v) => v - mid)
 }
 
-function SpecimenVisual({ ids }: { ids: string[] }) {
+function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const content = useRef<THREE.Group>(null)
   // A stage that is close to square (phones, tablets, big screens with a tall stage) looks down a little more, so the
@@ -103,7 +104,7 @@ function SpecimenVisual({ ids }: { ids: string[] }) {
       <group ref={content}>
         {ids.map((id, i) => (
           <group key={id} position={[xs[i], 0, 0]}>
-            <Pedestal radius={specimenRing(id, FIT)} />
+            <StagePedestal radius={specimenRing(id, FIT)} low={low} />
             <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
           </group>
         ))}
@@ -146,10 +147,10 @@ export default function ItemVisualCanvas({ visual }: { visual: Visual }) {
 
   return (
     <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
-      <color attach="background" args={['#091222']} />
+      {visual.kind === 'plantanimal' ? <color attach="background" args={['#091222']} /> : <StageBackdrop />}
       {visual.kind === 'specimen' ? <SpecimenLights /> : <Lights />}
       {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} low={tier === 'low'} /> : null}
-      {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} /> : null}
+      {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} low={tier === 'low'} /> : null}
       {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} /> : null}
     </Canvas>
   )

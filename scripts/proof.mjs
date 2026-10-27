@@ -734,6 +734,11 @@ try {
       check(`gameplay ${id} specimen canvas at least 60% inside the first viewport (1920)`, inside !== null && inside >= 0.6, String(inside?.toFixed(2)))
       await page.screenshot({ path: `${OUT}/s11-gameplay-${id}-1920.png` })
       shots.push(`s11-gameplay-${id}-1920.png`)
+      // S15: the two stage showcase items again under the s15-stage name, for before and after review.
+      if (id === 'L142-02' || id === 'L315-07') {
+        await page.screenshot({ path: `${OUT}/s15-stage-${id}-1920.png` })
+        shots.push(`s15-stage-${id}-1920.png`)
+      }
       await click(page, `option-${item.key}`)
       await click(page, 'lock-in')
       await page.waitForSelector('[data-testid="item-result"]')
@@ -1032,7 +1037,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 // 6 = s11-gameplay shots at 1920
+  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
