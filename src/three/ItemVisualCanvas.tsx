@@ -63,8 +63,12 @@ function OrganVisual({ highlight, low }: { highlight: string[]; low: boolean }) 
   )
 }
 
-// Animal at x -3.4 (about 4.6 wide, 3 tall), plant at x 3.4 (about 3 wide, from roots at -1.3 up to 3.6).
-const PLANT_ANIMAL_VIEW = { box: { min: [-6.0, -1.4, -1.0], max: [5.2, 3.7, 1.0] } as Box, elevation: 0.1 }
+// Animal at x -3.0 (x -1.8 to 2.6 around it, 3.5 tall, feet at 0), plant at x 3.0 (x -2.3 to 2.1, roots down to -1.24 and
+// crown up to 3.25). Both hologram pairs stand on one shared baseline: a pedestal top just under the root tips.
+const PA_TOP = -1.27
+const PA_RING = 2.3
+const AX = 3.0
+const PA_VIEW = { box: { min: [-5.3, -1.42, -2.0], max: [5.3, 3.7, 2.0] } as Box, elevation: 0.3 }
 const FIT = 3.0
 
 /** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
@@ -113,22 +117,28 @@ function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
   )
 }
 
-function PlantAnimalVisual({ show }: { show: string[] }) {
+function PlantAnimalVisual({ show, low }: { show: string[]; low: boolean }) {
   const content = useRef<THREE.Group>(null)
   return (
     <>
-      <FitCamera view={PLANT_ANIMAL_VIEW} measure={content} />
+      <FitCamera view={PA_VIEW} measure={content} />
       <group ref={content}>
-      <group position={[-3.4, 0, 0]}>
-        {animalParts().map((p) => (
-          <PartMesh key={p.id} part={p} fxId={`a:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
-        ))}
-      </group>
-      <group position={[3.4, 0, 0]}>
-        {plantParts().map((p) => (
-          <PartMesh key={p.id} part={p} fxId={`p:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
-        ))}
-      </group>
+        <group position={[-AX + 0.42, PA_TOP - 0.036, 0]}>
+          <StagePedestal radius={PA_RING} low={low} />
+        </group>
+        <group position={[AX - 0.12, PA_TOP - 0.036, 0]}>
+          <StagePedestal radius={PA_RING} low={low} />
+        </group>
+        <group position={[-AX, PA_TOP + 0.03, 0]}>
+          {animalParts().map((p) => (
+            <PartMesh key={p.id} part={p} fxId={`a:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
+          ))}
+        </group>
+        <group position={[AX, 0, 0]}>
+          {plantParts().map((p) => (
+            <PartMesh key={p.id} part={p} fxId={`p:${p.id}`} highlight={show.includes(p.id)} baseOpacity={0.5} />
+          ))}
+        </group>
       </group>
     </>
   )
@@ -147,11 +157,11 @@ export default function ItemVisualCanvas({ visual }: { visual: Visual }) {
 
   return (
     <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
-      {visual.kind === 'plantanimal' ? <color attach="background" args={['#091222']} /> : <StageBackdrop />}
-      {visual.kind === 'specimen' ? <SpecimenLights /> : <Lights />}
+      <StageBackdrop />
+      {visual.kind === 'organ' ? <Lights /> : <SpecimenLights />}
       {visual.kind === 'organ' ? <OrganVisual highlight={visual.highlight} low={tier === 'low'} /> : null}
       {visual.kind === 'specimen' ? <SpecimenVisual ids={visual.ids} low={tier === 'low'} /> : null}
-      {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} /> : null}
+      {visual.kind === 'plantanimal' ? <PlantAnimalVisual show={visual.show} low={tier === 'low'} /> : null}
     </Canvas>
   )
 }
