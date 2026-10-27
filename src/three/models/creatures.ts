@@ -16,6 +16,8 @@ export interface PartGeo {
   geo: THREE.BufferGeometry
   /** Center of the part, for light bridges. Geometry is recentered on the origin. */
   center: V3
+  /** Set on the Lab B oak parts, which may swap in scanned leaves and acorns (see labScans). */
+  oak?: boolean
 }
 
 function finish(id: string, b: Builder): PartGeo {
@@ -29,7 +31,7 @@ function buildAnimal(lod: number): PartGeo[] {
 }
 
 /** The oak is modelled a little wider than its pedestal, this brings it inside the ring and the camera frame. */
-const OAK_SCALE = 0.9
+export const OAK_SCALE = 0.9
 
 function buildPlant(lod: number): PartGeo[] {
   const o = oakBuilders(lod)
@@ -37,7 +39,7 @@ function buildPlant(lod: number): PartGeo[] {
   const part = (id: string, b: Builder | THREE.BufferGeometry): PartGeo => {
     const geo = b instanceof Builder ? b.build() : b
     sc(geo)
-    return { id, geo, center: recenter(geo) }
+    return { id, geo, center: recenter(geo), oak: true }
   }
   return [part('root', o.root), part('stem', o.stem), part('bark', o.bark), part('leaf', o.leaf), part('flower', o.flower), part('fruit', o.fruit), part('seed', o.seed), part('spore', o.spore)]
 }

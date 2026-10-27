@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CHROME_ARGS, CONTENT, freePort, startPreview } from './lib/drive.mjs'
 
-const OUT = '/workspace/anomaly-proof/mobile'
+const OUT = (process.env.PROOF_OUT || '/workspace/anomaly-proof') + '/mobile'
 const PHONE_UA = 'Mozilla/5.0 (Linux; Android 14; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'
 const TAB_UA = 'Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 const args = process.argv.slice(2)
@@ -32,7 +32,7 @@ const DEVICES = wanted.length ? ALL.filter((d) => wanted.includes(d.tag)) : ALL
 // and manatee, so specimens are shown and checked in the real item player on every device.
 const GAMEPLAY = ['L14-01', 'L315-03', 'L315-07', 'L142-02', 'L142-07', 'L142-03']
 const QS = `?tier=low&qaitems=${GAMEPLAY.join(',')}`
-const PROOF = '/workspace/anomaly-proof'
+const PROOF = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 
 mkdirSync(OUT, { recursive: true })
 // Clear only what this run regenerates: a full run clears every PNG and JSON, a subset run only its own devices.
@@ -173,7 +173,7 @@ async function runDevice(dev, base) {
     }
   }
   const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
-  writeFileSync('/tmp/an-chrome.pid', String(browser.process()?.pid ?? ''))
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   let screen = 'start'
   try {
     const page = await browser.newPage()
