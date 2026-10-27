@@ -92,7 +92,7 @@ export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefOb
 
 /** Frame rate independent damping factor for a given rate (per second). */
 export function dampFactor(rate: number, dt: number): number {
-  return 1 - Math.exp(-rate * Math.min(0.1, Math.max(0, dt)))
+  return 1 - Math.exp(-rate * Math.min(0.5, Math.max(0, dt)))
 }
 
 /** How far behind its resting pose the camera starts when a scene mounts (fraction of the distance). */
