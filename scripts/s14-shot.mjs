@@ -19,8 +19,9 @@ try {
     const xs = Object.values(o).map((v) => v[0]), ys = Object.values(o).map((v) => v[1])
     const cx = (Math.min(...xs) + Math.max(...xs)) / 2
     const top = Math.min(...ys), bot = Math.max(...ys)
-    clip = { x: Math.max(0, cx - 230), y: Math.max(0, top - 40), width: 460, height: bot - top + 80 }
+    clip = { x: Math.max(0, cx - 230), y: Math.max(0, top - 170), width: 460, height: bot - top + 210 }
   }
+  if (process.env.CLIP) { const [x, y, width, height] = process.env.CLIP.split(',').map(Number); clip = { x, y, width, height } }
   const out = `/tmp/s14/${target}-${vpw}-${yaw || 'd'}.png`
   await page.screenshot({ path: out, ...(clip ? { clip } : {}) })
   console.log('wrote', out, JSON.stringify(clip), errors.length ? errors : 'noerr')

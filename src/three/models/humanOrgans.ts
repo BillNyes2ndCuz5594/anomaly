@@ -222,7 +222,7 @@ export function buildAnatomy(id: string, b: Builder): boolean {
         54,
       )
       const radii = spine.map((_, i) => 0.098 + 0.015 * Math.cos(i * Math.PI) - (i > 44 ? (i - 44) * 0.006 : 0))
-      b.limb(spine, radii, {}, { radial: 12, seg: 2, paint: bands(27, 0.7) })
+      b.limb(spine, radii, {}, { radial: 14, seg: 3, paint: bands(27, 0.7) })
       // blind pouch below the join with the small bowel, and the little appendix
       b.ell([-0.43, 2.9, 0.12], [0.1, 0.08, 0.09], '#fff', [0, 0, 0], 14, 10)
       b.limb([[-0.4, 2.84, 0.15], [-0.32, 2.78, 0.2], [-0.24, 2.8, 0.22]], [0.03, 0.026, 0.02], { c: '#e6d2a0' }, { radial: 8, seg: 4 })
