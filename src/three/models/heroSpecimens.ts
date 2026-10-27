@@ -5,17 +5,26 @@ import pantherUrl from '../../assets/specimens/florida-panther.glb?url'
 import crabUrl from '../../assets/specimens/blue-crab.glb?url'
 import gatorUrl from '../../assets/specimens/american-alligator.glb?url'
 import spiderUrl from '../../assets/specimens/garden-spider.glb?url'
+import bassUrl from '../../assets/specimens/largemouth-bass.glb?url'
+import frogUrl from '../../assets/specimens/green-tree-frog.glb?url'
+import owlUrl from '../../assets/specimens/barred-owl.glb?url'
+import pelicanUrl from '../../assets/specimens/brown-pelican.glb?url'
+import sharkUrl from '../../assets/specimens/bull-shark.glb?url'
+import tortoiseUrl from '../../assets/specimens/gopher-tortoise.glb?url'
+import grasshopperUrl from '../../assets/specimens/grasshopper.glb?url'
 import { specimenGeo } from './creatures'
+import { meanProjectedArea, outlinePoints } from '../fit'
+import { DISPLAY_YAW, specimenArea } from './specimenBox'
 
 // Hero specimens: textured scan-style models made with fal.ai (Hunyuan3D v3 from a reference photo), decimated to
-// about 18k triangles with a 1024 px WebP color map and meshopt compression (200 to 340 KB each). They replace the
+// about 18k triangles with a 1024 px WebP color map and meshopt compression (about 160 to 410 KB each). They replace the
 // procedural sculpt on Medium tier and up. Low tier and any load failure keep the procedural model.
 
 interface HeroDef {
   url: string
   /** Yaw (radians) that turns the scan so the animal faces +x like the procedural models. */
   yaw: number
-  /** Turn about x applied first, for scans captured standing up (the orb weaver hangs in its web). */
+  /** Turn about x applied first, for scans captured from above (the orb weaver photo looks down on it). */
   tilt?: number
   /** Surface roughness for the lit material. */
   rough: number
@@ -25,7 +34,14 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'florida-panther': { url: pantherUrl, yaw: 0, rough: 0.82 },
   'blue-crab': { url: crabUrl, yaw: 0, rough: 0.5 },
   'american-alligator': { url: gatorUrl, yaw: 0, rough: 0.7 },
-  'garden-spider': { url: spiderUrl, yaw: 0, tilt: Math.PI / 2, rough: 0.55 },
+  'garden-spider': { url: spiderUrl, yaw: 0, tilt: -Math.PI / 2, rough: 0.55 },
+  'largemouth-bass': { url: bassUrl, yaw: 0, rough: 0.45 },
+  'green-tree-frog': { url: frogUrl, yaw: -Math.PI / 2, rough: 0.4 },
+  'barred-owl': { url: owlUrl, yaw: 0, rough: 0.85 },
+  'brown-pelican': { url: pelicanUrl, yaw: 0, rough: 0.8 },
+  'bull-shark': { url: sharkUrl, yaw: 0, rough: 0.5 },
+  'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.7 },
+  grasshopper: { url: grasshopperUrl, yaw: 0, rough: 0.6 },
 }
 
 export interface HeroSpecimen {
@@ -47,11 +63,16 @@ export function onHeroReady(fn: () => void): () => void {
 
 let loader: GLTFLoader | null = null
 
+/** How far a scan's height may exceed the procedural box (the camera frames the procedural outline). */
+const HERO_REACH = 1.05
+/** Width allowance past the procedural box (depth barely shows at the display yaw). */
+const HERO_SLACK = 1.4
+
 /**
  * Scan geometry laid along x (its long axis), turned by `yaw` so the head points +x like the procedural models, then
  * scaled to sit inside the procedural model's box so the existing camera framing and pedestal rings still fit.
  */
-export function normalizeHero(geo: THREE.BufferGeometry, yaw: number, target: [number, number, number], tilt = 0): THREE.BufferGeometry {
+export function normalizeHero(geo: THREE.BufferGeometry, yaw: number, target: [number, number, number], tilt = 0, area = 0): THREE.BufferGeometry {
   if (tilt) geo.rotateX(tilt)
   geo.computeBoundingBox()
   const pre = new THREE.Vector3()
@@ -62,11 +83,23 @@ export function normalizeHero(geo: THREE.BufferGeometry, yaw: number, target: [n
   const b = geo.boundingBox!
   const size = new THREE.Vector3()
   b.getSize(size)
-  // Side silhouette (length and height) sets the size; width may run a little past the procedural box.
-  const k = Math.min(target[0] / Math.max(size.x, 1e-6), target[1] / Math.max(size.y, 1e-6), (target[2] * 1.3) / Math.max(size.z, 1e-6))
   const c = new THREE.Vector3()
   b.getCenter(c)
   geo.translate(-c.x, -b.min.y, -c.z)
+  // With `area` (the procedural model's mean silhouette), the scan takes the same on-screen room as the model it
+  // replaces, so it fills its pedestal ring however much empty space the procedural box carries. The box caps keep
+  // it inside the camera framing.
+  let k = Infinity
+  if (area) {
+    const pts = outlinePoints(geo.getAttribute('position').array as ArrayLike<number>, 128)
+    k = Math.sqrt(area / Math.max(meanProjectedArea(pts, DISPLAY_YAW, 0.6, 0.24), 1e-9))
+  }
+  k = Math.min(
+    k,
+    target[0] / Math.max(size.x, 1e-6),
+    (target[1] * HERO_REACH) / Math.max(size.y, 1e-6),
+    (target[2] * HERO_SLACK) / Math.max(size.z, 1e-6),
+  )
   geo.scale(k, k, k)
   geo.computeBoundingBox()
   geo.computeBoundingSphere()
@@ -98,7 +131,7 @@ export function loadHero(id: string): Promise<HeroSpecimen | null> {
           map.colorSpace = THREE.SRGBColorSpace
           map.anisotropy = 4
         }
-        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt), map, rough: def.rough }
+        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id)), map, rough: def.rough }
         ready.set(id, hero)
         for (const fn of listeners) fn()
         return hero
