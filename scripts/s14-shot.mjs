@@ -22,7 +22,7 @@ try {
     clip = { x: Math.max(0, cx - 230), y: Math.max(0, top - 170), width: 460, height: bot - top + 210 }
   }
   if (process.env.CLIP) { const [x, y, width, height] = process.env.CLIP.split(',').map(Number); clip = { x, y, width, height } }
-  const out = `/tmp/s14/${target}-${vpw}-${yaw || 'd'}.png`
+  const out = `/tmp/s14/${target}-${vpw}-${yaw || "d"}${process.env.TAG || ""}.png`
   await page.screenshot({ path: out, ...(clip ? { clip } : {}) })
   console.log('wrote', out, JSON.stringify(clip), errors.length ? errors : 'noerr')
 } finally {
