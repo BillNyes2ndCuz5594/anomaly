@@ -10,8 +10,12 @@ import {
   length,
   max,
   min,
+  mix,
+  normalWorld,
+  normalView,
   oneMinus,
   positionLocal,
+  positionViewDirection,
   pow,
   saturate,
   sin,
@@ -155,18 +159,39 @@ const PLANET_ANGLE = 2.55
 function Planet({ reduced }: { reduced: boolean }) {
   const orbit = useRef<THREE.Group>(null)
   const moon = useRef<THREE.Group>(null)
-  const planetMat = useMemo(
-    () => createHologramMaterial({ color: '#ffb547', opacity: 0.9, intensity: 1.1, scanDensity: 28, fresnelPower: 1.8 }),
-    [],
-  )
-  const ringMat = useMemo(
-    () => createHologramMaterial({ color: '#ffd9a0', opacity: 0.7, intensity: 0.9, scanDensity: 6, fresnelPower: 0.8, sweep: 0 }),
-    [],
-  )
-  const moonMat = useMemo(
-    () => createHologramMaterial({ color: HOLO_CYAN, opacity: 0.9, intensity: 1.2, scanDensity: 34, fresnelPower: 1.6 }),
-    [],
-  )
+  const planetMat = useMemo(() => {
+    // Banded gas giant: latitude bands warped by a slow longitude wave, polar haze, soft key light and a cool rim.
+    const m = new THREE.MeshBasicNodeMaterial()
+    const lat = positionLocal.y.div(0.3)
+    const lon = atan(positionLocal.z, positionLocal.x)
+    const warp = sin(lat.mul(4.0).add(lon.mul(2.0))).mul(0.6)
+    const b1 = sin(lat.mul(14.0).add(warp)).mul(0.5).add(0.5)
+    const b2 = sin(lat.mul(33.0).add(1.3).add(warp.mul(0.5))).mul(0.5).add(0.5)
+    const band = b1.mul(0.65).add(b2.mul(0.35))
+    const polar = smoothstep(0.55, 0.98, lat.abs())
+    const albedo = mix(mix(vec3(0.43, 0.3, 0.2), vec3(0.89, 0.76, 0.55), band), vec3(0.3, 0.3, 0.36), polar.mul(0.55))
+    const ndl = normalWorld.dot(vec3(-0.5, 0.6, 0.62).normalize())
+    const lit = smoothstep(-0.05, 0.85, ndl)
+    const facing = saturate(normalView.dot(positionViewDirection))
+    const rim = pow(oneMinus(facing), 3).mul(0.5)
+    m.colorNode = albedo.mul(lit.mul(1.0).add(0.07)).add(vec3(0.25, 0.85, 1).mul(rim))
+    return m
+  }, [])
+  const ringMat = useMemo(() => {
+    // Thin translucent ring: fine radial banding, one dark gap, soft edges.
+    const m = new THREE.MeshBasicNodeMaterial()
+    const u = length(positionLocal.xy).sub(0.42).div(0.2)
+    const fine = sin(u.mul(15.0).add(1.0)).mul(0.5).add(0.5).mul(0.7).add(sin(u.mul(57.0)).mul(0.5).add(0.5).mul(0.3))
+    const gap = oneMinus(smoothstep(0.5, 0.55, u).mul(oneMinus(smoothstep(0.62, 0.68, u))))
+    const edge = smoothstep(0.0, 0.08, u).mul(oneMinus(smoothstep(0.9, 1.0, u)))
+    m.colorNode = mix(vec3(0.5, 0.42, 0.33), vec3(0.88, 0.78, 0.62), fine)
+    m.opacityNode = fine.mul(0.35).add(0.22).mul(gap).mul(edge).mul(0.7)
+    m.transparent = true
+    m.depthWrite = false
+    m.side = THREE.DoubleSide
+    return m
+  }, [])
+  const moonMat = useMemo(() => new THREE.MeshStandardNodeMaterial({ color: '#9aa8b8', roughness: 0.9, metalness: 0 }), [])
   const trail = useMemo(() => createHologramMaterial({ opacity: 0.5, intensity: 0.7, scanDensity: 3, sweep: 0 }), [])
   useFrame((state, dt) => {
     if (reduced) return
@@ -187,7 +212,7 @@ function Planet({ reduced }: { reduced: boolean }) {
             <primitive object={planetMat} attach="material" />
           </mesh>
           <mesh rotation={[1.3, 0.0, -0.3]}>
-            <ringGeometry args={[0.4, 0.62, 64]} />
+            <ringGeometry args={[0.42, 0.62, 96]} />
             <primitive object={ringMat} attach="material" />
           </mesh>
           <group ref={moon} rotation={[0, reduced ? 1 : 0, 0]}>
