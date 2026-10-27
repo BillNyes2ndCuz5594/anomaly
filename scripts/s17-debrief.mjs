@@ -22,8 +22,17 @@ try {
   }
   await page.waitForSelector('[data-testid="debrief"]')
   const early = await page.$eval('[data-testid="debrief-score"]', (e) => ({ t: e.textContent, final: e.dataset.countFinal, hidden: e.getAttribute('aria-hidden') }))
+  await sleep(3000)
   await page.evaluate(() => {
-    for (const a of document.getAnimations()) if (a.effect?.target?.closest?.('.stamp, .debrief-head') && a.effect.getTiming().iterations !== Infinity) { a.pause(); a.currentTime = 180 }
+    const s = '.stamp'
+    const els = [...document.querySelectorAll(`${s}, ${s} *`)].filter((e) => {
+      const cs = getComputedStyle(e)
+      return cs.animationName !== 'none' && cs.animationIterationCount !== 'infinite'
+    })
+    els.forEach((e) => (e.style.animation = 'none'))
+    void document.body.offsetWidth
+    els.forEach((e) => (e.style.animation = ''))
+    for (const a of document.getAnimations()) if (a.effect?.target?.closest?.('.stamp, .debrief-head') && a.effect.getTiming().iterations !== Infinity) { a.pause(); a.currentTime = 200 }
   })
   await page.screenshot({ path: `/tmp/s17/${label}-debrief-stamp.png` })
   await page.evaluate(() => document.getAnimations().forEach((a) => a.playState === 'paused' && a.play()))

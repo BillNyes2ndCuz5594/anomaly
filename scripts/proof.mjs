@@ -169,9 +169,17 @@ async function settleMotion(page) {
 /** S17 motion frames at 1920: scrub finished animations back to a chosen time, shoot, then let them finish. */
 async function motionShots(page, name, w) {
   if (w !== 1920) return
+  // Finished animations with backwards fill are no longer listed, so restart them first, then scrub.
   const scrub = (sel, ms) =>
     page.evaluate(
       (s, t) => {
+        const els = [...document.querySelectorAll(`${s}, ${s} *`)].filter((e) => {
+          const cs = getComputedStyle(e)
+          return cs.animationName !== 'none' && cs.animationIterationCount !== 'infinite'
+        })
+        els.forEach((e) => (e.style.animation = 'none'))
+        void document.body.offsetWidth
+        els.forEach((e) => (e.style.animation = ''))
         for (const a of document.getAnimations()) {
           const el = a.effect?.target
           if (el && el.closest && el.closest(s) && a.effect.getTiming().iterations !== Infinity) {
