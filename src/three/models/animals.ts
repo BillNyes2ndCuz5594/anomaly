@@ -210,7 +210,7 @@ export function manateeModel(b: Builder): void {
 // ---------- Largemouth bass ----------
 
 export function bassModel(b: Builder): void {
-  const back = '#587f3a'
+  const back = '#52743a'
   const flank = '#b4bf78'
   const belly = '#eeecce'
   const fn = '#5d8a3c'
@@ -219,9 +219,9 @@ export function bassModel(b: Builder): void {
   const coat = paintWith(countershade(back, belly, -0.05, 0.28), (t, cs, sn, out) => {
     // pale olive flank, then one clear dark lateral stripe from the gill cover to the tail base with a slightly wavy edge
     lerpHex(out, flank, (1 - smooth(0.0, 0.5, Math.abs(sn + 0.12))) * 0.55)
-    const mid = 0.06 + 0.03 * Math.sin(t * 17)
-    const band = smooth(0.2, 0.3, t) * (1 - smooth(0.9, 0.99, t)) * (1 - smooth(0.14, 0.27, Math.abs(sn - mid))) * smooth(0.1, 0.35, Math.abs(cs))
-    lerpHex(out, '#1f2e19', band * (0.82 + 0.15 * Math.sin(t * 31)))
+    const mid = 0.1 + 0.03 * Math.sin(t * 17)
+    const band = smooth(0.2, 0.3, t) * (1 - smooth(0.9, 0.99, t)) * (1 - smooth(0.14, 0.24, Math.abs(sn - mid))) * smooth(0.1, 0.35, Math.abs(cs))
+    lerpHex(out, '#18241a', band * (0.88 + 0.1 * Math.sin(t * 31)))
     // faint vertical parr bars above the stripe
     lerpHex(out, '#3b5530', smooth(0.9, 1, Math.sin(t * 46)) * smooth(0.1, 0.4, sn) * smooth(0.2, 0.4, t) * 0.25)
     if (t > 0.7) lerpHex(out, '#d7e0a3', smooth(0.72, 1, t) * 0.3 * (1 - smooth(-0.2, 0.3, sn)))
@@ -235,7 +235,7 @@ export function bassModel(b: Builder): void {
     b.limb([[1.28, 0.34, k * 0.3], [1.14, 0.0, k * 0.37], [1.2, -0.3, k * 0.34]], 0.015, { c: '#31482a' }, { radial: 6, seg: 6, cap: 1 })
     eye(b, [1.72, 0.2, k * 0.27], 0.115, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
     // pectoral fin
-    fin(b, [[1.0, -0.16, k * 0.34], [0.72, -0.26, k * 0.62], [0.44, -0.38, k * 0.84], [0.28, -0.43, k * 0.92]], [0.1, 0.2, 0.19, 0.05], 0.03, '#8da35e', 'xz', undefined, 12)
+    fin(b, [[1.0, -0.16, k * 0.34], [0.72, -0.26, k * 0.62], [0.44, -0.38, k * 0.84], [0.28, -0.43, k * 0.92]], [0.1, 0.2, 0.19, 0.05], 0.03, '#7e9857', 'xz', undefined, 12)
   }
   // spiny front dorsal: stiff spines with a scalloped membrane between them, a notch, then the soft rear dorsal
   const tops = [0.7, 0.71, 0.72, 0.72, 0.71, 0.7, 0.68, 0.66]
