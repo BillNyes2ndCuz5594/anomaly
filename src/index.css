@@ -2588,8 +2588,14 @@ html[data-reduced-motion='true'] .results-panel::after {
     gap: var(--sp-2);
   }
   .debrief-head {
-    padding: var(--sp-4) var(--sp-6);
+    padding: var(--sp-3) var(--sp-6);
     margin-bottom: var(--sp-4);
+  }
+  .debrief-body {
+    bottom: 12px;
+  }
+  .debrief-stem {
+    line-height: 1.45;
   }
   .debrief-score {
     font-size: var(--fs-display);
@@ -2622,22 +2628,24 @@ html[data-reduced-motion='true'] .results-panel::after {
     padding: var(--sp-4) var(--sp-5);
   }
   .bar-label {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
   .bar-head .bench-id {
-    font-size: 1rem;
+    font-size: 1.0625rem;
   }
   .bar-head {
     margin-bottom: var(--sp-3);
   }
   .bar-track {
-    height: 32px;
+    height: 44px;
   }
   .bar-ladder {
-    margin-top: var(--sp-2);
+    margin-top: var(--sp-3);
+    font-size: 0.8125rem;
   }
   .bar-foot {
     margin-top: var(--sp-3);
+    font-size: var(--fs-lead);
   }
   .results-side {
     gap: var(--sp-4);
@@ -2656,7 +2664,7 @@ html[data-reduced-motion='true'] .results-panel::after {
     font-size: var(--fs-display);
   }
   .results-side .reward-num {
-    font-size: 5rem;
+    font-size: 6rem;
   }
   .results-side .reward p {
     font-size: var(--fs-lead);
@@ -2665,7 +2673,7 @@ html[data-reduced-motion='true'] .results-panel::after {
     font-size: var(--fs-display);
   }
   .results-side .btn.primary.big {
-    margin-top: auto;
+    margin-top: 0;
     min-height: 64px;
   }
 }
