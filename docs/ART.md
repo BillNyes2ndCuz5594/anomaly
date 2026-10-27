@@ -52,17 +52,20 @@ Rules for video clips
 | 1 | Florida panther | Evidence item, art check | Wave 1: scan shipped |
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
-| 4 | Garden spider | Evidence item | Wave 1: scan shipped |
+| 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: seamless video loop plus poster |
-| 6 | Manatee, pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2 (after S13 merges, manatee there) |
+| 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
+| 6b | Manatee | Lab C close-up, items | Scan made in wave 2, held until S14 (Lab C close-up rework) merges |
 | 7 | Lab ambience (Lab A, B, C backdrops) | Labs | Wave 3: subtle masked video loops |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4 (after S13) |
 | 9 | App icons and share art | Install, share | Wave 4 |
 
 ## Wave plan
 
-- Wave 1 (this PR): panther, crab, alligator, spider scans in the item player and art check.
-- Wave 2: the remaining 8 animals as scans with the same pipeline (about $5).
+- Wave 1: panther, crab, alligator, spider scans in the item player and art check.
+- Wave 2: 7 more animals plus a new spider scan. Every scan is now sized to the procedural model's mean silhouette
+  area, so it fills the pedestal ring the same way, capped at the procedural length, 1.05x its height and 1.4x its
+  width so it never leaves the camera framing. Manatee waits for S14.
 - Wave 3: video loops for title, hub and lab ambience, built as seamless loops with poster frames and static
   fallback, plus a frame strip proof of a clip playing in gameplay (about $6 to $12).
 - Wave 4: plants, organs and icons once S13 lands (about $5).
