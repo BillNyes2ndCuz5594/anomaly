@@ -2,13 +2,14 @@ import * as THREE from 'three/webgpu'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { Builder, countershade, getBuilderLod, setBuilderLod, groundCenter, mottle, recenter, smooth, spineAt, type V3 } from './builder'
 
+import { deerBuilders, oakBuilders } from './labB'
 import { pantherModel } from './panther'
 import { owlModel } from './owl'
 import { pelicanModel } from './pelican'
 import { grasshopperModel } from './grasshopper'
 import { bassModel, DARK, crabModel, eye, frogModel, gatorModel, manateeModel, mirrorZ, paw, sharkModel, spiderModel, toes } from './animals'
 
-// ---------- Lab B: dog-like mammal and flowering tree ----------
+// ---------- Lab B: white-tailed deer and live oak (see labB.ts) ----------
 
 export interface PartGeo {
   id: string
@@ -22,107 +23,38 @@ function finish(id: string, b: Builder): PartGeo {
   return { id, geo, center: recenter(geo) }
 }
 
-function buildAnimal(): PartGeo[] {
-  const skin = new Builder()
-  skin
-    .capsule(0.55, 1.3, { p: [0, 1.55, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.85] }, 14)
-    .sphere(0.6, { p: [0.55, 1.6, 0], s: [1, 1.05, 0.85] }, 12, 8)
-    .sphere(0.56, { p: [-0.6, 1.55, 0], s: [1, 1, 0.9] }, 12, 8)
-    .capsule(0.3, 0.4, { p: [1.15, 2.0, 0], r: [0, 0, -0.9] }, 10)
-    .sphere(0.43, { p: [1.5, 2.35, 0], s: [1.1, 0.95, 0.9] }, 12, 8)
-    .capsule(0.2, 0.35, { p: [1.98, 2.24, 0], r: [0, 0, Math.PI / 2], s: [1, 1, 0.9] }, 8)
-    .sphere(0.09, { p: [2.22, 2.28, 0] }, 8, 6)
-    .cone(0.17, 0.42, { p: [1.36, 2.82, 0.3], r: [0.25, 0, 0.35] }, 6)
-    .cone(0.17, 0.42, { p: [1.36, 2.82, -0.3], r: [-0.25, 0, 0.35] }, 6)
-    .capsule(0.1, 0.7, { p: [-1.3, 2.05, 0], r: [0, 0, 0.95] }, 6)
-  for (const x of [0.85, -0.85]) {
-    for (const z of [0.32, -0.32]) {
-      skin
-        .capsule(0.18, 0.5, { p: [x, 0.95, z] }, 8)
-        .capsule(0.14, 0.4, { p: [x, 0.38, z] }, 8)
-        .sphere(0.2, { p: [x + 0.08, 0.1, z], s: [1.3, 0.6, 1] }, 8, 6)
-    }
-  }
-
-  const bones = new Builder()
-  bones
-    .sphere(0.3, { p: [1.5, 2.35, 0], s: [1.15, 0.9, 0.8] }, 10, 7)
-    .capsule(0.1, 0.3, { p: [1.92, 2.22, 0], r: [0, 0, Math.PI / 2] }, 6)
-    .tube([[1.3, 2.1, 0], [0.6, 1.95, 0], [-0.5, 1.9, 0], [-1.15, 1.95, 0]], 0.06, {}, 24, 6)
-    .tube([[-1.15, 1.95, 0], [-1.45, 2.2, 0], [-1.7, 2.5, 0]], 0.04, {}, 10, 5)
-    .sphere(0.26, { p: [-0.85, 1.75, 0], s: [0.8, 1, 0.9] }, 8, 6)
-  for (const x of [0.65, 0.35, 0.05, -0.25, -0.5]) bones.torus(0.42, 0.04, { p: [x, 1.6, 0], r: [0, Math.PI / 2, 0], s: [1, 1, 1] }, 5, 14)
-  for (const x of [0.85, -0.85]) {
-    for (const z of [0.32, -0.32]) {
-      bones.seg([x, 1.4, z], [x, 0.7, z], 0.07, undefined, 0.05).seg([x, 0.7, z], [x, 0.14, z], 0.05, undefined, 0.05)
-    }
-  }
-  return [finish('skin', skin), finish('skeleton', bones)]
+function buildAnimal(lod: number): PartGeo[] {
+  const d = deerBuilders(lod)
+  return [finish('skin', d.skin), finish('skeleton', d.bones)]
 }
 
-function buildPlant(): PartGeo[] {
-  const root = new Builder()
-  root
-    .tube([[0, 0, 0], [0, -0.5, 0], [0.05, -1.3, 0]], 0.07, {}, 12, 5)
-    .tube([[0, -0.1, 0], [-0.45, -0.5, 0.1], [-0.95, -0.85, 0.1]], 0.06, {}, 12, 5)
-    .tube([[0, -0.1, 0], [0.45, -0.5, -0.1], [0.95, -0.9, 0]], 0.06, {}, 12, 5)
-    .tube([[0, -0.3, 0], [-0.3, -0.8, -0.2], [-0.55, -1.2, -0.2]], 0.04, {}, 10, 5)
-    .tube([[0, -0.3, 0], [0.3, -0.85, 0.2], [0.5, -1.25, 0.25]], 0.04, {}, 10, 5)
+/** The oak is modelled a little wider than its pedestal, this brings it inside the ring and the camera frame. */
+const OAK_SCALE = 0.9
 
-  const stem = new Builder()
-  stem
-    .cyl(0.13, 0.19, 2.7, { p: [0, 1.35, 0] }, 8)
-    .tube([[0, 1.9, 0], [-0.4, 2.35, 0.05], [-0.95, 2.75, 0.1]], 0.07, {}, 14, 5)
-    .tube([[0, 2.0, 0], [0.45, 2.4, -0.05], [0.95, 2.7, 0]], 0.07, {}, 14, 5)
-    .tube([[0, 2.5, 0], [0.1, 2.9, 0.3], [0.25, 3.2, 0.55]], 0.05, {}, 12, 5)
-    .tube([[0, 2.5, 0], [-0.15, 2.95, -0.25], [-0.3, 3.3, -0.45]], 0.05, {}, 12, 5)
-
-  const bark = new Builder()
-  bark.cyl(0.22, 0.32, 1.5, { p: [0, 0.75, 0] }, 7).torus(0.27, 0.035, { p: [0, 0.55, 0], r: [Math.PI / 2, 0, 0] }, 4, 7).torus(0.25, 0.035, { p: [0, 1.0, 0], r: [Math.PI / 2, 0, 0] }, 4, 7)
-
-  const leaf = new Builder()
-  const leaves: [V3, number][] = [
-    [[-1.15, 2.85, 0.1], 0.35],
-    [[-0.75, 3.05, 0.35], -0.2],
-    [[1.15, 2.8, 0], -0.35],
-    [[0.75, 3.0, -0.3], 0.2],
-    [[0.35, 3.4, 0.6], -0.3],
-    [[-0.45, 3.45, -0.5], 0.3],
-    [[0, 3.1, 0.5], 0],
-    [[-0.5, 2.35, 0.4], 0.15],
-    [[0.55, 2.4, -0.35], -0.15],
-    [[0.2, 3.3, -0.3], 0.1],
-  ]
-  for (const [p, rz] of leaves) leaf.sphere(0.4, { p, s: [1.1, 0.17, 0.6], r: [0.2, rz * 2, rz] }, 8, 5)
-
-  const flower = new Builder()
-  flower.sphere(0.13, { p: [0.28, 3.3, 0.58] }, 8, 6)
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2
-    flower.sphere(0.17, { p: [0.28 + Math.cos(a) * 0.27, 3.3 + Math.sin(a) * 0.27, 0.58], s: [1, 0.55, 0.3], r: [0, 0, a] }, 8, 5)
+function buildPlant(lod: number): PartGeo[] {
+  const o = oakBuilders(lod)
+  const sc = (g: THREE.BufferGeometry) => g.scale(OAK_SCALE, OAK_SCALE, OAK_SCALE)
+  const part = (id: string, b: Builder | THREE.BufferGeometry): PartGeo => {
+    const geo = b instanceof Builder ? b.build() : b
+    sc(geo)
+    return { id, geo, center: recenter(geo) }
   }
-
-  const fruit = new Builder()
-  const fruitPos: V3[] = [[0.9, 2.55, 0.18], [-0.85, 2.6, 0.3], [0.25, 2.65, 0.5]]
-  for (const p of fruitPos) fruit.sphere(0.2, { p }, 10, 8)
-
-  const seed = new Builder()
-  for (const p of fruitPos) {
-    seed.sphere(0.045, { p: [p[0] - 0.05, p[1] + 0.03, p[2]] }, 5, 4).sphere(0.045, { p: [p[0] + 0.06, p[1] - 0.03, p[2] + 0.02] }, 5, 4)
-  }
-
-  const spore = new Builder()
-  for (const [p] of [leaves[0], leaves[2], leaves[7]]) {
-    for (let i = 0; i < 4; i++) spore.sphere(0.035, { p: [p[0] - 0.25 + i * 0.17, p[1] - 0.08, p[2] + (i % 2) * 0.1] }, 5, 4)
-  }
-
-  return [finish('root', root), finish('stem', stem), finish('bark', bark), finish('leaf', leaf), finish('flower', flower), finish('fruit', fruit), finish('seed', seed), finish('spore', spore)]
+  return [part('root', o.root), part('stem', o.stem), part('bark', o.bark), part('leaf', o.leaf), part('flower', o.flower), part('fruit', o.fruit), part('seed', o.seed), part('spore', o.spore)]
 }
 
-let animalCache: PartGeo[] | null = null
-let plantCache: PartGeo[] | null = null
-export const animalParts = () => (animalCache ??= buildAnimal())
-export const plantParts = () => (plantCache ??= buildPlant())
+const animalCache = new Map<number, PartGeo[]>()
+const plantCache = new Map<number, PartGeo[]>()
+/** Lab B parts. `lod` below 1 is the lighter Low tier build. */
+export const animalParts = (lod = 1): PartGeo[] => {
+  let p = animalCache.get(lod)
+  if (!p) animalCache.set(lod, (p = buildAnimal(lod)))
+  return p
+}
+export const plantParts = (lod = 1): PartGeo[] => {
+  let p = plantCache.get(lod)
+  if (!p) plantCache.set(lod, (p = buildPlant(lod)))
+  return p
+}
 
 // ---------- Tortoise shell ----------
 
