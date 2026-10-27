@@ -204,3 +204,20 @@ export function depthOnlyMaterial(): THREE.MeshBasicNodeMaterial {
   m.depthWrite = true
   return m
 }
+
+/**
+ * Lit material for the textured hero scans: the scan's color map with the same soft down-facing occlusion, cool sky
+ * fill and cyan rim as litSpecimen, so scans and procedural specimens sit in one lighting world.
+ */
+export function litHero(map: THREE.Texture | null, rough = 0.7): THREE.MeshStandardNodeMaterial {
+  const m = new THREE.MeshStandardNodeMaterial({ roughness: rough, metalness: 0 })
+  const facing = abs(dot(normalView, positionViewDirection))
+  const rim = pow(saturate(float(1).sub(facing)), float(3))
+  const sky = saturate(normalWorld.y.mul(0.5).add(0.5))
+  const ao = mix(float(0.72), float(1), saturate(normalWorld.y.mul(1.1).add(0.55)))
+  const base: THREE.Node<'vec3'> = map ? texture(map).rgb : vec3(0.7, 0.62, 0.5)
+  // Scans carry some baked light; lift the deepest shadows a touch and keep saturation natural.
+  m.colorNode = base.mul(1.06).mul(ao)
+  m.emissiveNode = vec3(0.24, 0.9, 1).mul(rim).mul(0.16).add(vec3(0.015, 0.025, 0.04).mul(sky))
+  return m
+}
