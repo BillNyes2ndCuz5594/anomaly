@@ -12,6 +12,7 @@ import pelicanUrl from '../../assets/specimens/brown-pelican.glb?url'
 import sharkUrl from '../../assets/specimens/bull-shark.glb?url'
 import tortoiseUrl from '../../assets/specimens/gopher-tortoise.glb?url'
 import grasshopperUrl from '../../assets/specimens/grasshopper.glb?url'
+import manateeUrl from '../../assets/specimens/manatee.glb?url'
 import { specimenGeo } from './creatures'
 import { meanProjectedArea, outlinePoints } from '../fit'
 import { DISPLAY_YAW, specimenArea } from './specimenBox'
@@ -42,6 +43,7 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'bull-shark': { url: sharkUrl, yaw: 0, rough: 0.5 },
   'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.7 },
   grasshopper: { url: grasshopperUrl, yaw: 0, rough: 0.6 },
+  manatee: { url: manateeUrl, yaw: 0, rough: 0.75 },
 }
 
 export interface HeroSpecimen {

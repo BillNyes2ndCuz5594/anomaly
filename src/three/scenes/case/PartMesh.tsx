@@ -4,7 +4,9 @@ import * as THREE from 'three/webgpu'
 import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, tintedHolo } from '../../materials/tinted'
 import type { PartGeo } from '../../models/creatures'
-import { pointerHandlers } from './common'
+import { OAK_SCALE } from '../../models/creatures'
+import { useOakGeo } from '../../models/labScans'
+import { pointerHandlers, useTier } from './common'
 
 import { PAIR_TINTS } from './pairTints'
 const pairColors = PAIR_TINTS.map((t) => new THREE.Color(t))
@@ -29,6 +31,7 @@ export interface PartMeshProps {
 /** One hologram part with hover, armed, matched and flash states driven by the fx store. */
 export default function PartMesh({ part, fxId, prio = 0, pickable = false, highlight, tint, baseOpacity = 0.55 }: PartMeshProps) {
   const ref = useRef<THREE.Mesh>(null)
+  const geo = useOakGeo(part.id, part.geo, part.center, OAK_SCALE, useTier() === 'low', part.oak)
   const kind = KIND[part.id]
   const mat = useMemo(() => tintedHolo(tint ?? '#56B4E9', baseOpacity, kind !== 'shell', kind !== 'inner'), [tint, baseOpacity, kind])
   const depthMat = useMemo(() => (kind === 'shell' ? depthOnlyMaterial() : null), [kind])
@@ -91,11 +94,11 @@ export default function PartMesh({ part, fxId, prio = 0, pickable = false, highl
   return (
     <>
       {depthMat ? (
-        <mesh geometry={part.geo} position={part.center}>
+        <mesh geometry={geo} position={part.center}>
           <primitive object={depthMat} attach="material" />
         </mesh>
       ) : null}
-      <mesh ref={ref} geometry={part.geo} position={part.center} userData={pickable ? { part: fxId, prio } : {}} {...(hand ?? {})}>
+      <mesh ref={ref} geometry={geo} position={part.center} userData={pickable ? { part: fxId, prio } : {}} {...(hand ?? {})}>
         <primitive object={mat} attach="material" />
       </mesh>
     </>

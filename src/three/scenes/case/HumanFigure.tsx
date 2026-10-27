@@ -6,6 +6,7 @@ import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, humanShell, organMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
 import { pointerHandlers, useTier } from './common'
+import { useOrganGeo } from '../../models/labScans'
 
 export interface HumanFigureProps {
   /** lab: interactive with hover and flashes. visual: static highlights for item art. */
@@ -36,7 +37,8 @@ function publishOrgan(id: string, mesh: THREE.Mesh, state: { camera: THREE.Camer
   el.dataset.organs = JSON.stringify(organScreen)
 }
 
-function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganDef; mode: HumanFigureProps['mode']; highlighted: boolean; dimOthers: boolean; reduced: boolean }) {
+function OrganMesh({ def, mode, highlighted, dimOthers, reduced, low }: { def: OrganDef; mode: HumanFigureProps['mode']; highlighted: boolean; dimOthers: boolean; reduced: boolean; low: boolean }) {
+  const geo = useOrganGeo(def.id, def.geo, def.center, low)
   const ref = useRef<THREE.Mesh>(null)
   const mat = useMemo(() => organMaterial(def.tint), [def.tint])
   const base = useMemo(() => new THREE.Color(def.tint), [def.tint])
@@ -110,7 +112,7 @@ function OrganMesh({ def, mode, highlighted, dimOthers, reduced }: { def: OrganD
   })
 
   return (
-    <mesh ref={ref} geometry={def.geo} position={def.center} userData={{ part: def.id, prio: 1 }} {...(hand ?? {})}>
+    <mesh ref={ref} geometry={geo} position={def.center} userData={{ part: def.id, prio: 1 }} {...(hand ?? {})}>
       <primitive object={mat} attach="material" />
     </mesh>
   )
@@ -206,7 +208,7 @@ export default function HumanFigure({ mode, highlight = [], spin = false, reduce
       ) : null}
       {ORGAN_LIST.filter((o) => o.id !== 'skin').map((o) => {
         const def = model.organs.get(o.id)!
-        return <OrganMesh key={o.id} def={def} mode={mode} highlighted={highlight.includes(o.id)} dimOthers={dimOthers} reduced={reduced} />
+        return <OrganMesh key={o.id} def={def} mode={mode} highlighted={highlight.includes(o.id)} dimOthers={dimOthers} reduced={reduced} low={low} />
       })}
       {children}
     </group>
