@@ -11,7 +11,8 @@ describe('hero specimen scans', () => {
       expect(specimenGeo(id).size[0]).toBeGreaterThan(0)
       expect(existsSync(new URL(`../../assets/specimens/${id}.glb`, import.meta.url))).toBe(true)
     }
-    expect(hasHero('manatee')).toBe(false)
+    expect(hasHero('manatee')).toBe(true)
+    expect(hasHero('not-a-scan')).toBe(false)
   })
 
   it('dequantizes normalized attributes before transforming', () => {

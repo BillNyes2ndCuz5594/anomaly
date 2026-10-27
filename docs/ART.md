@@ -55,9 +55,9 @@ Rules for video clips
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
-| 6b | Manatee | Lab C close-up, items | Scan made in wave 2, held until S14 (Lab C close-up rework) merges |
+| 6b | Manatee | Lab C close-up, items | Wave 4b: scan registered (made in wave 2, held for S14) |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
-| 8 | Plants and organ models | Lab A, Lab B | Wave 4b (after S14) |
+| 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; bladder and small intestine stay procedural |
 | 9 | App icons and share art | Install, share | Wave 4: shipped, rendered in house with no fal spend |
 
 ## Wave plan
@@ -74,4 +74,4 @@ Rules for video clips
 - Wave 4a: app icons, favicon and a 1200x630 share image. The icons are drawn by `scripts/gen-icons.mjs` in the
   title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
   screen. No fal spend.
-- Wave 4b: plants and organ models once S14 (Lab A organs) lands (about $5).
+- Wave 4b: shipped. FLUX reference photos turned into Hunyuan3D scans, then baked offline to plain meshes with the scan light and dark kept as vertex shade (no textures). Each organ scan is fitted to the box of the procedural organ it replaces, so framing, picking and the highlight states stay put. The two kidneys come from one scan, mirrored. The Lab B oak wears scanned leaf sprigs on every leaf cluster and scanned acorns on the acorn spots. Low tier and any load failure keep the procedural parts. Packs: src/assets/scans/organ-scans.glb and oak-scans.glb (meshopt). Spend about $6.9.

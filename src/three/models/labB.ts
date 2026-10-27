@@ -10,7 +10,7 @@ import { chain, cone, ellipsoid, makeField, meshField, primBounds, type Prim } f
 const mirrorZ = [1, -1]
 
 /** Small deterministic generator, so the tree is the same on every load. */
-function rng(seed: number): () => number {
+export function rng(seed: number): () => number {
   let s = seed >>> 0
   return () => {
     s = (s * 1664525 + 1013904223) >>> 0
@@ -253,6 +253,12 @@ function barkRidge(p: THREE.Vector3): number {
   return trunk * (0.03 * ridge + 0.008 * fine)
 }
 
+/** Where the acorns hang (oak space): the scanned acorns of the upgraded Lab B oak sit on the same spots. */
+export const OAK_ACORNS: readonly V3[] = [[1.05, 2.6, 0.2], [-1.05, 2.5, 0.28], [0.18, 2.2, 0.55], [-0.35, 2.3, -0.5]]
+
+/** Leaf cluster centers and radii (oak space), shared by the procedural leaves and the scanned sprigs. */
+export const oakLeafEnds = (): [V3, number][] => oakTwigs(oakLimbs().limbs).ends
+
 export function oakBuilders(lod = 1): { root: Builder; stem: Builder; bark: THREE.BufferGeometry; leaf: Builder; flower: Builder; fruit: Builder; seed: Builder; spore: Builder } {
   const { trunk, limbs } = oakLimbs()
   const { twigs, ends } = oakTwigs(limbs)
@@ -314,8 +320,7 @@ export function oakBuilders(lod = 1): { root: Builder; stem: Builder; bark: THRE
   // fruit: acorns with a scaly cap, hanging on short stalks
   const fruit = new Builder()
   const seed = new Builder()
-  const acorns: V3[] = [[1.05, 2.6, 0.2], [-1.05, 2.5, 0.28], [0.18, 2.2, 0.55], [-0.35, 2.3, -0.5]]
-  for (const [x, y, z] of acorns) {
+  for (const [x, y, z] of OAK_ACORNS) {
     fruit.ell([x, y, z], [0.1, 0.15, 0.1], '#fff', [0, 0, 0], 12, 8)
     fruit.sphere(0.115, { p: [x, y + 0.1, z], s: [1, 0.6, 1] }, 12, 6)
     fruit.limb([[x, y + 0.17, z], [x + 0.02, y + 0.3, z]], 0.014, {}, { radial: 5, seg: 2, cap: 2 })
