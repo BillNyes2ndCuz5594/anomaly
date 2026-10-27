@@ -35,12 +35,12 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
       <aside className="panel brackets side-panel dispatch-card" aria-label={cold ? 'Dispatch briefing, cold case' : 'Dispatch briefing'}>
         <header className="dispatch-head">
           <span className="dispatch-dot" aria-hidden="true" />
-          <span className="mono label amber">DISPATCH</span>
+          <span className="label amber">DISPATCH</span>
           <span className="mono signal" aria-hidden="true">
             <i /> <i /> <i /> <i />
           </span>
         </header>
-        <h1 className="mono dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
+        <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
         <p className="dispatch-hook">{c.dispatchHook}</p>
         <div className="dispatch-lines" data-testid="briefing-text">
           {layout.lines.map((words, li) => (
@@ -58,7 +58,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
           <div className="row">
             <button
               type="button"
-              className="btn"
+              className="btn ghost"
               data-testid="read-aloud"
               aria-pressed={ra.speaking}
               onClick={() => (ra.speaking ? ra.stop() : ra.start())}

@@ -5,22 +5,27 @@ import type { Backend, Tier } from './quality'
 interface RuntimeState {
   backend: Backend
   autoTier: Tier
+  /** Auto resolution step, index into DPR_STEPS (0 is full resolution). */
+  dprStep: number
   fps: number
   /** Hub marker highlighted by keyboard focus or hover on its HTML mirror. */
   focusedMarker: 'case' | 'cold' | null
   setFocusedMarker: (m: 'case' | 'cold' | null) => void
   setBackend: (b: Backend) => void
   setAutoTier: (t: Tier) => void
+  setDprStep: (n: number) => void
   setFps: (n: number) => void
 }
 
 export const useRuntime = create<RuntimeState>((set) => ({
   backend: 'none',
   autoTier: 'medium',
+  dprStep: 0,
   fps: 0,
   focusedMarker: null,
   setFocusedMarker: (focusedMarker) => set({ focusedMarker }),
   setBackend: (backend) => set({ backend }),
   setAutoTier: (autoTier) => set({ autoTier }),
+  setDprStep: (dprStep) => set({ dprStep }),
   setFps: (fps) => set({ fps }),
 }))

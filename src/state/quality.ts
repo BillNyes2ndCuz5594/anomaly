@@ -23,7 +23,7 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
   low: { dprCap: 0.75, antialias: false, bloom: false, vignette: false, grain: false, contactShadow: false, particles: 90 },
   medium: { dprCap: 1.25, antialias: true, bloom: true, vignette: false, grain: false, contactShadow: false, particles: 220 },
   high: { dprCap: 1.75, antialias: true, bloom: true, vignette: true, grain: true, contactShadow: true, particles: 420 },
-  ultra: { dprCap: 4, antialias: true, bloom: true, vignette: true, grain: true, contactShadow: true, particles: 700 },
+  ultra: { dprCap: 2, antialias: true, bloom: true, vignette: true, grain: true, contactShadow: true, particles: 700 },
 }
 
 export const AUTO_MAX_TIER: Tier = 'high'
@@ -38,10 +38,18 @@ export function isPostTier(tier: Tier): boolean {
 }
 
 /** DPR to hand to the canvas for a tier on a display with the given device pixel ratio. */
-export function dprForTier(tier: Tier, devicePixelRatio: number): number {
+export function dprForTier(tier: Tier, devicePixelRatio: number, scale = 1): number {
   const cap = TIER_CONFIG[tier].dprCap
-  return Math.max(0.5, Math.min(devicePixelRatio || 1, cap))
+  return Math.max(0.5, Math.min(devicePixelRatio || 1, cap) * scale)
 }
+
+/** Resolution multipliers Auto walks through before it gives up a whole tier. Index 0 is full resolution. */
+export const DPR_STEPS: readonly number[] = [1, 0.8, 0.65]
+/** Sustained slow frames before Auto lowers resolution one step (a tier drop after the last step). */
+export const DPR_DOWN_MS = 2000
+/** A step down this soon after a step up counts as oscillation and doubles the wait before the next step up. */
+export const OSCILLATION_MS = 30000
+export const MAX_UP_MS = 64000
 
 /** Tier Auto starts at, before any FPS data exists. */
 export function autoStartTier(backend: Backend): Tier {
@@ -117,4 +125,50 @@ export function rollingFps(stamps: number[], now: number, windowMs = 2000): numb
   if (now - stamps[stamps.length - 1] > 5000) return 0
   const span = stamps[stamps.length - 1] - stamps[0]
   return span > 0 ? ((stamps.length - 1) * 1000) / span : 0
+}
+
+export interface AdaptiveState {
+  tier: Tier
+  /** Index into DPR_STEPS, 0 is full resolution. */
+  dprStep: number
+  lowMs: number
+  highMs: number
+  /** Running clock in ms, advanced by every sample. */
+  clockMs: number
+  /** Clock value of the last step up, or -Infinity. */
+  lastUpAt: number
+  /** Fast frames needed before the next step up. Doubles after every oscillation, up to MAX_UP_MS. */
+  upNeedMs: number
+}
+
+export function initialAdaptiveState(tier: Tier, dprStep = 0): AdaptiveState {
+  return { tier, dprStep, lowMs: 0, highMs: 0, clockMs: 0, lastUpAt: -Infinity, upNeedMs: STEP_UP_MS }
+}
+
+/**
+ * Auto controller with adaptive resolution. Under 45 fps for 2 s lowers the resolution one step;
+ * once the lowest step is reached the next 2 s drop the tier (resolution stays low so the cheaper tier
+ * does not cost more pixels than it saves). Over 58 fps for 8 s raises resolution first, then the tier.
+ * A step down within 30 s of a step up doubles the step up wait, so it never oscillates.
+ */
+export function stepAdaptive(state: AdaptiveState, fps: number, dtMs: number): AdaptiveState {
+  const clockMs = state.clockMs + dtMs
+  let lowMs = fps < FPS_LOW ? state.lowMs + dtMs : 0
+  let highMs = fps > FPS_HIGH ? state.highMs + dtMs : 0
+  let { tier, dprStep, lastUpAt, upNeedMs } = state
+  const tierIdx = TIERS.indexOf(tier)
+  if (lowMs >= DPR_DOWN_MS) {
+    if (clockMs - lastUpAt < OSCILLATION_MS) upNeedMs = Math.min(upNeedMs * 2, MAX_UP_MS)
+    if (dprStep < DPR_STEPS.length - 1) dprStep++
+    else if (tierIdx > 0) tier = TIERS[tierIdx - 1]
+    lowMs = 0
+    highMs = 0
+  } else if (highMs >= upNeedMs) {
+    if (dprStep > 0) dprStep--
+    else if (tierIdx < TIERS.indexOf(AUTO_MAX_TIER)) tier = TIERS[tierIdx + 1]
+    if (dprStep !== state.dprStep || tier !== state.tier) lastUpAt = clockMs
+    lowMs = 0
+    highMs = 0
+  }
+  return { tier, dprStep, lowMs, highMs, clockMs, lastUpAt, upNeedMs }
 }
