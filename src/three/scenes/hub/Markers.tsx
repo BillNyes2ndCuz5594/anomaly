@@ -10,6 +10,8 @@ import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
 import { TABLE_TOP_Y } from './MapTable'
 
+const tmpScale = new THREE.Vector3()
+
 interface MarkerProps {
   id: 'case' | 'cold'
   lon: number
@@ -106,7 +108,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     }
     if (root.current) {
       const target = active ? 1.28 : 1
-      root.current.scale.lerp(new THREE.Vector3(target, target, target), Math.min(1, dt * 9))
+      root.current.scale.lerp(tmpScale.setScalar(target), Math.min(1, dt * 9))
     }
   })
 

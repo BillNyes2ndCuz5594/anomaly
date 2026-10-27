@@ -46,11 +46,11 @@ export function CaseTop({ step }: { step: CaseStep }) {
   const kind = useSession((s) => s.kind)
   return (
     <div className="topbar case-top">
-      <button type="button" className="btn small" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
+      <button type="button" className="btn small ghost" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
         Hub
       </button>
       <StepBar step={step} kind={kind} />
-      <span className="mono label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`}</span>
+      <span className="label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`}</span>
     </div>
   )
 }
@@ -64,7 +64,7 @@ export function Verdict({ ok, word, children, testId }: { ok: boolean; word: str
         {ok ? '\u2714' : '\u2716'}
       </span>
       <div>
-        <strong className="mono verdict-word">{word}</strong>
+        <strong className="verdict-word">{word}</strong>
         {children ? <p>{children}</p> : null}
       </div>
     </div>
@@ -97,8 +97,8 @@ export function ReadAloudButton({ text, testId = 'read-aloud', label = 'Read alo
 export function PanelHead({ code, title, sub }: { code: string; title: string; sub?: string }) {
   return (
     <header className="panel-head">
-      <span className="mono label">{code}</span>
-      <h2 className="mono panel-title">{title}</h2>
+      <span className="label">{code}</span>
+      <h2 className="panel-title">{title}</h2>
       {sub ? <p className="muted">{sub}</p> : null}
     </header>
   )

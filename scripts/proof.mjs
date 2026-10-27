@@ -10,7 +10,7 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, 
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { createServer } from 'node:net'
-import { fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
+import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
@@ -116,8 +116,14 @@ const click = async (page, id) => {
 const text = (page, id) => page.$eval(`[data-testid="${id}"]`, (e) => e.textContent)
 const attr = (page, id, a) => page.$eval(`[data-testid="${id}"]`, (e, a) => e.getAttribute(a), a)
 
+/** Waits for a few fresh rendered frames (software GPUs are slow). */
+async function waitFrames(page, n = 3) {
+  const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+  await page.waitForFunction((f, k) => (window.__anomaly?.frame ?? 0) >= f + k, { timeout: 60000, polling: 200 }, f0, n).catch(() => {})
+}
+
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp']
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -148,7 +154,82 @@ async function shotTall(page, name, w, vp) {
   await page.setViewport({ ...vp, deviceScaleFactor: 1 })
   await sleep(500)
 }
+/** Waits for finite screen, panel and veil animations (not the light bursts) so no shot catches a mid-animation frame. */
+async function settleMotion(page) {
+  await page.evaluate(() =>
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => {
+            const el = a.effect?.target
+            return a.effect?.getTiming().iterations !== Infinity && !(el && el.closest && el.closest('.burst'))
+          })
+          .map((a) => a.finished.catch(() => {})),
+      ),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]),
+  )
+}
+
+/** S17 motion frames at 1920: scrub finished animations back to a chosen time, shoot, then let them finish. */
+async function motionShots(page, name, w) {
+  if (w !== 1920) return
+  // Finished animations with backwards fill are no longer listed, so restart them first, then scrub.
+  const scrub = (sel, ms) =>
+    page.evaluate(
+      (s, t) => {
+        const els = [...document.querySelectorAll(`${s}, ${s} *`)].filter((e) => {
+          const cs = getComputedStyle(e)
+          return cs.animationName !== 'none' && cs.animationIterationCount !== 'infinite'
+        })
+        els.forEach((e) => (e.style.animation = 'none'))
+        void document.body.offsetWidth
+        els.forEach((e) => (e.style.animation = ''))
+        for (const a of document.getAnimations()) {
+          const el = a.effect?.target
+          if (el && el.closest && el.closest(s) && a.effect.getTiming().iterations !== Infinity) {
+            a.pause()
+            a.currentTime = t
+          }
+        }
+      },
+      sel,
+      ms,
+    )
+  const resume = () => page.evaluate(() => document.getAnimations().forEach((a) => a.playState === 'paused' && a.play()))
+  const write = async (nm) => {
+    const file = `${String(ORDER.indexOf(nm) + 1).padStart(2, '0')}-${nm}-${w}.png`
+    await page.screenshot({ path: `${OUT}/${file}` })
+    shots.push(file)
+  }
+  if (name === 'hub') {
+    // The veil a moment into its reveal, then the settled hub.
+    await page.evaluate(() => (document.querySelector('.veil').dataset.phase = 'reveal'))
+    await page.evaluate(() => {
+      for (const a of document.querySelector('.veil').getAnimations({ subtree: true })) {
+        a.pause()
+        a.currentTime = 45
+      }
+    })
+    await write('s17-motion-veil')
+    await page.evaluate(() => (document.querySelector('.veil').dataset.phase = 'idle'))
+    await write('s17-motion-hub')
+  } else if (name === 'briefing') {
+    await scrub('.screen-host', 130)
+    await write('s17-motion-panels')
+    await resume()
+    await settleMotion(page)
+  } else if (name === 'debrief') {
+    await scrub('.stamp', 230)
+    await write('s17-motion-stamp')
+    await resume()
+    await settleMotion(page)
+  }
+}
+
 async function shot(page, name, w, opts = {}) {
+  if (name !== 'debrief' && name !== 'results-with-code') await settleMotion(page)
   if (!name.startsWith('teacher')) {
     // Software GPUs are slow: wait for several fresh frames (and the post pipeline) before capturing.
     const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
@@ -175,6 +256,7 @@ async function shot(page, name, w, opts = {}) {
   const fits = await fitReport(page)
   for (const f of fits) check(`${name} model bbox fully inside canvas ${f.canvasW}x${f.canvasH} (${w})`, f.over <= 0.001, `over ${f.over.toFixed(3)}`)
   await write(name)
+  await motionShots(page, name, w)
 }
 
 /** First index of the first key phrase inside the stem tokens. */
@@ -485,6 +567,11 @@ try {
     await page.waitForSelector('[data-testid="hub"]')
     await sleep(3500)
     await shot(page, 'hub', w)
+    // S16: the hub with the hero drone, again under its own name for before and after review.
+    if (w === 1920) {
+      await page.screenshot({ path: `${OUT}/s16-hub-1920.png` })
+      shots.push('s16-hub-1920.png')
+    }
     const codename = await page.$eval('[data-testid="codename"]', (el) => el.textContent)
     check(`hub shows codename (${w})`, codename === preview14, codename)
     check(`case marker button (${w})`, !!(await page.$('[data-testid="case-marker-03-1"]')))
@@ -769,6 +856,93 @@ try {
       await click(page, 'next-item')
       await sleep(400)
     }
+    await page.close()
+  }
+
+  // S18: HUD typography and layout shots (s18-ui-*): title, hub, briefing, results at 1920, title and hub at 2560x1440.
+  // Also asserts the type floor on those screens: body text at least 16 px, every label at least 12 px, no horizontal overflow.
+  {
+    const page = await browser.newPage()
+    watch(page, 's18-ui')
+    const vp1920 = { width: 1920, height: 1080, deviceScaleFactor: 1 }
+    await page.setViewport(vp1920)
+    await page.goto(BASE + QS + '#/', { waitUntil: 'load' })
+    await page.evaluate(() => localStorage.clear())
+    await page.reload({ waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="start-shift"]')
+    await waitFrames(page)
+    const snap18 = async (name) => {
+      await waitFrames(page)
+      const file = `s18-ui-${name}.png`
+      await page.screenshot({ path: `${OUT}/${file}` })
+      shots.push(file)
+    }
+    const typeFloor = async (screen) => {
+      const r = await page.evaluate(() => {
+        const bodySel = '.dispatch-lines p, .dispatch-hook, .debrief-stem, .debrief-line, .why-list li > span, .bench-label, .case-sub, .bar-foot, .bar-label, .report-panel > p, .reward p, .intro, .hint, .picked'
+        const bad = []
+        for (const el of document.querySelectorAll('.hud-layer *')) {
+          const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())
+          if (!own || !el.offsetParent) continue
+          const px = parseFloat(getComputedStyle(el).fontSize)
+          const isBody = el.matches(bodySel)
+          if ((isBody && px < 15.99) || px < 11.99) bad.push(`${el.className || el.tagName}:${px.toFixed(1)}`)
+        }
+        return { bad: [...new Set(bad)], overflowX: document.documentElement.scrollWidth - innerWidth }
+      })
+      check(`s18 type floor on ${screen} (body 16 px, labels 12 px)`, r.bad.length === 0, r.bad.join(', '))
+      check(`s18 no horizontal overflow on ${screen}`, r.overflowX <= 0, String(r.overflowX))
+    }
+    await snap18('title-1920')
+    await typeFloor('title')
+    await page.click('[data-testid="start-shift"]')
+    await page.waitForSelector('[data-testid="firstrun-modal"]')
+    await page.type('[data-testid="classcode-input"]', 'DEMO')
+    await page.click('[data-testid="agent-input"]', { clickCount: 3 })
+    await page.type('[data-testid="agent-input"]', '14')
+    await page.click('[data-testid="firstrun-confirm"]')
+    await page.waitForSelector('[data-testid="hub"]')
+    page.setDefaultTimeout(60000)
+    await sleep(3500)
+    await snap18('hub-1920')
+    await typeFloor('hub')
+    await toCaseStep(page, 'briefing')
+    await sleep(2500)
+    await snap18('briefing-1920')
+    await typeFloor('briefing')
+    await toCaseStep(page, 'items')
+    await finishItems(page)
+    await sleep(2000)
+    await typeFloor('debrief')
+    await click(page, 'debrief-continue')
+    await page.waitForSelector('[data-testid="results"]')
+    await sleep(4000)
+    await snap18('results-1920')
+    await typeFloor('results')
+    await page.setViewport({ width: 2560, height: 1440, deviceScaleFactor: 1 })
+    await page.evaluate(() => (location.hash = '#/'))
+    await page.waitForSelector('[data-testid="title"]')
+    await sleep(2500)
+    await snap18('title-2560')
+    await page.evaluate(() => (location.hash = '#/hub'))
+    await page.waitForSelector('[data-testid="hub"]')
+    await sleep(3500)
+    await snap18('hub-2560')
+    await page.close()
+  }
+
+  // S16: the plant and animal item (hologram skeleton and cabbage palm on lit plinths) in the real item player.
+  {
+    const page = await profilePage(browser, BASE, `${QS}&qaitems=L142-03`, VIEWPORTS.find((v) => v.width === 1920), errors)
+    await toCaseStep(page, 'items')
+    await page.waitForSelector('[data-testid="stem"]')
+    await sleep(5500)
+    const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
+    await page.waitForFunction((f) => (window.__anomaly?.frame ?? 0) >= f + 3, { timeout: 60000, polling: 200 }, f0).catch(() => {})
+    const fits = await fitReport(page)
+    check('plantanimal L142-03 model and pedestals fully inside their canvas with margin (1920)', fits.length >= 1 && fits.every((f) => f.over <= -0.02), fits.map((f) => f.over.toFixed(3)).join(','))
+    await page.screenshot({ path: `${OUT}/s16-plantanimal-1920.png` })
+    shots.push('s16-plantanimal-1920.png')
     await page.close()
   }
 
@@ -1060,7 +1234,8 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
+  const MOTION_1920_ONLY = 4 // s17-motion-* shots exist at 1920 only
+  const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)

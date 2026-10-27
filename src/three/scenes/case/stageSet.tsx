@@ -30,9 +30,9 @@ function hash(n: number): number {
 
 function paintBackdrop(c: CanvasRenderingContext2D, w: number, h: number) {
   const g = c.createLinearGradient(0, 0, 0, h)
-  g.addColorStop(0, '#071428')
-  g.addColorStop(0.55, '#0d2340')
-  g.addColorStop(1, '#071326')
+  g.addColorStop(0, '#0e2240')
+  g.addColorStop(0.55, '#173a60')
+  g.addColorStop(1, '#0c2038')
   c.fillStyle = g
   c.fillRect(0, 0, w, h)
   // Soft cool pool of light behind the specimens, where the floor meets the wall.
@@ -40,9 +40,9 @@ function paintBackdrop(c: CanvasRenderingContext2D, w: number, h: number) {
   c.translate(w / 2, h * 0.62)
   c.scale(1, 0.5)
   const r = c.createRadialGradient(0, 0, 0, 0, 0, w * 0.62)
-  r.addColorStop(0, 'rgba(52,160,205,0.34)')
-  r.addColorStop(0.45, 'rgba(32,104,152,0.17)')
-  r.addColorStop(1, 'rgba(20,60,100,0)')
+  r.addColorStop(0, 'rgba(96,160,196,0.1)')
+  r.addColorStop(0.45, 'rgba(60,112,150,0.05)')
+  r.addColorStop(1, 'rgba(30,70,104,0)')
   c.fillStyle = r
   c.fillRect(-w, -w, w * 2, w * 2)
   c.restore()
@@ -67,9 +67,10 @@ function paintFloor(c: CanvasRenderingContext2D, w: number, h: number) {
   c.translate(w / 2, h / 2)
   c.scale(1, h / w)
   const r = c.createRadialGradient(0, 0, 0, 0, 0, w / 2)
-  r.addColorStop(0, 'rgba(255,255,255,0.95)')
-  r.addColorStop(0.35, 'rgba(255,255,255,0.5)')
-  r.addColorStop(0.7, 'rgba(255,255,255,0.14)')
+  r.addColorStop(0, 'rgba(255,255,255,0.9)')
+  r.addColorStop(0.3, 'rgba(255,255,255,0.4)')
+  r.addColorStop(0.6, 'rgba(255,255,255,0.08)')
+  r.addColorStop(0.85, 'rgba(255,255,255,0)')
   r.addColorStop(1, 'rgba(255,255,255,0)')
   c.fillStyle = r
   c.fillRect(-w, -w, w * 2, w * 2)
@@ -174,8 +175,8 @@ export function StagePedestal({ radius = 1.8, low = false, tint = '#3ee6ff' }: {
     sh.opacity = 0.9
     const pl = new THREE.MeshBasicNodeMaterial()
     pl.map = t.floor
-    pl.color.set('#2c86ad')
-    pl.opacity = 0.24
+    pl.color.set('#4d8aa6')
+    pl.opacity = 0.2
     pl.transparent = true
     pl.depthWrite = false
     pl.blending = THREE.AdditiveBlending
@@ -205,7 +206,7 @@ export function StagePedestal({ radius = 1.8, low = false, tint = '#3ee6ff' }: {
   )
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.045, 0]} scale={radius * 3.9} renderOrder={-2} userData={{ noFit: true }}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.045, 0]} scale={radius * 2.8} renderOrder={-2} userData={{ noFit: true }}>
         <planeGeometry args={[1, 0.72]} />
         <primitive object={pool} attach="material" />
       </mesh>
