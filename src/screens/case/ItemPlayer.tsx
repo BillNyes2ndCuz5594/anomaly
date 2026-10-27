@@ -225,7 +225,7 @@ function ItemBody({ item, index, total, onLocked, onNext }: BodyProps) {
   ]
 
   return (
-    <div className={`item-grid${item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal' ? ' stage-3d' : ''}`}>
+    <div className={`item-grid${item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal' ? ' stage-3d' : ''}${item.visual.kind === 'specimen' && item.visual.ids.length > 2 ? ' stage-many' : ''}`}>
       <section className="item-main">
         <div className="item-head">
           <span className="mono label amber" data-testid="item-count">

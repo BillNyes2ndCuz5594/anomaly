@@ -3061,6 +3061,9 @@ a,
     overscroll-behavior: contain;
     gap: 8px 10px;
   }
+  .item-grid.stage-3d.stage-many {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
   .item-grid.stage-3d .item-main {
     display: contents;
   }
@@ -3111,8 +3114,12 @@ a,
   .item-grid.stage-3d .stem-foot .muted {
     display: none;
   }
+  .item-grid.stage-3d .rkea {
+    flex-wrap: wrap;
+  }
   .item-grid.stage-3d .chip-r {
     font-size: 0.875rem;
+    flex: 1 1 auto;
   }
   .item-grid.stage-3d .item-head .tiny {
     font-size: 0.875rem;
