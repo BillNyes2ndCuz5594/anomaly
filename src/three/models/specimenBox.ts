@@ -31,6 +31,9 @@ function shapeOf(id: string): Shape {
   return s
 }
 
+/** Mean silhouette area of the procedural model at scale 1 over the displayed yaw range (hero scans match it). */
+export const specimenArea = (id: string): number => shapeOf(id).area
+
 /**
  * Scale that gives a specimen the same projected silhouette area as every other one at `fit` (area, not the largest
  * dimension, so wide flat animals are not left small and long thin ones are not left huge).
