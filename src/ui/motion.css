@@ -260,6 +260,9 @@
 .match-btn.tried {
   animation: wrong-shake 0.25s var(--ease-out) both;
 }
+.sort-step .btn.on {
+  animation: ok-glow 0.7s var(--ease-out) both;
+}
 .verdict-chip.ok {
   animation: ok-in 0.3s var(--ease-out) 0.2s backwards;
 }
@@ -311,6 +314,7 @@
   .verdict-chip,
   .opt,
   .match-btn,
+  .sort-step .btn.on,
   .report-code,
   .stamp {
     animation: none !important;
@@ -339,6 +343,7 @@ html[data-reduced-motion='true'] .verdict,
 html[data-reduced-motion='true'] .verdict-chip,
 html[data-reduced-motion='true'] .opt,
 html[data-reduced-motion='true'] .match-btn,
+html[data-reduced-motion='true'] .sort-step .btn.on,
 html[data-reduced-motion='true'] .report-code,
 html[data-reduced-motion='true'] .stamp {
   animation: none !important;
