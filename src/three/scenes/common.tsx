@@ -30,6 +30,7 @@ import {
   vec4,
 } from 'three/tsl'
 import { TIER_CONFIG, type Tier } from '../../state/quality'
+import { LoopSky, type LoopClip } from './LoopSky'
 
 /** Soft radial gradient used for glows and contact shadows. */
 export function makeRadialTexture(inner = 'rgba(0,0,0,0.85)', outer = 'rgba(0,0,0,0)'): THREE.CanvasTexture {
@@ -125,7 +126,13 @@ export function GridFloor({
 }
 
 /** Inside-out sky dome: navy gradient with a faint cyan haze at the horizon so silhouettes read. */
-export function Backdrop() {
+/** Navy sky dome. With `clip`, an ambient video loop is blended into it (see LoopSky). */
+export function Backdrop({ clip }: { clip?: LoopClip } = {}) {
+  if (clip) return <LoopSky clip={clip} />
+  return <PlainSky />
+}
+
+function PlainSky() {
   const mat = useMemo(() => {
     const h = normalize(positionWorld).y
     const horizon = pow(oneMinus(saturate(abs(h).mul(2.2))), float(3))
