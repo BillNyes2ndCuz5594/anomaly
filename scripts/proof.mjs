@@ -1113,7 +1113,8 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
+  const MOTION_1920_ONLY = 4 // s17-motion-* shots exist at 1920 only
+  const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
