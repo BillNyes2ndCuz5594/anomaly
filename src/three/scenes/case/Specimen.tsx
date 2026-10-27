@@ -1,7 +1,8 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import * as THREE from 'three/webgpu'
-import { depthOnlyMaterial, litSpecimen, tintedHolo } from '../../materials/tinted'
+import { depthOnlyMaterial, litHero, litSpecimen, tintedHolo } from '../../materials/tinted'
+import { hasHero, heroIfReady, loadHero, onHeroReady } from '../../models/heroSpecimens'
 import { STILL, STILL_YAW } from '../../../lib/flags'
 import { specimenGeo } from '../../models/creatures'
 import { SPECIMEN_LOOK } from '../../materials/detailMaps'
@@ -29,8 +30,18 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   const low = tier === 'low'
   const g = useMemo(() => specimenGeo(id, low ? 0.55 : 1), [id, low])
   const k = specimenScale(id, fit)
+  // Medium tier and up swap in the textured hero scan once it has loaded; Low tier keeps the procedural model.
+  const heroOk = hasHero(id) && !low
+  const hero = useSyncExternalStore(onHeroReady, () => (heroOk ? heroIfReady(id) : undefined))
+  useEffect(() => {
+    if (heroOk) void loadHero(id)
+  }, [id, heroOk])
+  const geo = hero ? hero.geo : g.geo
   // Low tier: fewer segments and no detail map, so it stays lighter than High.
-  const mat = useMemo(() => (mode === 'lit' ? litSpecimen({ look: SPECIMEN_LOOK[id], detail: !low }) : tintedHolo('#3ee6ff', 0.9, false)), [mode, id, low])
+  const mat = useMemo(
+    () => (mode === 'lit' ? (hero ? litHero(hero.map, hero.rough) : litSpecimen({ look: SPECIMEN_LOOK[id], detail: !low })) : tintedHolo('#3ee6ff', 0.9, false)),
+    [mode, id, low, hero],
+  )
   const depthMat = useMemo(() => (mode === 'holo' ? depthOnlyMaterial() : null), [mode])
   useEffect(() => () => mat.dispose(), [mat])
   useEffect(() => () => depthMat?.dispose(), [depthMat])
@@ -55,11 +66,11 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   return (
     <group ref={group} rotation={[0, STILL ? STILL_YAW : yaw, 0]} scale={k}>
       {depthMat ? (
-        <mesh geometry={g.geo}>
+        <mesh geometry={geo}>
           <primitive object={depthMat} attach="material" />
         </mesh>
       ) : null}
-      <mesh geometry={g.geo}>
+      <mesh geometry={geo}>
         <primitive object={mat} attach="material" />
       </mesh>
     </group>

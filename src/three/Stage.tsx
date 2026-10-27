@@ -17,6 +17,7 @@ import type * as THREE from 'three/webgpu'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import PostFX from './PostFX'
+import { preloadHeroes } from './models/heroSpecimens'
 import { createRenderer } from './renderer'
 import { InsetsContext, NO_INSETS, type Insets } from './insets'
 import { hudInsets } from '../screens/case/layout'
@@ -163,6 +164,10 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
   const dpr = dprForTier(tier, window.devicePixelRatio)
+  // Hero scans download in the background as soon as the 3D stage is up, so items show them without a visible swap.
+  useEffect(() => {
+    if (tier !== 'low') void preloadHeroes()
+  }, [tier])
 
   const initialTier = useRef<Tier>(resolveTier(quality, autoTier))
   const gl = useCallback(
