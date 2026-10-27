@@ -52,7 +52,7 @@ export default function HubScene() {
       <DeckLights />
       <pointLight position={[0, TABLE_TOP_Y + 3.4, 0.5]} intensity={8} color="#3ee6ff" distance={9} decay={2} />
       <pointLight position={[-3.5, 3.2, 4.5]} intensity={5} color="#ffd9a0" distance={9} decay={2} />
-      <Backdrop />
+      <Backdrop clip="swamp" />
       <DeckPlate />
       <GridFloor fade={32} />
       <ConsoleRing radius={13} count={16} arc={Math.PI * 1.1} />

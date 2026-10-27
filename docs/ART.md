@@ -53,10 +53,10 @@ Rules for video clips
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
-| 5 | Title and hub backdrop | First screen every session | Wave 3: seamless video loop plus poster |
+| 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
 | 6b | Manatee | Lab C close-up, items | Scan made in wave 2, held until S14 (Lab C close-up rework) merges |
-| 7 | Lab ambience (Lab A, B, C backdrops) | Labs | Wave 3: subtle masked video loops |
+| 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4 (after S13) |
 | 9 | App icons and share art | Install, share | Wave 4 |
 
@@ -66,6 +66,9 @@ Rules for video clips
 - Wave 2: 7 more animals plus a new spider scan. Every scan is now sized to the procedural model's mean silhouette
   area, so it fills the pedestal ring the same way, capped at the procedural length, 1.05x its height and 1.4x its
   width so it never leaves the camera framing. Manatee waits for S14.
-- Wave 3: video loops for title, hub and lab ambience, built as seamless loops with poster frames and static
-  fallback, plus a frame strip proof of a clip playing in gameplay (about $6 to $12).
-- Wave 4: plants, organs and icons once S13 lands (about $5).
+- Wave 3: four 4.2 s loops (swamp, cells, canopy, water), each animated from one still with matched first and last frames plus
+  a 0.8 s crossfade at the seam, 960x540 VP9 WebM plus H.264 MP4, 17 to 83 KB. They are painted into the sky dome
+  shader (`LoopSky`) as a soft window above the horizon, graded to the navy and cyan palette, never a box. The
+  precached WebP poster shows first and the video crosses in after its first decoded frame. Low tier and reduced
+  motion get the poster only. Videos are not precached, so offline play keeps the poster. Spend $1.84.
+- Wave 4: plants, organs and icons once S14 lands (about $5).
