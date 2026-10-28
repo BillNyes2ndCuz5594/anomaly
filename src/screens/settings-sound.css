@@ -1,0 +1,35 @@
+/* Sound controls on the settings screen. Kept out of index.css. */
+
+.sound-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 14px 10px;
+  border: 1px solid rgba(62, 230, 255, 0.35);
+  background: rgba(4, 12, 24, 0.55);
+}
+
+.sound-block .toggle-row {
+  gap: 4px;
+}
+
+.sound-volume {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sound-volume-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.sound-volume .range {
+  width: 100%;
+  margin: 0;
+}

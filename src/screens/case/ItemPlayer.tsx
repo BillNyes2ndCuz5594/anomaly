@@ -27,7 +27,7 @@ interface BodyProps {
   onNext: () => void
 }
 
-function ItemBody({ item, index, total, onLocked, onNext }: BodyProps) {
+function ItemBody({ item, index, total, onLocked, onNext, dir }: BodyProps & { dir: 'forward' | 'back' }) {
   const tokens = useMemo(() => tokenizeStem(item.stem), [item.stem])
   const phrases = useMemo(() => findKeyPhrases(item.stem, item.keyWords), [item.stem, item.keyWords])
   const phraseOf = useMemo(() => {
@@ -225,7 +225,10 @@ function ItemBody({ item, index, total, onLocked, onNext }: BodyProps) {
   ]
 
   return (
-    <div className={`item-grid${item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal' ? ' stage-3d' : ''}${item.visual.kind === 'specimen' && item.visual.ids.length > 2 ? ' stage-many' : ''}`}>
+    <div
+      className={`item-grid${item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal' ? ' stage-3d' : ''}${item.visual.kind === 'specimen' && item.visual.ids.length > 2 ? ' stage-many' : ''}`}
+      data-dir={dir}
+    >
       <section className="item-main">
         <div className="item-head">
           <span className="mono label amber" data-testid="item-count">
@@ -393,6 +396,12 @@ export default function ItemPlayer() {
   const go = useSession((s) => s.go)
   const addAnswer = useSession((s) => s.addAnswer)
   const [idx, setIdx] = useState(0)
+  const [seen, setSeen] = useState(0)
+  const [dir, setDir] = useState<'forward' | 'back'>('forward')
+  if (idx !== seen) {
+    setDir(idx >= seen ? 'forward' : 'back')
+    setSeen(idx)
+  }
   const item = items[idx]
 
   const onLocked = useCallback(
@@ -414,7 +423,7 @@ export default function ItemPlayer() {
   return (
     <div className="screen case-screen item-screen" data-testid="item-player">
       <CaseTop step="items" />
-      <ItemBody key={item.id} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} />
+      <ItemBody key={item.id} dir={dir} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} />
     </div>
   )
 }

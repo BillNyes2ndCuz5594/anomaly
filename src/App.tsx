@@ -1,6 +1,6 @@
-import { Component, lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
 import { STILL } from './lib/flags'
-import { navigate, parseHash, useHash, type Route } from './lib/router'
+import { navigate, parseHash, type Route } from './lib/router'
 import CaseScreen from './screens/CaseScreen'
 import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
 import { caseInset } from './screens/case/layout'
@@ -8,6 +8,7 @@ import SettingsScreen from './screens/SettingsScreen'
 import TitleScreen from './screens/TitleScreen'
 
 const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
+import { resolveTier } from './state/quality'
 import { useRuntime } from './state/runtime'
 import { useSession } from './state/session'
 import { useGame } from './state/store'
@@ -15,6 +16,7 @@ import { Announcer } from './ui/announce'
 import FpsReadout from './ui/FpsReadout'
 import { countUpElement } from './ui/countUp'
 import { useApplySettings } from './ui/useApplySettings'
+import { useRouteTransition, useStepHandoff } from './ui/useRouteTransition'
 
 // The whole 3D layer (three, R3F, scenes) loads lazily so the first chunk stays small.
 const Stage = lazy(() => import('./three/Stage'))
@@ -72,44 +74,6 @@ function ScreenFor({ route }: { route: Route }) {
   }
 }
 
-type Phase = 'idle' | 'cover' | 'reveal'
-// Deliberate and fast: 460 ms in total, the same figures as the veil animations in index.css.
-const COVER_MS = 140
-const REVEAL_MS = 320
-
-/**
- * Eased screen transition: the old screen is covered by a scan veil, the route swaps underneath it,
- * then the veil wipes away top to bottom. Reduced motion swaps instantly with no veil.
- */
-function useTransitionedHash(reduced: boolean): { hash: string; phase: Phase } {
-  const target = useHash()
-  const [shown, setShown] = useState(target)
-  const [phase, setPhase] = useState<Phase>('idle')
-  const shownRef = useRef(shown)
-  shownRef.current = shown
-
-  useEffect(() => {
-    if (target === shownRef.current) return
-    if (reduced) {
-      setShown(target)
-      setPhase('idle')
-      return
-    }
-    setPhase('cover')
-    const t1 = window.setTimeout(() => {
-      setShown(target)
-      setPhase('reveal')
-    }, COVER_MS)
-    const t2 = window.setTimeout(() => setPhase('idle'), COVER_MS + REVEAL_MS)
-    return () => {
-      window.clearTimeout(t1)
-      window.clearTimeout(t2)
-    }
-  }, [target, reduced])
-
-  return { hash: shown, phase }
-}
-
 /** The debrief score counts up when the stamp lands. The final text stays available to readers and tests. */
 function useResultCountUps(routeName: string, step: string, reduced: boolean) {
   useLayoutEffect(() => {
@@ -122,12 +86,31 @@ function useResultCountUps(routeName: string, step: string, reduced: boolean) {
 export default function App() {
   useApplySettings()
   const reducedMotion = useGame((s) => s.settings.reducedMotion)
-  const { hash, phase } = useTransitionedHash(reducedMotion)
+  const quality = useGame((s) => s.settings.quality)
+  const autoTier = useRuntime((s) => s.autoTier)
+  const tier = resolveTier(quality, autoTier)
+  const { hash, phase, kind, mode } = useRouteTransition(reducedMotion, tier)
   const route = parseHash(hash)
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
-  useResultCountUps(route.name, step, reducedMotion)
+  const caseKind = useSession((s) => s.kind)
+  const hand = useStepHandoff(step, caseKind, route.name, phase, mode)
+  useResultCountUps(route.name, step, reducedMotion || STILL)
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    root.dataset.motion = mode
+    root.dataset.tier = tier
+  }, [mode, tier])
+  // Hold the outgoing screen only while the veil is covering it. Reveal stays clickable.
+  useLayoutEffect(() => {
+    const host = document.querySelector('.screen-host') as HTMLElement | null
+    if (!host) return
+    host.inert = phase === 'cover'
+    return () => {
+      host.inert = false
+    }
+  }, [phase, hash])
 
   // Routes past the title need an agent. Send new visitors to check in first.
   const needsProfile = (route.name === 'hub' || route.name === 'case' || route.name === 'cold') && !profile
@@ -154,8 +137,10 @@ export default function App() {
           <ScreenFor route={route} />
         </div>
       </div>
-      <div className="veil" data-phase={phase} aria-hidden="true">
+      <div className="handoff" data-phase={hand.phase} data-dir={hand.dir} aria-hidden="true" />
+      <div className="veil" data-phase={phase} data-kind={kind} aria-hidden="true">
         <div className="veil-fill" />
+        <div className="veil-grid" />
         <div className="veil-line" />
       </div>
       <FpsReadout />

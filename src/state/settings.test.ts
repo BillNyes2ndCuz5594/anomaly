@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { defaultSettings, LINE_HEIGHT, TEXT_SCALE } from './settings'
+import { clampSoundVolume, DEFAULT_SOUND_VOLUME, defaultSettings, LINE_HEIGHT, readStoredSound, TEXT_SCALE } from './settings'
 
 describe('settings defaults', () => {
   it('has the documented defaults', () => {
@@ -10,7 +10,8 @@ describe('settings defaults', () => {
       reducedMotion: false,
       quality: 'auto',
       readAloudRate: 1,
-      sound: false,
+      sound: true,
+      soundVolume: DEFAULT_SOUND_VOLUME,
       showFps: false,
     })
   })
@@ -19,8 +20,35 @@ describe('settings defaults', () => {
     expect(defaultSettings(true).reducedMotion).toBe(true)
   })
 
-  it('sound is off by default', () => {
-    expect(defaultSettings(false).sound).toBe(false)
+  it('sound is on by default at a modest volume', () => {
+    const s = defaultSettings(false)
+    expect(s.sound).toBe(true)
+    expect(s.soundVolume).toBe(DEFAULT_SOUND_VOLUME)
+    expect(s.soundVolume).toBeGreaterThan(0.4)
+    expect(s.soundVolume).toBeLessThan(0.7)
+  })
+
+  it('clamps volume into 0 to 1 and replaces junk with the default', () => {
+    expect(clampSoundVolume(0)).toBe(0)
+    expect(clampSoundVolume(1)).toBe(1)
+    expect(clampSoundVolume(2)).toBe(1)
+    expect(clampSoundVolume(-0.2)).toBe(0)
+    expect(clampSoundVolume(Number.NaN)).toBe(DEFAULT_SOUND_VOLUME)
+    expect(clampSoundVolume(Number.POSITIVE_INFINITY)).toBe(DEFAULT_SOUND_VOLUME)
+  })
+
+  it('reads stored sound and fills a missing volume', () => {
+    expect(readStoredSound(null)).toEqual({ sound: true, volume: DEFAULT_SOUND_VOLUME })
+    expect(readStoredSound('not json')).toEqual({ sound: true, volume: DEFAULT_SOUND_VOLUME })
+    expect(readStoredSound(JSON.stringify({ state: { settings: { sound: false } } }))).toEqual({
+      sound: false,
+      volume: DEFAULT_SOUND_VOLUME,
+    })
+    expect(readStoredSound(JSON.stringify({ state: { settings: { sound: true, soundVolume: 0.2 } } }))).toEqual({
+      sound: true,
+      volume: 0.2,
+    })
+    expect(readStoredSound(JSON.stringify({ state: { settings: { soundVolume: 4 } } })).volume).toBe(1)
   })
 
   it('has three text sizes and three line spacings, increasing', () => {
@@ -56,6 +84,30 @@ describe('store', () => {
     const saved = JSON.parse(storage.data.get('anomaly.v1')!)
     expect(saved.state.settings.textSize).toBe(2)
     expect(saved.version).toBe(1)
+  })
+
+  it('persists the sound switch and volume', async () => {
+    const storage = fakeStorage()
+    vi.stubGlobal('localStorage', storage)
+    const { useGame } = await import('./store')
+    useGame.getState().setSettings({ sound: false, soundVolume: 0.3 })
+    const saved = JSON.parse(storage.data.get('anomaly.v1')!)
+    expect(saved.state.settings.sound).toBe(false)
+    expect(saved.state.settings.soundVolume).toBe(0.3)
+  })
+
+  it('keeps a saved sound flag and fills a missing volume', async () => {
+    const storage = fakeStorage()
+    storage.setItem(
+      'anomaly.v1',
+      JSON.stringify({ version: 1, state: { settings: { sound: false, textSize: 2 } } }),
+    )
+    vi.stubGlobal('localStorage', storage)
+    const { useGame } = await import('./store')
+    await useGame.persist.rehydrate()
+    expect(useGame.getState().settings.sound).toBe(false)
+    expect(useGame.getState().settings.soundVolume).toBe(DEFAULT_SOUND_VOLUME)
+    expect(useGame.getState().settings.textSize).toBe(2)
   })
 
   it('creates a profile with a codename and no free text', async () => {

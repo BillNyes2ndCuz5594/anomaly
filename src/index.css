@@ -1265,13 +1265,23 @@ html[data-reduced-motion='true'] *::after {
 }
 .group-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 .group-grid .btn,
 .sort-step .row .btn {
   padding: 0 8px;
   flex: 1;
+}
+/* Group names stay whole words. The panel's overflow-wrap would otherwise split AMPHIBIAN and ARTHROPOD. */
+.group-grid .btn {
+  padding: 0 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 .sort-step[aria-disabled='true'] {
   opacity: 0.6;
@@ -2150,18 +2160,29 @@ textarea.input {
   z-index: 60;
   pointer-events: none;
   visibility: hidden;
+  overflow: hidden;
 }
 .veil[data-phase='cover'],
 .veil[data-phase='reveal'] {
   visibility: visible;
 }
+/* Cover is the only moment the veil takes the pointer, so a tap can skip it. Reveal stays click-through. */
+.veil[data-phase='cover'] {
+  pointer-events: auto;
+  cursor: pointer;
+}
 .veil-fill {
   position: absolute;
   inset: 0;
-  background:
-    repeating-linear-gradient(0deg, rgba(62, 230, 255, 0.05) 0 1px, transparent 1px 4px),
-    linear-gradient(180deg, #0b1424, #070c17);
+  background: linear-gradient(180deg, #0b1424, #070c17 55%, #061018);
   opacity: 0;
+}
+.veil-grid {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(62, 230, 255, 0.07) 0 1px, transparent 1px 4px);
+  opacity: 0;
+  mix-blend-mode: screen;
 }
 .veil-line {
   position: absolute;
@@ -2170,18 +2191,59 @@ textarea.input {
   top: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--cyan) 18%, #fff 50%, var(--cyan) 82%, transparent);
-  box-shadow: 0 0 16px 2px rgba(62, 230, 255, 0.5);
+  box-shadow: 0 0 16px 2px rgba(62, 230, 255, 0.55);
   opacity: 0;
+  transform: translate3d(0, 0, 0);
 }
 .veil[data-phase='cover'] .veil-fill {
-  animation: veil-cover 0.14s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  animation: veil-cover 0.15s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 }
 .veil[data-phase='reveal'] .veil-fill {
   opacity: 1;
-  animation: veil-reveal 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: veil-reveal 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-.veil[data-phase='reveal'] .veil-line {
-  animation: veil-line 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.veil[data-phase='cover'] .veil-grid,
+.veil[data-phase='reveal'] .veil-grid {
+  animation: veil-grid 0.38s linear forwards;
+}
+.veil[data-kind='scan'][data-phase='cover'] .veil-line,
+.veil[data-kind='scan'][data-phase='reveal'] .veil-line {
+  animation: veil-line 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.veil[data-kind='scan'][data-phase='cover'] .veil-line {
+  animation-duration: 0.15s;
+}
+/* Deploy: an iris opens from the middle, like the hub coming online. */
+.veil[data-kind='deploy'] .veil-fill {
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
+  mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 280% 280%;
+  mask-size: 280% 280%;
+}
+.veil[data-kind='deploy'][data-phase='cover'] .veil-fill {
+  animation: veil-iris-close 0.15s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+.veil[data-kind='deploy'][data-phase='reveal'] .veil-fill {
+  animation: veil-iris 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+/* Dissolve: opacity only, for settings and the art check. */
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-fill {
+  animation: veil-fade-out 0.38s linear forwards;
+}
+/* Low tier: a plain fade, no mask, no scan line, no grid. */
+html[data-motion='fade'] .veil-grid,
+html[data-motion='fade'] .veil-line {
+  display: none;
+}
+html[data-motion='fade'] .veil[data-phase='cover'] .veil-fill {
+  animation: veil-cover 0.09s linear forwards;
+}
+html[data-motion='fade'] .veil[data-phase='reveal'] .veil-fill {
+  animation: veil-fade-out 0.18s linear forwards;
 }
 @keyframes veil-cover {
   to {
@@ -2198,18 +2260,154 @@ textarea.input {
 }
 @keyframes veil-line {
   0% {
-    top: 0;
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
   85% {
     opacity: 1;
   }
   100% {
-    top: 100%;
+    transform: translate3d(0, 100vh, 0);
+    opacity: 0;
+  }
+}
+@keyframes veil-grid {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes veil-iris-close {
+  from {
+    opacity: 0;
+    -webkit-mask-size: 240% 240%;
+    mask-size: 240% 240%;
+  }
+  to {
+    opacity: 1;
+    -webkit-mask-size: 0% 0%;
+    mask-size: 0% 0%;
+  }
+}
+@keyframes veil-iris {
+  0% {
+    opacity: 1;
+    -webkit-mask-size: 0% 0%;
+    mask-size: 0% 0%;
+  }
+  72% {
+    opacity: 1;
+    -webkit-mask-size: 200% 200%;
+    mask-size: 200% 200%;
+  }
+  100% {
+    opacity: 0;
+    -webkit-mask-size: 280% 280%;
+    mask-size: 280% 280%;
+  }
+}
+@keyframes veil-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
     opacity: 0;
   }
 }
 html[data-reduced-motion='true'] .veil {
+  display: none;
+}
+
+/* Case step scan. It does not block the pointer. Low tier is a short dim. */
+.handoff {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  visibility: hidden;
+  overflow: hidden;
+}
+.handoff[data-phase='on'] {
+  visibility: visible;
+}
+html[data-motion='full'] .handoff[data-phase='on']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16%;
+  top: 0;
+  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.2), transparent);
+  animation: handoff-sweep 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+html[data-motion='full'] .handoff[data-dir='back'][data-phase='on']::before {
+  animation-name: handoff-sweep-up;
+}
+html[data-motion='full'] .handoff[data-phase='on']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff, var(--cyan), transparent);
+  box-shadow: 0 0 12px rgba(62, 230, 255, 0.65);
+  animation: handoff-line 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+html[data-motion='fade'] .handoff[data-phase='on'] {
+  background: rgba(7, 12, 23, 0.4);
+  animation: handoff-fade 0.2s linear forwards;
+}
+@keyframes handoff-sweep {
+  from {
+    transform: translate3d(0, -30%, 0);
+    opacity: 0.2;
+  }
+  18% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 620%, 0);
+    opacity: 0;
+  }
+}
+@keyframes handoff-sweep-up {
+  from {
+    transform: translate3d(0, 620%, 0);
+    opacity: 0.2;
+  }
+  18% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, -30%, 0);
+    opacity: 0;
+  }
+}
+@keyframes handoff-line {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 100vh, 0);
+    opacity: 0;
+  }
+}
+@keyframes handoff-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+html[data-reduced-motion='true'] .handoff {
   display: none;
 }
 

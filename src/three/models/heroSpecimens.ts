@@ -25,19 +25,21 @@ interface HeroDef {
   url: string
   /** Yaw (radians) that turns the scan so the animal faces +x like the procedural models. */
   yaw: number
-  /** Turn about x applied first, for scans captured from above (the orb weaver photo looks down on it). */
+  /** Turn about x applied first, for a scan captured from above (none need it since the wave 7 spider). */
   tilt?: number
   /** Surface roughness for the lit material. */
   rough: number
+  /** Depth allowance past the procedural box, for a scan whose legs reach toward the camera (default HERO_SLACK). */
+  slack?: number
 }
 
 export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'florida-panther': { url: pantherUrl, yaw: 0, rough: 0.82 },
   'blue-crab': { url: crabUrl, yaw: 0, rough: 0.5 },
   'american-alligator': { url: gatorUrl, yaw: 0, rough: 0.7 },
-  'garden-spider': { url: spiderUrl, yaw: 0, tilt: -Math.PI / 2, rough: 0.55 },
-  'largemouth-bass': { url: bassUrl, yaw: 0, rough: 0.45 },
-  'green-tree-frog': { url: frogUrl, yaw: -Math.PI / 2, rough: 0.4 },
+  'garden-spider': { url: spiderUrl, yaw: Math.PI / 2, rough: 0.55, slack: 1.2 },
+  'largemouth-bass': { url: bassUrl, yaw: Math.PI, rough: 0.45 },
+  'green-tree-frog': { url: frogUrl, yaw: 0, rough: 0.4 },
   'barred-owl': { url: owlUrl, yaw: 0, rough: 0.85 },
   'brown-pelican': { url: pelicanUrl, yaw: 0, rough: 0.8 },
   'bull-shark': { url: sharkUrl, yaw: 0, rough: 0.5 },
@@ -74,7 +76,14 @@ const HERO_SLACK = 1.4
  * Scan geometry laid along x (its long axis), turned by `yaw` so the head points +x like the procedural models, then
  * scaled to sit inside the procedural model's box so the existing camera framing and pedestal rings still fit.
  */
-export function normalizeHero(geo: THREE.BufferGeometry, yaw: number, target: [number, number, number], tilt = 0, area = 0): THREE.BufferGeometry {
+export function normalizeHero(
+  geo: THREE.BufferGeometry,
+  yaw: number,
+  target: [number, number, number],
+  tilt = 0,
+  area = 0,
+  slack = HERO_SLACK,
+): THREE.BufferGeometry {
   if (tilt) geo.rotateX(tilt)
   geo.computeBoundingBox()
   const pre = new THREE.Vector3()
@@ -100,7 +109,7 @@ export function normalizeHero(geo: THREE.BufferGeometry, yaw: number, target: [n
     k,
     target[0] / Math.max(size.x, 1e-6),
     (target[1] * HERO_REACH) / Math.max(size.y, 1e-6),
-    (target[2] * HERO_SLACK) / Math.max(size.z, 1e-6),
+    (target[2] * slack) / Math.max(size.z, 1e-6),
   )
   geo.scale(k, k, k)
   geo.computeBoundingBox()
@@ -133,7 +142,7 @@ export function loadHero(id: string): Promise<HeroSpecimen | null> {
           map.colorSpace = THREE.SRGBColorSpace
           map.anisotropy = 4
         }
-        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id)), map, rough: def.rough }
+        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id), def.slack), map, rough: def.rough }
         ready.set(id, hero)
         for (const fn of listeners) fn()
         return hero
