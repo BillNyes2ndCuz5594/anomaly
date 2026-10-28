@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MIN_PAIR_RATIO, SPECIMEN_LENGTH_M, pairRatios } from './specimenSizes'
+import { MIN_PAIR_RATIO, MIN_ROW_RATIO, SPECIMEN_LENGTH_M, pairRatios } from './specimenSizes'
 import { LAB_SPECIMENS } from './creatures'
 import { pairSizing, shapeReach, specimenScale } from './specimenBox'
 import raw from '../../content/anomaly-content.json'
@@ -19,9 +19,9 @@ describe('specimen sizes', () => {
   })
 
   it('keeps the true ratio when it is above the cap and no tag is needed', () => {
-    const r = pairRatios(['brown-pelican', 'barred-owl'])
+    const r = pairRatios(['manatee', 'bull-shark'])
     expect(r.ratios[0]).toBe(1)
-    expect(r.ratios[1]).toBeCloseTo(0.45 / 1.2, 5)
+    expect(r.ratios[1]).toBeCloseTo(2.4 / 3.0, 5)
     expect(r.notToScale).toBe(false)
     expect(pairRatios(['grasshopper', 'garden-spider']).notToScale).toBe(false)
   })
@@ -33,8 +33,10 @@ describe('specimen sizes', () => {
     const four = pairRatios(['bull-shark', 'blue-crab', 'gopher-tortoise', 'manatee'])
     expect(four.ratios[3]).toBe(1)
     expect(four.ratios[0]).toBeCloseTo(0.8, 5)
-    expect(four.ratios[1]).toBe(MIN_PAIR_RATIO)
-    expect(four.ratios[2]).toBe(MIN_PAIR_RATIO)
+    expect(MIN_PAIR_RATIO).toBeGreaterThanOrEqual(0.35)
+    expect(MIN_PAIR_RATIO).toBeLessThanOrEqual(0.5)
+    expect(four.ratios[1]).toBe(MIN_ROW_RATIO)
+    expect(four.ratios[2]).toBe(MIN_ROW_RATIO)
     expect(four.notToScale).toBe(true)
   })
 

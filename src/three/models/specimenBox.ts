@@ -1,5 +1,5 @@
 import { specimenGeo } from './creatures'
-import { pairRatios, MIN_PAIR_RATIO } from './specimenSizes'
+import { pairRatios, MIN_PAIR_RATIO, MIN_ROW_RATIO } from './specimenSizes'
 import { meanProjectedArea, outlinePoints, ringPoints, scalePoints, sweepPoints, type Box, type V3 } from '../fit'
 
 /** The yaw specimens rest at, and how far they sway around it, in the item panels and Lab C. */
@@ -80,12 +80,13 @@ export interface PairSizing {
 
 /**
  * Per-specimen `fit` multipliers so the drawn lengths (longest horizontal reach of the normalised model) follow the real
- * length ratios, with the small ones never below `cap` of the largest. Single specimens are left alone.
+ * length ratios, with the small ones never below `cap` of the largest. Single specimens are left alone. `reachOf` is the
+ * model's own horizontal reach at scale 1 (the procedural proxy by default, the scan once it has loaded).
  */
-export function pairSizing(ids: string[], fit: number, cap = MIN_PAIR_RATIO): PairSizing {
+export function pairSizing(ids: string[], fit: number, cap = ids.length >= 3 ? MIN_ROW_RATIO : MIN_PAIR_RATIO, reachOf: (id: string) => number = shapeReach): PairSizing {
   const { ratios, notToScale } = pairRatios(ids, cap)
   if (ids.length < 2) return { fits: ids.map(() => 1), notToScale: false }
-  const drawn = ids.map((id) => shapeReach(id) * specimenScale(id, fit))
+  const drawn = ids.map((id) => reachOf(id) * specimenScale(id, fit))
   // The animal with the largest real length is the anchor; the others are sized from its drawn length.
   const anchor = ratios.indexOf(Math.max(...ratios))
   const m = ids.map((_, i) => (drawn[anchor] * ratios[i]) / drawn[i])

@@ -14,19 +14,21 @@ export const SPECIMEN_LENGTH_M: Record<string, number> = {
   'florida-panther': 1.8,
   'barred-owl': 0.45,
   'american-alligator': 3.0,
-  grasshopper: 0.07,
-  'garden-spider': 0.06,
+  grasshopper: 0.06,
+  'garden-spider': 0.07,
 }
 
 /** The smallest a specimen is drawn next to the largest one in its panel, as a fraction of that one's length. */
-export const MIN_PAIR_RATIO = 0.35
+export const MIN_PAIR_RATIO = 0.42
+/** A row of three or more shares a narrow stage, so its small animals get a little more room to stay legible. */
+export const MIN_ROW_RATIO = 0.5
 
 
 /**
  * Real size ratio of each id to the largest in the list, with the small ones lifted to `cap` so they stay readable.
  * Ids missing from the table count as the largest, so they are never shrunk.
  */
-export function pairRatios(ids: string[], cap = MIN_PAIR_RATIO): { ratios: number[]; notToScale: boolean } {
+export function pairRatios(ids: string[], cap = ids.length >= 3 ? MIN_ROW_RATIO : MIN_PAIR_RATIO): { ratios: number[]; notToScale: boolean } {
   const len = ids.map((id) => SPECIMEN_LENGTH_M[id] ?? 0)
   const max = Math.max(...len)
   if (ids.length < 2 || max <= 0) return { ratios: ids.map(() => 1), notToScale: false }

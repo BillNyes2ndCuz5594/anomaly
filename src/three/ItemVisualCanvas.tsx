@@ -1,10 +1,11 @@
 import { Canvas, useThree } from '@react-three/fiber'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import type * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
 import { FitCamera } from './FitCamera'
 import { pointsBox, sweepYaw, translatePoints, unionBox, type Box, type V3 } from './fit'
-import { DISPLAY_YAW, pairSizing, specimenOutline, specimenRing } from './models/specimenBox'
+import { DISPLAY_YAW, pairSizing, shapeReach, specimenOutline, specimenRing } from './models/specimenBox'
+import { hasHero, heroIfReady, loadHero, onHeroReady } from './models/heroSpecimens'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -81,9 +82,17 @@ interface Slot {
 }
 
 /** Honest relative sizes (see pairSizing) and facing: the left half of a row looks right, the right half looks left, both turned toward the camera. */
-function slotsFor(ids: string[]): { slots: Slot[]; notToScale: boolean } {
+function slotsFor(ids: string[], scans: boolean): { slots: Slot[]; notToScale: boolean } {
   const base = STILL ? STILL_YAW : SPECIMEN_YAW
-  const { fits, notToScale } = pairSizing(ids, FIT)
+  // Once every scan of the panel has loaded, size from the scans themselves (their legs, tails and beaks differ from the
+  // procedural proxy); before that, or on Low tier, the proxy. One re-layout at most, at the moment the scans swap in.
+  const reachOf = (id: string): number => {
+    const h = scans ? heroIfReady(id) : undefined
+    if (!h) return shapeReach(id)
+    const b = h.geo.boundingBox ?? (h.geo.computeBoundingBox(), h.geo.boundingBox!)
+    return Math.max(b.max.x - b.min.x, b.max.z - b.min.z)
+  }
+  const { fits, notToScale } = pairSizing(ids, FIT, undefined, reachOf)
   const slots = ids.map((id, i) => {
     const face = ids.length > 1 && i >= ids.length / 2
     return { id, fit: FIT * fits[i], yaw: face ? Math.PI - base : base, flip: face ? Math.PI - 2 * base : 0 }
@@ -95,6 +104,7 @@ const outlineOf = (s: Slot) => specimenOutline(s.id, s.fit, s.yaw, STILL ? 0.02 
 
 /** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
 function rowX(slots: Slot[]): number[] {
+  const gap = slots.length >= 3 ? 0.3 : 0.5
   const ext = slots.map((s) => {
     const xs = outlineOf(s).map((p) => p[0])
     return { l: -Math.min(...xs), r: Math.max(...xs) }
@@ -102,7 +112,7 @@ function rowX(slots: Slot[]): number[] {
   const xs: number[] = []
   let x = 0
   ext.forEach((e, i) => {
-    if (i > 0) x += ext[i - 1].r + e.l + 0.5
+    if (i > 0) x += ext[i - 1].r + e.l + gap
     xs.push(x)
   })
   const mid = (xs[0] - ext[0].l + xs[xs.length - 1] + ext[ext.length - 1].r) / 2
@@ -116,7 +126,12 @@ function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
   // pedestals and animals use more of its height instead of leaving a dark band above and below.
   const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height))
   const elevation = aspect < 1.9 ? 0.42 : 0.28
-  const { slots } = useMemo(() => slotsFor(ids), [ids])
+  const heroIds = useMemo(() => (low ? [] : ids.filter(hasHero)), [ids, low])
+  useEffect(() => {
+    heroIds.forEach((id) => void loadHero(id))
+  }, [heroIds])
+  const scans = useSyncExternalStore(onHeroReady, () => heroIds.length > 0 && heroIds.every((id) => !!heroIfReady(id)))
+  const { slots } = useMemo(() => slotsFor(ids, scans), [ids, scans])
   const xs = useMemo(() => rowX(slots), [slots])
   const view = useMemo(() => {
     const pts: V3[] = slots.flatMap((s, i) => translatePoints(outlineOf(s), [xs[i], 0, 0]))
