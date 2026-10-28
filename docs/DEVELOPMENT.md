@@ -11,7 +11,7 @@ Durations, full tier:
 - Case step into results: 1120 ms handoff, pointer-events none. Mastery rows and reward cards are delayed in sequence inside that window.
 - Scan and dissolve routes stay at 150 + 380 ms. Low tier is 90 + 180 ms of opacity, with the grid, sweeps, mark, and mask forced off. Reduced motion and `?still=1` stay at 0.
 
-The closed frame is the stack, not a flat fill: radial cyan and amber light, a tilted grid, scanlines, a dot field, two sweeps, a cyan edge, and the ANOMALY wordmark. Launch irises that stack open. Warp clips it off in the direction of travel, and the HUD panels, titles, and buttons follow.
+The closed frame is the stack, not a flat fill: radial cyan and amber light, a tilted grid, scanlines, a dot field, two sweeps, a cyan edge, and the ANOMALY wordmark. Launch starts as that full plate and contracts to a point, so the hub is revealed from the edges. Warp clips the plate off in the direction of travel, and the HUD panels, titles, and buttons follow.
 
 The evidence blank frame was the item glide. It animated opacity on `.item-grid`, which is an ancestor of the WebGL canvas, so the panel went empty while the opacity was below 1. The question and the answer column still slide. The visual stays outside the keyed question body, so the same canvas swaps specimens instead of remounting. Proof checks a real organ-to-specimen swap at about 180 ms and requires the canvas to still be there, at full opacity, with a painted picture.
 
