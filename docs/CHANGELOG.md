@@ -1,5 +1,13 @@
 # Changelog
 
+## Procedural sound
+
+- Web Audio cues for hover, press, toggle, wrong, correct, scan, evidence pickup, route whoosh, and a 1.5 s case-solved stinger.
+- A quiet hum fades in on the hub and case screens and fades out when you leave.
+- Sound defaults on at 55% volume. Settings has a switch and a slider, saved with the rest of the game.
+- `?mute=1` and `?still=1` play nothing. Reduced motion does not change sound. A hidden tab suspends the audio context.
+- Teacher HQ plays button presses only.
+
 ## Signature transitions
 
 - Title to hub opens with a 1.28 s iris (160 ms cover, 1120 ms reveal). Hub to case and case back to hub use a 1.26 s warp (180 ms cover, 1080 ms reveal). A tap skips either one. The cover is the only moment input is held.

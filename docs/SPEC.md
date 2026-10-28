@@ -15,7 +15,7 @@ Students are field agents in a near-future science response unit. Strange events
 - HUD: crisp field-tech UI, thin lines, corner brackets, monospace labels for codes, Atkinson Hyperlegible (self-hosted woff2) for body text. Big tap targets (min 44 px).
 - Tone: dry, confident, older-kid. The radio voice is DISPATCH, a dry, slightly sarcastic operator. NO mascots, NO "Great job superstar!", NO puns, NO kid slang from adults, no cartoon kids. The player customizes a field drone, not an avatar.
 - Hologram anatomy and specimen models are built procedurally in code (no downloaded models, no CDN). The hologram style (fresnel rim glow, scanlines, additive cyan) makes simple procedural geometry look intentional and high-end.
-- Sound: optional, OFF by default, never carries information. MVP may ship with no sound at all except an optional toggle stub.
+- Sound: optional, on by default at a modest volume, never carries information. The settings switch and `?mute=1` turn it off. `?still=1` (proof screenshots) plays nothing. Reduced motion does not change sound.
 
 ## 3. Tech stack (decided)
 - Vite 8 + TypeScript + React 19.
@@ -46,7 +46,7 @@ Students are field agents in a near-future science response unit. Strange events
 5. Evidence Check (RKEA item player): see section 7.
 6. Debrief: per item, what you picked, the key, and a one-line why for every option. CASE CLOSED stamp animation if 80%+ correct; otherwise "CASE STILL OPEN, returns as a cold case soon" (no shame language).
 7. Results: mastery changes per benchmark (animated bars), Intel earned, drone part unlocked if any, Report Code panel.
-8. Settings: text size (3 steps), line spacing, reduced motion, quality tier (Auto/Low/Medium/High/Ultra), read-aloud voice and rate, sound (off by default), show FPS.
+8. Settings: text size (3 steps), line spacing, reduced motion, quality tier (Auto/Low/Medium/High/Ultra), read-aloud voice and rate, sound (on by default) with a volume slider, show FPS.
 9. Teacher HQ (`teacher.html`): see section 9.
 
 ## 6. Field Labs for the first playable case
@@ -78,7 +78,7 @@ Every item ends in the SSA format: one stem, 4 options A-D, one best answer.
 - Teacher HQ page: paste many codes (one per line) or drop a CSV/TXT export from Canvas (it extracts anything that looks like a code). Decodes locally in the browser, never uploads. Shows: benchmark x agent heatmap (colors from a color-blind-safe sequential scale plus the number in each cell), reporting-category bars (Nature of Science, Earth and Space, Physical, Life), weakest 5 benchmarks, most-missed items, and a CSV download. Agents appear as numbers/codenames only. Include a "Load sample class" button that generates 24 fake codes for demo.
 
 ## 10. Accessibility (required)
-Read-aloud on every screen; text size and spacing controls; short sentences; a visual with alt text on every item; Okabe-Ito colors; right/wrong by icon + word; no timers; reduced motion; full keyboard play; focus outlines visible; a non-3D fallback list for every 3D interaction; works with sound off (sound is off by default).
+Read-aloud on every screen; text size and spacing controls; short sentences; a visual with alt text on every item; Okabe-Ito colors; right/wrong by icon + word; no timers; reduced motion; full keyboard play; focus outlines visible; a non-3D fallback list for every 3D interaction; works with sound off.
 
 ## 11. Content rules (accuracy matters most)
 - Content lives in `src/content/*.json`, validated by a TypeScript schema and a unit test (`npm test`): 4 options, exactly one key, key positions balanced, every item has benchmark + tested-as parent + visual + key words + why for every option + read-aloud text.
