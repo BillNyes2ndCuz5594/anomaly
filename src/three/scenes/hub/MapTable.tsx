@@ -33,7 +33,7 @@ export const TABLE_TOP_Y = 1.0
 const TAU = Math.PI * 2
 
 /** Radar face of the table: faint cartesian grid, range rings, bezel ticks, rotating sweep. */
-function RadarFace() {
+function RadarFace({ calm }: { calm: boolean }) {
   const mat = useMemo(() => {
     const p = positionLocal.xy.div(TABLE_RADIUS)
     const r = length(p)
@@ -49,8 +49,9 @@ function RadarFace() {
     const tick = step(0.7, fract(ang.mul(120))).mul(step(0.9, r)).mul(step(r, 0.945)).mul(0.9)
     const bigTick = step(0.93, fract(ang.mul(12))).mul(step(0.86, r)).mul(step(r, 0.945)).mul(1.2)
 
-    // Sweep: a trailing wedge behind a bright leading line.
-    const a = fract(ang.sub(time.mul(0.1)))
+    // Sweep: a trailing wedge behind a bright leading line. Held in place when motion is off.
+    const sweepClock = calm ? float(0.22) : time.mul(0.1)
+    const a = fract(ang.sub(sweepClock))
     const sweep = pow(oneMinus(a), float(10)).mul(0.14).mul(step(r, 0.955))
 
     const inside = oneMinus(smoothstep(0.965, 0.98, r))
@@ -62,7 +63,7 @@ function RadarFace() {
     m.blending = THREE.AdditiveBlending
     m.depthWrite = false
     return m
-  }, [])
+  }, [calm])
   useEffect(() => () => mat.dispose(), [mat])
   return (
     <mesh position={[0, TABLE_TOP_Y + 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -73,10 +74,10 @@ function RadarFace() {
 }
 
 /** Expanding ring ping on the map, one per city. Pure TSL, no per-frame JS. */
-function Ping({ x, z, seed, hot }: { x: number; z: number; seed: number; hot?: boolean }) {
+function Ping({ x, z, seed, hot, calm }: { x: number; z: number; seed: number; hot?: boolean; calm: boolean }) {
   const mat = useMemo(() => {
     const d = length(uv().sub(0.5)).mul(2)
-    const t = fract(time.mul(0.35).add(seed))
+    const t = calm ? float(0.28).add(seed) : fract(time.mul(0.35).add(seed))
     const ring = oneMinus(min(d.sub(t).abs().div(0.07), float(1))).mul(oneMinus(t))
     const dot = oneMinus(smoothstep(0.05, 0.12, d))
     const m = new THREE.MeshBasicNodeMaterial()
@@ -87,7 +88,7 @@ function Ping({ x, z, seed, hot }: { x: number; z: number; seed: number; hot?: b
     m.blending = THREE.AdditiveBlending
     m.depthWrite = false
     return m
-  }, [seed, hot])
+  }, [seed, hot, calm])
   useEffect(() => () => mat.dispose(), [mat])
   return (
     <mesh position={[x, TABLE_TOP_Y + 0.3, z]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -98,7 +99,7 @@ function Ping({ x, z, seed, hot }: { x: number; z: number; seed: number; hot?: b
 }
 
 /** Stylized Florida: solid slab, hologram skin floating just above, glowing outline, city pings. */
-function Florida() {
+function Florida({ calm }: { calm: boolean }) {
   const { slab, skin, outline } = useMemo(() => {
     const shape = new THREE.Shape()
     FLORIDA_LONLAT.forEach(([lon, lat], i) => {
@@ -117,14 +118,23 @@ function Florida() {
     return { slab: slabGeo, skin: skinGeo, outline: outlineGeo }
   }, [])
   const holo = useMemo(
-    () => createHologramMaterial({ opacity: 0.55, intensity: 0.6, scanDensity: 38, scanSpeed: 0.12, fresnelPower: 1.6, sweep: 0.6 }),
-    [],
+    () =>
+      createHologramMaterial({
+        opacity: 0.55,
+        intensity: 0.6,
+        scanDensity: 38,
+        scanSpeed: calm ? 0 : 0.12,
+        fresnelPower: 1.6,
+        sweep: calm ? 0 : 0.6,
+      }),
+    [calm],
   )
   const line = useMemo(() => {
     const m = new THREE.LineBasicNodeMaterial()
-    m.colorNode = vec3(0.24, 0.9, 1).mul(sin(time.mul(1.2)).mul(0.25).add(2.2))
+    const pulse = calm ? float(2.2) : sin(time.mul(1.2)).mul(0.25).add(2.2)
+    m.colorNode = vec3(0.24, 0.9, 1).mul(pulse)
     return m
-  }, [])
+  }, [calm])
   const outlineLine = useMemo(() => new THREE.Line(outline, line), [outline, line])
   useEffect(
     () => () => {
@@ -147,7 +157,7 @@ function Florida() {
       <primitive object={outlineLine} position={[0, 0.41, 0]} />
       {MAP_PINGS.map((c, i) => {
         const [x, z] = lonLatToXZ(c.lon, c.lat)
-        return <Ping key={c.name} x={x} z={z} seed={i * 0.17} hot={c.name === 'Fort Pierce'} />
+        return <Ping key={c.name} x={x} z={z} seed={i * 0.17} hot={c.name === 'Fort Pierce'} calm={calm} />
       })}
     </group>
   )
@@ -192,7 +202,8 @@ function Planet({ reduced }: { reduced: boolean }) {
     return m
   }, [])
   const moonMat = useMemo(() => new THREE.MeshStandardNodeMaterial({ color: '#9aa8b8', roughness: 0.9, metalness: 0 }), [])
-  const trail = useMemo(() => createHologramMaterial({ opacity: 0.5, intensity: 0.7, scanDensity: 3, sweep: 0 }), [])
+  const trail = useMemo(() => createHologramMaterial({ opacity: 0.5, intensity: 0.7, scanDensity: 3, scanSpeed: reduced ? 0 : 0.2, sweep: 0 }), [reduced])
+  useEffect(() => () => trail.dispose(), [trail])
   useFrame((state, dt) => {
     if (reduced) return
     // The planet drifts along a short arc in the upper left sky, clear of the case labels and the panel.
@@ -273,8 +284,8 @@ export default function MapTable({ reduced }: { reduced: boolean }) {
         <torusGeometry args={[TABLE_RADIUS + 0.05, 0.035, 8, 128]} />
         <primitive object={trim} attach="material" />
       </mesh>
-      <RadarFace />
-      <Florida />
+      <RadarFace calm={reduced} />
+      <Florida calm={reduced} />
       <Planet reduced={reduced} />
     </group>
   )

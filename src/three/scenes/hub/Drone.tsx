@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { atan, attribute, color, cos, float, fract, length, mix, oneMinus, positionLocal, pow, sin, smoothstep, step, time, uniform, vec2, vertexColor } from 'three/tsl'
+import { STILL } from '../../../lib/flags'
+import { sceneCalm } from './markerMotion'
 import { useTier } from '../case/common'
 
 type Part = {
@@ -353,15 +355,16 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
   const spin = useRef(0)
   const shift = useRef(0)
   const probe = useMemo(() => new THREE.Vector3(), [])
+  const calm = sceneCalm(reduced, STILL)
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
     const g = root.current
-    built.blinkOn.value = reduced ? 0 : 1
+    built.blinkOn.value = calm ? 0 : 1
     if (g) {
-      g.position.y = position[1] + (reduced ? 0 : Math.sin(t * 1.3) * 0.09)
-      g.rotation.y = 0.42 + (reduced ? 0 : Math.sin(t * 0.5) * 0.16)
-      g.rotation.z = reduced ? 0 : Math.sin(t * 0.9) * 0.03
-      g.rotation.x = -0.28 + (reduced ? 0 : Math.sin(t * 0.7 + 1) * 0.03)
+      g.position.y = position[1] + (calm ? 0 : Math.sin(t * 0.85) * 0.07)
+      g.rotation.y = 0.42 + (calm ? 0 : Math.sin(t * 0.35) * 0.12)
+      g.rotation.z = calm ? 0 : Math.sin(t * 0.7) * 0.025
+      g.rotation.x = -0.28 + (calm ? 0 : Math.sin(t * 0.55 + 1) * 0.025)
       // Keep the whole drone in frame: when the view is narrow (a phone held sideways, the scene centered beside a side
       // panel) slide it along x until its left-most point is inside the canvas, easing so it never pops.
       const left = (dx: number) => {
@@ -374,11 +377,14 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
       const n0 = left(0)
       const n1 = left(1)
       const want = n0 < -0.84 && n1 > n0 ? Math.min(2.4, (-0.84 - n0) / (n1 - n0)) : 0
-      shift.current += (want - shift.current) * (reduced ? 1 : 1 - Math.exp(-dt * 6))
+      shift.current += (want - shift.current) * (calm ? 1 : 1 - Math.exp(-dt * 6))
       g.position.x = position[0] + shift.current
     }
-    spin.current = (spin.current + dt * (reduced ? 6 : 26)) % (Math.PI * 12)
-    built.phase.value = spin.current
+    if (calm) built.phase.value = 0.85
+    else {
+      spin.current = (spin.current + dt * 22) % (Math.PI * 12)
+      built.phase.value = spin.current
+    }
   })
 
   return (
