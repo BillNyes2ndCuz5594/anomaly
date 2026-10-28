@@ -3403,6 +3403,10 @@ a,
   .visual-3d {
     min-height: 200px;
   }
+  /* Touch word targets are 44px tall, so a long stem can shove the model below the first view. Lead with the stage. */
+  .item-grid.stage-3d .visual-panel {
+    order: -1;
+  }
   .opt-btn {
     padding: 8px 10px;
     gap: 10px;
