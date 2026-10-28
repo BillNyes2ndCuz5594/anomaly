@@ -50,7 +50,7 @@ Rules for video clips
 | Rank | Asset | Where it shows | Status |
 | --- | --- | --- | --- |
 | 1 | Florida panther | Evidence item, art check | Wave 1 scan, replaced in wave 6 (plain tawny coat, tail hanging low) |
-| 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped |
+| 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped; wave 8: rescanned from a low front photo |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs, and in wave 7 by a scan from a low front photo |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
@@ -115,6 +115,12 @@ Rules for video clips
   photo scanned with its back legs in the air, so the shipped scan comes from a low front photo with every leg on the
   ground (black and yellow abdomen, banded legs) and no longer needs the tilt. Same sizing and framing rules; Low tier
   keeps the procedural models. Spend $2.80 (eight FLUX Ultra references, two edits, three scans).
+- Wave 8: the blue crab. The wave 1 crab was saturated and toy-like, so it is rescanned from a FLUX 1.1 Ultra raw photo
+  taken low from the front (olive carapace, blue legs, pale claws with orange tips) and turned 45 degrees so the claws and
+  shell both show. A high-angle photo scanned with tall, spidery legs (the same failure as the top-down spider) and was
+  dropped, and a nano-banana edit that painted the claws blue looked flat, so it was not scanned. Three bull shark
+  references all drew pointed snouts, so the current shark stays. Low tier keeps the procedural crab. Spend $2.04 (six
+  FLUX Ultra references, three high-angle references, one edit, two scans).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
