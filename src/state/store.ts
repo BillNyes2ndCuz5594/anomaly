@@ -11,12 +11,12 @@ import {
   type BenchmarkRecord,
   type MasteryStage,
 } from './mastery'
-import { defaultSettings, type Settings } from './settings'
+import { defaultSettings, GAME_STORAGE_KEY, type Settings } from './settings'
 
 export { MASTERY_STAGES }
 export type { MasteryStage }
 
-export const STORAGE_KEY = 'anomaly.v1'
+export const STORAGE_KEY = GAME_STORAGE_KEY
 
 export const MASTERY_LABEL: Record<MasteryStage, string> = {
   unseen: 'Unseen',
