@@ -12,14 +12,14 @@ const mirrorZ = [1, -1]
 
 const COL = {
   tawny: new THREE.Color('#a9875f'),
-  back: new THREE.Color('#684b35'),
+  back: new THREE.Color('#5c4030'),
   pale: new THREE.Color('#e4d9c3'),
   mask: new THREE.Color('#3b2d22'),
   tip: new THREE.Color('#1f1712'),
   paw: new THREE.Color('#a07a52'),
 }
 
-const H = 0.14
+const H = 0.26
 /** Squeezes the rear half (x below 0.3) so the body stays compact: a cougar is long, but not a weasel. */
 const R = (x: number): number => (x > 0.3 ? x : 0.3 + (x - 0.3) * 0.86)
 
@@ -39,24 +39,24 @@ export function pantherPrims(): Prim[] {
   const P: Prim[] = []
   const add = (...p: Prim[]) => void P.push(...p)
   // ----- torso: deep chest, gently tucked belly, round hips, one soft back line with a slight dip
-  add(ellipsoid([0.5, 1.2 + H, 0], [0.8, 0.36, 0.3], 0.2))
+  add(ellipsoid([0.5, 1.2 + H, 0], [0.8, 0.38, 0.31], 0.2))
   add(ellipsoid([R(-0.5), 1.18 + H, 0], [0.8, 0.31, 0.29], 0.22))
-  add(ellipsoid([R(-1.1), 1.22 + H, 0], [0.4, 0.34, 0.29], 0.2))
+  add(ellipsoid([R(-1.1), 1.27 + H, 0], [0.42, 0.36, 0.3], 0.2))
   // chest keel hangs a little lower than the belly behind it, withers rise over the shoulders
-  add(ellipsoid([0.68, 1.02 + H, 0], [0.48, 0.2, 0.2], 0.18))
+  add(ellipsoid([0.7, 1.0 + H, 0], [0.5, 0.22, 0.22], 0.18))
   add(ellipsoid([0.84, 1.53 + H, 0], [0.3, 0.12, 0.17], 0.18))
   // ----- neck and head (carried low, in line with the back)
-  add(cone([0.95, 1.38 + H, 0], [1.62, 1.45 + H, 0], 0.38, 0.3, 0.25, 0.94))
-  add(ellipsoid([1.96, 1.5 + H, 0], [0.33, 0.285, 0.295], 0.14))
-  add(ellipsoid([2.19, 1.4 + H, 0], [0.17, 0.15, 0.17], 0.12))
-  add(cone([2.0, 1.55 + H, 0], [2.24, 1.46 + H, 0], 0.15, 0.12, 0.1, 1.1))
-  add(ellipsoid([2.12, 1.275 + H, 0], [0.155, 0.065, 0.105], 0.07))
+  add(cone([0.95, 1.4 + H, 0], [1.62, 1.5 + H, 0], 0.36, 0.27, 0.22, 0.94))
+  add(ellipsoid([1.95, 1.57 + H, 0], [0.32, 0.3, 0.3], 0.14))
+  add(ellipsoid([2.15, 1.42 + H, 0], [0.15, 0.135, 0.16], 0.12))
+  add(cone([2.0, 1.58 + H, 0], [2.2, 1.47 + H, 0], 0.15, 0.12, 0.1, 1.1))
+  add(ellipsoid([2.08, 1.29 + H, 0], [0.135, 0.06, 0.1], 0.07))
   for (const k of mirrorZ) {
-    add(ellipsoid([2.0, 1.34 + H, k * 0.17], [0.21, 0.155, 0.13], 0.1))
-    add(ellipsoid([2.08, 1.63 + H, k * 0.135], [0.11, 0.045, 0.095], 0.06))
+    add(ellipsoid([1.98, 1.37 + H, k * 0.18], [0.2, 0.15, 0.13], 0.1))
+    add(ellipsoid([2.06, 1.66 + H, k * 0.14], [0.1, 0.045, 0.09], 0.06))
     // shoulder and thigh muscle, kept a little apart from the ribs so the forms read
-    add(ellipsoid([0.8, 1.22 + H, k * 0.21], [0.31, 0.42, 0.15], 0.12))
-    add(ellipsoid([R(-1.0), 1.05 + H, k * 0.25], [0.32, 0.46, 0.19], 0.12))
+    add(ellipsoid([0.8, 1.22 + H, k * 0.22], [0.3, 0.42, 0.15], 0.12))
+    add(ellipsoid([R(-1.0), 1.08 + H, k * 0.26], [0.36, 0.5, 0.21], 0.12))
   }
   // ----- legs
   for (const k of mirrorZ) {
@@ -65,7 +65,7 @@ export function pantherPrims(): Prim[] {
     add(
       ...chain(
         [[0.8, 1.28 + H, k * 0.2], [0.62 + fs * 0.05, 0.86 + H * 0.5, k * 0.21], [0.76 + fs * 0.6, 0.45, k * 0.2], [0.84 + fs * 0.9, 0.2, k * 0.2], [0.88 + fs, 0.11, k * 0.2]],
-        [0.2, 0.15, 0.088, 0.072, 0.075],
+        [0.2, 0.15, 0.092, 0.076, 0.082],
         0.14,
         0.92,
         6,
@@ -74,7 +74,7 @@ export function pantherPrims(): Prim[] {
     add(
       ...chain(
         [[R(-1.02), 1.28 + H, k * 0.23], [R(-0.76) + hs * 0.4, 0.88 + H * 0.5, k * 0.25], [R(-1.42) + hs * 0.8, 0.52, k * 0.22], [R(-1.3) + hs * 0.95, 0.24, k * 0.21], [R(-1.14) + hs, 0.11, k * 0.21]],
-        [0.26, 0.17, 0.09, 0.07, 0.075],
+        [0.28, 0.19, 0.1, 0.076, 0.082],
         0.14,
         0.9,
         6,
@@ -91,24 +91,24 @@ export function pantherPrims(): Prim[] {
   }
   for (const [x, z] of pawSpots()) add(ellipsoid([x - 0.02, 0.09, z], [0.2, 0.09, 0.125], 0.06))
   // ----- tail: long, thick, drooping behind the hips, curving down then up
-  add(...chain([[R(-1.4), 1.34 + H, 0], [R(-1.9), 1.17 + H, 0], [R(-2.4), 0.84, 0], [R(-2.85), 0.52, 0], [R(-3.3), 0.4, 0], [R(-3.75), 0.52, 0], [R(-4.1), 0.8, 0]], [0.185, 0.17, 0.158, 0.148, 0.14, 0.13, 0.105], 0.12, 1, 6))
+  add(...chain([[R(-1.4), 1.34 + H, 0], [R(-1.9), 1.17 + H, 0], [R(-2.4), 0.84, 0], [R(-2.85), 0.52, 0], [R(-3.35), 0.4, 0], [R(-3.9), 0.5, 0], [R(-4.35), 0.82, 0]], [0.2, 0.18, 0.165, 0.152, 0.145, 0.135, 0.11], 0.12, 1, 6))
   return P
 }
 
-const TAIL_END: V3 = [R(-4.1), 0.8, 0]
+const TAIL_END: V3 = [R(-4.35), 0.82, 0]
 
 const pantherPaint: SculptPaint = (p, n, out) => {
   const [x, y, z] = p
   out.copy(COL.tawny)
   // darker, ruddier back that fades down the flanks
   const dorsal = smooth(0.1, 0.85, n[1]) * (0.5 + 0.5 * smooth(0.5, 1.5, y))
-  out.lerp(COL.back, dorsal * 0.75)
+  out.lerp(COL.back, dorsal * 0.9)
   // a faint darker line along the spine
   out.lerp(COL.back, smooth(0.8, 1, n[1]) * smooth(0.12, 0.0, Math.abs(z)) * smooth(1.4, 1.6, y) * 0.35)
   // pale underside, throat, inner legs and underside of the tail
   let pale = smooth(0.05, -0.55, n[1])
   if (y < 1.15) pale = Math.max(pale, smooth(0.05, -0.55, n[2] * Math.sign(z || 1)) * smooth(0.05, 0.18, Math.abs(z)) * 0.85)
-  out.lerp(COL.pale, pale * 0.9)
+  out.lerp(COL.pale, pale * 0.95)
   // flanks lighten toward the belly line on the torso
   if (x > -1.4 && x < 1.3) out.lerp(COL.pale, smooth(1.32, 1.05, y) * smooth(0.88, 1.02, y) * 0.5)
   // pale chin, lips and chest
@@ -154,13 +154,14 @@ export function pantherModel(b: Builder): void {
   const f = fld.f
   const prims = pantherPrims()
   const lod = getBuilderLod()
-  const cell = 0.03 / Math.max(0.5, lod)
+  // Low tier meshes on a slightly coarser grid so the taller panther stays at or under its old triangle count.
+  const cell = (0.03 / Math.max(0.5, lod)) * (lod < 1 ? 1.04 : 1)
   const { lo, hi } = primBounds(prims, 0.25)
   b.colored(meshField(fld, lo, hi, cell, pantherPaint))
 
   for (const k of mirrorZ) {
     // almond eye: dark lid rim, amber iris flattened onto the face, round pupil, tiny highlight
-    const eh = raycast(f, [2.12, 1.555 + 0.14, k * 1.0], [0, 0, -k])
+    const eh = raycast(f, [2.1, 1.575 + H, k * 1.0], [0, 0, -k])
     if (eh) {
       const n = eh.n
       const rot = frame(n, k * -0.14)
@@ -171,7 +172,7 @@ export function pantherModel(b: Builder): void {
       b.ell(off(q(0.012), [0, 1, 0], 0.012), [0.008, 0.008, 0.008], '#ffffff', rot, 6, 5, WET)
     }
     // ear: dark rounded back with a pale furred cup facing forward and out
-    const ep: V3 = [1.84, 1.745 + 0.14, k * 0.215]
+    const ep: V3 = [1.82, 1.8 + H, k * 0.225]
     const er: V3 = [k * 0.5, 0.15, 0.22]
     b.ell(ep, [0.05, 0.108, 0.1], '#2a211a', er, 18, 12)
     b.ell([ep[0] + 0.03, ep[1] - 0.004, ep[2] + k * 0.012], [0.04, 0.1, 0.092], '#b08e68', er, 16, 12)
