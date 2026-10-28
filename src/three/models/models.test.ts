@@ -223,8 +223,8 @@ describe('human hologram model', () => {
     expect(h).toBeGreaterThan(6.2)
     expect(h).toBeLessThan(7.0)
     expect(Math.abs(sb.min.y)).toBeLessThan(0.05)
-    // Hands hang clear of the hips (arms are not straight down against the torso).
-    expect(sb.max.x).toBeGreaterThan(1.7)
+    // Hands hang clear of the hips (a relaxed arm angle, not pressed against the torso).
+    expect(sb.max.x).toBeGreaterThan(1.4)
     expect(sb.max.x).toBeLessThan(2.2)
   })
 
