@@ -154,7 +154,8 @@ export function pantherModel(b: Builder): void {
   const f = fld.f
   const prims = pantherPrims()
   const lod = getBuilderLod()
-  const cell = 0.03 / Math.max(0.5, lod)
+  // Low tier meshes on a slightly coarser grid so the taller panther stays at or under its old triangle count.
+  const cell = (0.03 / Math.max(0.5, lod)) * (lod < 1 ? 1.04 : 1)
   const { lo, hi } = primBounds(prims, 0.25)
   b.colored(meshField(fld, lo, hi, cell, pantherPaint))
 

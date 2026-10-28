@@ -161,7 +161,8 @@ export const paint: SculptPaint = (p, n, out) => {
 export function grasshopperModel(b: Builder): void {
   const fld = fields().all
   const lod = getBuilderLod()
-  const cell = 0.026 / Math.max(0.5, lod)
+  // Low tier meshes on a slightly coarser grid so the heavier femora stay at or under the old triangle count.
+  const cell = (0.026 / Math.max(0.5, lod)) * (lod < 1 ? 1.05 : 1)
   const { lo, hi } = primBounds(grasshopperPrims(), 0.2)
   b.colored(meshField(fld, lo, hi, cell, paint))
 
