@@ -59,6 +59,7 @@ Rules for video clips
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue |
 | 8b | Lab A human body | Lab A, Briefing | Wave 5a: scanned body shell and muscle layer replace the sculpted mannequin on Medium and up |
+| 8c | Scene diagrams (water cycle, coast, planets, comet, plant pots) | Evidence items, art check | Wave 5b: NASA photos of the Sun and planets, a painted coast plate, cloud and seedling pot on Medium and up; Low keeps the vector art |
 | 9 | App icons and share art | Install, share | Wave 4: shipped, rendered in house with no fal spend |
 
 ## Wave plan
@@ -82,3 +83,29 @@ Rules for video clips
   layer. Eyes, ears, nose, tongue, bladder and small intestine are scanned and baked like wave 4b (eyes and ears as
   mirrored pairs; the ears sit on the scanned body's own ears). The manatee is rescanned. Low tier keeps the
   procedural hologram and face, which also has a straighter nose and a shaped tongue now. Spend about $5.85.
+- Wave 5b: the scene diagrams. Medium tier and up paint real imagery under the live text labels (still laid out by
+  diagramText.ts, so they scale and never overlap): NASA photos of the Sun and planets cut to discs and shaded from
+  the Sun's side, one FLUX gouache coast plate (ocean, beach, lake, river, glacier) shared by the water cycle and
+  evaporation scenes, a painted cumulus cloud and a painted seedling pot. No cartoon sun rays; the comet gets a soft
+  coma with a curved dust tail and a straight blue ion tail; asteroids are lumpy rocks, not dots. The Low tier keeps
+  the flat vector diagrams, and the vector shape sits under each photo so a failed image load still shows a planet.
+  Also fixed: the nose uses the scanned face's own nose only while the scanned body is showing (on the sculpted face,
+  for Low tier or when body-scan.glb fails to load, it is fitted to the sculpted nose), and the tongue sits just behind
+  the lips of whichever face is showing instead of deep in the throat, so neither slides off the face as the figure
+  turns. Spend $0.24 (six FLUX stills).
+
+### Photo credits (wave 5b, all public domain, NASA)
+
+Files in `src/assets/diagrams/`, cut and graded from these Wikimedia Commons originals:
+
+- sun.webp: SDO HMI continuum, 2024-08-10 (NASA SDO). https://commons.wikimedia.org/wiki/File:SDO_20240810_000000_4096_HMIIC_(HMI).jpg
+- mercury.webp: Mercury in true color (NASA MESSENGER). https://commons.wikimedia.org/wiki/File:Mercury_in_true_color.jpg
+- venus.webp: PIA23791, Mariner 10 reprocessed (NASA JPL). https://commons.wikimedia.org/wiki/File:PIA23791-Venus-NewlyProcessedView-20200608_(cropped).jpg
+- earth.webp: The Earth seen from Apollo 17 (NASA). https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg
+- mars.webp: Valles Marineris (NASA Viking). https://commons.wikimedia.org/wiki/File:Mars_Valles_Marineris.jpeg
+- jupiter.webp: Jupiter by Cassini-Huygens (NASA JPL). https://commons.wikimedia.org/wiki/File:Jupiter_by_Cassini-Huygens.jpg
+- saturn.webp: Saturn from Cassini Orbiter, 2004-10-06 (NASA JPL). https://commons.wikimedia.org/wiki/File:Saturn_from_Cassini_Orbiter_(2004-10-06).jpg
+- uranus.webp: Uranus2 (NASA Voyager 2). https://commons.wikimedia.org/wiki/File:Uranus2.jpg
+- neptune.webp: Neptune Full (NASA Voyager 2). https://commons.wikimedia.org/wiki/File:Neptune_Full.jpg
+
+coast.webp, cloud.webp and pot.webp are FLUX stills made for this project (wave 5b).

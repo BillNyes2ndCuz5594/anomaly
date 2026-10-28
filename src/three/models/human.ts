@@ -66,10 +66,11 @@ function build(id: string): THREE.BufferGeometry {
       break
     case 'tongue':
       // A narrow, rounded tongue lying in the floor of the mouth: thick at the root, tapering to a rounded tip that
-      // stays behind the lips, with a darker groove down the middle.
-      b.ell([0, 5.84, 0.04], [0.064, 0.05, 0.1], '#fff', [0, 0, 0], 16, 10)
-        .ell([0, 5.85, 0.19], [0.06, 0.03, 0.13], '#fff', [0.12, 0, 0], 18, 10)
-        .ell([0, 5.876, 0.18], [0.01, 0.006, 0.1], '#a0a0a0', [0.12, 0, 0], 8, 6)
+      // stays just behind the lips (the sculpted lips are at z 0.5), with a darker groove down the middle. Sitting at the
+      // mouth and not deep in the throat keeps it under the lips as the figure turns.
+      b.ell([0, 5.84, 0.17], [0.064, 0.05, 0.1], '#fff', [0, 0, 0], 16, 10)
+        .ell([0, 5.85, 0.32], [0.06, 0.03, 0.13], '#fff', [0.12, 0, 0], 18, 10)
+        .ell([0, 5.876, 0.31], [0.01, 0.006, 0.1], '#a0a0a0', [0.12, 0, 0], 8, 6)
       break
   }
   return b.build()

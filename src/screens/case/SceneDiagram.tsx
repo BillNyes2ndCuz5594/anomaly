@@ -1,10 +1,27 @@
 // Crisp SVG diagrams for scene visuals, styled to match the hologram look.
 // Art is drawn in a 400x220 space and the viewBox grows to the panel aspect (no letterboxing).
 // Labels are laid out by diagramText.ts so they scale with the text size setting.
+// Medium tier and up paint real imagery under the live labels: NASA photos of the Sun and planets
+// (public domain, see docs/ART.md), a painted coast plate, cloud and seedling pot. Low tier keeps the
+// flat vector art, which also sits under each image so a failed image load still shows a diagram.
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { resolveTier } from '../../state/quality'
+import { useRuntime } from '../../state/runtime'
 import { TEXT_SCALE } from '../../state/settings'
 import { useGame } from '../../state/store'
-import { AMBER, BELT, COMET, INNER_OUTER, SOLAR, cometSun, sceneLabelSpecs } from './diagramLabels'
+import cloudUrl from '../../assets/diagrams/cloud.webp'
+import coastUrl from '../../assets/diagrams/coast.webp'
+import earthUrl from '../../assets/diagrams/earth.webp'
+import jupiterUrl from '../../assets/diagrams/jupiter.webp'
+import marsUrl from '../../assets/diagrams/mars.webp'
+import mercuryUrl from '../../assets/diagrams/mercury.webp'
+import neptuneUrl from '../../assets/diagrams/neptune.webp'
+import potUrl from '../../assets/diagrams/pot.webp'
+import saturnUrl from '../../assets/diagrams/saturn.webp'
+import sunUrl from '../../assets/diagrams/sun.webp'
+import uranusUrl from '../../assets/diagrams/uranus.webp'
+import venusUrl from '../../assets/diagrams/venus.webp'
+import { AMBER, BELT, COMET, INNER_OUTER, PLATE, SOLAR, cometSun, sceneLabelSpecs } from './diagramLabels'
 import { baseScale, labelSize, layoutLabels, viewBoxFor, type PlacedLabel } from './diagramText'
 
 const CY = '#3ee6ff'
@@ -38,6 +55,33 @@ function Sun({ x, y, r = 18 }: { x: number; y: number; r?: number }) {
       <circle cx={x} cy={y} r={r} fill="url(#sd-sun)" />
     </g>
   )
+}
+
+/** Space Sun: the SDO visible light disc (sunspots and limb darkening) in a soft corona. */
+function SunDisc({ x, y, r, glow = 1.6 }: { x: number; y: number; r: number; glow?: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={r * glow} fill="url(#sd-glow)" />
+      <circle cx={x} cy={y} r={r * 1.12} fill="url(#sd-corona)" />
+      <circle cx={x} cy={y} r={r} fill="url(#sd-sun)" />
+      <image href={sunUrl} x={x - r} y={y - r} width={r * 2} height={r * 2} preserveAspectRatio="none" />
+    </g>
+  )
+}
+
+/** Sky Sun for the painted Earth scenes: a bright disc in warm haze, no cartoon rays. */
+function SkySun({ x, y, r }: { x: number; y: number; r: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={r * 3.4} fill="url(#sd-haze)" />
+      <circle cx={x} cy={y} r={r} fill="url(#sd-psun)" />
+    </g>
+  )
+}
+
+/** The painted coast (ocean, beach, lake, river, glacier) shared by the two water scenes. */
+function Plate() {
+  return <image href={coastUrl} x={PLATE.x} y={PLATE.y} width={PLATE.w} height={PLATE.h} preserveAspectRatio="none" />
 }
 
 function Waves({ x, y, w, rows = 3 }: { x: number; y: number; w: number; rows?: number }) {
@@ -83,8 +127,34 @@ function Cloud({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   )
 }
 
-function Planet({ x, y, r, fill, ring, bands }: { x: number; y: number; r: number; fill: string; ring?: boolean; bands?: boolean }) {
+const PHOTO: Record<string, string> = { '#b9b0a6': mercuryUrl, '#e8c47a': venusUrl, '#3f90d8': earthUrl, '#d9663f': marsUrl, '#d8b07a': jupiterUrl, '#8ad0e6': uranusUrl, '#3b5fd0': neptuneUrl }
+// Saturn photo: the planet's centre and radius as fractions of the image (Cassini, 2004).
+const SAT = { cx: 0.5013, cy: 0.5083, r: 0.2127, aspect: 153 / 384 }
+
+/** A planet photo, shaded from the Sun's side (always to the left in these diagrams). */
+function PhotoPlanet({ x, y, r, fill, ring }: { x: number; y: number; r: number; fill: string; ring?: boolean }) {
+  if (ring) {
+    const w = r / SAT.r
+    const h = w * SAT.aspect
+    return (
+      <g>
+        <circle cx={x} cy={y} r={r * 0.98} fill={fill} />
+        <image href={saturnUrl} x={x - w * SAT.cx} y={y - h * SAT.cy} width={w} height={h} preserveAspectRatio="none" />
+      </g>
+    )
+  }
+  return (
+    <g>
+      <circle cx={x} cy={y} r={r} fill={fill} />
+      <image href={PHOTO[fill]} x={x - r} y={y - r} width={r * 2} height={r * 2} preserveAspectRatio="none" />
+      <circle cx={x} cy={y} r={r} fill="url(#sd-term)" />
+    </g>
+  )
+}
+
+function Planet({ x, y, r, fill, ring, bands, art }: { x: number; y: number; r: number; fill: string; ring?: boolean; bands?: boolean; art?: boolean }) {
   const id = `pc-${x}-${y}`
+  if (art && (ring || PHOTO[fill])) return <PhotoPlanet x={x} y={y} r={r} fill={fill} ring={ring} />
   return (
     <g>
       {ring ? <ellipse cx={x} cy={y} rx={r * 1.85} ry={r * 0.42} fill="none" stroke="#2a2218" strokeWidth="4.5" opacity="0.5" transform={`rotate(-16 ${x} ${y})`} /> : null}
@@ -120,6 +190,53 @@ function Orbits({ sx, sy, radii }: { sx: number; sy: number; radii: number[] }) 
 }
 
 type Labels = string[]
+
+/** Down arrow streaks of rain under the cloud. */
+function Rain({ xs, y, h }: { xs: number[]; y: number; h: number }) {
+  return (
+    <g stroke="#cfeaff" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.9">
+      {xs.map((x, i) => (
+        <g key={x}>
+          <line x1={x} y1={y + (i % 2) * 4} x2={x - 4} y2={y + h + (i % 2) * 4} />
+          <path d={`M ${x - 8} ${y + h - 6 + (i % 2) * 4} L ${x - 4} ${y + h + 1 + (i % 2) * 4} L ${x} ${y + h - 6 + (i % 2) * 4}`} />
+        </g>
+      ))}
+    </g>
+  )
+}
+
+/** Painted water cycle: evaporation off the sea, condensation into the cloud, rain on the hills, runoff back. */
+function WaterCycleArt() {
+  return (
+    <>
+      <Plate />
+      <SkySun x={176} y={30} r={11} />
+      <Vapor x={22} y={150} n={4} gap={32} h={60} color="#eefaff" />
+      <path d="M150 84 Q190 50 236 52" fill="none" stroke="#eefaff" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="1 7" />
+      <path d="M228 45 L238 52 L228 59" fill="none" stroke="#eefaff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <image href={cloudUrl} x={240} y={14} width={110} height={77.5} preserveAspectRatio="none" />
+      <Rain xs={[266, 280, 294, 308, 322]} y={90} h={22} />
+      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M300 124 Q262 136 232 158 T182 182" stroke="#0a1426" strokeOpacity="0.45" strokeWidth="6.5" />
+        <path d="M191 169 L181 182 L197 186" stroke="#0a1426" strokeOpacity="0.45" strokeWidth="6.5" />
+        <path d="M300 124 Q262 136 232 158 T182 182" stroke="#7fd0ff" strokeWidth="3.2" />
+        <path d="M191 169 L181 182 L197 186" stroke="#7fd0ff" strokeWidth="3.2" />
+      </g>
+    </>
+  )
+}
+
+/** Painted coast for evaporation: vapor rises off the sea and the lake in the Sun. */
+function OceanEvaporationArt() {
+  return (
+    <>
+      <Plate />
+      <SkySun x={304} y={38} r={13} />
+      <Vapor x={18} y={152} n={5} gap={38} h={72} color="#eefaff" />
+      <Vapor x={250} y={164} n={2} gap={22} h={40} color="#eefaff" />
+    </>
+  )
+}
 
 function WaterCycle() {
   return (
@@ -179,14 +296,20 @@ const ROW = [
   { name: 'Mars', r: 11, fill: '#d9663f' },
 ]
 
-function SolarRow({ labels }: { labels: Labels }) {
+function SolarRow({ labels, art }: { labels: Labels; art: boolean }) {
   const names = labels.slice(1)
   const { xs, sun } = SOLAR
   return (
     <>
       <Orbits sx={sun.x} sy={sun.y} radii={xs.map((x) => x - sun.x)} />
-      <circle cx={sun.x} cy={sun.y} r={sun.r * 1.55} fill="url(#sd-glow)" />
-      <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
+      {art ? (
+        <SunDisc x={sun.x} y={sun.y} r={sun.r} glow={1.55} />
+      ) : (
+        <>
+          <circle cx={sun.x} cy={sun.y} r={sun.r * 1.55} fill="url(#sd-glow)" />
+          <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
+        </>
+      )}
       {xs.map((x, i) => {
         const missing = names[i] === '?'
         return (
@@ -197,7 +320,7 @@ function SolarRow({ labels }: { labels: Labels }) {
                 <text x={x} y={119} textAnchor="middle" fill={AM} fontSize="22" fontWeight="700" fontFamily="var(--font-mono)" stroke="#0a1426" strokeWidth="4" paintOrder="stroke" strokeLinejoin="round">?</text>
               </>
             ) : (
-              <Planet x={x} y={110} r={ROW[i].r} fill={ROW[i].fill} />
+              <Planet x={x} y={110} r={ROW[i].r} fill={ROW[i].fill} art={art} />
             )}
           </g>
         )
@@ -219,15 +342,21 @@ const OUTER = [
   { x: 380, r: 15, fill: '#3b5fd0', bands: false, ring: false },
 ]
 
-function InnerOuter() {
+function InnerOuter({ art }: { art: boolean }) {
   const { sun } = INNER_OUTER
   return (
     <>
       <Orbits sx={sun.x} sy={sun.y} radii={[...INNER, ...OUTER].map((p) => p.x - sun.x)} />
-      <circle cx={sun.x} cy={sun.y} r={sun.r * 1.5} fill="url(#sd-glow)" />
-      <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
-      {INNER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} />)}
-      {OUTER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} ring={p.ring} bands={p.bands} />)}
+      {art ? (
+        <SunDisc x={sun.x} y={sun.y} r={sun.r} glow={1.5} />
+      ) : (
+        <>
+          <circle cx={sun.x} cy={sun.y} r={sun.r * 1.5} fill="url(#sd-glow)" />
+          <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
+        </>
+      )}
+      {INNER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} art={art} />)}
+      {OUTER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} ring={p.ring} bands={p.bands} art={art} />)}
       <path d="M86 148 v8 h116 v-8" fill="none" stroke={CY} strokeWidth="2" />
       <path d="M216 148 v8 h176 v-8" fill="none" stroke={AM} strokeWidth="2" />
     </>
@@ -235,7 +364,7 @@ function InnerOuter() {
 }
 
 /** Comet on a long oval with the Sun at one focus. The tail always points away from the Sun. */
-function CometOrbit() {
+function CometOrbit({ art }: { art: boolean }) {
   const { cx, cy, rx, ry } = COMET
   const sun = cometSun()
   const t = Math.PI - 0.8
@@ -253,17 +382,58 @@ function CometOrbit() {
   return (
     <>
       <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={CY} strokeWidth="2" strokeDasharray="7 6" opacity="0.85" />
-      <circle cx={sun.x} cy={sun.y} r="36" fill="url(#sd-glow)" />
-      <circle cx={sun.x} cy={sun.y} r="13" fill="url(#sd-sun)" />
-      <path d={dust} fill="url(#sd-tail)" opacity="0.85" />
-      <line x1={comet.x} y1={comet.y} x2={tip.x + ux * 12} y2={tip.y + uy * 12} stroke="#9fe6ff" strokeWidth="2.2" strokeLinecap="round" opacity="0.8" />
-      <circle cx={comet.x} cy={comet.y} r="15" fill="#bfefff" opacity="0.3" />
-      <circle cx={comet.x} cy={comet.y} r="7" fill="#ffffff" />
+      {art ? (
+        <>
+          <SunDisc x={sun.x} y={sun.y} r={13} glow={2.8} />
+          {/* Two tails, both pointing away from the Sun: a curved pale dust tail and a straight blue ion tail. */}
+          <g filter="url(#sd-soft)" fill="none" strokeLinecap="round">
+            {[
+              [24, 0.14, 1.1],
+              [14, 0.24, 1],
+              [6, 0.45, 0.9],
+            ].map(([sw, op, f]) => (
+              <path
+                key={sw}
+                d={`M ${comet.x} ${comet.y} Q ${comet.x + ux * L * 0.7 + px * 16 * f} ${comet.y + uy * L * 0.7 + py * 16 * f} ${comet.x + ux * L * 1.15 * f + px * 34 * f} ${comet.y + uy * L * 1.15 * f + py * 34 * f}`}
+                stroke="#fff1d6"
+                strokeWidth={sw}
+                opacity={op}
+              />
+            ))}
+            <line x1={comet.x} y1={comet.y} x2={comet.x + ux * L * 1.45} y2={comet.y + uy * L * 1.45} stroke="#8fd8ff" strokeWidth="5" strokeLinecap="round" opacity="0.7" />
+          </g>
+          <line x1={comet.x} y1={comet.y} x2={comet.x + ux * L * 1.3} y2={comet.y + uy * L * 1.3} stroke="#d6f3ff" strokeWidth="1.4" strokeLinecap="round" opacity="0.75" />
+          <circle cx={comet.x} cy={comet.y} r="13" fill="url(#sd-coma)" />
+          <circle cx={comet.x} cy={comet.y} r="2.6" fill="#ffffff" />
+        </>
+      ) : (
+        <>
+          <circle cx={sun.x} cy={sun.y} r="36" fill="url(#sd-glow)" />
+          <circle cx={sun.x} cy={sun.y} r="13" fill="url(#sd-sun)" />
+          <path d={dust} fill="url(#sd-tail)" opacity="0.85" />
+          <line x1={comet.x} y1={comet.y} x2={tip.x + ux * 12} y2={tip.y + uy * 12} stroke="#9fe6ff" strokeWidth="2.2" strokeLinecap="round" opacity="0.8" />
+          <circle cx={comet.x} cy={comet.y} r="15" fill="#bfefff" opacity="0.3" />
+          <circle cx={comet.x} cy={comet.y} r="7" fill="#ffffff" />
+        </>
+      )}
     </>
   )
 }
 
-function AsteroidBelt() {
+
+/** A lumpy rock outline: asteroids are not round. */
+function rock(x: number, y: number, r: number, seed: number) {
+  const n = 7
+  const pts = Array.from({ length: n }, (_, i) => {
+    const j = Math.sin((seed + 1) * 12.9898 + i * 78.233) * 43758.5453
+    const f = 0.62 + (j - Math.floor(j)) * 0.5
+    const a = (i / n) * Math.PI * 2 + seed
+    return `${(x + Math.cos(a) * r * f).toFixed(1)} ${(y + Math.sin(a) * r * f * 0.85).toFixed(1)}`
+  })
+  return `M ${pts.join(' L ')} Z`
+}
+
+function AsteroidBelt({ art }: { art: boolean }) {
   const { sun } = BELT
   const rnd = (n: number) => {
     const a = Math.sin(n * 91.7) * 43758.5
@@ -284,13 +454,72 @@ function AsteroidBelt() {
   return (
     <>
       <Orbits sx={sun.x} sy={sun.y} radii={[42, 72, 104, 136]} />
-      <circle cx={sun.x} cy={sun.y} r={sun.r * 1.9} fill="url(#sd-glow)" />
-      <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
-      {inner.map((p) => <Planet key={p.x} x={p.x} y={110} r={p.r} fill={p.fill} />)}
-      {dots.map((d, i) => <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={i % 3 ? '#b5aca2' : '#8f877e'} />)}
-      <Planet x={286} y={110} r={24} fill="#d8b07a" bands />
-      <Planet x={346} y={110} r={19} fill="#e6d29a" ring />
-      <Planet x={388} y={110} r={11} fill="#8ad0e6" />
+      {art ? (
+        <SunDisc x={sun.x} y={sun.y} r={sun.r} glow={1.9} />
+      ) : (
+        <>
+          <circle cx={sun.x} cy={sun.y} r={sun.r * 1.9} fill="url(#sd-glow)" />
+          <circle cx={sun.x} cy={sun.y} r={sun.r} fill="url(#sd-sun)" />
+        </>
+      )}
+      {inner.map((p) => <Planet key={p.x} x={p.x} y={110} r={p.r} fill={p.fill} art={art} />)}
+      {art
+        ? dots.map((d, i) => <path key={i} d={rock(d.x, d.y, d.r * 1.15, i)} fill={i % 3 ? '#a89f94' : '#7f776e'} stroke="#3b362f" strokeWidth="0.5" />)
+        : dots.map((d, i) => <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={i % 3 ? '#b5aca2' : '#8f877e'} />)}
+      <Planet x={286} y={110} r={24} fill="#d8b07a" bands art={art} />
+      <Planet x={346} y={110} r={19} fill="#e6d29a" ring art={art} />
+      <Planet x={388} y={110} r={11} fill="#8ad0e6" art={art} />
+    </>
+  )
+}
+
+// Painted seedling pot sprite: 300x595, rim top at row 310, soil at row 330.
+const POT = { w: 78, h: 78 * (595 / 300), top: 22 }
+const POT_SOIL = POT.top + POT.h * (330 / 595)
+
+function PlantPotsArt({ labels }: { labels: Labels }) {
+  const pot = (cx: number, deco: 'warm' | 'cool' | null, extra: { food: boolean; water: boolean }, flip: boolean) => (
+    <g key={cx}>
+      <image
+        href={potUrl}
+        x={cx - POT.w / 2}
+        y={POT.top}
+        width={POT.w}
+        height={POT.h}
+        preserveAspectRatio="none"
+        transform={flip ? `translate(${cx * 2} 0) scale(-1 1)` : undefined}
+      />
+      {deco === 'warm' ? <SkySun x={cx + 56} y={40} r={11} /> : null}
+      {deco === 'cool' ? (
+        <g stroke="#dff4ff" strokeWidth="2.4" strokeLinecap="round">
+          {[0, 60, 120].map((a) => (
+            <line key={a} x1={cx + 56 - Math.cos((a * Math.PI) / 180) * 13} y1={40 - Math.sin((a * Math.PI) / 180) * 13} x2={cx + 56 + Math.cos((a * Math.PI) / 180) * 13} y2={40 + Math.sin((a * Math.PI) / 180) * 13} />
+          ))}
+        </g>
+      ) : null}
+      {extra.water ? (
+        <g fill="#7fc8f0">
+          {[0, 1, 2].map((i) => (
+            <path key={i} d={`M ${cx - 50 + i * 9} ${58 + i * 14} q 4.5 7 0 10.5 q -4.5 -3.5 0 -10.5 z`} />
+          ))}
+        </g>
+      ) : null}
+      {extra.food ? (
+        <g fill="#efe6c4" stroke="#6b5a3a" strokeWidth="0.5">
+          {[-22, -13, -4, 7, 15, 23].map((o, i) => <circle key={o} cx={cx + o} cy={POT_SOIL + (i % 2) * 1.4} r="1.9" />)}
+        </g>
+      ) : null}
+    </g>
+  )
+  const deco = (l: string): 'warm' | 'cool' | null => (/warm/i.test(l) ? 'warm' : /cool/i.test(l) ? 'cool' : null)
+  const a = labels[0] ?? ''
+  const b = labels[1] ?? ''
+  const thermal = deco(a) || deco(b)
+  return (
+    <>
+      {!thermal ? <SkySun x={200} y={34} r={12} /> : null}
+      {pot(110, deco(a), { food: /food/i.test(a), water: /water/i.test(a) && !thermal }, false)}
+      {pot(290, deco(b), { food: /food/i.test(b), water: /water/i.test(b) && !thermal }, true)}
     </>
   )
 }
@@ -359,6 +588,9 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
   const svg = useRef<SVGSVGElement>(null)
   const [box, setBox] = useState({ w: 400, h: 220 })
   const textSize = useGame((s) => s.settings.textSize)
+  const quality = useGame((s) => s.settings.quality)
+  const autoTier = useRuntime((s) => s.autoTier)
+  const art = resolveTier(quality, autoTier) !== 'low'
   // Measure the panel so the viewBox matches its aspect and labels get their real rendered size.
   useLayoutEffect(() => {
     const el = svg.current
@@ -375,29 +607,29 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
   }, [])
   const vb = useMemo(() => viewBoxFor(box.w, box.h), [box])
   const size = labelSize(baseScale(box.w, box.h), TEXT_SCALE[textSize])
-  const placed = useMemo(() => layoutLabels(sceneLabelSpecs(id, labels), size, vb), [id, labels, size, vb])
+  const placed = useMemo(() => layoutLabels(sceneLabelSpecs(id, labels, art), size, vb), [id, labels, art, size, vb])
   let body: ReactNode
   switch (id) {
     case 'water-cycle':
-      body = <WaterCycle />
+      body = art ? <WaterCycleArt /> : <WaterCycle />
       break
     case 'ocean-evaporation':
-      body = <OceanEvaporation />
+      body = art ? <OceanEvaporationArt /> : <OceanEvaporation />
       break
     case 'solar-system':
-      body = <SolarRow labels={labels} />
+      body = <SolarRow labels={labels} art={art} />
       break
     case 'inner-outer-planets':
-      body = <InnerOuter />
+      body = <InnerOuter art={art} />
       break
     case 'comet-orbit':
-      body = <CometOrbit />
+      body = <CometOrbit art={art} />
       break
     case 'asteroid-belt':
-      body = <AsteroidBelt />
+      body = <AsteroidBelt art={art} />
       break
     case 'plant-pots':
-      body = <PlantPots labels={labels} />
+      body = art ? <PlantPotsArt labels={labels} /> : <PlantPots labels={labels} />
       break
     default:
       body = null
@@ -434,6 +666,33 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
           <stop offset="0.5" stopColor="#d06a38" />
           <stop offset="1" stopColor="#8e3f20" />
         </linearGradient>
+        <linearGradient id="sd-term" x1="0" y1="0" x2="1" y2="0.25">
+          <stop offset="0" stopColor="#000000" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#000000" stopOpacity="0.05" />
+          <stop offset="1" stopColor="#020611" stopOpacity="0.62" />
+        </linearGradient>
+        <radialGradient id="sd-corona">
+          <stop offset="0.8" stopColor="#fff0c8" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#ffb547" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="sd-haze">
+          <stop offset="0" stopColor="#fff6dc" stopOpacity="0.75" />
+          <stop offset="0.35" stopColor="#ffe2a0" stopOpacity="0.3" />
+          <stop offset="1" stopColor="#ffd27a" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="sd-psun">
+          <stop offset="0" stopColor="#fffdf2" />
+          <stop offset="0.7" stopColor="#fff0c4" />
+          <stop offset="1" stopColor="#ffd98a" />
+        </radialGradient>
+        <radialGradient id="sd-coma">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
+          <stop offset="0.3" stopColor="#d9f4ff" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#9fdcff" stopOpacity="0" />
+        </radialGradient>
+        <filter id="sd-soft" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2.6" />
+        </filter>
       </defs>
       <rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} fill="url(#sd-sky)" />
       {SPACE.has(id) ? STARS.map((st, i) => <circle key={i} cx={st.x} cy={st.y} r={st.r} fill="#cfe9ff" opacity="0.55" />) : null}

@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three/webgpu'
-import { acornSet, earPair, eyePair, fitOrgan, kidneyPair, ORGAN_SCAN_IDS, sprigCluster } from './labScans'
+import { acornSet, earPair, eyePair, fitOrgan, kidneyPair, ORGAN_SCAN_IDS, SCAN_FACE_SHIFT, sprigCluster } from './labScans'
 import { humanModel } from './human'
 import { oakLeafEnds, OAK_ACORNS } from './labB'
 
@@ -70,6 +70,18 @@ describe('lab scans', () => {
       expect(a.min.y + def.center[1], id).toBeGreaterThan(5.9)
       expect(pair.getAttribute('normal'), id).toBeTruthy()
     }
+  })
+
+  it('keeps the tongue just behind the lips of whichever face is showing', () => {
+    const def = humanModel(false).organs.get('tongue')!
+    def.geo.computeBoundingBox()
+    const tip = def.geo.boundingBox!.max.z + def.center[2]
+    // Sculpted lips are at z 0.5; the scanned body's lips at z 0.6 (measured from body-scan.glb at mouth height).
+    expect(tip).toBeGreaterThan(0.4)
+    expect(tip).toBeLessThan(0.5)
+    const scanTip = tip + SCAN_FACE_SHIFT.tongue[2]
+    expect(scanTip).toBeGreaterThan(0.5)
+    expect(scanTip).toBeLessThan(0.6)
   })
 
   it('grows sprigs from every leaf cluster and keeps them near it', () => {
