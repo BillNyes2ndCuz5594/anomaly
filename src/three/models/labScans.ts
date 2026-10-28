@@ -74,7 +74,8 @@ function finish(geo: THREE.BufferGeometry): THREE.BufferGeometry {
 export const ORGAN_SCAN_IDS = ['brain', 'heart', 'lungs', 'liver', 'stomach', 'pancreas', 'small-intestine', 'large-intestine', 'kidneys', 'bladder', 'eyes', 'ears', 'nose', 'tongue'] as const
 /** Organs built as a left and right pair from one scan (the pack holds one side under the singular name). */
 const PAIRED: Record<string, string> = { kidneys: 'kidney', eyes: 'eye', ears: 'ear' }
-const organCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>()
+// One cache per face: the scanned nose sits on the scanned face, or is fitted to the sculpted nose on the sculpted face.
+const organCache = { scan: new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>(), sculpt: new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>() }
 
 /** The scan fitted into the procedural organ's own box (the organ geometry is centered on its origin). */
 export function fitOrgan(scan: THREE.BufferGeometry, procedural: THREE.BufferGeometry, inset?: [number, number, number]): THREE.BufferGeometry {
@@ -164,7 +165,9 @@ export function earPair(scan: THREE.BufferGeometry, center: V3): THREE.BufferGeo
 
 /**
  * Organs cut from the scanned body itself, already shaped and placed in figure space: the nose is the body scan's own
- * nose as a thin closed shell, so it sits exactly on the scanned face. The value is its baked box center.
+ * nose as a thin closed shell, so it sits exactly on the scanned face. The value is its baked box center. Used only
+ * while the scanned body is showing; on the sculpted face (Low tier, or body-scan.glb not loaded) the same nose is
+ * fitted to the sculpted nose instead, so it never floats in front of a face that is not there.
  */
 const IN_PLACE: Record<string, V3> = { nose: [0.0009, 6.0351, 0.5924] }
 
@@ -176,8 +179,9 @@ export function placeInFigure(scan: THREE.BufferGeometry, at: V3, center: V3): T
 /** The scanned stomach fills a little less of the procedural box toward the left flank, so it stays inside the scanned body. */
 const INSET: Record<string, [number, number, number]> = { stomach: [0.9, 1, 0.94] }
 
-function organScan(id: string, procedural: THREE.BufferGeometry, center: V3): THREE.BufferGeometry | undefined {
-  const have = organCache.get(procedural)
+function organScan(id: string, procedural: THREE.BufferGeometry, center: V3, scanFace: boolean): THREE.BufferGeometry | undefined {
+  const cache = scanFace ? organCache.scan : organCache.sculpt
+  const have = cache.get(procedural)
   if (have) return have
   const pack = done.get(organsUrl)
   const scan = pack?.get(PAIRED[id] ?? id)
@@ -189,15 +193,24 @@ function organScan(id: string, procedural: THREE.BufferGeometry, center: V3): TH
         ? eyePair(scan, center)
         : id === 'ears'
           ? earPair(scan, center)
-          : IN_PLACE[id]
+          : IN_PLACE[id] && scanFace
             ? placeInFigure(scan, IN_PLACE[id], center)
             : fitOrgan(scan, procedural, INSET[id])
-  organCache.set(procedural, geo)
+  cache.set(procedural, geo)
   return geo
 }
 
-/** Scanned organ geometry once loaded (never on the Low tier); the procedural geometry until then. */
-export function useOrganGeo(id: string, procedural: THREE.BufferGeometry, center: V3, low: boolean): THREE.BufferGeometry {
+/**
+ * Where a face organ moves when the scanned body is showing: its lips sit about 0.1 further forward than the sculpted
+ * face's, so the tongue follows them instead of hanging back in the throat and sliding off the mouth as the figure turns.
+ */
+export const SCAN_FACE_SHIFT: Record<string, V3> = { tongue: [0, 0, 0.1] }
+
+/**
+ * Scanned organ geometry once loaded (never on the Low tier); the procedural geometry until then. `scanFace` says the
+ * scanned body shell is showing (see useBodyScan), which decides where organs cut from that shell go.
+ */
+export function useOrganGeo(id: string, procedural: THREE.BufferGeometry, center: V3, low: boolean, scanFace = false): THREE.BufferGeometry {
   const wanted = !low && (ORGAN_SCAN_IDS as readonly string[]).includes(id)
   const [, bump] = useState(0)
   useEffect(() => {
@@ -208,7 +221,7 @@ export function useOrganGeo(id: string, procedural: THREE.BufferGeometry, center
       live = false
     }
   }, [wanted])
-  return (wanted && organScan(id, procedural, center)) || procedural
+  return (wanted && organScan(id, procedural, center, scanFace)) || procedural
 }
 
 // ---------- body ----------

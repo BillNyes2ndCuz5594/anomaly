@@ -11,13 +11,24 @@ export const BELT = { sun: { x: 28, y: 110, r: 24 } }
 export const COMET = { cx: 212, cy: 112, rx: 166, ry: 66 }
 export const cometSun = () => ({ x: COMET.cx - Math.sqrt(COMET.rx ** 2 - COMET.ry ** 2), y: COMET.cy })
 
+/** The painted coast plate (water scenes, medium tier and up), placed in art units. */
+export const PLATE = { x: -177, y: -58, w: 736, h: 326.4 }
+
 /** Labels for ocean-evaporation when the item gives none: name every surface it shows. */
 export const OCEAN_DEFAULTS = ['Ocean', 'Lake', 'River', 'Glacier']
 
-export function sceneLabelSpecs(id: string, labels: string[]): LabelSpec[] {
+/** `art` places labels for the painted plates (medium tier and up); without it they fit the flat vector art. */
+export function sceneLabelSpecs(id: string, labels: string[], art = false): LabelSpec[] {
   const L = (i: number) => labels[i] ?? ''
   switch (id) {
     case 'water-cycle':
+      if (art) {
+        return [
+          { key: 'ocean', text: L(0), x: 60, y: 200 },
+          { key: 'vapor', text: L(1), x: 70, y: 74 },
+          { key: 'cloud', text: L(2), x: 296, y: 12 },
+        ]
+      }
       return [
         { key: 'ocean', text: L(0), x: 86, y: 208 },
         { key: 'vapor', text: L(1), x: 72, y: 60 },
@@ -26,6 +37,20 @@ export function sceneLabelSpecs(id: string, labels: string[]): LabelSpec[] {
     case 'ocean-evaporation': {
       const sun = labels.find((l) => /sun/i.test(l))
       const water = labels.find((l) => /lagoon|ocean|lake/i.test(l))
+      if (labels.length === 0 && art) {
+        return [
+          { key: 'ocean', text: OCEAN_DEFAULTS[0], x: 60, y: 200 },
+          { key: 'lake', text: OCEAN_DEFAULTS[1], x: 262, y: 196 },
+          { key: 'river', text: OCEAN_DEFAULTS[2], x: 378, y: 180 },
+          { key: 'glacier', text: OCEAN_DEFAULTS[3], x: 368, y: 104 },
+        ]
+      }
+      if (art) {
+        return [
+          { key: 'sun', text: sun ?? '', x: 284, y: 44, anchor: 'end' },
+          { key: 'water', text: water ?? '', x: 60, y: 200 },
+        ]
+      }
       if (labels.length === 0) {
         return [
           { key: 'ocean', text: OCEAN_DEFAULTS[0], x: 92, y: 208 },
