@@ -121,6 +121,12 @@ Rules for video clips
   dropped, and a nano-banana edit that painted the claws blue looked flat, so it was not scanned. Three bull shark
   references all drew pointed snouts, so the current shark stays. Low tier keeps the procedural crab. Spend $2.04 (six
   FLUX Ultra references, three high-angle references, one edit, two scans).
+- Wave 9: the gopher tortoise and green tree frog. The wave 6 tortoise came out as a sulcata (spiky legs, tall pale
+  shell) and the wave 6 frog looked like glossy plastic with no side stripe. Both are rescanned from nano-banana-pro
+  references: a low, dark grey-brown tortoise with a domed carapace and scaly shovel forelegs, and a matte green frog
+  with the cream stripe along its side and wide toe pads. FLUX Ultra references were also drawn for both and rejected
+  (the tortoise was the wrong species again and the frog stripe was missing). Low tier keeps the procedural models.
+  Spend $2.07 (four nano-banana-pro and two FLUX Ultra references, two scans).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
