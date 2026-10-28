@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Burst from '../../ui/Burst'
+import { STILL } from '../../lib/flags'
 import { content } from '../../content/schema'
 import { navigate } from '../../lib/router'
 import { MASTERY_STAGES, parseISO, stageFraction, stageIndex, type MasteryStage } from '../../state/mastery'
@@ -7,6 +8,7 @@ import { useSession } from '../../state/session'
 import { CATALOG_BENCHMARKS } from '../../lib/catalog.generated'
 import { MASTERY_LABEL, rankFor, useGame } from '../../state/store'
 import ReportCodePanel from '../../ui/ReportCodePanel'
+import { useMotionMode } from '../../ui/useMotionMode'
 import { CaseTop } from './ui'
 
 function dueLabel(iso: string | null | undefined): string {
@@ -14,12 +16,13 @@ function dueLabel(iso: string | null | undefined): string {
   return new Date(parseISO(iso)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-/** Counts up from 0 to target. Jumps straight to the target with reduced motion. */
+/** Counts up from 0 to target. Jumps straight to the target with reduced motion or ?still=1. */
 function useCountUp(target: number, startDelay = 450, ms = 1100): number {
   const reduced = useGame((s) => s.settings.reducedMotion)
-  const [v, setV] = useState(reduced ? target : 0)
+  const snap = reduced || STILL
+  const [v, setV] = useState(snap ? target : 0)
   useEffect(() => {
-    if (reduced) {
+    if (snap) {
       setV(target)
       return
     }
@@ -32,7 +35,7 @@ function useCountUp(target: number, startDelay = 450, ms = 1100): number {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [target, reduced, startDelay, ms])
+  }, [target, snap, startDelay, ms])
   return v
 }
 
@@ -52,11 +55,16 @@ export default function Results() {
   const intelTotal = useGame((s) => s.intel)
   const cases = useGame((s) => s.cases)
   const codexCount = useGame((s) => s.codex.length)
-  const [shown, setShown] = useState(false)
+  const motion = useMotionMode()
+  const [shown, setShown] = useState(motion !== 'full')
   useEffect(() => {
-    const id = window.setTimeout(() => setShown(true), 350)
+    if (motion !== 'full') {
+      setShown(true)
+      return
+    }
+    const id = window.setTimeout(() => setShown(true), 280)
     return () => window.clearTimeout(id)
-  }, [])
+  }, [motion])
 
   const intel = answers.reduce((n, a) => n + a.intel, 0)
   const intelShown = useCountUp(intel)
@@ -71,7 +79,7 @@ export default function Results() {
   return (
     <div className="screen case-screen results-screen" data-testid="results">
       <CaseTop step="results" />
-      <main className="results-body">
+      <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
         <section className="panel brackets results-panel" aria-label="Mastery changes">
           <h1 className="panel-title">MASTERY UPDATE</h1>
           <ul className="bars" data-testid="mastery-bars">

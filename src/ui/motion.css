@@ -297,6 +297,146 @@
   animation-delay: 0.5s;
 }
 
+/* ---------- route and step flow (full tier). Low tier stays on the short fades in index.css. ---------- */
+html[data-motion='full'] .step-host[data-dir='forward'] {
+  animation: step-glide 0.46s var(--ease-out) backwards;
+}
+html[data-motion='full'] .step-host[data-dir='back'] {
+  animation: step-glide-back 0.46s var(--ease-out) backwards;
+}
+html[data-motion='fade'] .step-host {
+  animation: screen-in 0.2s linear backwards;
+}
+html[data-motion='still'] .step-host {
+  animation: none;
+}
+@keyframes step-glide {
+  from {
+    opacity: 0;
+    translate: 26px 8px;
+  }
+}
+@keyframes step-glide-back {
+  from {
+    opacity: 0;
+    translate: -22px 8px;
+  }
+}
+
+/* Evidence card slides in. The scan line crosses the picture, clipped by the panel. */
+html[data-motion='full'] .item-grid[data-dir='forward'] {
+  animation: item-glide 0.42s var(--ease-out) both;
+}
+html[data-motion='full'] .item-grid[data-dir='back'] {
+  animation: item-glide-back 0.42s var(--ease-out) both;
+}
+html[data-motion='fade'] .item-grid {
+  animation: screen-in 0.18s linear both;
+}
+html[data-motion='still'] .item-grid {
+  animation: none;
+}
+@keyframes item-glide {
+  from {
+    opacity: 0;
+    translate: 32px 0;
+  }
+}
+@keyframes item-glide-back {
+  from {
+    opacity: 0;
+    translate: -28px 0;
+  }
+}
+html[data-motion='full'] .item-grid .visual-panel::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff, var(--cyan), transparent);
+  box-shadow: 0 0 12px rgba(62, 230, 255, 0.7);
+  pointer-events: none;
+  z-index: 2;
+  animation: item-scan 0.42s var(--ease-out) both;
+}
+@keyframes item-scan {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 42vh, 0);
+    opacity: 0;
+  }
+}
+
+/* Results: the file rises, rewards slide in from the side, bars ease to their new width. */
+html[data-motion='full'] .results-body {
+  animation: results-rise 0.5s var(--ease-out) both;
+}
+html[data-motion='fade'] .results-body {
+  animation: screen-in 0.18s linear both;
+}
+html[data-motion='still'] .results-body {
+  animation: none;
+}
+@keyframes results-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+html[data-motion='full'] .bar-fill {
+  transition: width 0.65s var(--ease-out);
+}
+html[data-motion='full'] .results-side > .reward {
+  animation-name: reward-in;
+  animation-duration: 0.42s;
+}
+@keyframes reward-in {
+  from {
+    opacity: 0;
+    translate: 16px 0;
+  }
+}
+
+/* Modal shell. Exit plays on the presence wrapper, then the dialog unmounts. */
+.presence {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+.presence .modal-backdrop {
+  pointer-events: auto;
+}
+.presence[data-presence='out'] .modal-backdrop {
+  animation: modal-fade-out 0.2s var(--ease-out) forwards;
+}
+.presence[data-presence='out'] .modal.panel {
+  animation: modal-out 0.2s var(--ease-out) forwards;
+}
+@keyframes modal-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+html[data-motion='still'] .presence .modal-backdrop,
+html[data-motion='still'] .presence .modal.panel {
+  animation: none;
+}
+
 /* ---------- reduced motion: no entrances, no feedback motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .screen-host .panel,
@@ -316,7 +456,14 @@
   .match-btn,
   .sort-step .btn.on,
   .report-code,
-  .stamp {
+  .stamp,
+  .step-host,
+  .item-grid,
+  .results-body,
+  .handoff,
+  .presence,
+  .presence .modal-backdrop,
+  .presence .modal.panel {
     animation: none !important;
   }
   .btn,
@@ -345,7 +492,14 @@ html[data-reduced-motion='true'] .opt,
 html[data-reduced-motion='true'] .match-btn,
 html[data-reduced-motion='true'] .sort-step .btn.on,
 html[data-reduced-motion='true'] .report-code,
-html[data-reduced-motion='true'] .stamp {
+html[data-reduced-motion='true'] .stamp,
+html[data-reduced-motion='true'] .step-host,
+html[data-reduced-motion='true'] .item-grid,
+html[data-reduced-motion='true'] .results-body,
+html[data-reduced-motion='true'] .handoff,
+html[data-reduced-motion='true'] .presence,
+html[data-reduced-motion='true'] .presence .modal-backdrop,
+html[data-reduced-motion='true'] .presence .modal.panel {
   animation: none !important;
 }
 html[data-reduced-motion='true'] .btn,
