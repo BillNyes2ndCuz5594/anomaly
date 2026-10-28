@@ -5,12 +5,14 @@ import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.j
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import organsUrl from '../../assets/scans/organ-scans.glb?url'
 import oakUrl from '../../assets/scans/oak-scans.glb?url'
+import labbUrl from '../../assets/scans/labb-scans.glb?url'
 import bodyUrl from '../../assets/scans/body-scan.glb?url'
 import { toFloat } from './heroSpecimens'
-import { OAK_ACORNS, oakLeafEnds, rng } from './labB'
+import { barkShell, OAK_ACORNS, oakLeafEnds, rng } from './labB'
 import type { V3 } from './builder'
 
-// Lab scans (fal waves 4b and 5a): organs, sense organs and the body shell for Lab A and live oak sprigs and acorns for Lab B, made with fal.ai (FLUX reference
+// Lab scans (fal waves 4b, 5a and 5c): organs, sense organs and the body shell for Lab A, and for Lab B the deer skin, the oak
+// trunk and live oak sprigs and acorns, made with fal.ai (FLUX reference
 // photo, then Hunyuan3D v3), decimated and baked offline to plain meshes whose COLOR_0 is the scan's own light and dark
 // (grey shade, no texture). The organ and hologram materials multiply that shade into their glow, so each part keeps
 // its tint and states while showing real surface detail. Each scan is fitted to the procedural part it replaces, so
@@ -23,7 +25,8 @@ type Pack = Map<string, THREE.BufferGeometry>
 const packs = new Map<string, Promise<Pack>>()
 const done = new Map<string, Pack>()
 
-function loadPack(url: string): Promise<Pack> {
+/** Loads a pack once. Meshes are recentered on their own box unless `inPlace` (packs already baked in the part's space). */
+function loadPack(url: string, inPlace = false): Promise<Pack> {
   let p = packs.get(url)
   if (!p) {
     p = loader()
@@ -36,7 +39,7 @@ function loadPack(url: string): Promise<Pack> {
           if (!m.isMesh) return
           const geo = toFloat(m.geometry as THREE.BufferGeometry).applyMatrix4(m.matrixWorld)
           geo.computeBoundingBox()
-          const c = geo.boundingBox!.getCenter(new THREE.Vector3())
+          const c = inPlace ? new THREE.Vector3() : geo.boundingBox!.getCenter(new THREE.Vector3())
           geo.translate(-c.x, -c.y, -c.z)
           out.set(m.name || o.parent?.name || '', geo)
         })
@@ -343,26 +346,64 @@ export function oakScanPart(id: string, pack: Pack, scale: number, center: V3): 
   return finish(geo)
 }
 
-/** Scanned oak part once loaded (never on the Low tier); the procedural part until then. */
-export function useOakGeo(id: string, procedural: THREE.BufferGeometry, center: V3, scale: number, low: boolean, oak: boolean | undefined): THREE.BufferGeometry {
-  const wanted = oak && !low && (OAK_SCAN_PARTS as readonly string[]).includes(id)
+// ---------- Lab B deer skin and oak trunk (wave 5c) ----------
+
+/** Lab B parts upgraded from labb-scans.glb: the deer's skin and the oak's bark. */
+export const LABB_SCAN_PARTS = ['skin', 'bark'] as const
+
+/**
+ * Deer skin or oak bark built from labb-scans.glb, in the procedural part's frame (minus center). The pack is baked in
+ * deer and oak space: the deer scan is warped onto the procedural landmarks (hooves, joints, spine, head) and eased out
+ * wherever a bone came through, so the skeleton stays inside; the trunk scan is fitted to the bark trunk's height and
+ * radii with its root flare kept, and the procedural limb sleeves grow out of its top.
+ */
+export function labBScanPart(id: string, pack: Pack, oakScale: number, center: V3): THREE.BufferGeometry | undefined {
+  let geo: THREE.BufferGeometry | undefined
+  if (id === 'skin' && pack.get('deer')) geo = keepShade(pack.get('deer')!.clone())
+  if (id === 'bark' && pack.get('trunk')) {
+    geo = mergeGeometries([keepShade(pack.get('trunk')!.clone()), keepShade(barkShell(1, false))])
+    geo.scale(oakScale, oakScale, oakScale)
+  }
+  if (!geo) return undefined
+  geo.translate(-center[0], -center[1], -center[2])
+  return finish(geo)
+}
+
+interface ScanFlags {
+  id: string
+  geo: THREE.BufferGeometry
+  center: V3
+  oak?: boolean
+  deer?: boolean
+}
+
+/** Which pack (if any) upgrades this part. */
+function scanPack(part: ScanFlags): string | null {
+  if (part.oak && (OAK_SCAN_PARTS as readonly string[]).includes(part.id)) return oakUrl
+  if ((part.oak && part.id === 'bark') || (part.deer && part.id === 'skin')) return labbUrl
+  return null
+}
+
+/** Scanned Lab B part once loaded (never on the Low tier); the procedural part until then or if the pack fails. */
+export function useLabBGeo(part: ScanFlags, oakScale: number, low: boolean): THREE.BufferGeometry {
+  const url = low ? null : scanPack(part)
   const [, bump] = useState(0)
   useEffect(() => {
-    if (!wanted || done.has(oakUrl)) return
+    if (!url || done.has(url)) return
     let live = true
-    loadPack(oakUrl).then(() => live && bump((n) => n + 1))
+    loadPack(url, url === labbUrl).then(() => live && bump((n) => n + 1))
     return () => {
       live = false
     }
-  }, [wanted])
-  if (!wanted) return procedural
-  const pack = done.get(oakUrl)
-  if (!pack) return procedural
-  const key = `${id}:${center.join(',')}`
+  }, [url])
+  if (!url) return part.geo
+  const pack = done.get(url)
+  if (!pack) return part.geo
+  const key = `${url}:${part.id}:${part.center.join(',')}`
   let geo = oakCache.get(key)
   if (!geo) {
-    geo = oakScanPart(id, pack, scale, center)
-    if (!geo) return procedural
+    geo = url === labbUrl ? labBScanPart(part.id, pack, oakScale, part.center) : oakScanPart(part.id, pack, oakScale, part.center)
+    if (!geo) return part.geo
     oakCache.set(key, geo)
   }
   return geo

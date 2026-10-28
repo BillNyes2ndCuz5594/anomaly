@@ -259,6 +259,21 @@ export const OAK_ACORNS: readonly V3[] = [[1.05, 2.6, 0.2], [-1.05, 2.5, 0.28], 
 /** Leaf cluster centers and radii (oak space), shared by the procedural leaves and the scanned sprigs. */
 export const oakLeafEnds = (): [V3, number][] => oakTwigs(oakLimbs().limbs).ends
 
+/** Bark radii along the trunk curve (oak space); the scanned trunk of wave 5c is fitted to the same profile. */
+export const OAK_BARK_TRUNK_R: readonly number[] = [0.5, 0.38, 0.33, 0.3]
+
+/**
+ * Bark: a shell around the trunk and the main limbs, furrowed on the trunk and flaring into the ground. Without the
+ * trunk it is just the limb sleeves, which grow out of the scanned trunk on Medium and up (see labScans).
+ */
+export function barkShell(lod = 1, withTrunk = true): THREE.BufferGeometry {
+  const { trunk, limbs } = oakLimbs()
+  const sleeve = new Builder()
+  if (withTrunk) sleeve.limb(trunk.pts, [...OAK_BARK_TRUNK_R], {}, { radial: lod < 1 ? 16 : 28, seg: lod < 1 ? 6 : 12, cap: 0 })
+  for (const l of limbs) sleeve.limb(l.pts, l.r.map((r) => r * 1.0), {}, { radial: lod < 1 ? 8 : 14, seg: 8, cap: 3 })
+  return ridged(sleeve.build(), (p) => barkRidge(p))
+}
+
 export function oakBuilders(lod = 1): { root: Builder; stem: Builder; bark: THREE.BufferGeometry; leaf: Builder; flower: Builder; fruit: Builder; seed: Builder; spore: Builder } {
   const { trunk, limbs } = oakLimbs()
   const { twigs, ends } = oakTwigs(limbs)
@@ -285,11 +300,7 @@ export function oakBuilders(lod = 1): { root: Builder; stem: Builder; bark: THRE
   for (const l of limbs) S(l, 0.72)
   for (const l of twigs) S(l, 0.85)
 
-  // bark: a shell around the trunk and the main limbs, furrowed on the trunk and flaring into the ground
-  const sleeve = new Builder()
-  sleeve.limb(trunk.pts, [0.5, 0.38, 0.33, 0.3], {}, { radial: lod < 1 ? 16 : 28, seg: lod < 1 ? 6 : 12, cap: 0 })
-  for (const l of limbs) sleeve.limb(l.pts, l.r.map((r) => r * 1.0), {}, { radial: lod < 1 ? 8 : 14, seg: 8, cap: 3 })
-  const bark = ridged(sleeve.build(), (p) => barkRidge(p))
+  const bark = barkShell(lod, true)
 
   // leaves: dense clusters of small elliptical leaves facing outward, at the end of every twig and limb
   const leaf = new Builder()
