@@ -3403,9 +3403,20 @@ a,
   .visual-3d {
     min-height: 200px;
   }
-  /* Touch word targets are 44px tall, so a long stem can shove the model below the first view. Lead with the stage. */
+  /* Touch word targets are 44px tall, so a long stem can shove the model below the first view.
+     A later tap scrolls the answer into the center, which would carry a top-of-flow stage off screen.
+     Lead with the stage and pin it to the scrollport for the whole item. */
+  .item-grid.stage-3d .item-main {
+    display: contents;
+  }
   .item-grid.stage-3d .visual-panel {
     order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    align-self: start;
+    max-height: 42dvh;
+    background-color: var(--navy-0);
   }
   .opt-btn {
     padding: 8px 10px;

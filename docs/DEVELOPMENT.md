@@ -15,7 +15,7 @@ The closed frame is the stack, not a flat fill: radial cyan and amber light, a t
 
 The evidence blank frame was the item glide. It animated opacity on `.item-grid`, which is an ancestor of the WebGL canvas, so the panel went empty while the opacity was below 1. The question and the answer column still slide. The visual stays outside the keyed question body, so the same canvas swaps specimens instead of remounting. Proof checks a real organ-to-specimen swap at about 180 ms and requires the canvas to still be there, at full opacity, with a painted picture.
 
-On a phone portrait the same screen failed a different check. Coarse pointers give each stem word a 44 px hit target, and L142-07 is a long question, so the 200 px stage started below the fold (44 percent inside the first view). The stage is a flex child of `.item-main`, so `order: -1` on `.item-grid.stage-3d .visual-panel` puts the model first. That rule is only the 600 px portrait layout. The canvas ancestor still has no opacity animation and no transform.
+On a phone portrait the same screen failed a different check. Coarse pointers give each stem word a 44 px hit target, and L142-07 is a long question, so the 200 px stage started below the fold (44 percent inside the first view). Putting the stage first was not enough on its own: the next tap scrolls the answer to the center of the item scroller and the stage left with it. In that 600 px portrait layout, `.item-main` is `display: contents` and the stage is `position: sticky` at the top of `.item-grid`, so the model stays in the first view while the question scrolls. The canvas ancestor still has no opacity animation and no transform.
 
 ## Flow transitions
 
