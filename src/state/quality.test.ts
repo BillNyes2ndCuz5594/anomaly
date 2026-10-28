@@ -8,6 +8,10 @@ import {
   resolveTier,
   rollingFps,
   stepAuto,
+  stepAdaptive,
+  initialAdaptiveState,
+  DPR_STEPS,
+  type AdaptiveState,
   type AutoState,
 } from './quality'
 
@@ -103,5 +107,92 @@ describe('rollingFps', () => {
     const stamps = [0, 700, 1400, 2100]
     expect(rollingFps(stamps, 2200)).toBeCloseTo(1.43, 1)
     expect(rollingFps([0, 700, 1400, 2100], 9000)).toBe(0)
+  })
+})
+
+function runA(state: AdaptiveState, fps: number, seconds: number, stepMs = 500): AdaptiveState {
+  let s = state
+  for (let t = 0; t < seconds * 1000; t += stepMs) s = stepAdaptive(s, fps, stepMs)
+  return s
+}
+
+describe('adaptive resolution', () => {
+  it('scales dpr by the step and never below 0.5', () => {
+    expect(dprForTier('high', 2, 0.8)).toBeCloseTo(1.4)
+    expect(dprForTier('low', 1, 0.5)).toBe(0.5)
+    expect(dprForTier('medium', 1, 0.65)).toBeCloseTo(0.65)
+  })
+
+  it('lowers resolution after 2 s of slow frames, before the tier', () => {
+    let s = initialAdaptiveState('high')
+    s = runA(s, 30, 1.5)
+    expect(s.dprStep).toBe(0)
+    s = runA(s, 30, 0.5)
+    expect(s.dprStep).toBe(1)
+    expect(s.tier).toBe('high')
+  })
+
+  it('drops the tier only after the lowest resolution step, and keeps that step', () => {
+    let s = initialAdaptiveState('high')
+    s = runA(s, 30, 2 * (DPR_STEPS.length - 1))
+    expect(s.dprStep).toBe(DPR_STEPS.length - 1)
+    expect(s.tier).toBe('high')
+    s = runA(s, 30, 2)
+    expect(s.tier).toBe('medium')
+    expect(s.dprStep).toBe(DPR_STEPS.length - 1)
+  })
+
+  it('recovers resolution first, then the tier, after 8 s of fast frames', () => {
+    let s = initialAdaptiveState('medium', 2)
+    s = runA(s, 60, 8)
+    expect(s.dprStep).toBe(1)
+    s = runA(s, 60, 8)
+    expect(s.dprStep).toBe(0)
+    expect(s.tier).toBe('medium')
+    s = runA(s, 60, 8)
+    expect(s.tier).toBe('high')
+  })
+
+  it('does not step on a brief dip', () => {
+    let s = initialAdaptiveState('high')
+    s = runA(s, 30, 1.5)
+    s = runA(s, 60, 0.5)
+    s = runA(s, 30, 1.5)
+    expect(s.dprStep).toBe(0)
+  })
+
+  it('backs off exponentially when a step up is followed by a step down', () => {
+    let s = initialAdaptiveState('high', 1)
+    s = runA(s, 60, 8)
+    expect(s.dprStep).toBe(0)
+    s = runA(s, 30, 2)
+    expect(s.dprStep).toBe(1)
+    expect(s.upNeedMs).toBe(16000)
+    // Needs 16 s now, so 15.5 s of fast frames changes nothing.
+    s = runA(s, 60, 15.5)
+    expect(s.dprStep).toBe(1)
+    s = runA(s, 60, 0.5)
+    expect(s.dprStep).toBe(0)
+    s = runA(s, 30, 2)
+    expect(s.upNeedMs).toBe(32000)
+  })
+
+  it('never oscillates faster than the growing wait under a borderline load', () => {
+    // Fast at low resolution, slow at full resolution: count steps over 10 minutes.
+    let s = initialAdaptiveState('high', 1)
+    let changes = 0
+    for (let t = 0; t < 600000; t += 500) {
+      const next = stepAdaptive(s, s.dprStep === 0 ? 30 : 60, 500)
+      if (next.dprStep !== s.dprStep || next.tier !== s.tier) changes++
+      s = next
+    }
+    expect(changes).toBeLessThan(24)
+    expect(s.upNeedMs).toBe(64000)
+  })
+
+  it('stays put on a mid range fps', () => {
+    const s = runA(initialAdaptiveState('medium'), 52, 120)
+    expect(s.dprStep).toBe(0)
+    expect(s.tier).toBe('medium')
   })
 })
