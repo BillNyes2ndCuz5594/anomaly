@@ -18,7 +18,10 @@ import {
   type BenchmarkSort,
 } from './analysis'
 import { makeSampleCodes } from './sample'
+import { installTeacherAudio } from '../audio/installTeacher'
 import './teacher.css'
+
+installTeacherAudio()
 
 // Teacher HQ entry. Must never import three, R3F, or anything from src/three or the game screens.
 // Shares only pure modules: reportCode, the generated catalog, and codename helpers.
