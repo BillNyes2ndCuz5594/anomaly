@@ -35,15 +35,15 @@ interface HeroDef {
 
 export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'florida-panther': { url: pantherUrl, yaw: 0, rough: 0.82 },
-  'blue-crab': { url: crabUrl, yaw: 0, rough: 0.5 },
+  'blue-crab': { url: crabUrl, yaw: Math.PI / 4, rough: 0.5 },
   'american-alligator': { url: gatorUrl, yaw: 0, rough: 0.7 },
   'garden-spider': { url: spiderUrl, yaw: Math.PI / 2, rough: 0.55, slack: 1.2 },
   'largemouth-bass': { url: bassUrl, yaw: Math.PI, rough: 0.45 },
-  'green-tree-frog': { url: frogUrl, yaw: 0, rough: 0.4 },
+  'green-tree-frog': { url: frogUrl, yaw: 0, rough: 0.55 },
   'barred-owl': { url: owlUrl, yaw: 0, rough: 0.85 },
   'brown-pelican': { url: pelicanUrl, yaw: 0, rough: 0.8 },
   'bull-shark': { url: sharkUrl, yaw: 0, rough: 0.5 },
-  'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.7 },
+  'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.8 },
   grasshopper: { url: grasshopperUrl, yaw: 0, rough: 0.6 },
   manatee: { url: manateeUrl, yaw: 0, rough: 0.75 },
 }
