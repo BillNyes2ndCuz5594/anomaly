@@ -13,6 +13,8 @@ What this pass does:
 
 Frames and fit numbers are in `docs/devlog/briefing-labb.md`.
 
+Gates on this branch: `npm test` 302/302 (check-assets clean), `npm run build`, `npm run lint` with 0 errors. `AN_TAG=bl PROOF_OUT=/tmp/proof-bl node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. Briefing fit at 1920 was -0.213 and Lab B was -0.077. `AN_TAG=blm PROOF_OUT=/tmp/proof-blm node scripts/mobile.mjs` reported 0 problems and 0 console errors on s23 portrait, s23 landscape, tablet portrait, and tablet landscape. Briefing and Lab B were 0 problems on all four, including the matched and contrast states.
+
 ## Procedural sound
 
 The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.
