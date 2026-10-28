@@ -5,6 +5,17 @@
 The pelican and owl panel could read as a flat clear about 180 ms after Next. The same canvas stayed mounted, but the new hero shaders were not ready, so the renderer presented the cleared frame. By 400 ms it was painted. A slow phone can hit that same gap.
 
 The item canvas keeps drawing the current specimen while the next one compiles in a hidden slot, then presents that compiled scene. The upcoming item is compiled before Next, with that item's lights, and those materials stay mounted so the program cache is not dropped. The proof samples the organ to pelican and owl glide five times at 180 ms and still requires a luma spread above 12.
+## Lab A and Lab C bench
+
+Lab A and Lab C shared the hub deck: a thin hologram ring, flat light, and a success ring on Lab A that grew through the arms. The HUD buttons took their hover cue from a mouse media query, and the hover tick could retrigger every 70 ms.
+
+What this pass does:
+
+- Each lab gets a raised metal dais (flush with the feet), rim and exam-lamp lights, and a contact shadow on High and Ultra. Lab A adds a lamp, vial rack, and a rear scan frame outside the arm sweep. The success mark is a small reticle on the organ. Lab C scans with a bar in front of the specimen instead of a ring through the body. Low tier drops the extra kicker light. Reduced motion and `?still=1` hold the lamp steady and skip the scan bar.
+- Lab A and Lab C controls share `labs-ac.css`: 44 px targets, press and focus styles that do not depend on hover, whole words in every button, and the organ that just answered stays lit in the list.
+- Hover cues wait 120 ms. Hiding the tab fades the bed for 160 ms, then suspends. Showing it fades the same bed back. `?still=1` and `?mute=1` still never build a context.
+
+Gates on this branch: `npm run build` exit 0. `npm test` 291/291 (check-assets clean, 31 files). `npm run lint` 0 errors. `AN_TAG=lac PROOF_OUT=/tmp/anomaly-proof-lac node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. Fit overshoot stayed inside: lab A `-0.051` at 1366 and `-0.063` at 1920, lab C `-0.089` at 1366 and `-0.106` at 1920. `AN_TAG=lacm PROOF_OUT=/tmp/anomaly-proof-lacm node scripts/mobile.mjs` passed all 4 profiles (s23 portrait, s23 landscape, tablet portrait, tablet landscape), 30 screens each, 0 problems and 0 console errors. Mid-play shots live in `scripts/shots-labs-ac.mjs`.
 
 ## Procedural sound
 

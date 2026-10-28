@@ -11,7 +11,7 @@ import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import { createRenderer } from './renderer'
 import { hasHero, loadHero } from './models/heroSpecimens'
-import { visualToken } from './paintHold'
+import { visualToken, prepareNextHold } from './paintHold'
 import { animalParts, plantParts } from './models/creatures'
 import { humanModel } from './models/human'
 import { StageBackdrop, StagePedestal } from './scenes/case/stageSet'
@@ -292,18 +292,15 @@ function HeldSlots({ visual, upcoming, low }: { visual: Visual; upcoming: Visual
   }
 
   async function compileGroup(g: THREE.Object3D) {
-    compiling.current = true
-    // compileAsync only walks visible objects. Show the slot for that synchronous pass.
-    // The frame hook hides it again before the canvas is presented.
-    g.visible = true
-    try {
-      await gl.compileAsync(g, camera, scene)
-    } finally {
-      if (compiling.current) {
-        compiling.current = false
-        applyFront()
-      }
-    }
+    await prepareNextHold(
+      gl as any,
+      scene,
+      camera,
+      g,
+      THREE.WebGLRenderTarget as any,
+      (c) => { compiling.current = c },
+      applyFront
+    )
   }
 
   const enqueue = (task: () => Promise<void>) => {
