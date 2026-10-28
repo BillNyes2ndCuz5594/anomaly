@@ -1,5 +1,20 @@
 # Development log
 
+## Procedural sound
+
+The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.
+
+What this pass does:
+
+- One `AudioContext`, created on the first allowed gesture. A lowpass at 2400 Hz, a master gain (full scale is about -12 dBFS), and a compressor after the master. Oscillators are one-shot. The noise buffer is built once. The hum is three sines that are stopped when you leave the hub or a case.
+- `?still=1` and `?mute=1` never construct a context. Sound off and a hidden tab do not schedule cues. `prefers-reduced-motion` is not read here.
+- Cues subscribe to state that already exists: session answers (evidence correct or wrong), the lab feedback node (`data-ok` on `lab-feedback`), specimen id (file pickup), case id (scan on briefing), and `cases` while the step is debrief (solved stinger, only when closed). Route whooshes use `hashchange`. UI ticks use document capture on pointer, click, and Enter or Space.
+- Lock-in, organ, and sort buttons stay quiet so the verdict cue is the only sound. Option clicks are a pickup, unless Eliminate is on, in which case they tick as a toggle. The sound switch itself is played from the settings subscription so the off tick is not cut off.
+- Teacher HQ installs a separate press-only listener and reads the saved blob. It does not import the game store or three.
+- Default is on at 0.55 because this task asked for sound that makes the game feel finished. Older saves that stored `sound: false` stay off. A save with no volume gets 0.55.
+
+No cue was skipped for a locked file. Lab correct and wrong come from the verdict element those screens already render. Item results come from `useSession.answers`.
+
 ## Flow transitions
 
 The old route veil was a 140 ms fade and a 320 ms top-to-bottom wipe. Case steps remounted, and each lab camera eased in from a fixed offset that was not tied to the fit.

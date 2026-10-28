@@ -1,12 +1,14 @@
 import { navigate } from '../lib/router'
 import { QUALITY_SETTINGS, type QualitySetting } from '../state/quality'
 import {
+  clampSoundVolume,
   LINE_SPACING_LABELS,
   TEXT_SIZE_LABELS,
   type LineSpacing,
   type TextSize,
 } from '../state/settings'
 import { useGame } from '../state/store'
+import './settings-sound.css'
 
 const QUALITY_LABEL: Record<QualitySetting, string> = {
   auto: 'Auto (recommended)',
@@ -144,13 +146,33 @@ export default function SettingsScreen() {
               onChange={(e) => set({ readAloudRate: Math.round(parseFloat(e.target.value) * 10) / 10 })}
             />
           </div>
-          <Toggle
-            label="Sound"
-            hint="Sound is off by default and never carries information."
-            checked={settings.sound}
-            onChange={(v) => set({ sound: v })}
-            testId="setting-sound"
-          />
+          <div className="sound-block">
+            <Toggle
+              label="Sound"
+              hint="Lab cues and a soft hum on the hub and cases. Sound never carries the answer."
+              checked={settings.sound}
+              onChange={(v) => set({ sound: v })}
+              testId="setting-sound"
+            />
+            <div className="sound-volume">
+              <label className="sound-volume-label" htmlFor="sound-volume">
+                Volume
+                <strong className="mono">{Math.round(settings.soundVolume * 100)}%</strong>
+              </label>
+              <input
+                id="sound-volume"
+                className="range"
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                data-testid="setting-volume"
+                value={Math.round(settings.soundVolume * 100)}
+                onChange={(e) => set({ soundVolume: clampSoundVolume(parseFloat(e.target.value) / 100) })}
+              />
+              <span className="hint">Starts at a modest level. The switch above turns every cue off.</span>
+            </div>
+          </div>
           <Toggle
             label="Show FPS"
             hint="Shows frame rate, graphics backend, and tier."
