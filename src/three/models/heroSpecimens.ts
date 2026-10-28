@@ -25,7 +25,7 @@ interface HeroDef {
   url: string
   /** Yaw (radians) that turns the scan so the animal faces +x like the procedural models. */
   yaw: number
-  /** Turn about x applied first, for scans captured from above (the orb weaver photo looks down on it). */
+  /** Turn about x applied first, for a scan captured from above (none need it since the wave 7 spider). */
   tilt?: number
   /** Surface roughness for the lit material. */
   rough: number
@@ -35,7 +35,7 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'florida-panther': { url: pantherUrl, yaw: 0, rough: 0.82 },
   'blue-crab': { url: crabUrl, yaw: 0, rough: 0.5 },
   'american-alligator': { url: gatorUrl, yaw: 0, rough: 0.7 },
-  'garden-spider': { url: spiderUrl, yaw: 0, tilt: -Math.PI / 2, rough: 0.55 },
+  'garden-spider': { url: spiderUrl, yaw: Math.PI / 2, rough: 0.55 },
   'largemouth-bass': { url: bassUrl, yaw: Math.PI, rough: 0.45 },
   'green-tree-frog': { url: frogUrl, yaw: 0, rough: 0.4 },
   'barred-owl': { url: owlUrl, yaw: 0, rough: 0.85 },
