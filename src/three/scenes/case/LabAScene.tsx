@@ -1,14 +1,16 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
+import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { humanModel, BODY_CENTER } from '../../models/human'
 import { FitRig, LabEnvironment, Pedestal, useReduced } from './common'
 import { sweepYaw, unionBox } from '../../fit'
 import HumanFigure from './HumanFigure'
+import { LabBench, LabLamps } from './labStage'
 
-/** Light beam and expanding ring at the organ that was just routed correctly. */
-function OrganBeam() {
+/** Short reticle on the organ that was just routed correctly. Small on purpose, so it never rings the arms. */
+function OrganBeam({ reduced }: { reduced: boolean }) {
   const group = useRef<THREE.Group>(null)
   const beam = useRef<THREE.Mesh>(null)
   const ring = useRef<THREE.Mesh>(null)
@@ -53,20 +55,22 @@ function OrganBeam() {
     if (group.current) group.current.visible = on
     if (!on) return
     const k = 1 - age / 1.8
-    beamMat.opacity = 0.4 * k * Math.min(1, age * 8)
-    ringMat.opacity = 0.9 * k
-    ring.current?.scale.setScalar(0.4 + age * 1.6)
-    beam.current?.scale.set(1 + Math.sin(age * 30) * 0.08, 1, 1 + Math.sin(age * 30) * 0.08)
+    const calm = reduced || STILL
+    beamMat.opacity = 0.55 * k * Math.min(1, age * 8)
+    ringMat.opacity = 0.85 * k
+    ring.current?.scale.setScalar(calm ? 1 : 0.82 + Math.min(1, age * 3) * 0.18)
+    const wobble = calm ? 1 : 1 + Math.sin(age * 6) * 0.04
+    beam.current?.scale.set(wobble, 1, wobble)
   })
 
   return (
     <group ref={group} visible={false} userData={{ noFit: true }}>
-      <mesh ref={beam}>
-        <cylinderGeometry args={[0.035, 0.035, 2.6, 12, 1, true]} />
+      <mesh ref={beam} position={[0, 0.28, 0.16]}>
+        <cylinderGeometry args={[0.012, 0.02, 0.62, 10, 1, true]} />
         <primitive object={beamMat} attach="material" />
       </mesh>
-      <mesh ref={ring} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.6, 0.025, 6, 40]} />
+      <mesh ref={ring} position={[0, 0, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.22, 0.012, 8, 32]} />
         <primitive object={ringMat} attach="material" />
       </mesh>
     </group>
@@ -82,12 +86,14 @@ export default function LabAScene() {
   const view = useMemo(() => ({ box: unionBox(sweepYaw(humanModel().box, Math.PI, 36), { min: [-RING, 0, -RING], max: [RING, 0.06, RING] }), elevation: 0.16 }), [])
   return (
     <>
-      <LabEnvironment />
+      <LabEnvironment floorY={-0.12} />
+      <LabLamps radius={RING} subject="figure" reduced={reduced} />
       <FitRig view={view} measure={content} />
       <group ref={content}>
+        <LabBench kind="figure" radius={RING} />
         <Pedestal radius={RING} />
         <HumanFigure mode="lab" spin reduced={reduced}>
-          <OrganBeam />
+          <OrganBeam reduced={reduced} />
         </HumanFigure>
       </group>
     </>
