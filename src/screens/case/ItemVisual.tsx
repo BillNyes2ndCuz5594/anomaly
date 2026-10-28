@@ -11,7 +11,7 @@ const NOTE_STYLE: CSSProperties = {
   right: 14,
   bottom: 6,
   margin: 0,
-  fontSize: '0.72rem',
+  fontSize: '0.8rem',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
   opacity: 0.6,
