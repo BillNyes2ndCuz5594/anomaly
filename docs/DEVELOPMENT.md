@@ -10,6 +10,8 @@ What this pass does:
 - Lab A and Lab C controls share `labs-ac.css`: 44 px targets, press and focus styles that do not depend on hover, whole words in every button, and the organ that just answered stays lit in the list.
 - Hover cues wait 120 ms. Hiding the tab fades the bed for 160 ms, then suspends. Showing it fades the same bed back. `?still=1` and `?mute=1` still never build a context.
 
+Gates on this branch: `npm run build` exit 0. `npm test` 291/291 (check-assets clean, 31 files). `npm run lint` 0 errors. `AN_TAG=lac PROOF_OUT=/tmp/anomaly-proof-lac node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. Fit overshoot stayed inside: lab A `-0.051` at 1366 and `-0.063` at 1920, lab C `-0.089` at 1366 and `-0.106` at 1920. `AN_TAG=lacm PROOF_OUT=/tmp/anomaly-proof-lacm node scripts/mobile.mjs` passed all 4 profiles (s23 portrait, s23 landscape, tablet portrait, tablet landscape), 30 screens each, 0 problems and 0 console errors. Mid-play shots live in `scripts/shots-labs-ac.mjs`.
+
 ## Procedural sound
 
 The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.
