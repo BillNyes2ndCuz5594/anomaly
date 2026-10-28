@@ -15,6 +15,8 @@ What this pass does:
 
 No cue was skipped for a locked file. Lab correct and wrong come from the verdict element those screens already render. Item results come from `useSession.answers`.
 
+Gates on this branch: `npm test` 288/288 (check-assets clean), `npm run build`, `npm run lint` with 0 errors. `AN_TAG=sfx PROOF_OUT=./proof-sfx node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. `AN_TAG=sfxm PROOF_OUT=./proof-sfxm node scripts/mobile.mjs` reported 0 problems and 0 console errors on s23 portrait, s23 landscape, tablet portrait, and tablet landscape. Settings showed Sound ON and Volume 55% at 1920x1080 and at 360x780.
+
 ## Flow transitions
 
 The old route veil was a 140 ms fade and a 320 ms top-to-bottom wipe. Case steps remounted, and each lab camera eased in from a fixed offset that was not tied to the fit.
