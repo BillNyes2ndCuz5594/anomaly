@@ -41,30 +41,32 @@ export default function HubScreen() {
     <div className="screen hub-screen" data-testid="hub">
       <div className="topbar">
         <div className="row">
-          <button type="button" className="btn small" onClick={() => navigate('/')}>
+          <button type="button" className="btn small ghost" onClick={() => navigate('/')}>
             Title
           </button>
-          <button type="button" className="btn small" data-testid="open-settings" onClick={() => navigate('/settings')}>
+          <button type="button" className="btn small ghost" data-testid="open-settings" onClick={() => navigate('/settings')}>
             Settings
           </button>
         </div>
-        <span className="mono label">AGENT HUB</span>
+        <span className="label">AGENT HUB</span>
       </div>
 
       <aside className="panel brackets hub-panel" aria-label="Agent panel" style={{ width: HUB_PANEL_WIDTH }}>
         <header className="agent-head">
-          <span className="mono label">Field agent</span>
-          <h2 className="mono codename" data-testid="codename">
+          <span className="label">Field agent</span>
+          <h2 className="codename" data-testid="codename">
             {profile.codename}
           </h2>
-          <p className="muted">
-            Rank: <strong data-testid="rank">{rankFor(mastery)}</strong>
-            {profile.classCode ? <span className="mono"> | Class {profile.classCode}</span> : null}
+          <p className="agent-meta">
+            <span>
+              Rank: <strong data-testid="rank">{rankFor(mastery)}</strong>
+            </span>
+            {profile.classCode ? <span className="tag">Class {profile.classCode}</span> : null}
           </p>
         </header>
 
         <section aria-labelledby="dispatch-h">
-          <h3 id="dispatch-h" className="section-title mono">
+          <h3 id="dispatch-h" className="section-title">
             Dispatch
           </h3>
           <div className="case-list">
@@ -78,7 +80,7 @@ export default function HubScreen() {
               onMouseEnter={() => setFocused('case')}
               onMouseLeave={() => setFocused(null)}
             >
-              <span className="mono case-code">CASE 03-1 VITALS</span>
+              <span className="case-code">CASE 03-1 VITALS</span>
               <span className="case-sub">Unit 3: Living Things</span>
             </button>
             <button
@@ -92,7 +94,7 @@ export default function HubScreen() {
               onMouseEnter={() => setFocused('cold')}
               onMouseLeave={() => setFocused(null)}
             >
-              <span className="mono case-code">COLD CASE RESIDUE</span>
+              <span className="case-code">COLD CASE RESIDUE</span>
               <span className="case-sub">
                 {due ? (
                   <>
@@ -109,7 +111,7 @@ export default function HubScreen() {
         <ReportCodePanel />
 
         <section aria-labelledby="mastery-h" className="mastery">
-          <h3 id="mastery-h" className="section-title mono">
+          <h3 id="mastery-h" className="section-title">
             Benchmark mastery
           </h3>
           <ul className="mastery-list" data-testid="mastery-list">
@@ -121,7 +123,7 @@ export default function HubScreen() {
                   <span className="bench-label">{b.label}</span>
                   <span className="bench-stage">
                     <Pips stage={stage} />
-                    <span className="mono">{MASTERY_LABEL[stage]}</span>
+                    <span>{MASTERY_LABEL[stage]}</span>
                   </span>
                 </li>
               )
@@ -132,7 +134,7 @@ export default function HubScreen() {
       </aside>
 
       <details className="panel brackets codex-panel" data-testid="codex-panel">
-        <summary className="mono">
+        <summary>
           CODEX <span className="muted" data-testid="codex-count">{codex.length} unlocked</span>
         </summary>
         {codex.length === 0 ? (
@@ -143,7 +145,7 @@ export default function HubScreen() {
               const e = codexById.get(id)
               return e ? (
                 <li key={id} data-testid={`codex-${id}`}>
-                  <strong className="mono">{e.title}</strong>
+                  <strong>{e.title}</strong>
                   <span>{e.line}</span>
                 </li>
               ) : null

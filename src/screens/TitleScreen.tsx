@@ -17,15 +17,15 @@ export default function TitleScreen() {
   return (
     <div className="screen title-screen" data-testid="title">
       <div className="topbar">
-        <span className="mono label">FIELD UNIT // FLORIDA</span>
-        <button type="button" className="btn small" onClick={() => navigate('/settings')}>
+        <span className="label">FIELD UNIT // FLORIDA</span>
+        <button type="button" className="btn small ghost" onClick={() => navigate('/settings')}>
           Settings
         </button>
       </div>
 
       <div className="title-bottom">
         <h1 className="sr-only">ANOMALY</h1>
-        <p className="tagline mono">Science Response Unit</p>
+        <p className="tagline">Science Response Unit</p>
         <div className="title-actions">
           <button type="button" className="btn primary big" data-testid="start-shift" onClick={start}>
             Start shift
@@ -35,7 +35,7 @@ export default function TitleScreen() {
           </button>
         </div>
         {profile ? (
-          <p className="muted small-print mono" data-testid="title-agent">
+          <p className="muted small-print" data-testid="title-agent">
             Signed in as {profile.codename}
           </p>
         ) : null}
