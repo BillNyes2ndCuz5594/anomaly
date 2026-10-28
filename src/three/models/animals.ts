@@ -240,7 +240,7 @@ export function bassModel(b: Builder): void {
   const belly = '#eeecce'
   const fn = '#5d8a3c'
   const spine: V3[] = [[-2.3, 0.14, 0], [-1.5, 0.07, 0], [-0.5, 0, 0], [0.5, -0.03, 0], [1.25, -0.03, 0], [1.9, -0.08, 0], [2.35, -0.14, 0]]
-  const radii: Radii = [[0.04, 0.12], [0.15, 0.34], [0.36, 0.7], [0.44, 0.78], [0.4, 0.66], [0.3, 0.44], [0.24, 0.24]]
+  const radii: Radii = [[0.04, 0.12], [0.15, 0.34], [0.36, 0.7], [0.44, 0.78], [0.41, 0.68], [0.33, 0.5], [0.27, 0.32]]
   const coat = paintWith(countershade(back, belly, -0.05, 0.28), (t, cs, sn, out) => {
     // pale olive flank, then one clear dark lateral stripe from the gill cover to the tail base with a slightly wavy edge
     lerpHex(out, flank, (1 - smooth(0.0, 0.5, Math.abs(sn + 0.12))) * 0.55)
@@ -253,19 +253,19 @@ export function bassModel(b: Builder): void {
   })
   b.limb(spine, radii, {}, { paint: mottle(coat, 0.07, 1.4, 2), radial: 36, seg: 11, cap: 8 })
   // big lower jaw that juts out a little and a long mouth line that runs back under the eye
-  b.ell([2.38, -0.26, 0], [0.34, 0.1, 0.22], '#dfe5b8', [0, 0, 0.12], 18, 10)
+  b.ell([2.4, -0.25, 0], [0.38, 0.12, 0.25], '#dfe5b8', [0, 0, 0.14], 18, 10)
   for (const k of mirrorZ) {
     b.limb([[2.62, -0.17, k * 0.02], [2.15, -0.15, k * 0.18], [1.6, -0.07, k * 0.28]], 0.016, { c: '#1d2a18' }, { radial: 6, seg: 5, cap: 2 })
     // gill cover
     b.limb([[1.28, 0.34, k * 0.3], [1.14, 0.0, k * 0.37], [1.2, -0.3, k * 0.34]], 0.015, { c: '#31482a' }, { radial: 6, seg: 6, cap: 1 })
-    eye(b, [1.72, 0.2, k * 0.27], 0.115, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
+    eye(b, [1.74, 0.21, k * 0.29], 0.13, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
     // pectoral fin
     fin(b, [[1.0, -0.16, k * 0.34], [0.72, -0.26, k * 0.62], [0.44, -0.38, k * 0.84], [0.28, -0.43, k * 0.92]], [0.1, 0.2, 0.19, 0.05], 0.03, '#7e9857', 'xz', undefined, 12)
   }
   // spiny front dorsal: stiff spines with a scalloped membrane between them, a notch, then the soft rear dorsal
   const tops = [0.7, 0.71, 0.72, 0.72, 0.71, 0.7, 0.68, 0.66]
   const spineX = [1.0, 0.86, 0.72, 0.58, 0.45, 0.32, 0.2, 0.08]
-  const spineH = [0.9, 1.08, 1.18, 1.16, 1.08, 0.98, 0.88, 0.76]
+  const spineH = [0.86, 1.04, 1.16, 1.12, 1.0, 0.88, 0.76, 0.66]
   const tipsF: V3[] = spineX.map((x, i) => [x - 0.2 - i * 0.012, spineH[i], 0])
   const m = 3
   const baseF: V3[] = []
@@ -297,7 +297,7 @@ export function bassModel(b: Builder): void {
     }
     sail(b, baseS, edgeS, 0.014, '#5d8a3c', { rows: 5, rays: 26 })
   }
-  // tail: one fan with a shallow notch, fine rays, rounded tips
+  // tail: a forked fan, two rounded lobes with a clear notch between them and fine rays
   {
     const n = 17
     const baseT: V3[] = []
@@ -305,7 +305,7 @@ export function bassModel(b: Builder): void {
     for (let j = 0; j < n; j++) {
       const u = (j / (n - 1)) * 2 - 1
       baseT.push([-2.3, 0.1 + u * 0.1, 0])
-      edgeT.push([-3.2 + 0.36 * (1 - Math.abs(u) ** 1.3) - 0.06 * (1 - u * u), 0.06 + u * 0.95, 0])
+      edgeT.push([-3.3 + 0.5 * (1 - Math.abs(u) ** 1.2) - 0.06 * (1 - u * u), 0.06 + u * 0.88, 0])
     }
     sail(b, baseT, edgeT, 0.022, '#5d8a3c', { rows: 6, rays: 34 })
   }
