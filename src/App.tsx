@@ -1,4 +1,5 @@
-import { Component, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { STILL } from './lib/flags'
 import { navigate, parseHash, useHash, type Route } from './lib/router'
 import CaseScreen from './screens/CaseScreen'
 import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
@@ -12,6 +13,7 @@ import { useSession } from './state/session'
 import { useGame } from './state/store'
 import { Announcer } from './ui/announce'
 import FpsReadout from './ui/FpsReadout'
+import { countUpElement } from './ui/countUp'
 import { useApplySettings } from './ui/useApplySettings'
 
 // The whole 3D layer (three, R3F, scenes) loads lazily so the first chunk stays small.
@@ -71,8 +73,9 @@ function ScreenFor({ route }: { route: Route }) {
 }
 
 type Phase = 'idle' | 'cover' | 'reveal'
-const COVER_MS = 200
-const REVEAL_MS = 460
+// Deliberate and fast: 460 ms in total, the same figures as the veil animations in index.css.
+const COVER_MS = 140
+const REVEAL_MS = 320
 
 /**
  * Eased screen transition: the old screen is covered by a scan veil, the route swaps underneath it,
@@ -107,6 +110,15 @@ function useTransitionedHash(reduced: boolean): { hash: string; phase: Phase } {
   return { hash: shown, phase }
 }
 
+/** The debrief score counts up when the stamp lands. The final text stays available to readers and tests. */
+function useResultCountUps(routeName: string, step: string, reduced: boolean) {
+  useLayoutEffect(() => {
+    if (reduced || STILL || routeName !== 'case') return
+    const el = document.querySelector<HTMLElement>('[data-testid="debrief-score"]')
+    return el ? countUpElement(el) : undefined
+  }, [routeName, step, reduced])
+}
+
 export default function App() {
   useApplySettings()
   const reducedMotion = useGame((s) => s.settings.reducedMotion)
@@ -115,6 +127,7 @@ export default function App() {
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
+  useResultCountUps(route.name, step, reducedMotion)
 
   // Routes past the title need an agent. Send new visitors to check in first.
   const needsProfile = (route.name === 'hub' || route.name === 'case' || route.name === 'cold') && !profile

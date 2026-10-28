@@ -1,0 +1,358 @@
+/* ======================================================================
+   S17: game feel. Entrances, micro interactions, feedback and stamps.
+   Loaded after index.css, so equal specificity rules here win.
+   Rules: finite animations only (the proof run finishes them), one easing
+   family, translate and opacity mostly, never a red flash, and everything
+   is off for reduced motion (OS setting or the in-game switch).
+   ====================================================================== */
+:root {
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-weight: cubic-bezier(0.5, 0, 0.85, 0.5);
+}
+
+/* ---------- 1. panels and rows settle in after the route veil ---------- */
+@keyframes hud-in {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+@keyframes row-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+.screen-host .panel,
+.step-host .panel {
+  animation: hud-in 0.36s var(--ease-out) backwards;
+  animation-delay: 60ms;
+}
+.screen-host .panel:nth-child(3),
+.step-host .panel:nth-child(3) {
+  animation-delay: 110ms;
+}
+.screen-host .panel:nth-child(4),
+.step-host .panel:nth-child(4) {
+  animation-delay: 160ms;
+}
+.screen-host .panel:nth-child(n + 5),
+.step-host .panel:nth-child(n + 5) {
+  animation-delay: 210ms;
+}
+
+/* rows inside a panel follow the panel, 50 ms apart */
+.options > .opt,
+.case-list > *,
+.mastery-list > li,
+.bars > li,
+.results-side > .reward,
+.debrief-list > .debrief-item,
+.title-bottom > * {
+  animation: row-in 0.32s var(--ease-out) backwards;
+  animation-delay: 160ms;
+}
+.options > .opt:nth-child(2),
+.case-list > *:nth-child(2),
+.mastery-list > li:nth-child(2),
+.bars > li:nth-child(2),
+.results-side > .reward:nth-child(2),
+.debrief-list > .debrief-item:nth-child(2),
+.title-bottom > *:nth-child(2) {
+  animation-delay: 210ms;
+}
+.options > .opt:nth-child(3),
+.case-list > *:nth-child(3),
+.mastery-list > li:nth-child(3),
+.bars > li:nth-child(3),
+.results-side > .reward:nth-child(3),
+.debrief-list > .debrief-item:nth-child(3),
+.title-bottom > *:nth-child(3) {
+  animation-delay: 260ms;
+}
+.options > .opt:nth-child(4),
+.case-list > *:nth-child(4),
+.mastery-list > li:nth-child(4),
+.bars > li:nth-child(4),
+.results-side > .reward:nth-child(4),
+.debrief-list > .debrief-item:nth-child(4),
+.title-bottom > *:nth-child(4) {
+  animation-delay: 310ms;
+}
+.options > .opt:nth-child(n + 5),
+.case-list > *:nth-child(n + 5),
+.mastery-list > li:nth-child(n + 5),
+.bars > li:nth-child(n + 5),
+.results-side > .reward:nth-child(n + 5),
+.debrief-list > .debrief-item:nth-child(n + 5),
+.title-bottom > *:nth-child(n + 5) {
+  animation-delay: 360ms;
+}
+
+/* dialogs: the backdrop fades, the panel eases up a touch */
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+    scale: 0.985;
+  }
+}
+.modal-backdrop {
+  animation: modal-fade 0.22s var(--ease-out) backwards;
+}
+.screen-host .modal.panel,
+.modal-backdrop .modal.panel {
+  animation: modal-in 0.28s var(--ease-out) 40ms backwards;
+}
+
+/* ---------- 3. buttons and answers: crisp hover, pressed, selected ---------- */
+.btn,
+.case-btn,
+.organ-btn,
+.match-btn,
+.opt {
+  transition:
+    background-color 0.14s var(--ease-out),
+    border-color 0.14s var(--ease-out),
+    box-shadow 0.18s var(--ease-out),
+    transform 0.14s var(--ease-out),
+    translate 0.14s var(--ease-out),
+    color 0.14s var(--ease-out);
+}
+/* hover shows a cue that never moves the element, so the pointer cannot flicker at an edge */
+@media (hover: hover) {
+  .btn:hover:not(:disabled),
+  .case-btn:hover:not(:disabled) {
+    border-color: var(--cyan);
+  }
+  .opt:hover:not(.struck):not(.sel):not(.key):not(.wrong) {
+    background: rgba(62, 230, 255, 0.07);
+    box-shadow: inset 3px 0 0 var(--cyan);
+  }
+  .opt:hover:not(.struck):not(.sel) .opt-letter {
+    background: rgba(62, 230, 255, 0.18);
+  }
+  .organ-btn:hover:not(:disabled) {
+    box-shadow: inset 3px 0 0 var(--cyan);
+  }
+}
+.btn:active:not(:disabled),
+.case-btn:active:not(:disabled),
+.organ-btn:active:not(:disabled),
+.match-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+.opt:active:not(.struck) {
+  transform: scale(0.985);
+  transition-duration: 80ms;
+}
+.opt-letter {
+  transition:
+    background-color 0.14s var(--ease-out),
+    color 0.14s var(--ease-out);
+}
+
+/* an answer you pick lights up once, then rests */
+@keyframes opt-select {
+  0% {
+    box-shadow: 0 0 0 1px var(--cyan), 0 0 0 rgba(62, 230, 255, 0);
+  }
+  45% {
+    box-shadow: 0 0 0 1px var(--cyan), 0 0 26px rgba(62, 230, 255, 0.42);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--cyan), 0 0 18px rgba(62, 230, 255, 0.25);
+  }
+}
+.options > .opt.sel {
+  animation: opt-select 0.36s var(--ease-out) both;
+}
+
+/* ---------- feedback: correct glows once, wrong shakes a few pixels, never a red flash ---------- */
+@keyframes ok-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(47, 227, 176, 0);
+  }
+  40% {
+    box-shadow: 0 0 22px rgba(47, 227, 176, 0.38);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(47, 227, 176, 0);
+  }
+}
+@keyframes ok-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+@keyframes wrong-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  20% {
+    translate: -3px 0;
+  }
+  45% {
+    translate: 3px 0;
+  }
+  70% {
+    translate: -2px 0;
+  }
+  88% {
+    translate: 1px 0;
+  }
+}
+@keyframes wrong-in {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  20% {
+    opacity: 1;
+    translate: -3px 0;
+  }
+  45% {
+    translate: 3px 0;
+  }
+  70% {
+    translate: -2px 0;
+  }
+  88% {
+    translate: 1px 0;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+.verdict.ok {
+  animation:
+    ok-in 0.22s var(--ease-out) backwards,
+    ok-glow 0.7s var(--ease-out) 0.1s both;
+}
+.verdict.bad {
+  animation: wrong-in 0.25s var(--ease-out) backwards;
+}
+.options > .opt.key {
+  animation: ok-glow 0.7s var(--ease-out) both;
+}
+.options > .opt.wrong {
+  animation: wrong-shake 0.25s var(--ease-out) both;
+}
+.match-btn.matched {
+  animation: ok-glow 0.7s var(--ease-out) both;
+}
+.match-btn.tried {
+  animation: wrong-shake 0.25s var(--ease-out) both;
+}
+.sort-step .btn.on {
+  animation: ok-glow 0.7s var(--ease-out) both;
+}
+.verdict-chip.ok {
+  animation: ok-in 0.3s var(--ease-out) 0.2s backwards;
+}
+
+/* report code: a copy lights the code once */
+.report-panel[data-state='copied'] .report-code,
+.report-panel[data-state='selected'] .report-code {
+  animation: ok-glow 0.8s var(--ease-out) both;
+}
+
+/* ---------- 4. stamps land with weight ---------- */
+@keyframes stamp-land {
+  0% {
+    opacity: 0;
+    transform: scale(1.32) rotate(-4deg);
+    animation-timing-function: var(--ease-in-weight);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(0.985) rotate(-4deg);
+    animation-timing-function: var(--ease-out);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+.stamp {
+  animation: stamp-land 0.34s linear 0.06s both;
+}
+.stamp.closed::after {
+  animation-delay: 0.5s;
+}
+
+/* ---------- reduced motion: no entrances, no feedback motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .screen-host .panel,
+  .step-host .panel,
+  .options > .opt,
+  .case-list > *,
+  .mastery-list > li,
+  .bars > li,
+  .results-side > .reward,
+  .debrief-list > .debrief-item,
+  .title-bottom > *,
+  .modal-backdrop,
+  .modal.panel,
+  .verdict,
+  .verdict-chip,
+  .opt,
+  .match-btn,
+  .sort-step .btn.on,
+  .report-code,
+  .stamp {
+    animation: none !important;
+  }
+  .btn,
+  .case-btn,
+  .organ-btn,
+  .match-btn,
+  .opt {
+    translate: none !important;
+    transform: none !important;
+  }
+}
+html[data-reduced-motion='true'] .screen-host .panel,
+html[data-reduced-motion='true'] .step-host .panel,
+html[data-reduced-motion='true'] .options > .opt,
+html[data-reduced-motion='true'] .case-list > *,
+html[data-reduced-motion='true'] .mastery-list > li,
+html[data-reduced-motion='true'] .bars > li,
+html[data-reduced-motion='true'] .results-side > .reward,
+html[data-reduced-motion='true'] .debrief-list > .debrief-item,
+html[data-reduced-motion='true'] .title-bottom > *,
+html[data-reduced-motion='true'] .modal-backdrop,
+html[data-reduced-motion='true'] .modal.panel,
+html[data-reduced-motion='true'] .verdict,
+html[data-reduced-motion='true'] .verdict-chip,
+html[data-reduced-motion='true'] .opt,
+html[data-reduced-motion='true'] .match-btn,
+html[data-reduced-motion='true'] .sort-step .btn.on,
+html[data-reduced-motion='true'] .report-code,
+html[data-reduced-motion='true'] .stamp {
+  animation: none !important;
+}
+html[data-reduced-motion='true'] .btn,
+html[data-reduced-motion='true'] .case-btn,
+html[data-reduced-motion='true'] .organ-btn,
+html[data-reduced-motion='true'] .match-btn,
+html[data-reduced-motion='true'] .opt {
+  translate: none !important;
+  transform: none !important;
+}

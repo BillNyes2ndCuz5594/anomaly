@@ -49,7 +49,7 @@ export default function ReportCodePanel({ intro }: { intro?: string }) {
   }
 
   return (
-    <div className="report-panel" data-testid="report-panel">
+    <div className="report-panel" data-testid="report-panel" data-state={state}>
       <div className="row report-head">
         <span className="mono label amber">REPORT CODE</span>
         <button type="button" className="btn small" data-testid="copy-code" onClick={copy}>

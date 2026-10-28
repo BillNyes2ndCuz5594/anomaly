@@ -123,7 +123,7 @@ async function waitFrames(page, n = 3) {
 }
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp']
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -154,7 +154,82 @@ async function shotTall(page, name, w, vp) {
   await page.setViewport({ ...vp, deviceScaleFactor: 1 })
   await sleep(500)
 }
+/** Waits for finite screen, panel and veil animations (not the light bursts) so no shot catches a mid-animation frame. */
+async function settleMotion(page) {
+  await page.evaluate(() =>
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => {
+            const el = a.effect?.target
+            return a.effect?.getTiming().iterations !== Infinity && !(el && el.closest && el.closest('.burst'))
+          })
+          .map((a) => a.finished.catch(() => {})),
+      ),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]),
+  )
+}
+
+/** S17 motion frames at 1920: scrub finished animations back to a chosen time, shoot, then let them finish. */
+async function motionShots(page, name, w) {
+  if (w !== 1920) return
+  // Finished animations with backwards fill are no longer listed, so restart them first, then scrub.
+  const scrub = (sel, ms) =>
+    page.evaluate(
+      (s, t) => {
+        const els = [...document.querySelectorAll(`${s}, ${s} *`)].filter((e) => {
+          const cs = getComputedStyle(e)
+          return cs.animationName !== 'none' && cs.animationIterationCount !== 'infinite'
+        })
+        els.forEach((e) => (e.style.animation = 'none'))
+        void document.body.offsetWidth
+        els.forEach((e) => (e.style.animation = ''))
+        for (const a of document.getAnimations()) {
+          const el = a.effect?.target
+          if (el && el.closest && el.closest(s) && a.effect.getTiming().iterations !== Infinity) {
+            a.pause()
+            a.currentTime = t
+          }
+        }
+      },
+      sel,
+      ms,
+    )
+  const resume = () => page.evaluate(() => document.getAnimations().forEach((a) => a.playState === 'paused' && a.play()))
+  const write = async (nm) => {
+    const file = `${String(ORDER.indexOf(nm) + 1).padStart(2, '0')}-${nm}-${w}.png`
+    await page.screenshot({ path: `${OUT}/${file}` })
+    shots.push(file)
+  }
+  if (name === 'hub') {
+    // The veil a moment into its reveal, then the settled hub.
+    await page.evaluate(() => (document.querySelector('.veil').dataset.phase = 'reveal'))
+    await page.evaluate(() => {
+      for (const a of document.querySelector('.veil').getAnimations({ subtree: true })) {
+        a.pause()
+        a.currentTime = 45
+      }
+    })
+    await write('s17-motion-veil')
+    await page.evaluate(() => (document.querySelector('.veil').dataset.phase = 'idle'))
+    await write('s17-motion-hub')
+  } else if (name === 'briefing') {
+    await scrub('.screen-host', 130)
+    await write('s17-motion-panels')
+    await resume()
+    await settleMotion(page)
+  } else if (name === 'debrief') {
+    await scrub('.stamp', 230)
+    await write('s17-motion-stamp')
+    await resume()
+    await settleMotion(page)
+  }
+}
+
 async function shot(page, name, w, opts = {}) {
+  if (name !== 'debrief' && name !== 'results-with-code') await settleMotion(page)
   if (!name.startsWith('teacher')) {
     // Software GPUs are slow: wait for several fresh frames (and the post pipeline) before capturing.
     const f0 = await page.evaluate(() => window.__anomaly?.frame ?? 0)
@@ -181,6 +256,7 @@ async function shot(page, name, w, opts = {}) {
   const fits = await fitReport(page)
   for (const f of fits) check(`${name} model bbox fully inside canvas ${f.canvasW}x${f.canvasH} (${w})`, f.over <= 0.001, `over ${f.over.toFixed(3)}`)
   await write(name)
+  await motionShots(page, name, w)
 }
 
 /** First index of the first key phrase inside the stem tokens. */
@@ -1135,7 +1211,8 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const expected = ORDER.length * VIEWPORTS.length + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
+  const MOTION_1920_ONLY = 4 // s17-motion-* shots exist at 1920 only
+  const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
