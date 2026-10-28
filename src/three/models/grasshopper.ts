@@ -21,9 +21,9 @@ const COL = {
   face: new THREE.Color('#8cc03a'),
 }
 
-export const HIND = (k: number): V3[] => [[-0.1, 0.88, k * 0.28], [-0.65, 1.04, k * 0.33], [-1.2, 1.1, k * 0.3], [-1.62, 1.08, k * 0.26]]
+export const HIND = (k: number): V3[] => [[-0.1, 0.84, k * 0.3], [-0.65, 0.98, k * 0.37], [-1.2, 1.07, k * 0.34], [-1.62, 1.08, k * 0.29]]
 const GROUND = 0.3
-const HIND_R = [0.15, 0.215, 0.14, 0.045]
+const HIND_R = [0.16, 0.245, 0.15, 0.045]
 
 export function grasshopperHead(): Prim[] {
   const P: Prim[] = [
