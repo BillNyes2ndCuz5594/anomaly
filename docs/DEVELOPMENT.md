@@ -1,5 +1,20 @@
 # Development log
 
+## Signature transitions
+
+Phase 1 reads as a brisk 0.5 s navy wipe. This pass keeps that for settings, the art check, and ordinary case steps, and spends the time on three arrivals.
+
+Durations, full tier:
+
+- Title to hub (`launch`): cover 160 ms, reveal 1120 ms, total 1280 ms.
+- Hub to case and case back to hub (`warp`): cover 180 ms, reveal 1080 ms, total 1260 ms. The case camera dolly on that arrival is 1.05 s and starts farther back than the fit.
+- Case step into results: 1120 ms handoff, pointer-events none. Mastery rows and reward cards are delayed in sequence inside that window.
+- Scan and dissolve routes stay at 150 + 380 ms. Low tier is 90 + 180 ms of opacity, with the grid, sweeps, mark, and mask forced off. Reduced motion and `?still=1` stay at 0.
+
+The closed frame is the stack, not a flat fill: radial cyan and amber light, a tilted grid, scanlines, a dot field, two sweeps, a cyan edge, and the ANOMALY wordmark. Launch irises that stack open. Warp clips it off in the direction of travel, and the HUD panels, titles, and buttons follow.
+
+The evidence blank frame was the item glide. It animated opacity on `.item-grid`, which is an ancestor of the WebGL canvas, so the panel went empty while the opacity was below 1. The question and the answer column still slide. The visual stays outside the keyed question body, so the same canvas swaps specimens instead of remounting. Proof checks a real organ-to-specimen swap at about 180 ms and requires the canvas to still be there, at full opacity, with a painted picture.
+
 ## Flow transitions
 
 The old route veil was a 140 ms fade and a 320 ms top-to-bottom wipe. Case steps remounted, and each lab camera eased in from a fixed offset that was not tied to the fit.

@@ -89,7 +89,7 @@ export default function App() {
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
-  const { hash, phase, kind, mode } = useRouteTransition(reducedMotion, tier)
+  const { hash, phase, kind, dir, mode } = useRouteTransition(reducedMotion, tier)
   const route = parseHash(hash)
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
@@ -133,15 +133,37 @@ export default function App() {
         </StageBoundary>
       </div>
       <div className="hud-layer">
-        <div className="screen-host" key={route.name}>
+        <div className="screen-host" key={route.name} data-arrive={phase === 'reveal' && (kind === 'launch' || kind === 'warp') ? kind : undefined}>
           <ScreenFor route={route} />
         </div>
       </div>
-      <div className="handoff" data-phase={hand.phase} data-dir={hand.dir} aria-hidden="true" />
-      <div className="veil" data-phase={phase} data-kind={kind} aria-hidden="true">
-        <div className="veil-fill" />
-        <div className="veil-grid" />
-        <div className="veil-line" />
+      <div className="handoff" data-phase={hand.phase} data-dir={hand.dir} data-kind={hand.kind} aria-hidden="true">
+        <div className="handoff-grid" />
+        <div className="handoff-sweep" />
+        <div className="handoff-sweep delay" />
+        <div className="handoff-edge" />
+      </div>
+      <div className="veil" data-phase={phase} data-kind={kind} data-dir={dir} aria-hidden="true">
+        <div className="veil-stack">
+          <div className="veil-fill" />
+          <div className="veil-glow" />
+          <div className="veil-grid" />
+          <div className="veil-scanlines" />
+          <div className="veil-noise" />
+          <div className="veil-sweep" />
+          <div className="veil-sweep b" />
+          <div className="veil-edge" />
+          <div className="veil-bits" aria-hidden="true">
+            {Array.from({ length: 8 }, (_, i) => (
+              <i key={i} />
+            ))}
+          </div>
+          <div className="veil-mark">
+            <span>ANOMALY</span>
+            <small>Science Response Unit</small>
+          </div>
+          <div className="veil-line" />
+        </div>
       </div>
       <FpsReadout />
       <Announcer />

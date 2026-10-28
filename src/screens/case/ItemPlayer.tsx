@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { codexById, type Item } from '../../content/schema'
 import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
@@ -27,7 +28,7 @@ interface BodyProps {
   onNext: () => void
 }
 
-function ItemBody({ item, index, total, onLocked, onNext, dir }: BodyProps & { dir: 'forward' | 'back' }) {
+function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & { sideEl: HTMLElement }) {
   const tokens = useMemo(() => tokenizeStem(item.stem), [item.stem])
   const phrases = useMemo(() => findKeyPhrases(item.stem, item.keyWords), [item.stem, item.keyWords])
   const phraseOf = useMemo(() => {
@@ -225,11 +226,7 @@ function ItemBody({ item, index, total, onLocked, onNext, dir }: BodyProps & { d
   ]
 
   return (
-    <div
-      className={`item-grid${item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal' ? ' stage-3d' : ''}${item.visual.kind === 'specimen' && item.visual.ids.length > 2 ? ' stage-many' : ''}`}
-      data-dir={dir}
-    >
-      <section className="item-main">
+    <>
         <div className="item-head">
           <span className="mono label amber" data-testid="item-count">
             EVIDENCE {index + 1} OF {total}
@@ -282,11 +279,7 @@ function ItemBody({ item, index, total, onLocked, onNext, dir }: BodyProps & { d
             ) : null}
           </div>
         </div>
-
-        <ItemVisual item={item} />
-      </section>
-
-      <section className="item-side">
+      {createPortal(
         <div className="panel brackets options-panel">
           <div role="group" aria-label="Answer options" className="options">
             {item.options.map((o, i) => {
@@ -385,9 +378,10 @@ function ItemBody({ item, index, total, onLocked, onNext, dir }: BodyProps & { d
             </p>
           ) : null}
           {!locked ? <p className="muted tiny kbd-hint">Keys: 1-4 or A-D choose, X eliminate, Space read aloud, Enter lock in.</p> : null}
-        </div>
-      </section>
-    </div>
+        </div>,
+        sideEl,
+      )}
+    </>
   )
 }
 
@@ -419,11 +413,21 @@ export default function ItemPlayer() {
     else setIdx(idx + 1)
   }, [idx, items.length, go])
 
+  const [sideEl, setSideEl] = useState<HTMLElement | null>(null)
   if (!item) return null
+  const stage3d = item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal'
+  const stageMany = item.visual.kind === 'specimen' && item.visual.ids.length > 2
   return (
     <div className="screen case-screen item-screen" data-testid="item-player">
       <CaseTop step="items" />
-      <ItemBody key={item.id} dir={dir} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} />
+      {/* The 3D visual stays mounted across items. Keying it would rebuild the canvas, and fading the grid would blank that canvas mid-glide. */}
+      <div className={`item-grid${stage3d ? ' stage-3d' : ''}${stageMany ? ' stage-many' : ''}`} data-dir={dir}>
+        <section className="item-main">
+          {sideEl ? <ItemBody key={item.id} sideEl={sideEl} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} /> : null}
+          <ItemVisual item={item} />
+        </section>
+        <section className="item-side" ref={setSideEl} />
+      </div>
     </div>
   )
 }
