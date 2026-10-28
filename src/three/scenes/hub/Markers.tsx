@@ -1,16 +1,19 @@
 import { Billboard } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import * as THREE from 'three/webgpu'
 import { color, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
+import { STILL } from '../../../lib/flags'
 import { navigate } from '../../../lib/router'
 import { useReviewDue } from '../../../state/due'
 import { useRuntime } from '../../../state/runtime'
 import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
 import { TABLE_TOP_Y } from './MapTable'
+import { markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed } from './markerMotion'
 
 const tmpScale = new THREE.Vector3()
+const tmpHit = new THREE.Vector3()
 
 interface MarkerProps {
   id: 'case' | 'cold'
@@ -32,18 +35,23 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
   const [x, z] = lonLatToXZ(lon, lat)
   const gem = useRef<THREE.Group>(null)
   const root = useRef<THREE.Group>(null)
+  const anchor = useRef<THREE.Group>(null)
+  const hit = useRef<THREE.Mesh>(null)
   const [hover, setHover] = useState(false)
   const focused = useRuntime((s) => s.focusedMarker === id)
-  const active = hover || focused
+  const pressed = useSyncExternalStore(subscribeMarkerPressed, () => markerPressed(id), () => false)
+  const calm = sceneCalm(reduced, STILL)
+  const flags = { hover, focused, pressed }
 
   const glowU = useMemo(() => uniform(glow), []) // eslint-disable-line react-hooks/exhaustive-deps
   const { gemMat, wireMat, beamMat, ringMat, label } = useMemo(() => {
     const c = color(hex).mul(glowU)
+    const clock = calm ? float(0.4) : time
     const gemMat = new THREE.MeshStandardNodeMaterial()
     gemMat.color = new THREE.Color('#06101c')
     gemMat.roughness = 0.2
     gemMat.metalness = 0.6
-    gemMat.emissiveNode = c.mul(float(2.2).add(sin(time.mul(3)).mul(0.5)))
+    gemMat.emissiveNode = c.mul(float(2.2).add(calm ? float(0) : sin(clock.mul(3)).mul(0.5)))
 
     const wireMat = new THREE.MeshBasicNodeMaterial()
     wireMat.colorNode = c.mul(2.4)
@@ -52,7 +60,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     // Beam: bright at the base, fading upward, with a pulse running up it.
     const beamMat = new THREE.MeshBasicNodeMaterial()
     const h = saturate(positionLocal.y.add(0.5))
-    const run = smoothstep(0.0, 1.0, sin(h.mul(14).sub(time.mul(3))).mul(0.5).add(0.5)).mul(0.5).add(0.5)
+    const run = smoothstep(0.0, 1.0, sin(h.mul(14).sub(clock.mul(3))).mul(0.5).add(0.5)).mul(0.5).add(0.5)
     beamMat.colorNode = c.mul(run.mul(1.8))
     beamMat.opacityNode = oneMinus(h).mul(0.7).add(0.1)
     beamMat.transparent = true
@@ -60,10 +68,10 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     beamMat.depthWrite = false
     beamMat.side = THREE.DoubleSide
 
-    // Ground ring: two pulsing circles.
+    // Ground ring: two circles. The outer one breathes unless motion is held.
     const ringMat = new THREE.MeshBasicNodeMaterial()
     const d = length(uv().sub(0.5)).mul(2)
-    const wave = sin(time.mul(2.4)).mul(0.08)
+    const wave = calm ? float(0) : sin(clock.mul(2.4)).mul(0.08)
     const r1 = oneMinus(saturate(d.sub(0.62).sub(wave).abs().div(0.045)))
     const r2 = oneMinus(saturate(d.sub(0.95).abs().div(0.03))).mul(0.6)
     const fill = oneMinus(smoothstep(0.0, 0.62, d)).mul(0.28)
@@ -81,7 +89,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     labelMat.depthWrite = false
     labelMat.depthTest = false
     return { gemMat, wireMat, beamMat, ringMat, label: { ...label, mat: labelMat } }
-  }, [hex, title, sub, glowU])
+  }, [hex, title, sub, glowU, calm])
 
   useEffect(
     () => () => {
@@ -97,25 +105,32 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
 
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
-    glowU.value += (glow - glowU.value) * Math.min(1, dt * 4)
+    const mix = calm ? 1 : Math.min(1, dt * 8)
+    glowU.value += (glow * markerGlowMul(flags) - glowU.value) * mix
     if (gem.current) {
-      if (!reduced) {
-        gem.current.rotation.y += dt * 0.9
-        gem.current.position.y = height + Math.sin(t * 1.6 + x) * 0.07
+      if (!calm) {
+        gem.current.rotation.y += dt * 0.7
+        gem.current.position.y = height + Math.sin(t * 1.3 + x) * 0.05
       } else {
         gem.current.position.y = height
       }
     }
     if (root.current) {
-      const target = active ? 1.28 : 1
-      root.current.scale.lerp(tmpScale.setScalar(target), Math.min(1, dt * 9))
+      const target = markerScale(flags)
+      if (calm) root.current.scale.setScalar(target)
+      else root.current.scale.lerp(tmpScale.setScalar(target), Math.min(1, dt * 9))
     }
+    const cam = state.camera as THREE.PerspectiveCamera
+    const origin = anchor.current?.getWorldPosition(tmpHit) ?? tmpHit.set(x, TABLE_TOP_Y, z)
+    const radius = markerHitRadius(state.size.height, cam.position.distanceTo(origin), cam.fov)
+    if (hit.current) hit.current.scale.set(radius / 0.55, 1, radius / 0.55)
   })
 
   const base = TABLE_TOP_Y + 0.42
   const beamH = height - 0.4
+  const release = () => setMarkerPressed(id, false)
   return (
-    <group position={[x, base, z]}>
+    <group ref={anchor} position={[x, base, z]}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
         <planeGeometry args={[1.5, 1.5]} />
         <primitive object={ringMat} attach="material" />
@@ -148,6 +163,7 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
       </group>
       {/* Generous invisible hit target so the marker is easy to click. */}
       <mesh
+        ref={hit}
         position={[0, height * 0.5, 0]}
         visible={false}
         onPointerOver={(e) => {
@@ -157,11 +173,22 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
         }}
         onPointerOut={() => {
           setHover(false)
+          release()
           document.body.style.cursor = ''
         }}
+        onPointerDown={(e) => {
+          e.stopPropagation()
+          setMarkerPressed(id, true)
+        }}
+        onPointerUp={(e) => {
+          e.stopPropagation()
+          release()
+        }}
+        onPointerCancel={release}
         onClick={(e) => {
           e.stopPropagation()
           document.body.style.cursor = ''
+          release()
           navigate(to)
         }}
       >
