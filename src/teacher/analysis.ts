@@ -50,8 +50,21 @@ export interface Analysis {
   benchmarks: { id: string; label: string; category: Category }[]
   byBenchmark: Map<string, Pct & { agents: number }>
   categories: (Pct & { name: Category; agents: number })[]
-  weakest: { id: string; label: string; attempts: number; correct: number; pct: number; agents: number }[]
-  missed: { id: string; stem: string; benchmark: string; missed: number; total: number }[]
+  weakest: {
+    id: string
+    label: string
+    attempts: number
+    correct: number
+    pct: number
+    agents: number
+  }[]
+  missed: {
+    id: string
+    stem: string
+    benchmark: string
+    missed: number
+    total: number
+  }[]
   classTags: string[]
 }
 
@@ -74,7 +87,12 @@ export function analyze(reports: ReportData[]): Analysis {
   const byBenchmark = new Map<string, Pct & { agents: number }>()
   for (const a of agents) {
     for (const [id, c] of a.cells) {
-      const cur = byBenchmark.get(id) ?? { attempts: 0, correct: 0, pct: null, agents: 0 }
+      const cur = byBenchmark.get(id) ?? {
+        attempts: 0,
+        correct: 0,
+        pct: null,
+        agents: 0,
+      }
       cur.attempts += c.attempts
       cur.correct += c.correct
       cur.agents += 1
@@ -97,12 +115,25 @@ export function analyze(reports: ReportData[]): Analysis {
         who.add(a.key)
       }
     }
-    return { name, attempts, correct, pct: pctOf(correct, attempts), agents: who.size }
+    return {
+      name,
+      attempts,
+      correct,
+      pct: pctOf(correct, attempts),
+      agents: who.size,
+    }
   })
 
   const weakest = benchmarks
     .map((b) => ({ id: b.id, label: b.label, ...byBenchmark.get(b.id)! }))
-    .map((b) => ({ id: b.id, label: b.label, attempts: b.attempts, correct: b.correct, pct: b.pct ?? 0, agents: b.agents }))
+    .map((b) => ({
+      id: b.id,
+      label: b.label,
+      attempts: b.attempts,
+      correct: b.correct,
+      pct: b.pct ?? 0,
+      agents: b.agents,
+    }))
     .sort((a, b) => a.pct - b.pct || b.attempts - a.attempts)
     .slice(0, 5)
 
@@ -124,7 +155,15 @@ export function analyze(reports: ReportData[]): Analysis {
     .sort((a, b) => b.missed - a.missed || b.missed / b.total - a.missed / a.total || a.id.localeCompare(b.id))
     .slice(0, 8)
 
-  return { agents, benchmarks, byBenchmark, categories, weakest, missed, classTags: [...new Set(agents.map((a) => a.classTag))] }
+  return {
+    agents,
+    benchmarks,
+    byBenchmark,
+    categories,
+    weakest,
+    missed,
+    classTags: [...new Set(agents.map((a) => a.classTag))],
+  }
 }
 
 // ---------- color scale ----------
@@ -153,7 +192,10 @@ export function scaleColor(pct: number): { bg: string; fg: string } {
   const NAVY_LUM = 0.0015 // #02050a
   const onWhite = 1.05 / (lum + 0.05)
   const onNavy = (lum + 0.05) / (NAVY_LUM + 0.05)
-  return { bg: `rgb(${c[0]}, ${c[1]}, ${c[2]})`, fg: onNavy >= onWhite ? '#02050a' : '#ffffff' }
+  return {
+    bg: `rgb(${c[0]}, ${c[1]}, ${c[2]})`,
+    fg: onNavy >= onWhite ? '#02050a' : '#ffffff',
+  }
 }
 
 // ---------- CSV ----------
@@ -164,8 +206,170 @@ export function toCsv(a: Analysis): string {
     for (const b of a.benchmarks) {
       const c = col.cells.get(b.id)
       if (!c) continue
-      rows.push([col.classTag, col.agent, b.id, `"${b.category}"`, c.attempts, c.correct, pctOf(c.correct, c.attempts) ?? '', c.stage, dayToISO(col.day)].join(','))
+      rows.push(
+        [col.classTag, col.agent, b.id, `"${b.category}"`, c.attempts, c.correct, pctOf(c.correct, c.attempts) ?? '', c.stage, dayToISO(col.day)].join(','),
+      )
     }
   }
   return rows.join('\n') + '\n'
+}
+
+// ---------- mastery levels, summary, sorting, gradebook export ----------
+
+export type LevelKey = 'reteach' | 'developing' | 'secure'
+
+export interface Level {
+  key: LevelKey
+  label: string
+  /** Marker shown next to the number so color is never the only signal. */
+  glyph: string
+  bg: string
+  fg: string
+  /** Inclusive lower bound in whole percent. */
+  min: number
+}
+
+/** Three calm levels. Every bg and fg pair is at least 4.5:1 (checked in the test). */
+export const LEVELS: readonly Level[] = [
+  {
+    key: 'reteach',
+    label: 'Reteach',
+    glyph: '\u25BC',
+    bg: '#8a3a16',
+    fg: '#ffffff',
+    min: 0,
+  },
+  {
+    key: 'developing',
+    label: 'Developing',
+    glyph: '\u25A0',
+    bg: '#3f4f7a',
+    fg: '#ffffff',
+    min: 60,
+  },
+  {
+    key: 'secure',
+    label: 'Secure',
+    glyph: '\u25B2',
+    bg: '#0f766e',
+    fg: '#ffffff',
+    min: 80,
+  },
+]
+
+/** A benchmark is flagged for reteach when the class percent is under this. */
+export const RETEACH_BELOW = LEVELS[1].min
+
+export function masteryLevel(pct: number): Level {
+  let out = LEVELS[0]
+  for (const l of LEVELS) if (pct >= l.min) out = l
+  return out
+}
+
+export function relLuminance(hex: string): number {
+  const n = parseInt(hex.slice(1), 16)
+  const lin = (v: number) => {
+    const x = v / 255
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
+  }
+  return 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255)
+}
+
+export function contrast(a: string, b: string): number {
+  const [hi, lo] = [relLuminance(a), relLuminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+/** One agent's overall percent across every benchmark attempted, or null. */
+export function agentPct(col: AgentColumn): number | null {
+  let attempts = 0
+  let correct = 0
+  for (const c of col.cells.values()) {
+    attempts += c.attempts
+    correct += c.correct
+  }
+  return pctOf(correct, attempts)
+}
+
+export interface Summary {
+  students: number
+  /** Overall percent correct across all answers, or null with no data. */
+  average: number | null
+  /** Benchmark ids whose class percent is under RETEACH_BELOW, lowest first. */
+  reteach: string[]
+}
+
+export function summarize(a: Analysis): Summary {
+  let attempts = 0
+  let correct = 0
+  for (const v of a.byBenchmark.values()) {
+    attempts += v.attempts
+    correct += v.correct
+  }
+  const reteach = [...a.byBenchmark.entries()]
+    .filter(([, v]) => v.pct !== null && v.pct < RETEACH_BELOW)
+    .sort((x, y) => (x[1].pct ?? 0) - (y[1].pct ?? 0) || x[0].localeCompare(y[0]))
+    .map(([id]) => id)
+  return {
+    students: a.agents.length,
+    average: pctOf(correct, attempts),
+    reteach,
+  }
+}
+
+export type BenchmarkSort = 'catalog' | 'low' | 'high'
+export type AgentSort = 'agent' | 'low' | 'high'
+
+/** Stable sort, nulls last. Does not mutate the input. */
+export function sortBenchmarks(a: Analysis, mode: BenchmarkSort): Analysis['benchmarks'] {
+  if (mode === 'catalog') return a.benchmarks
+  const dir = mode === 'low' ? 1 : -1
+  const v = (id: string) => a.byBenchmark.get(id)?.pct ?? null
+  return [...a.benchmarks].sort((x, y) => {
+    const px = v(x.id)
+    const py = v(y.id)
+    if (px === null || py === null) return px === py ? 0 : px === null ? 1 : -1
+    return dir * (px - py)
+  })
+}
+
+export function sortAgents(a: Analysis, mode: AgentSort): AgentColumn[] {
+  if (mode === 'agent') return a.agents
+  const dir = mode === 'low' ? 1 : -1
+  return [...a.agents].sort((x, y) => {
+    const px = agentPct(x)
+    const py = agentPct(y)
+    if (px === null || py === null) return px === py ? 0 : px === null ? 1 : -1
+    return dir * (px - py)
+  })
+}
+
+const cellText = (v: string | number, sep: string): string => {
+  const s = String(v)
+  return s.includes(sep) || /["\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+/**
+ * Gradebook matrix: one row per agent, one column per benchmark (percent, blank if not attempted).
+ * Uses the benchmark and agent order it is given so it matches what the teacher sees on screen.
+ */
+export function toGradebook(a: Analysis, sep: '\t' | ',', benchmarks = a.benchmarks, agents = a.agents): string {
+  const multi = a.classTags.length > 1
+  const head = [...(multi ? ['Class'] : []), 'Agent', 'Average', ...benchmarks.map((b) => b.id)]
+  const lines = [head.map((h) => cellText(h, sep)).join(sep)]
+  for (const col of agents) {
+    const row = [
+      ...(multi ? [col.classTag] : []),
+      col.agent,
+      agentPct(col) ?? '',
+      ...benchmarks.map((b) => {
+        const c = col.cells.get(b.id)
+        return c ? (pctOf(c.correct, c.attempts) ?? '') : ''
+      }),
+    ]
+    lines.push(row.map((v) => cellText(v, sep)).join(sep))
+  }
+  const classRow = [...(multi ? [''] : []), 'Class', summarize(a).average ?? '', ...benchmarks.map((b) => a.byBenchmark.get(b.id)?.pct ?? '')]
+  lines.push(classRow.map((v) => cellText(v, sep)).join(sep))
+  return lines.join('\n') + '\n'
 }
