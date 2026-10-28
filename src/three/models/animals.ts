@@ -265,7 +265,7 @@ export function bassModel(b: Builder): void {
   // spiny front dorsal: stiff spines with a scalloped membrane between them, a notch, then the soft rear dorsal
   const tops = [0.7, 0.71, 0.72, 0.72, 0.71, 0.7, 0.68, 0.66]
   const spineX = [1.0, 0.86, 0.72, 0.58, 0.45, 0.32, 0.2, 0.08]
-  const spineH = [0.9, 1.08, 1.18, 1.16, 1.08, 0.98, 0.88, 0.76]
+  const spineH = [0.86, 1.04, 1.16, 1.12, 1.0, 0.88, 0.76, 0.66]
   const tipsF: V3[] = spineX.map((x, i) => [x - 0.2 - i * 0.012, spineH[i], 0])
   const m = 3
   const baseF: V3[] = []
@@ -297,7 +297,7 @@ export function bassModel(b: Builder): void {
     }
     sail(b, baseS, edgeS, 0.014, '#5d8a3c', { rows: 5, rays: 26 })
   }
-  // tail: one fan with a shallow notch, fine rays, rounded tips
+  // tail: a forked fan, two rounded lobes with a clear notch between them and fine rays
   {
     const n = 17
     const baseT: V3[] = []
@@ -305,7 +305,7 @@ export function bassModel(b: Builder): void {
     for (let j = 0; j < n; j++) {
       const u = (j / (n - 1)) * 2 - 1
       baseT.push([-2.3, 0.1 + u * 0.1, 0])
-      edgeT.push([-3.2 + 0.36 * (1 - Math.abs(u) ** 1.3) - 0.06 * (1 - u * u), 0.06 + u * 0.95, 0])
+      edgeT.push([-3.3 + 0.5 * (1 - Math.abs(u) ** 1.2) - 0.06 * (1 - u * u), 0.06 + u * 0.88, 0])
     }
     sail(b, baseT, edgeT, 0.022, '#5d8a3c', { rows: 6, rays: 34 })
   }

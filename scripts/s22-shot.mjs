@@ -22,7 +22,7 @@ try {
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
     page.on('pageerror', (e) => errors.push(e.message))
     await page.setViewport({ ...vp, deviceScaleFactor: Number(process.env.DSF || 1) })
-    await page.goto(`${base}?tier=${tier}&still=1&ids=${ids}#/visuals/models`, { waitUntil: 'load' })
+    await page.goto(`${base}?tier=${tier}&still=1${process.env.YAW ? "&yaw=" + process.env.YAW : ""}&ids=${ids}#/visuals/models`, { waitUntil: 'load' })
     await sleep(7000)
     const out = `/tmp/s22/${name || ids.replace(/,/g, '_') + '-' + tier}-${wS}.png`
     await page.screenshot({ path: out })
