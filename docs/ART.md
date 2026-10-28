@@ -52,10 +52,10 @@ Rules for video clips
 | 1 | Florida panther | Evidence item, art check | Wave 1 scan, replaced in wave 6 (plain tawny coat, tail hanging low) |
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
-| 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
+| 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs, and in wave 7 by a scan from a low front photo |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2 scans; wave 6 rescans the bass, pelican, frog, owl, tortoise and grasshopper |
-| 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot) |
+| 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot); wave 7: rescanned lying level, no tusk |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue; wave 5c adds the scanned deer skin and oak trunk |
 | 8b | Lab A human body | Lab A, Briefing | Wave 5a: scanned body shell and muscle layer replace the sculpted mannequin on Medium and up |
@@ -109,6 +109,12 @@ Rules for video clips
   faced left, is turned to face right, and the frog shows in profile. The tortoise now has scaly, clawed front legs. Same
   sizing and framing rules as wave 2; Low tier keeps the procedural models. Files are 196 to 544 KB (pelican, 23k
   triangles, is the largest). Spend $5.24 (21 FLUX Ultra references, two edits, seven scans).
+- Wave 7: the manatee and the garden spider. The wave 5a manatee stood up on its flippers like a seal, so it is
+  rescanned from a FLUX 1.1 Ultra raw photo of a manatee lying level; FLUX kept drawing walrus tusks and a pointed tail,
+  so a nano-banana edit took the tusk out and gave it the round paddle tail. The spider was rescanned twice: a top-down
+  photo scanned with its back legs in the air, so the shipped scan comes from a low front photo with every leg on the
+  ground (black and yellow abdomen, banded legs) and no longer needs the tilt. Same sizing and framing rules; Low tier
+  keeps the procedural models. Spend $2.80 (eight FLUX Ultra references, two edits, three scans).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
