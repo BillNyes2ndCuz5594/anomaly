@@ -1,7 +1,8 @@
 import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three/webgpu'
-import { acornSet, earPair, eyePair, fitOrgan, kidneyPair, ORGAN_SCAN_IDS, SCAN_FACE_SHIFT, sprigCluster } from './labScans'
+import { acornSet, earPair, eyePair, fitOrgan, kidneyPair, labBScanPart, ORGAN_SCAN_IDS, SCAN_FACE_SHIFT, sprigCluster } from './labScans'
+import { animalParts, OAK_SCALE, plantParts } from './creatures'
 import { humanModel } from './human'
 import { oakLeafEnds, OAK_ACORNS } from './labB'
 
@@ -16,6 +17,7 @@ describe('lab scans', () => {
     expect(existsSync(new URL('../../assets/scans/organ-scans.glb', import.meta.url))).toBe(true)
     expect(existsSync(new URL('../../assets/scans/oak-scans.glb', import.meta.url))).toBe(true)
     expect(existsSync(new URL('../../assets/scans/body-scan.glb', import.meta.url))).toBe(true)
+    expect(existsSync(new URL('../../assets/scans/labb-scans.glb', import.meta.url))).toBe(true)
   })
 
   it('every scanned organ has a procedural organ and fits exactly in its box', () => {
@@ -102,4 +104,37 @@ describe('lab scans', () => {
     expect(geo.boundingBox!.min.y).toBeCloseTo(Math.min(...ys) - 0.15, 2)
     expect(geo.getAttribute('color').itemSize).toBe(3)
   })
+
+  it('puts the scanned deer skin and oak trunk in the procedural parts frame, and keeps them procedural without a scan', () => {
+    const skin = animalParts(1).find((p) => p.id === 'skin')!
+    const bark = plantParts(1).find((p) => p.id === 'bark')!
+    expect(skin.deer).toBe(true)
+    expect(bark.oak).toBe(true)
+    // a stand-in scan in deer space: a box where the deer stands
+    const deer = keepIdx(new THREE.BoxGeometry(4.4, 3.2, 1.1).translate(0.4, 1.6, 0))
+    const trunk = keepIdx(new THREE.CylinderGeometry(0.3, 0.5, 1.57, 12).translate(0, 0.635, 0))
+    const pack = new Map([['deer', deer], ['trunk', trunk]])
+    const s = labBScanPart('skin', pack, OAK_SCALE, skin.center)!
+    s.computeBoundingBox()
+    const c = s.boundingBox!.getCenter(new THREE.Vector3())
+    expect(c.x + skin.center[0]).toBeCloseTo(0.4, 5)
+    expect(c.y + skin.center[1]).toBeCloseTo(1.6, 5)
+    const b = labBScanPart('bark', pack, OAK_SCALE, bark.center)!
+    b.computeBoundingBox()
+    // trunk plus the procedural limb sleeves: as wide and as tall as the procedural bark
+    bark.geo.computeBoundingBox()
+    expect(b.boundingBox!.max.y).toBeCloseTo(bark.geo.boundingBox!.max.y, 1)
+    expect(b.boundingBox!.min.y + bark.center[1]).toBeCloseTo(-0.15 * OAK_SCALE, 2)
+    expect(b.getAttribute('color').itemSize).toBe(3)
+    // a missing or failed pack leaves the procedural part in place
+    expect(labBScanPart('skin', new Map(), OAK_SCALE, skin.center)).toBeUndefined()
+    expect(labBScanPart('bark', new Map(), OAK_SCALE, bark.center)).toBeUndefined()
+    expect(labBScanPart('skeleton', pack, OAK_SCALE, skin.center)).toBeUndefined()
+  })
 })
+
+function keepIdx(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  g.deleteAttribute('uv')
+  g.deleteAttribute('normal')
+  return g
+}

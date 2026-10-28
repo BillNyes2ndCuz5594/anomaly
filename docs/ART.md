@@ -57,7 +57,7 @@ Rules for video clips
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
 | 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot) |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
-| 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue |
+| 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue; wave 5c adds the scanned deer skin and oak trunk |
 | 8b | Lab A human body | Lab A, Briefing | Wave 5a: scanned body shell and muscle layer replace the sculpted mannequin on Medium and up |
 | 8c | Scene diagrams (water cycle, coast, planets, comet, plant pots) | Evidence items, art check | Wave 5b: NASA photos of the Sun and planets, a painted coast plate, cloud and seedling pot on Medium and up; Low keeps the vector art |
 | 9 | App icons and share art | Install, share | Wave 4: shipped, rendered in house with no fal spend |
@@ -93,6 +93,14 @@ Rules for video clips
   for Low tier or when body-scan.glb fails to load, it is fitted to the sculpted nose), and the tongue sits just behind
   the lips of whichever face is showing instead of deep in the throat, so neither slides off the face as the figure
   turns. Spend $0.24 (six FLUX stills).
+- Wave 5c: the Lab B deer and oak. A white-tailed deer and a live oak trunk, each one FLUX side photo into Hunyuan3D,
+  baked offline to plain vertex-shaded meshes in labb-scans.glb (meshopt, 226 KB). The deer scan (18k triangles) is
+  warped onto the procedural deer's landmarks (hooves, knees, hocks, spine, neck, head, tail) and eased outward
+  wherever a bone came through, so the skeleton layer still sits inside the skin. The trunk scan (31k triangles) is
+  cut below its fork, fitted to the bark trunk's height and radii with its root buttresses kept, and smoothed; the
+  procedural limb sleeves grow out of its top so the bark still covers the stem and its branches. Picking, framing
+  and the highlight states are unchanged. Low tier and any load failure keep the procedural skin and bark. Spend
+  $1.29 (six FLUX references, two scans).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
