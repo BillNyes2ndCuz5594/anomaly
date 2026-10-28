@@ -15,6 +15,7 @@
 - Case to results plays a 1.12 s scan. It does not take the pointer. Rows and rewards follow in sequence.
 - Entering a case from the hub dollies the camera for 1.05 s, still never closer than the fit. Low tier keeps the short push.
 - Evidence cards slide the question and answers only. The 3D panel stays mounted and fully opaque, so the canvas does not blank mid-glide.
+- The evidence canvas keeps its last painted frame until the next specimen has compiled and drawn. The upcoming item is compiled before the advance, so a slow GPU does not flash an empty panel.
 - On a phone portrait, a 3D evidence stage stays pinned at the top of the item scroller so a long stem or a scroll-into-view on an answer cannot push the model out of the first view.
 - Reduced motion and `?still=1` still swap with no veil.
 

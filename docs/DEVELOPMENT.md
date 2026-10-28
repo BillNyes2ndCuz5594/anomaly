@@ -1,5 +1,11 @@
 # Development log
 
+## Evidence paint hold
+
+The pelican and owl panel could read as a flat clear about 180 ms after Next. The same canvas stayed mounted, but the new hero shaders were not ready, so the renderer presented the cleared frame. By 400 ms it was painted. A slow phone can hit that same gap.
+
+The item canvas keeps drawing the current specimen while the next one compiles in a hidden slot, then presents that compiled scene. The upcoming item is compiled before Next, with that item's lights, and those materials stay mounted so the program cache is not dropped. The proof samples the organ to pelican and owl glide five times at 180 ms and still requires a luma spread above 12.
+
 ## Procedural sound
 
 The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.

@@ -8,6 +8,7 @@ import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announce'
 import { CaseTop } from './ui'
 import ItemVisual from './ItemVisual'
+import { isStageVisual } from '../../three/paintHold'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -424,7 +425,7 @@ export default function ItemPlayer() {
       <div className={`item-grid${stage3d ? ' stage-3d' : ''}${stageMany ? ' stage-many' : ''}`} data-dir={dir}>
         <section className="item-main">
           {sideEl ? <ItemBody key={item.id} sideEl={sideEl} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} /> : null}
-          <ItemVisual item={item} />
+          <ItemVisual item={item} upcoming={items[idx + 1] && isStageVisual(items[idx + 1].visual) ? items[idx + 1].visual : null} />
         </section>
         <section className="item-side" ref={setSideEl} />
       </div>

@@ -1163,9 +1163,9 @@ try {
     await page.close()
   }
 
-  // Evidence glide: a real 3D item swap must keep the canvas (no opacity fade on its ancestor).
-  console.log('\n== evidence glide ==')
-  {
+  // Evidence glide: a real 3D item swap must keep a painted panel. Five passes, the check that flaked on SwiftShader.
+  for (let pass = 1; pass <= 5; pass++) {
+    console.log(`\n== evidence glide ${pass}/5 ==`)
     const page = await profilePage(browser, BASE, '?tier=high&qaitems=L14-01,L315-03', VIEWPORTS.find((v) => v.width === 1920), errors)
     await toCaseStep(page, 'items')
     await page.waitForSelector('.visual-3d canvas')
@@ -1198,10 +1198,12 @@ try {
     const clip = { x: Math.max(0, Math.round(mid.x)), y: Math.max(0, Math.round(mid.y)), width: Math.max(2, Math.round(mid.w)), height: Math.max(2, Math.round(mid.h)) }
     const shotBuf = await page.screenshot({ clip })
     const spread = pngSpread(shotBuf)
-    check('evidence glide keeps the same 3D canvas', mid.kept === true, String(mid.kept))
-    check('evidence glide does not fade the 3D panel', Number(mid.opacity) === 1 && (mid.gridAnim === 'none' || mid.gridAnim === ''), `opacity ${mid.opacity}, grid ${mid.gridAnim}`)
-    check('evidence glide still shows a painted 3D panel', spread > 12, `luma spread ${spread.toFixed(1)}`)
-    if (spread <= 12) writeFileSync(`${OUT}/debug-glide-mid.png`, shotBuf)
+    const detail = `luma spread ${spread.toFixed(1)}`
+    check(`evidence glide keeps the same 3D canvas (${pass}/5)`, mid.kept === true, String(mid.kept))
+    check(`evidence glide does not fade the 3D panel (${pass}/5)`, Number(mid.opacity) === 1 && (mid.gridAnim === 'none' || mid.gridAnim === ''), `opacity ${mid.opacity}, grid ${mid.gridAnim}`)
+    check(`evidence glide still shows a painted 3D panel (${pass}/5)`, spread > 12, detail)
+    console.log(`  glide ${pass}/5 ${detail}`)
+    if (spread <= 12) writeFileSync(`${OUT}/debug-glide-mid-${pass}.png`, shotBuf)
     await page.close()
   }
 
