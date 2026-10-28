@@ -9,7 +9,9 @@ import { useSession } from '../../../state/session'
 import type { LoopClip } from '../LoopSky'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from '../common'
 import { tintedHolo } from '../../materials/tinted'
+import { STILL } from '../../../lib/flags'
 import { useFitPose, usePublishFit, type FitView } from '../../FitCamera'
+import { flyStart, noteCamera, peekCamera, vlen, vsub, type V3 } from '../../flyPose'
 import { widthFit } from '../../fit'
 
 const BASE_FOV = 40
@@ -48,8 +50,16 @@ export function useReduced() {
 }
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+/** Full tier dolly. Low tier is a shorter push along the fit ray. */
+const FLY_MS = 0.64
+const LOW_FLY_MS = 0.28
 
-/** Eases the camera from an offset start to its resting pose, then adds a light pointer parallax. */
+/**
+ * Eases the camera from a safe start (never closer than the fit) onto its resting pose,
+ * then adds a light pointer parallax. Step changes leave from the previous settled pose
+ * when that pose still faces the new subject. Reduced motion, ?still=1, and the moment
+ * the fly ends all sit on the exact fit. Low tier skips the orbit and only pushes back.
+ */
 export function CameraRig({
   pos,
   look,
@@ -62,17 +72,38 @@ export function CameraRig({
   parallax?: number
 }) {
   const reduced = useReduced()
+  const tier = useTier()
+  const snap = reduced || STILL
   const t0 = useRef(performance.now())
+  const start = useRef<V3 | null>(null)
+  const rest = useRef<V3>(pos)
   const target = useMemo(() => new THREE.Vector3(), [])
   useFrame((state, dt) => {
-    const t = (performance.now() - t0.current) / 1000
-    const k = reduced ? 1 : easeOutCubic(Math.min(1, t / 1.6))
-    const px = reduced ? 0 : state.pointer.x * parallax * k
-    const py = reduced ? 0 : state.pointer.y * parallax * 0.5 * k
-    target.set(pos[0] + from[0] * (1 - k) + px, pos[1] + from[1] * (1 - k) + py, pos[2] + from[2] * (1 - k))
-    const follow = reduced ? 1 : 1 - Math.exp(-dt * 8)
+    const next: V3 = [pos[0], pos[1], pos[2]]
+    const lookAt: V3 = [look[0], look[1], look[2]]
+    const dur = tier === 'low' ? LOW_FLY_MS : FLY_MS
+    const elapsed = (performance.now() - t0.current) / 1000
+    let k = snap ? 1 : easeOutCubic(Math.min(1, elapsed / dur))
+    if (!start.current) {
+      const push = snap ? 0 : tier === 'low' ? 0.06 : 0.16
+      const hint: V3 = tier === 'low' || snap ? [0, 0, 0] : from
+      start.current = flyStart(next, lookAt, tier === 'low' || snap ? null : peekCamera(), hint, push)
+      rest.current = next
+    } else if (!snap && k > 0.99 && vlen(vsub(next, rest.current)) > 0.35) {
+      // A new subject (another specimen, a refit) gets a short dolly instead of a cut.
+      t0.current = performance.now()
+      k = 0
+      start.current = flyStart(next, lookAt, rest.current, [0, 0, 0], tier === 'low' ? 0.05 : 0.1)
+      rest.current = next
+    }
+    const s = start.current
+    const px = snap ? 0 : state.pointer.x * parallax * k
+    const py = snap ? 0 : state.pointer.y * parallax * 0.5 * k
+    target.set(s[0] + (next[0] - s[0]) * k + px, s[1] + (next[1] - s[1]) * k + py, s[2] + (next[2] - s[2]) * k)
+    const follow = snap ? 1 : 1 - Math.exp(-dt * (tier === 'low' ? 16 : 9))
     state.camera.position.lerp(target, follow)
-    state.camera.lookAt(look[0], look[1], look[2])
+    state.camera.lookAt(lookAt[0], lookAt[1], lookAt[2])
+    if (snap || k > 0.995) noteCamera([state.camera.position.x, state.camera.position.y, state.camera.position.z])
   })
   return null
 }

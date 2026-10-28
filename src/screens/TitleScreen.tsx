@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { navigate } from '../lib/router'
 import { useGame } from '../state/store'
 import FirstRunModal from '../ui/FirstRunModal'
+import Presence from '../ui/Presence'
 import ResumeModal from '../ui/ResumeModal'
 
 export default function TitleScreen() {
@@ -41,7 +42,7 @@ export default function TitleScreen() {
         ) : null}
       </div>
 
-      {modal === 'firstrun' ? (
+      <Presence show={modal === 'firstrun'}>
         <FirstRunModal
           onCancel={() => setModal(null)}
           onConfirm={(n, code) => {
@@ -50,8 +51,8 @@ export default function TitleScreen() {
             navigate('/hub')
           }}
         />
-      ) : null}
-      {modal === 'resume' ? (
+      </Presence>
+      <Presence show={modal === 'resume'}>
         <ResumeModal
           onClose={() => setModal(null)}
           onDone={() => {
@@ -59,7 +60,7 @@ export default function TitleScreen() {
             navigate('/hub')
           }}
         />
-      ) : null}
+      </Presence>
     </div>
   )
 }

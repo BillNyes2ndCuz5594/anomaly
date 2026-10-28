@@ -6,7 +6,7 @@
 // Usage: npm run build && node scripts/proof.mjs
 import puppeteer from 'puppeteer-core'
 import { spawn, spawnSync } from 'node:child_process'
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs'
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { createServer } from 'node:net'
@@ -123,7 +123,7 @@ async function waitFrames(page, n = 3) {
 }
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp', 's19-strip-route', 's19-strip-step', 's19-strip-modal', 's19-strip-item', 's19-strip-results']
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -224,6 +224,107 @@ async function motionShots(page, name, w) {
     await scrub('.stamp', 230)
     await write('s17-motion-stamp')
     await resume()
+    await settleMotion(page)
+  }
+  // Frame strips of the new transitions: four scrubbed times, composited left to right.
+  const strips = {
+    hub: 's19-strip-route',
+    briefing: 's19-strip-step',
+    firstrun: 's19-strip-modal',
+    'item-rkea': 's19-strip-item',
+    'results-with-code': 's19-strip-results',
+  }
+  if (strips[name]) {
+    const times = [30, 120, 240, 380]
+    const frames = []
+    for (const t of times) {
+      await page.evaluate(
+        (nm, ms) => {
+          document.documentElement.dataset.motion = 'full'
+          const restart = (sel) => {
+            const els = [...document.querySelectorAll(sel)]
+            els.forEach((e) => (e.style.animation = 'none'))
+            void document.body.offsetWidth
+            els.forEach((e) => (e.style.animation = ''))
+            return els
+          }
+          if (nm === 'hub') {
+            const v = document.querySelector('.veil')
+            v.dataset.kind = 'deploy'
+            v.dataset.phase = 'idle'
+            void v.offsetWidth
+            v.dataset.phase = 'reveal'
+          } else if (nm === 'briefing') {
+            const host = document.querySelector('.step-host')
+            if (host) host.dataset.dir = 'forward'
+            restart('.step-host')
+          } else if (nm === 'firstrun') {
+            restart('.presence, .presence .modal-backdrop, .presence .modal')
+          } else if (nm === 'item-rkea') {
+            const grid = document.querySelector('.item-grid')
+            if (grid) grid.dataset.dir = 'forward'
+            restart('.item-grid, .item-grid .visual-panel')
+          } else if (nm === 'results-with-code') {
+            const body = document.querySelector('.results-body')
+            if (body) body.dataset.reveal = 'yes'
+            restart('.results-body, .results-side .reward')
+          }
+          const root =
+            nm === 'hub'
+              ? document.querySelector('.veil')
+              : nm === 'briefing'
+                ? document.querySelector('.step-host')
+                : nm === 'firstrun'
+                  ? document.querySelector('.presence') || document.querySelector('.modal-backdrop')
+                  : nm === 'item-rkea'
+                    ? document.querySelector('.item-grid')
+                    : document.querySelector('.results-body')
+          for (const a of document.getAnimations()) {
+            const el = a.effect && a.effect.target
+            if (!el || !el.closest || !root || !(el === root || root.contains(el))) continue
+            if (a.effect.getTiming().iterations === Infinity) continue
+            a.pause()
+            const dur = Number(a.effect.getTiming().duration) || 1
+            a.currentTime = Math.min(ms, Math.max(0, dur - 1))
+          }
+        },
+        name,
+        t,
+      )
+      frames.push(await page.screenshot({ encoding: 'base64', type: 'png' }))
+    }
+    await page.evaluate((imgs) => {
+      const old = document.getElementById('motion-strip')
+      if (old) old.remove()
+      const el = document.createElement('div')
+      el.id = 'motion-strip'
+      el.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;gap:4px;padding:4px;box-sizing:border-box;background:#02060c'
+      for (const src of imgs) {
+        const i = document.createElement('img')
+        i.alt = ''
+        i.src = 'data:image/png;base64,' + src
+        i.style.cssText = 'flex:1 1 0;width:0;height:100%;object-fit:cover;object-position:center'
+        el.appendChild(i)
+      }
+      document.body.appendChild(el)
+    }, frames)
+    await write(strips[name])
+    const stripFile = `${String(ORDER.indexOf(strips[name]) + 1).padStart(2, '0')}-${strips[name]}-${w}.png`
+    try {
+      mkdirSync('/opt/cursor/artifacts/transitions', { recursive: true })
+      copyFileSync(`${OUT}/${stripFile}`, `/opt/cursor/artifacts/transitions/${strips[name]}.png`)
+    } catch {
+      // Artifact dir is optional. The proof file is the source of truth.
+    }
+    await page.evaluate(() => {
+      document.getElementById('motion-strip')?.remove()
+      document.documentElement.dataset.motion = 'still'
+      const v = document.querySelector('.veil')
+      if (v) v.dataset.phase = 'idle'
+      for (const a of document.getAnimations()) {
+        if (a.playState === 'paused') a.finish()
+      }
+    })
     await settleMotion(page)
   }
 }
@@ -431,6 +532,16 @@ async function playCase(page, w) {
     if (i === 0) {
       await sleep(1500)
       await shot(page, 'lab-c', w)
+      const broken = await page.evaluate(() =>
+        [...document.querySelectorAll('.group-grid .btn')]
+          .filter((b) => {
+            const range = document.createRange()
+            range.selectNodeContents(b)
+            return range.getClientRects().length > 1
+          })
+          .map((b) => (b.textContent || '').trim()),
+      )
+      check(`lab c group names stay on one line (${w})`, broken.length === 0, broken.join(', ') || 'ok')
     }
     await click(page, `sort-group-${sp.group}`)
     await click(page, 'lab-next')
@@ -1234,7 +1345,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const MOTION_1920_ONLY = 4 // s17-motion-* shots exist at 1920 only
+  const MOTION_1920_ONLY = 9 // s17-motion-* and s19-strip-* shots exist at 1920 only
   const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
