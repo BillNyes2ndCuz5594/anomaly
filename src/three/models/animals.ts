@@ -240,7 +240,7 @@ export function bassModel(b: Builder): void {
   const belly = '#eeecce'
   const fn = '#5d8a3c'
   const spine: V3[] = [[-2.3, 0.14, 0], [-1.5, 0.07, 0], [-0.5, 0, 0], [0.5, -0.03, 0], [1.25, -0.03, 0], [1.9, -0.08, 0], [2.35, -0.14, 0]]
-  const radii: Radii = [[0.04, 0.12], [0.15, 0.34], [0.36, 0.7], [0.44, 0.78], [0.4, 0.66], [0.3, 0.44], [0.24, 0.24]]
+  const radii: Radii = [[0.04, 0.12], [0.15, 0.34], [0.36, 0.7], [0.44, 0.78], [0.41, 0.68], [0.33, 0.5], [0.27, 0.32]]
   const coat = paintWith(countershade(back, belly, -0.05, 0.28), (t, cs, sn, out) => {
     // pale olive flank, then one clear dark lateral stripe from the gill cover to the tail base with a slightly wavy edge
     lerpHex(out, flank, (1 - smooth(0.0, 0.5, Math.abs(sn + 0.12))) * 0.55)
@@ -253,12 +253,12 @@ export function bassModel(b: Builder): void {
   })
   b.limb(spine, radii, {}, { paint: mottle(coat, 0.07, 1.4, 2), radial: 36, seg: 11, cap: 8 })
   // big lower jaw that juts out a little and a long mouth line that runs back under the eye
-  b.ell([2.38, -0.26, 0], [0.34, 0.1, 0.22], '#dfe5b8', [0, 0, 0.12], 18, 10)
+  b.ell([2.4, -0.25, 0], [0.38, 0.12, 0.25], '#dfe5b8', [0, 0, 0.14], 18, 10)
   for (const k of mirrorZ) {
     b.limb([[2.62, -0.17, k * 0.02], [2.15, -0.15, k * 0.18], [1.6, -0.07, k * 0.28]], 0.016, { c: '#1d2a18' }, { radial: 6, seg: 5, cap: 2 })
     // gill cover
     b.limb([[1.28, 0.34, k * 0.3], [1.14, 0.0, k * 0.37], [1.2, -0.3, k * 0.34]], 0.015, { c: '#31482a' }, { radial: 6, seg: 6, cap: 1 })
-    eye(b, [1.72, 0.2, k * 0.27], 0.115, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
+    eye(b, [1.74, 0.21, k * 0.29], 0.13, [0.4, 0.2, k], '#e2c76b', false, DARK, '#4b6a36')
     // pectoral fin
     fin(b, [[1.0, -0.16, k * 0.34], [0.72, -0.26, k * 0.62], [0.44, -0.38, k * 0.84], [0.28, -0.43, k * 0.92]], [0.1, 0.2, 0.19, 0.05], 0.03, '#7e9857', 'xz', undefined, 12)
   }
