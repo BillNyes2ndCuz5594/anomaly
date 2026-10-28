@@ -21,7 +21,7 @@ export const SPECIMEN_LENGTH_M: Record<string, number> = {
 /** The smallest a specimen is drawn next to the largest one in its panel, as a fraction of that one's length. */
 export const MIN_PAIR_RATIO = 0.42
 /** A row of three or more shares a narrow stage, so its small animals get a little more room to stay legible. */
-export const MIN_ROW_RATIO = 0.5
+export const MIN_ROW_RATIO = 0.6
 
 
 /**
