@@ -24,6 +24,8 @@ try {
   await page.screenshot({ path: out, ...(clip ? { clip } : {}) })
   const a = await page.evaluate(() => window.__anomaly)
   console.log('wrote', out, 'calls', a?.calls, errors.length ? errors : 'noerr')
+} catch (e) {
+  console.log('FAILED', String(e).slice(0, 200), errors.slice(0, 5))
 } finally {
   await browser.close()
   proc.kill()
