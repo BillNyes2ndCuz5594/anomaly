@@ -16,8 +16,10 @@ export interface PartGeo {
   geo: THREE.BufferGeometry
   /** Center of the part, for light bridges. Geometry is recentered on the origin. */
   center: V3
-  /** Set on the Lab B oak parts, which may swap in scanned leaves and acorns (see labScans). */
+  /** Set on the Lab B oak parts, which may swap in scanned bark, leaves and acorns (see labScans). */
   oak?: boolean
+  /** Set on the Lab B deer parts, whose skin may swap in the scanned deer (see labScans). */
+  deer?: boolean
 }
 
 function finish(id: string, b: Builder): PartGeo {
@@ -27,7 +29,7 @@ function finish(id: string, b: Builder): PartGeo {
 
 function buildAnimal(lod: number): PartGeo[] {
   const d = deerBuilders(lod)
-  return [finish('skin', d.skin), finish('skeleton', d.bones)]
+  return [finish('skin', d.skin), finish('skeleton', d.bones)].map((p) => ({ ...p, deer: true }))
 }
 
 /** The oak is modelled a little wider than its pedestal, this brings it inside the ring and the camera frame. */
