@@ -4,7 +4,7 @@ import type * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
 import { FitCamera } from './FitCamera'
 import { pointsBox, sweepYaw, translatePoints, unionBox, type Box, type V3 } from './fit'
-import { DISPLAY_YAW, specimenOutline, specimenRing } from './models/specimenBox'
+import { DISPLAY_YAW, pairSizing, specimenOutline, specimenRing } from './models/specimenBox'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -71,12 +71,32 @@ const AX = 3.0
 const PA_VIEW = { box: { min: [-5.3, -1.42, -2.0], max: [5.3, 3.7, 2.0] } as Box, elevation: 0.3 }
 const FIT = 3.0
 
+interface Slot {
+  id: string
+  fit: number
+  /** Yaw the specimen rests at in the panel. */
+  yaw: number
+  /** Extra turn of the whole specimen so the right half of a row faces back into it. */
+  flip: number
+}
+
+/** Honest relative sizes (see pairSizing) and facing: the left half of a row looks right, the right half looks left, both turned toward the camera. */
+function slotsFor(ids: string[]): { slots: Slot[]; notToScale: boolean } {
+  const base = STILL ? STILL_YAW : SPECIMEN_YAW
+  const { fits, notToScale } = pairSizing(ids, FIT)
+  const slots = ids.map((id, i) => {
+    const face = ids.length > 1 && i >= ids.length / 2
+    return { id, fit: FIT * fits[i], yaw: face ? Math.PI - base : base, flip: face ? Math.PI - 2 * base : 0 }
+  })
+  return { slots, notToScale }
+}
+
+const outlineOf = (s: Slot) => specimenOutline(s.id, s.fit, s.yaw, STILL ? 0.02 : SWAY_SPECIMEN)
+
 /** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
-function rowX(ids: string[]): number[] {
-  const yaw = STILL ? STILL_YAW : SPECIMEN_YAW
-  const sway = STILL ? 0.02 : SWAY_SPECIMEN
-  const ext = ids.map((id) => {
-    const xs = specimenOutline(id, FIT, yaw, sway).map((p) => p[0])
+function rowX(slots: Slot[]): number[] {
+  const ext = slots.map((s) => {
+    const xs = outlineOf(s).map((p) => p[0])
     return { l: -Math.min(...xs), r: Math.max(...xs) }
   })
   const xs: number[] = []
@@ -96,20 +116,22 @@ function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
   // pedestals and animals use more of its height instead of leaving a dark band above and below.
   const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height))
   const elevation = aspect < 1.9 ? 0.42 : 0.28
+  const { slots } = useMemo(() => slotsFor(ids), [ids])
+  const xs = useMemo(() => rowX(slots), [slots])
   const view = useMemo(() => {
-    const xs = rowX(ids)
-    const pts: V3[] = ids.flatMap((id, i) => translatePoints(specimenOutline(id, FIT, STILL ? STILL_YAW : SPECIMEN_YAW, STILL ? 0.02 : SWAY_SPECIMEN), [xs[i], 0, 0]))
+    const pts: V3[] = slots.flatMap((s, i) => translatePoints(outlineOf(s), [xs[i], 0, 0]))
     return { box: pointsBox(pts), points: pts, elevation, margin: 0.14 }
-  }, [ids, elevation])
-  const xs = useMemo(() => rowX(ids), [ids])
+  }, [slots, xs, elevation])
   return (
     <>
       <FitCamera view={view} measure={content} />
       <group ref={content}>
-        {ids.map((id, i) => (
-          <group key={id} position={[xs[i], 0, 0]}>
-            <StagePedestal radius={specimenRing(id, FIT)} low={low} />
-            <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
+        {slots.map((s, i) => (
+          <group key={s.id} position={[xs[i], 0, 0]}>
+            <StagePedestal radius={specimenRing(s.id, s.fit)} low={low} />
+            <group rotation={[0, s.flip, 0]}>
+              <Specimen id={s.id} fit={s.fit} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
+            </group>
           </group>
         ))}
       </group>

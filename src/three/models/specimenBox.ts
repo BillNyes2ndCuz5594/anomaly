@@ -1,4 +1,5 @@
 import { specimenGeo } from './creatures'
+import { pairRatios, MIN_PAIR_RATIO } from './specimenSizes'
 import { meanProjectedArea, outlinePoints, ringPoints, scalePoints, sweepPoints, type Box, type V3 } from '../fit'
 
 /** The yaw specimens rest at, and how far they sway around it, in the item panels and Lab C. */
@@ -34,6 +35,9 @@ function shapeOf(id: string): Shape {
 /** Mean silhouette area of the procedural model at scale 1 over the displayed yaw range (hero scans match it). */
 export const specimenArea = (id: string): number => shapeOf(id).area
 
+/** Longest horizontal size of the procedural model at scale 1. */
+export const shapeReach = (id: string): number => shapeOf(id).reach
+
 /**
  * Scale that gives a specimen the same projected silhouette area as every other one at `fit` (area, not the largest
  * dimension, so wide flat animals are not left small and long thin ones are not left huge).
@@ -65,4 +69,26 @@ export function specimenBox(id: string, fit: number): Box {
 export function specimenOutline(id: string, fit: number, yaw: number, sway = 0): V3[] {
   const k = specimenScale(id, fit)
   return [...sweepPoints(scalePoints(shapeOf(id).points, k), sway, 16, yaw), ...ringPoints(specimenRing(id, fit), 0.02, 28)]
+}
+
+export interface PairSizing {
+  /** Multiplier on the shared `fit` for each id, largest displayed specimen at 1. */
+  fits: number[]
+  /** True when at least one specimen was drawn larger than its real size ratio, so the panel must say so. */
+  notToScale: boolean
+}
+
+/**
+ * Per-specimen `fit` multipliers so the drawn lengths (longest horizontal reach of the normalised model) follow the real
+ * length ratios, with the small ones never below `cap` of the largest. Single specimens are left alone.
+ */
+export function pairSizing(ids: string[], fit: number, cap = MIN_PAIR_RATIO): PairSizing {
+  const { ratios, notToScale } = pairRatios(ids, cap)
+  if (ids.length < 2) return { fits: ids.map(() => 1), notToScale: false }
+  const drawn = ids.map((id) => shapeReach(id) * specimenScale(id, fit))
+  // The animal with the largest real length is the anchor; the others are sized from its drawn length.
+  const anchor = ratios.indexOf(Math.max(...ratios))
+  const m = ids.map((_, i) => (drawn[anchor] * ratios[i]) / drawn[i])
+  const top = Math.max(...m)
+  return { fits: m.map((v) => v / top), notToScale }
 }
