@@ -3,6 +3,8 @@ import { content } from '../../content/schema'
 import { useReadAloud, wordAt } from '../../lib/speech'
 import { useSession } from '../../state/session'
 import { CaseTop } from './ui'
+import { usePressed } from './usePressed'
+import './briefing-labb.css'
 
 export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) {
   const next = useSession((s) => s.next)
@@ -28,9 +30,10 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
     return { lines, starts }
   }, [c.briefing])
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1
+  const press = usePressed()
 
   return (
-    <div className="screen case-screen" data-testid={cold ? 'cold-intro' : 'briefing'}>
+    <div className="screen case-screen briefing-screen" data-testid={cold ? 'cold-intro' : 'briefing'}>
       <CaseTop step="briefing" />
       <aside className="panel brackets side-panel dispatch-card" aria-label={cold ? 'Dispatch briefing, cold case' : 'Dispatch briefing'}>
         <header className="dispatch-head">
@@ -42,6 +45,16 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
         </header>
         <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
         <p className="dispatch-hook">{c.dispatchHook}</p>
+        {cold ? null : (
+          <ul className="dispatch-key" aria-label="On the table">
+            <li>
+              <span className="key-dot scan" aria-hidden="true" /> Body scan
+            </li>
+            <li>
+              <span className="key-dot life" aria-hidden="true" /> Manatee
+            </li>
+          </ul>
+        )}
         <div className="dispatch-lines" data-testid="briefing-text">
           {layout.lines.map((words, li) => (
             <p key={li}>
@@ -61,6 +74,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
               className="btn ghost"
               data-testid="read-aloud"
               aria-pressed={ra.speaking}
+              {...press('read')}
               onClick={() => (ra.speaking ? ra.stop() : ra.start())}
             >
               <span aria-hidden="true">{ra.speaking ? '\u25A0' : '\u25B6'}</span> {ra.speaking ? 'Stop' : 'Read aloud'}
@@ -71,7 +85,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
               </span>
             ) : null}
           </div>
-          <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} onClick={next}>
+          <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} {...press('next')} onClick={next}>
             {cold ? 'Open the evidence' : 'Start field lab'}
           </button>
         </div>

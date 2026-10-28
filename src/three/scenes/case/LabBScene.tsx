@@ -1,12 +1,15 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
+import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { animalParts, plantParts, type PartGeo } from '../../models/creatures'
 import { FitRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
 import type { Box } from '../../fit'
 import PartMesh from './PartMesh'
 import { PAIR_TINTS } from './pairTints'
+import { StageLights, SubjectStand } from './briefingLabStage'
+import { partTint } from './briefingStage'
 
 export const ANIMAL_POS: [number, number, number] = [-3.4, 0, 0]
 export const PLANT_POS: [number, number, number] = [3.4, 0, 0]
@@ -27,6 +30,7 @@ function worldCenter(side: 'a' | 'p', id: string, lod: number): THREE.Vector3 | 
 const tmpPoint = new THREE.Vector3()
 
 function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
+  const reduced = useReduced()
   const packet = useRef<THREE.Mesh>(null)
   const lod = lodFor(useTier())
   const { geo, curve } = useMemo(() => {
@@ -55,7 +59,7 @@ function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
     [geo, mat],
   )
   useFrame((state) => {
-    const t = (state.clock.elapsedTime * 0.5) % 1
+    const t = reduced || STILL ? 0.35 : (state.clock.elapsedTime * 0.5) % 1
     const p = packet.current
     if (p) p.position.copy(curve.getPoint(t, tmpPoint))
   })
@@ -90,8 +94,17 @@ function ModelParts({ side }: { side: 'a' | 'p' }) {
     <>
       {parts.map((p) => {
         const pick = p.id in PICK
-        const tint = side === 'p' && !pick ? (p.id === 'leaf' ? '#009E73' : p.id === 'root' ? '#E69F00' : '#56B4E9') : '#56B4E9'
-        return <PartMesh key={p.id} part={p} fxId={`${side}:${p.id}`} prio={PICK[p.id] ?? 0} pickable={pick} tint={tint} baseOpacity={pick ? 0.6 : 0.4} />
+        return (
+          <PartMesh
+            key={p.id}
+            part={p}
+            fxId={`${side}:${p.id}`}
+            prio={PICK[p.id] ?? 0}
+            pickable={pick}
+            tint={partTint(side, p.id)}
+            baseOpacity={pick ? 0.6 : 0.5}
+          />
+        )
       })}
     </>
   )
@@ -99,26 +112,28 @@ function ModelParts({ side }: { side: 'a' | 'p' }) {
 
 // Both models with their pedestals: animal at x -3.4, plant at x 3.4, roots down to about -1.4.
 // The margin sits a little above the default 0.08: leaf tips and the animal's sway once reached 0.9 percent past the frame in the wide phone landscape.
-const VIEW = { box: { min: [-5.9, -1.5, -2.4], max: [5.7, 3.7, 2.4] } as Box, elevation: 0.12, margin: 0.115 }
+const VIEW = { box: { min: [-5.9, -1.5, -2.4], max: [5.7, 3.7, 2.4] } as Box, elevation: 0.18, margin: 0.115 }
 
 export default function LabBScene() {
   const reduced = useReduced()
   const left = useRef<THREE.Group>(null)
   const right = useRef<THREE.Group>(null)
   useFrame((state) => {
-    if (reduced) return
-    const t = state.clock.elapsedTime
-    if (left.current) left.current.position.y = Math.sin(t * 1.1) * 0.05
-    if (right.current) right.current.position.y = Math.sin(t * 1.1 + 1.5) * 0.05
+    const bob = reduced || STILL ? 0 : Math.sin(state.clock.elapsedTime * 1.1) * 0.05
+    if (left.current) left.current.position.y = bob
+    if (right.current) right.current.position.y = reduced || STILL ? 0 : Math.sin(state.clock.elapsedTime * 1.1 + 1.5) * 0.05
   })
   return (
     <>
       <LabEnvironment floorY={-1.55} ring={false} />
+      <StageLights reduced={reduced} preset="lab-b" />
       <FitRig view={VIEW} />
       <group position={ANIMAL_POS}>
+        <SubjectStand radius={1.55} column />
         <Pedestal radius={2.5} />
       </group>
       <group position={PLANT_POS}>
+        <SubjectStand radius={2.05} y={-1.42} />
         <Pedestal radius={2.3} tint="#9ff0c0" />
       </group>
       <group ref={left} position={ANIMAL_POS}>

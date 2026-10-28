@@ -1,5 +1,12 @@
 # Changelog
 
+## Briefing and Lab B
+
+- Briefing stages the body scan and a lit manatee on a shared table, with a lip scan that stays off the figures.
+- Lab B gives the deer a column stand and the live oak a low cap, and separates shell and structure by tint.
+- Dispatch and match panels use 44px targets, press and hover feedback, and type that stays readable at 1920 and on a phone or tablet.
+- Names stay in the panels. Reduced motion and `?still=1` still freeze the scan, the lamp, and the lab bob.
+
 ## Procedural sound
 
 - Web Audio cues for hover, press, toggle, wrong, correct, scan, evidence pickup, route whoosh, and a 1.5 s case-solved stinger.

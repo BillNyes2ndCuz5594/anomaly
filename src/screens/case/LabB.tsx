@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { PAIR_TINTS } from '../../three/scenes/case/pairTints'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
+import { usePressed } from './usePressed'
+import './briefing-labb.css'
 
 /** "bark (plant covering)" to "bark": the 3D part id. */
 const partKey = (s: string) => s.split(' (')[0].trim()
@@ -124,6 +126,8 @@ export default function LabB() {
     }
   }
 
+  const press = usePressed()
+
   function afterContrast() {
     if (ci === lab.contrast.length - 1) next()
     else {
@@ -135,7 +139,7 @@ export default function LabB() {
   }
 
   return (
-    <div className="screen case-screen" data-testid="lab-b">
+    <div className="screen case-screen labb-screen" data-testid="lab-b">
       <CaseTop step="lab-b" />
 
       <aside className="panel brackets side-panel" aria-label="Structure match">
@@ -147,46 +151,64 @@ export default function LabB() {
           <>
             <div className="match-cols" data-testid="match-list">
               <div>
-                <h3 className="section-title mono">Animal part</h3>
-                {pairs.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className={`match-btn${armed === p.id ? ' armed' : ''}${matched.includes(p.id) ? ' matched' : ''}`}
-                    data-testid={`match-${p.id}-animal`}
-                    aria-pressed={armed === p.id}
-                    disabled={matched.includes(p.id)}
-                    style={matched.includes(p.id) ? { borderColor: PAIR_TINTS[matched.indexOf(p.id) % PAIR_TINTS.length] } : undefined}
-                    onClick={() => pickAnimal(p.id)}
-                    onMouseEnter={() => useFx.getState().setHover(`a:${partKey(p.animal)}`)}
-                    onMouseLeave={() => useFx.getState().setHover(null)}
-                  >
-                    {matched.includes(p.id) ? <span aria-hidden="true">{'\u2714 '}</span> : null}
-                    {cap(partKey(p.animal))}
-                  </button>
-                ))}
+                <h3 className="section-title">Deer</h3>
+                <p className="match-role">Animal part</p>
+                {pairs.map((p) => {
+                  const done = matched.includes(p.id)
+                  const tint = PAIR_TINTS[matched.indexOf(p.id) % PAIR_TINTS.length]
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={`match-btn${armed === p.id ? ' armed' : ''}${done ? ' matched' : ''}`}
+                      data-testid={`match-${p.id}-animal`}
+                      aria-pressed={armed === p.id}
+                      disabled={done}
+                      style={done ? ({ borderColor: tint, '--pair': tint } as CSSProperties) : undefined}
+                      {...press(`a-${p.id}`, done)}
+                      onClick={() => pickAnimal(p.id)}
+                      onMouseEnter={() => useFx.getState().setHover(`a:${partKey(p.animal)}`)}
+                      onMouseLeave={() => useFx.getState().setHover(null)}
+                    >
+                      <span className="match-name">
+                        {done ? <span aria-hidden="true">{'\u2714 '}</span> : null}
+                        {cap(partKey(p.animal))}
+                      </span>
+                      {done ? <span className="match-note">{p.job}</span> : null}
+                    </button>
+                  )
+                })}
               </div>
               <div>
-                <h3 className="section-title mono">Plant part</h3>
-                {plantOrder.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    className={`match-btn${matched.includes(p.id) ? ' matched' : ''}`}
-                    data-testid={`match-${p.id}-plant`}
-                    disabled={matched.includes(p.id)}
-                    style={matched.includes(p.id) ? { borderColor: PAIR_TINTS[matched.indexOf(p.id) % PAIR_TINTS.length] } : undefined}
-                    onClick={() => pickPlant(p.id)}
-                    onMouseEnter={() => useFx.getState().setHover(`p:${partKey(p.plant)}`)}
-                    onMouseLeave={() => useFx.getState().setHover(null)}
-                  >
-                    {matched.includes(p.id) ? <span aria-hidden="true">{'\u2714 '}</span> : null}
-                    {cap(p.plant)}
-                  </button>
-                ))}
+                <h3 className="section-title">Live oak</h3>
+                <p className="match-role">Plant part</p>
+                {plantOrder.map((p) => {
+                  const done = matched.includes(p.id)
+                  const tint = PAIR_TINTS[matched.indexOf(p.id) % PAIR_TINTS.length]
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className={`match-btn${done ? ' matched' : ''}`}
+                      data-testid={`match-${p.id}-plant`}
+                      disabled={done}
+                      style={done ? ({ borderColor: tint, '--pair': tint } as CSSProperties) : undefined}
+                      {...press(`p-${p.id}`, done)}
+                      onClick={() => pickPlant(p.id)}
+                      onMouseEnter={() => useFx.getState().setHover(`p:${partKey(p.plant)}`)}
+                      onMouseLeave={() => useFx.getState().setHover(null)}
+                    >
+                      <span className="match-name">
+                        {done ? <span aria-hidden="true">{'\u2714 '}</span> : null}
+                        {cap(p.plant)}
+                      </span>
+                      {done ? <span className="match-note">{p.job}</span> : null}
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <p className="muted tiny">Tap or click a part on the hologram, or use these buttons. Animal first, then plant.</p>
+            <p className="muted hint-line">Tap or click a part on the hologram, or use these buttons. Animal first, then plant.</p>
           </>
         ) : (
           <div className="contrast" data-testid="contrast-card">
@@ -204,6 +226,7 @@ export default function LabB() {
                   className={`match-btn${tried.includes(k) ? ' tried' : ''}`}
                   data-testid={`contrast-${card.id}-${k}`}
                   disabled={cDone || tried.includes(k)}
+                  {...press(`c-${card.id}-${k}`, cDone || tried.includes(k))}
                   onClick={() => answer(k)}
                 >
                   {ch}
@@ -216,7 +239,7 @@ export default function LabB() {
               </Verdict>
             ) : null}
             {cDone ? (
-              <button type="button" className="btn primary" data-testid="lab-next" onClick={afterContrast} autoFocus>
+              <button type="button" className="btn primary" data-testid="lab-next" {...press('contrast-next')} onClick={afterContrast} autoFocus>
                 {ci === lab.contrast.length - 1 ? 'Finish lab' : 'Next card'}
               </button>
             ) : null}
@@ -245,6 +268,7 @@ export default function LabB() {
                 type="button"
                 className="btn primary"
                 data-testid="lab-next"
+                {...press('match-next')}
                 onClick={() => {
                   setPhase('contrast')
                   setSay(null)

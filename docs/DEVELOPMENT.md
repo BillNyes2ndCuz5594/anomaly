@@ -1,5 +1,18 @@
 # Development log
 
+## Briefing and Lab B
+
+The briefing pair floated as two rings, and the manatee was the same hologram treatment as the body. Lab B floated the deer above the floor. Phone briefing hid the last dispatch line under the sticky actions. Phone Lab B hid the intro under the match buttons.
+
+What this pass does:
+
+- `briefing-labb.css` is scoped to `.briefing-screen` and `.labb-screen`. It does not restyle Lab A or Lab C. Phone portrait sets the Lab B sheet to 56dvh on the screen so the dock moves with it. Short landscape tightens gaps until both cards fit with no scroll.
+- `usePressed` keeps a pressed attribute until the pointer lifts, because `:active` is brief on some phones. Hover is limited to a fine pointer.
+- The table, stands, and lights are marked out of the fit measure. Lab B keeps its view box and margin. The manatee uses the lit scan so the gray animal reads next to the hologram body.
+- 3D name plates were tried and removed. They sat on the flipper, the deer legs, and the oak roots. The panel labels are the names.
+
+Frames and fit numbers are in `docs/devlog/briefing-labb.md`.
+
 ## Procedural sound
 
 The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.
