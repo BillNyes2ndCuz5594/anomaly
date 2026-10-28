@@ -1,5 +1,10 @@
 # Changelog
 
+## Honest specimen pairs
+
+- Evidence pairs keep real size ratios, with a floor so the smaller animal stays readable, and a quiet "Not to scale" tag when that floor is used.
+- The camera frames the tallest specimen's scan headroom, so a tall head stays inside the canvas margin.
+
 ## Procedural sound
 
 - Web Audio cues for hover, press, toggle, wrong, correct, scan, evidence pickup, route whoosh, and a 1.5 s case-solved stinger.

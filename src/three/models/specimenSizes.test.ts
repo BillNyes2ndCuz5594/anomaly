@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { MIN_PAIR_RATIO, MIN_ROW_RATIO, SPECIMEN_LENGTH_M, pairRatios } from './specimenSizes'
-import { LAB_SPECIMENS } from './creatures'
-import { pairSizing, shapeReach, specimenScale } from './specimenBox'
+import { LAB_SPECIMENS, specimenGeo } from './creatures'
+import { SCAN_HEIGHT, pairSizing, placeEvidence, shapeReach, specimenScale } from './specimenBox'
+import { fitPoints, projectPoints, type V3 } from '../fit'
 import raw from '../../content/anomaly-content.json'
 
 const pairs: string[][] = []
@@ -60,6 +61,42 @@ describe('specimen sizes', () => {
       const drawn = ids.map((id, i) => shapeReach(id) * specimenScale(id, 3 * fits[i]))
       const anchor = ratios.indexOf(1)
       ids.forEach((_, i) => expect(drawn[i] / drawn[anchor], ids.join()).toBeCloseTo(ratios[i], 4))
+    }
+  })
+
+  it('fits every pair tallest specimen inside the canvas margin', () => {
+    // Same margin and elevation rule as the evidence canvas. 1.7 to 1.85 is the wide panel where a tall scan used to touch the top.
+    const aspects = [0.55, 1.7, 1.85, 2.2]
+    const views = [
+      { yaw: -0.62, sway: 0.02 },
+      { yaw: -0.55, sway: 0.3 },
+    ]
+    expect(SCAN_HEIGHT).toBeGreaterThanOrEqual(1.05)
+    // Procedural reach, and the narrow horizontal reach of a tall scan (the pelican's bill stands above a short footprint).
+    const reaches = [undefined, (id: string) => Math.min(specimenGeo(id).size[0], specimenGeo(id).size[2])] as const
+    for (const ids of pairs.filter((p) => p.length > 1)) {
+      for (const view of views) {
+        for (const reachOf of reaches) {
+          const { placed, points } = placeEvidence(ids, 3, view.yaw, view.sway, reachOf)
+          let tallest = placed[0]
+          let tallH = 0
+          for (const s of placed) {
+            const h = specimenGeo(s.id).size[1] * specimenScale(s.id, s.fit)
+            if (h >= tallH) {
+              tallH = h
+              tallest = s
+            }
+          }
+          const head: V3 = [tallest.x, tallH * SCAN_HEIGHT, 0]
+          for (const aspect of aspects) {
+            const elevation = aspect < 1.9 ? 0.42 : 0.28
+            const pose = fitPoints(points, { fovDeg: 35, aspect, margin: 0.14, elevation })
+            const e = projectPoints([head], pose.position, pose.target, 35, aspect)
+            const over = Math.max(e.maxX - 1, -1 - e.minX, e.maxY - 1, -1 - e.minY)
+            expect(over, `${ids.join('+')} @ ${aspect}`).toBeLessThanOrEqual(-0.02)
+          }
+        }
+      }
     }
   })
 })

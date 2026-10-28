@@ -1,5 +1,11 @@
 # Development log
 
+## Honest specimen pairs
+
+Evidence rows were sizing animals by horizontal length only. The camera then framed the procedural silhouette. After the pelican rescan, that scan is a tall narrow bird inside a long procedural box, and the height cap lets it stand 5 percent above that box. On the wide evidence panel (aspect just under 1.9, camera elevation 0.42) the pelican head crossed the top margin (fit over about -0.007; the check needs -0.02 or better).
+
+The fit outline now includes a point at `SCAN_HEIGHT` (1.05) times the procedural height. Relative lengths are unchanged, and the not-to-scale tag still follows the ratio floor. A unit test projects that head for every content pair at the panel aspects.
+
 ## Procedural sound
 
 The game had a sound boolean, off by default, and no audio path. This pass adds a Web Audio layer under `src/audio/` with no audio files.

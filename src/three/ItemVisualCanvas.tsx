@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'r
 import type * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
 import { FitCamera } from './FitCamera'
-import { pointsBox, sweepYaw, translatePoints, unionBox, type Box, type V3 } from './fit'
-import { DISPLAY_YAW, pairSizing, shapeReach, specimenOutline, specimenRing } from './models/specimenBox'
+import { pointsBox, sweepYaw, unionBox, type Box } from './fit'
+import { DISPLAY_YAW, placeEvidence, shapeReach, specimenRing } from './models/specimenBox'
 import { hasHero, heroIfReady, loadHero, onHeroReady } from './models/heroSpecimens'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
@@ -72,51 +72,16 @@ const AX = 3.0
 const PA_VIEW = { box: { min: [-5.3, -1.42, -2.0], max: [5.3, 3.7, 2.0] } as Box, elevation: 0.3 }
 const FIT = 3.0
 
-interface Slot {
-  id: string
-  fit: number
-  /** Yaw the specimen rests at in the panel. */
-  yaw: number
-  /** Extra turn of the whole specimen so the right half of a row faces back into it. */
-  flip: number
-}
-
-/** Honest relative sizes (see pairSizing) and facing: the left half of a row looks right, the right half looks left, both turned toward the camera. */
-function slotsFor(ids: string[], scans: boolean): { slots: Slot[]; notToScale: boolean } {
+/** Honest relative sizes and facing. Once every scan has loaded, lengths come from the scans; before that, the proxy. */
+function evidenceFor(ids: string[], scans: boolean) {
   const base = STILL ? STILL_YAW : SPECIMEN_YAW
-  // Once every scan of the panel has loaded, size from the scans themselves (their legs, tails and beaks differ from the
-  // procedural proxy); before that, or on Low tier, the proxy. One re-layout at most, at the moment the scans swap in.
   const reachOf = (id: string): number => {
     const h = scans ? heroIfReady(id) : undefined
     if (!h) return shapeReach(id)
     const b = h.geo.boundingBox ?? (h.geo.computeBoundingBox(), h.geo.boundingBox!)
     return Math.max(b.max.x - b.min.x, b.max.z - b.min.z)
   }
-  const { fits, notToScale } = pairSizing(ids, FIT, undefined, reachOf)
-  const slots = ids.map((id, i) => {
-    const face = ids.length > 1 && i >= ids.length / 2
-    return { id, fit: FIT * fits[i], yaw: face ? Math.PI - base : base, flip: face ? Math.PI - 2 * base : 0 }
-  })
-  return { slots, notToScale }
-}
-
-const outlineOf = (s: Slot) => specimenOutline(s.id, s.fit, s.yaw, STILL ? 0.02 : SWAY_SPECIMEN)
-
-/** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
-function rowX(slots: Slot[]): number[] {
-  const gap = slots.length >= 3 ? 0.3 : 0.5
-  const ext = slots.map((s) => {
-    const xs = outlineOf(s).map((p) => p[0])
-    return { l: -Math.min(...xs), r: Math.max(...xs) }
-  })
-  const xs: number[] = []
-  let x = 0
-  ext.forEach((e, i) => {
-    if (i > 0) x += ext[i - 1].r + e.l + gap
-    xs.push(x)
-  })
-  const mid = (xs[0] - ext[0].l + xs[xs.length - 1] + ext[ext.length - 1].r) / 2
-  return xs.map((v) => v - mid)
+  return placeEvidence(ids, FIT, base, STILL ? 0.02 : SWAY_SPECIMEN, reachOf)
 }
 
 function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
@@ -131,18 +96,14 @@ function SpecimenVisual({ ids, low }: { ids: string[]; low: boolean }) {
     heroIds.forEach((id) => void loadHero(id))
   }, [heroIds])
   const scans = useSyncExternalStore(onHeroReady, () => heroIds.length > 0 && heroIds.every((id) => !!heroIfReady(id)))
-  const { slots } = useMemo(() => slotsFor(ids, scans), [ids, scans])
-  const xs = useMemo(() => rowX(slots), [slots])
-  const view = useMemo(() => {
-    const pts: V3[] = slots.flatMap((s, i) => translatePoints(outlineOf(s), [xs[i], 0, 0]))
-    return { box: pointsBox(pts), points: pts, elevation, margin: 0.14 }
-  }, [slots, xs, elevation])
+  const { placed, points } = useMemo(() => evidenceFor(ids, scans), [ids, scans])
+  const view = useMemo(() => ({ box: pointsBox(points), points, elevation, margin: 0.14 }), [points, elevation])
   return (
     <>
       <FitCamera view={view} measure={content} />
       <group ref={content}>
-        {slots.map((s, i) => (
-          <group key={s.id} position={[xs[i], 0, 0]}>
+        {placed.map((s) => (
+          <group key={s.id} position={[s.x, 0, 0]}>
             <StagePedestal radius={specimenRing(s.id, s.fit)} low={low} />
             <group rotation={[0, s.flip, 0]}>
               <Specimen id={s.id} fit={s.fit} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />

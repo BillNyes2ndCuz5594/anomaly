@@ -1,6 +1,6 @@
 import { specimenGeo } from './creatures'
 import { pairRatios, MIN_PAIR_RATIO, MIN_ROW_RATIO } from './specimenSizes'
-import { meanProjectedArea, outlinePoints, ringPoints, scalePoints, sweepPoints, type Box, type V3 } from '../fit'
+import { meanProjectedArea, outlinePoints, ringPoints, scalePoints, sweepPoints, translatePoints, type Box, type V3 } from '../fit'
 
 /** The yaw specimens rest at, and how far they sway around it, in the item panels and Lab C. */
 export const DISPLAY_YAW = -0.55
@@ -9,6 +9,13 @@ const DISPLAY_RANGE = 0.6
 const AREA_REF = 0.36
 /** No specimen may end up longer than this many times `fit`. */
 const MAX_REACH = 1.5
+/**
+ * A scan may stand this much taller than the procedural box it is fitted into. The camera frames this headroom, or a
+ * tall head (the brown pelican beside a shorter bird) crosses the top margin once the pair is sized honestly.
+ */
+export const SCAN_HEIGHT = 1.05
+const PAIR_GAP = 0.5
+const ROW_GAP = 0.3
 
 interface Shape {
   /** Silhouette proxy at scale 1, grounded and centered like the geometry. */
@@ -68,7 +75,46 @@ export function specimenBox(id: string, fit: number): Box {
  */
 export function specimenOutline(id: string, fit: number, yaw: number, sway = 0): V3[] {
   const k = specimenScale(id, fit)
-  return [...sweepPoints(scalePoints(shapeOf(id).points, k), sway, 16, yaw), ...ringPoints(specimenRing(id, fit), 0.02, 28)]
+  const head: V3 = [0, specimenGeo(id).size[1] * SCAN_HEIGHT * k, 0]
+  return [...sweepPoints(scalePoints(shapeOf(id).points, k), sway, 16, yaw), head, ...ringPoints(specimenRing(id, fit), 0.02, 28)]
+}
+
+export interface PlacedSpecimen {
+  id: string
+  /** World `fit` after the honest-size multiplier. */
+  fit: number
+  yaw: number
+  /** Extra turn of the whole specimen so the right half of a row faces back into it. */
+  flip: number
+  x: number
+}
+
+/**
+ * One evidence row: honest relative sizes, facing into the pair, spaced so neighbours do not touch. `points` is the
+ * camera fit cloud (silhouette, scan headroom, and base ring).
+ */
+export function placeEvidence(ids: string[], fit: number, yaw: number, sway: number, reachOf?: (id: string) => number): { placed: PlacedSpecimen[]; points: V3[]; notToScale: boolean } {
+  const { fits, notToScale } = pairSizing(ids, fit, undefined, reachOf)
+  const slots = ids.map((id, i) => {
+    const face = ids.length > 1 && i >= ids.length / 2
+    return { id, fit: fit * fits[i], yaw: face ? Math.PI - yaw : yaw, flip: face ? Math.PI - 2 * yaw : 0 }
+  })
+  const outlines = slots.map((s) => specimenOutline(s.id, s.fit, s.yaw, sway))
+  const gap = ids.length >= 3 ? ROW_GAP : PAIR_GAP
+  const ext = outlines.map((pts) => {
+    const xs = pts.map((p) => p[0])
+    return { l: -Math.min(...xs), r: Math.max(...xs) }
+  })
+  const raw: number[] = []
+  let cursor = 0
+  ext.forEach((e, i) => {
+    if (i > 0) cursor += ext[i - 1].r + e.l + gap
+    raw.push(cursor)
+  })
+  const mid = ids.length ? (raw[0] - ext[0].l + raw[raw.length - 1] + ext[ext.length - 1].r) / 2 : 0
+  const placed = slots.map((s, i) => ({ ...s, x: raw[i] - mid }))
+  const points = outlines.flatMap((pts, i) => translatePoints(pts, [placed[i].x, 0, 0]))
+  return { placed, points, notToScale }
 }
 
 export interface PairSizing {
