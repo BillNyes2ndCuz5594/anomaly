@@ -49,12 +49,12 @@ Rules for video clips
 
 | Rank | Asset | Where it shows | Status |
 | --- | --- | --- | --- |
-| 1 | Florida panther | Evidence item, art check | Wave 1: scan shipped |
+| 1 | Florida panther | Evidence item, art check | Wave 1 scan, replaced in wave 6 (plain tawny coat, tail hanging low) |
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs |
 | 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
-| 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2: scans shipped |
+| 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2 scans; wave 6 rescans the bass, pelican, frog, owl, tortoise and grasshopper |
 | 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot) |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue; wave 5c adds the scanned deer skin and oak trunk |
@@ -101,6 +101,14 @@ Rules for video clips
   procedural limb sleeves grow out of its top so the bark still covers the stem and its branches. Picking, framing
   and the highlight states are unchanged. Low tier and any load failure keep the procedural skin and bark. Spend
   $1.29 (six FLUX references, two scans).
+- Wave 6: rescans of the seven scans that still read as AI made. New references are FLUX 1.1 Ultra in raw mode (real
+  camera look, no studio gloss), three per animal, and the best one went to Hunyuan3D at 40k faces with PBR. The panther
+  reference is a nano-banana edit of the best FLUX still (plain tawny coat with no blotches, tail hanging low). The owl
+  scan came with its perch, cut off offline. The frog scan's eyes had a cross shaped pupil, so its texture was repainted
+  from 3D position (gold-bronze iris, dark horizontal pupil, UV gutters padded) and the eyeballs rounded. The bass, which
+  faced left, is turned to face right, and the frog shows in profile. The tortoise now has scaly, clawed front legs. Same
+  sizing and framing rules as wave 2; Low tier keeps the procedural models. Files are 196 to 544 KB (pelican, 23k
+  triangles, is the largest). Spend $5.24 (21 FLUX Ultra references, two edits, seven scans).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
