@@ -1,0 +1,494 @@
+/* Results and debrief payoff. Loaded with those screens, after index.css and motion.css.
+   The stamp's transform is a static tilt. It never scales, so a slow frame cannot
+   push CASE CLOSED, CASE STILL OPEN, or RESIDUE CLEARED outside the panel. */
+
+.rd-screen .debrief-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+  transform: none !important;
+  animation: none;
+}
+
+.rd-stamp-slot {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 100%;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.rd-screen .stamp {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: calc(100% - 20px);
+  margin: 4px 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 8px 14px;
+  white-space: normal;
+  transform: rotate(-3deg) !important;
+  transform-origin: center center;
+  animation: none;
+}
+
+html[data-motion='full'] .rd-screen .stamp {
+  animation: rd-ink 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html[data-motion='fade'] .rd-screen .stamp {
+  animation: rd-ink 0.18s linear both;
+}
+
+html[data-motion='still'] .rd-screen .stamp,
+html[data-reduced-motion='true'] .rd-screen .stamp {
+  animation: none !important;
+  opacity: 1;
+}
+
+@keyframes rd-ink {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rd-screen .stamp-word {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--rd-stamp-font, clamp(13px, 4.2vw, 26px));
+  letter-spacing: var(--rd-stamp-track, 0.06em);
+  line-height: 1.08;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-wrap: balance;
+}
+
+.rd-screen .stamp-icon {
+  flex: none;
+  font-size: calc(var(--rd-stamp-font, 18px) * 1.15);
+  line-height: 1;
+}
+
+.rd-screen .debrief-summary {
+  flex: 1 1 240px;
+  min-width: 0;
+  gap: 6px;
+}
+
+.rd-screen .debrief-score {
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 3.25rem);
+  letter-spacing: 0.04em;
+}
+
+.rd-screen .debrief-line {
+  font-size: 1.0625rem;
+  max-width: 62ch;
+}
+
+.rd-screen .debrief-head .btn.primary {
+  flex: 0 0 auto;
+  min-height: 48px;
+  min-width: 44px;
+}
+
+.rd-screen .debrief-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  column-count: auto;
+  column-width: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  align-content: start;
+}
+
+.rd-screen .debrief-item {
+  margin: 0;
+  break-inside: auto;
+  min-width: 0;
+  gap: 12px;
+}
+
+.rd-block-label {
+  display: block;
+}
+
+.rd-take {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(62, 230, 255, 0.06);
+  border-left: 3px solid #37e8b4;
+}
+
+.rd-screen .debrief-item.bad .rd-take {
+  border-left-color: var(--amber);
+  background: rgba(255, 181, 71, 0.06);
+}
+
+.rd-learned-line {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.rd-screen .why-list li.key {
+  padding: 6px 8px;
+  background: rgba(55, 232, 180, 0.06);
+}
+
+.rd-screen .debrief-item > header {
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Results: verdict and score first, then what changed, then the shift file. */
+.results-screen.rd-screen .results-body {
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  align-content: stretch;
+  gap: 16px 20px;
+}
+
+.rd-hero {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 36px;
+  align-items: center;
+  padding: 18px 28px 16px;
+  min-width: 0;
+}
+
+.rd-hero .reward {
+  border-bottom: none;
+  padding-bottom: 0;
+  min-width: 0;
+}
+
+.rd-hero .verdict-block p {
+  font-size: clamp(1.75rem, 1.1rem + 1.5vw, 2.75rem);
+}
+
+.rd-hero .verdict-block .rd-scoreline,
+.rd-hero .verdict-block .rd-scoreline span {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.rd-score-num,
+.rd-count {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.rd-hero .rd-dispatch {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  max-width: 72ch;
+  color: #d5e4f8;
+}
+
+.rd-intel {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.rd-intel .reward-num {
+  font-size: clamp(2.25rem, 3vw, 3.5rem);
+  line-height: 0.95;
+}
+
+.rd-screen .results-panel,
+.rd-screen .results-side {
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.rd-screen .results-side {
+  gap: 14px;
+}
+
+.rd-screen .results-panel .panel-title,
+.rd-screen .results-side .panel-title {
+  font-size: clamp(1.15rem, 1rem + 0.4vw, 1.5rem);
+}
+
+.rd-screen .bar-label {
+  font-size: clamp(1rem, 0.9rem + 0.35vw, 1.35rem);
+}
+
+.rd-screen .bar-track {
+  height: clamp(16px, 2vw, 28px);
+}
+
+.rd-screen .results-side .btn.primary,
+.rd-screen .report-panel .btn {
+  min-height: 48px;
+  min-width: 44px;
+}
+
+.rd-screen .results-side .btn.primary {
+  margin-top: auto;
+}
+
+/* Pressed ink. Movement only when motion is allowed. The color change stays for reduced motion. */
+.rd-screen .btn:active:not(:disabled) {
+  background-color: rgba(4, 18, 32, 0.55);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.rd-screen .btn.primary:active:not(:disabled) {
+  background-color: #12b4d2;
+  background-image: none;
+  filter: saturate(0.9) brightness(0.94);
+  box-shadow: inset 0 2px 0 rgba(0, 40, 56, 0.35);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-reduced-motion='true']):not([data-motion='still']) .rd-screen .btn:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-screen .stamp,
+  .rd-screen .debrief-head.impact {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .rd-screen .debrief-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .rd-screen .debrief-head .btn.primary {
+    width: 100%;
+    max-width: none;
+  }
+
+  .rd-screen .debrief-summary {
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .rd-screen .debrief-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .rd-screen .debrief-score {
+    font-size: 1.75rem;
+  }
+
+  .rd-screen .debrief-line,
+  .rd-learned-line,
+  .rd-hero .rd-dispatch {
+    font-size: 1rem;
+  }
+
+  .rd-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .rd-hero .verdict-block {
+    order: 1;
+  }
+
+  .rd-hero .rd-dispatch {
+    order: 2;
+  }
+
+  .rd-intel {
+    order: 3;
+  }
+
+  .rd-intel {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .rd-intel .reward-num {
+    font-size: 2rem;
+  }
+
+  .rd-hero .verdict-block p {
+    font-size: 1.65rem;
+  }
+
+  .rd-hero .verdict-block .rd-scoreline,
+  .rd-hero .verdict-block .rd-scoreline span {
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 1500px) and (min-height: 900px) {
+  .rd-screen .debrief-head {
+    padding: 18px 28px;
+    gap: 12px 36px;
+  }
+
+  .rd-screen .debrief-score {
+    font-size: 3.35rem;
+  }
+
+  .rd-screen .debrief-line {
+    font-size: 1.25rem;
+  }
+
+  .rd-screen .debrief-list {
+    gap: 20px;
+  }
+
+  .rd-screen .debrief-item {
+    padding: 18px 20px;
+  }
+
+  .results-screen.rd-screen .results-body {
+    gap: 20px 24px;
+  }
+
+  .rd-hero {
+    padding: 22px 36px 18px;
+  }
+
+  .rd-hero .verdict-block p {
+    font-size: 2.85rem;
+  }
+
+  .rd-hero .verdict-block .rd-scoreline,
+  .rd-hero .verdict-block .rd-scoreline span {
+    font-size: 1.4rem;
+  }
+
+  .rd-hero .rd-dispatch {
+    font-size: 1.2rem;
+  }
+
+  .rd-intel .reward-num {
+    font-size: 3.75rem;
+  }
+
+  .rd-screen .bar-track {
+    height: 28px;
+  }
+
+  .rd-screen .results-side .btn.primary {
+    min-height: 56px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .rd-screen .debrief-head {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 8px 12px;
+  }
+
+  .rd-screen .debrief-score {
+    font-size: 1.35rem;
+  }
+
+  .rd-screen .debrief-line {
+    font-size: 1rem;
+  }
+
+  .rd-stamp-slot {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .rd-screen .debrief-head .btn.primary {
+    width: auto;
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+  }
+
+  .rd-screen .debrief-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .results-screen.rd-screen .results-body {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .rd-hero {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 8px 12px;
+    gap: 6px 16px;
+  }
+
+  .rd-hero .verdict-block p {
+    font-size: 1.25rem;
+  }
+
+  .rd-hero .verdict-block .rd-scoreline,
+  .rd-hero .verdict-block .rd-scoreline span,
+  .rd-hero .rd-dispatch {
+    font-size: 1rem;
+  }
+
+  .rd-intel .reward-num {
+    font-size: 1.75rem;
+  }
+
+  .rd-screen .results-side .btn.primary {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 900px) and (min-height: 501px) {
+  .results-screen.rd-screen .results-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: max-content;
+    align-content: start;
+  }
+
+  .rd-hero,
+  .rd-screen .results-panel,
+  .rd-screen .results-side {
+    grid-column: 1;
+    max-height: none;
+  }
+}
