@@ -13,14 +13,17 @@ import {
   smoothstep,
   time,
 } from 'three/tsl'
+import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
+import { sceneCalm } from './hub/markerMotion'
 import { useWidthFit } from './case/common'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor, makeRadialTexture } from './common'
+import { FloorPool, NightBody, SkyBand, SubjectLights } from './grade'
 
 const LOGO_BASE_Y = 1.05
 const LOGO_H = 2.3
@@ -47,17 +50,19 @@ function LogoLetters({ reduced }: { reduced: boolean }) {
     parts.forEach((g) => g.dispose())
 
     const m = new THREE.MeshStandardNodeMaterial()
-    m.color = new THREE.Color('#0b1a2e')
-    m.roughness = 0.3
-    m.metalness = 0.7
+    m.color = new THREE.Color('#1a3c56')
+    m.roughness = 0.38
+    m.metalness = 0.72
     const nz = abs(normalLocal.z)
     const bevel = smoothstep(0.1, 0.4, nz).mul(oneMinus(smoothstep(0.82, 0.97, nz)))
     const front = smoothstep(0.9, 0.99, normalLocal.z)
     const sweepPos = positionGeometry.x.mul(0.17).add(positionGeometry.y.mul(0.22))
     const phase = reduced ? float(0.35) : time.mul(0.13)
-    const band = pow(oneMinus(abs(fract(sweepPos.sub(phase)).sub(0.5)).mul(2)), float(14))
-    const fill = float(0.26).add(positionGeometry.y.mul(0.22))
-    const glow = bevel.mul(3.4).add(front.mul(fill)).add(band.mul(front.mul(1.2).add(bevel.mul(2.2)).add(0.15)))
+    const band = pow(oneMinus(abs(fract(sweepPos.sub(phase)).sub(0.5)).mul(2)), float(18))
+    // Darker toward the foot of each letter so the key light, not a flat fill, describes the face.
+    const lift = smoothstep(float(-0.05), float(1.05), positionGeometry.y)
+    const fill = float(0.04).add(lift.mul(0.34))
+    const glow = bevel.mul(2.8).add(front.mul(fill)).add(band.mul(front.mul(0.85).add(bevel.mul(1.6))))
     m.emissiveNode = color('#3ee6ff').mul(glow)
     return { geo, mat: m, width }
   }, [reduced])
@@ -123,14 +128,15 @@ function LogoGlow({ y }: { y: number }) {
 function HoloRings() {
   const a = useRef<THREE.Mesh>(null)
   const b = useRef<THREE.Mesh>(null)
-  const reduced = useGame((s) => s.settings.reducedMotion)
+  const reduced = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
   const mats = useMemo(
     () => [
-      createHologramMaterial({ opacity: 0.8, intensity: 1.2, scanDensity: 10, fresnelPower: 1.4 }),
-      createHologramMaterial({ color: '#ffb547', opacity: 0.7, intensity: 1.0, scanDensity: 14, fresnelPower: 1.4 }),
+      createHologramMaterial({ opacity: 0.8, intensity: 1.2, scanDensity: 10, fresnelPower: 1.4, scanSpeed: reduced ? 0 : 0.35, sweep: reduced ? 0 : 1 }),
+      createHologramMaterial({ color: '#ffb547', opacity: 0.7, intensity: 1.0, scanDensity: 14, fresnelPower: 1.4, scanSpeed: reduced ? 0 : 0.35, sweep: reduced ? 0 : 0.6 }),
     ],
-    [],
+    [reduced],
   )
+  useEffect(() => () => mats.forEach((m) => m.dispose()), [mats])
   useFrame((_, dt) => {
     if (reduced) return
     if (a.current) a.current.rotation.z += dt * 0.12
@@ -151,11 +157,13 @@ function HoloRings() {
 }
 
 export default function TitleScene() {
-  const reduced = useGame((s) => s.settings.reducedMotion)
+  const calm = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
+  const rich = tier !== 'low'
   const start = useRef(performance.now())
+  const logo = useRef<THREE.Group>(null)
   // The logo is wider than a phone held upright: widen the view and back the camera off until it fits.
   const logoHalf = useMemo(() => (layoutLogo('ANOMALY').width * LOGO_H) / 2, [])
   const fit = useWidthFit(logoHalf * 1.04, 16, 66, 0.2)
@@ -163,28 +171,33 @@ export default function TitleScene() {
   useFrame((state) => {
     const t = (performance.now() - start.current) / 1000
     const cam = state.camera
-    const intro = reduced ? 1 : 1 - Math.pow(1 - Math.min(1, t / 3), 3)
-    const orbit = reduced ? 0.1 : Math.sin(t * 0.11) * 0.32
+    const intro = calm ? 1 : 1 - Math.pow(1 - Math.min(1, t / 3), 3)
+    const orbit = calm ? 0 : Math.sin(t * 0.09) * 0.22
     const radius = 16 + (1 - intro) * 7
-    const height = 2.2 + Math.sin(t * 0.07) * (reduced ? 0 : 0.5) + (1 - intro) * 2
+    const height = 2.35 + (calm ? 0 : Math.sin(t * 0.07) * 0.28) + (1 - intro) * 2
     const k = fit.current
-    const aimY = LOGO_BASE_Y + 1.0
+    const aimY = LOGO_BASE_Y + 1.05
     cam.position.set(Math.sin(orbit) * radius * k, aimY + (height - aimY) * k, Math.cos(orbit) * radius * k)
     cam.lookAt(0, aimY, 0)
     const fog = state.scene.fog as THREE.FogExp2 | null
-    if (fog) fog.density = 0.018 / k
+    if (fog) fog.density = 0.02 / k
+    if (logo.current) logo.current.position.y = LOGO_BASE_Y + (calm ? 0 : Math.sin(t * 0.55) * 0.035)
   })
 
   return (
     <>
-      <fogExp2 attach="fog" args={['#070c17', 0.018]} />
+      <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights />
+      <SubjectLights strength={rich ? 1 : 0.8} />
       <Backdrop clip="swamp" />
+      {rich ? <SkyBand calm={calm} /> : null}
+      <NightBody position={[-12.2, 9.2, -17]} calm={calm} rich={rich} />
       <DeckPlate />
       <GridFloor fade={34} />
+      <FloorPool position={[0, 0.03, 0.4]} radius={8.5} opacity={0.42} />
       <ConsoleRing radius={17} count={20} arc={Math.PI * 1.3} />
-      <group position={[0, LOGO_BASE_Y, 0]}>
-        <LogoLetters reduced={reduced} />
+      <group ref={logo} position={[0, LOGO_BASE_Y, 0]}>
+        <LogoLetters reduced={calm} />
       </group>
       <LogoGlow y={LOGO_BASE_Y + 1.3} />
       <HoloRings />
