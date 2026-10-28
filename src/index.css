@@ -2309,13 +2309,7 @@ textarea.input {
 .veil[data-kind='launch'][data-phase='reveal'] .veil-stack,
 .veil[data-kind='deploy'][data-phase='reveal'] .veil-stack {
   opacity: 1;
-  -webkit-mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
-  mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  animation: launch-iris 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: launch-open 1.12s cubic-bezier(0.16, 0.84, 0.24, 1) forwards;
 }
 .veil[data-kind='warp'][data-phase='reveal'] .veil-stack {
   opacity: 1;
@@ -2398,10 +2392,10 @@ html[data-motion='fade'] .veil[data-phase='idle'] .veil-stack {
   100% { transform: translate3d(0, 100vh, 0); opacity: 0; }
 }
 @keyframes veil-fade-out { from { opacity: 1; } to { opacity: 0; } }
-@keyframes launch-iris {
-  0% { -webkit-mask-size: 18% 18%; mask-size: 18% 18%; opacity: 1; }
-  72% { -webkit-mask-size: 210% 210%; mask-size: 210% 210%; opacity: 1; }
-  100% { -webkit-mask-size: 280% 280%; mask-size: 280% 280%; opacity: 0; }
+@keyframes launch-open {
+  0% { clip-path: circle(140% at 50% 46%); opacity: 1; }
+  18% { clip-path: circle(72% at 50% 46%); opacity: 1; }
+  100% { clip-path: circle(0% at 50% 46%); opacity: 1; }
 }
 @keyframes warp-open {
   0% { clip-path: inset(0); opacity: 1; }
