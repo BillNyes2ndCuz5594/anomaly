@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { createEngine, type AudioEngine } from './engine'
+import { describe, expect, it, vi } from 'vitest'
+import { AMBIENT_BUS_GAIN } from './sfx'
+import { createEngine, HIDE_SUSPEND_MS, HOVER_GAP_MS, type AudioEngine } from './engine'
 import type { OneShotId } from './policy'
 
 class Param {
@@ -85,10 +86,13 @@ class FakeCtx {
   state = 'suspended'
   destination = new Node()
   oscs: Osc[] = []
+  gains: Gain[] = []
   resumes = 0
   suspends = 0
   createGain(): Gain {
-    return new Gain()
+    const g = new Gain()
+    this.gains.push(g)
+    return g
   }
   createOscillator(): Osc {
     const osc = new Osc()
@@ -156,6 +160,10 @@ describe('audio engine gates', () => {
     still.engine.setAmbient(true)
     still.engine.play('press')
     still.engine.play('toggle', { bypassSound: true, up: false })
+    still.env.hidden = true
+    still.engine.onVisibility()
+    still.env.hidden = false
+    still.engine.onVisibility()
     expect(still.ctxs).toHaveLength(0)
 
     const mute = harness()
@@ -237,6 +245,69 @@ describe('audio engine gates', () => {
       engine.gesture()
       engine.play(cue, { up: false })
       expect(ctxs[0].oscs.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('throttles hover cues for about 120 ms', () => {
+    const { engine, ctxs, env } = harness()
+    engine.setPrefs(true, 0.55, { silent: true })
+    engine.gesture()
+    engine.play('hover')
+    const n = ctxs[0].oscs.length
+    env.now = HOVER_GAP_MS - 1
+    engine.play('hover')
+    expect(ctxs[0].oscs.length).toBe(n)
+    env.now = HOVER_GAP_MS
+    engine.play('hover')
+    expect(ctxs[0].oscs.length).toBe(n + 1)
+  })
+
+  it('fades the ambient bed out before suspending a hidden tab, then fades it back', async () => {
+    vi.useFakeTimers()
+    try {
+      const { engine, ctxs, env } = harness()
+      engine.setPrefs(true, 0.55, { silent: true })
+      engine.gesture()
+      engine.setAmbient(true)
+      const bed = ctxs[0].gains.find((g) => Math.abs(g.gain.value - AMBIENT_BUS_GAIN) < 1e-3)
+      expect(bed).toBeTruthy()
+      const voices = ctxs[0].oscs.length
+      env.hidden = true
+      engine.onVisibility()
+      expect(ctxs[0].suspends).toBe(0)
+      expect(ctxs[0].state).toBe('running')
+      expect(bed!.gain.value).toBeLessThan(0.01)
+      await vi.advanceTimersByTimeAsync(HIDE_SUSPEND_MS)
+      expect(ctxs[0].suspends).toBe(1)
+      expect(ctxs[0].state).toBe('suspended')
+      expect(ctxs[0].oscs.length).toBe(voices)
+
+      env.hidden = false
+      engine.onVisibility()
+      expect(ctxs[0].state).toBe('running')
+      expect(bed!.gain.value).toBeCloseTo(AMBIENT_BUS_GAIN, 2)
+      expect(ctxs[0].oscs.length).toBe(voices)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('does not suspend if the tab is visible again before the fade ends', async () => {
+    vi.useFakeTimers()
+    try {
+      const { engine, ctxs, env } = harness()
+      engine.setPrefs(true, 0.55, { silent: true })
+      engine.gesture()
+      engine.setAmbient(true)
+      env.hidden = true
+      engine.onVisibility()
+      env.hidden = false
+      engine.onVisibility()
+      await vi.advanceTimersByTimeAsync(HIDE_SUSPEND_MS + 40)
+      expect(ctxs[0].suspends).toBe(0)
+      expect(ctxs[0].state).toBe('running')
+    } finally {
+      vi.useRealTimers()
     }
   })
 

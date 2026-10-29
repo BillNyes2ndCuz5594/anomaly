@@ -11,7 +11,7 @@ import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from '.
 import { tintedHolo } from '../../materials/tinted'
 import { STILL } from '../../../lib/flags'
 import { useFitPose, usePublishFit, type FitView } from '../../FitCamera'
-import { flyStart, noteCamera, peekCamera, vlen, vsub, type V3 } from '../../flyPose'
+import { flyStart, noteCamera, peekCamera, takeWarpFly, vlen, vsub, type V3 } from '../../flyPose'
 import { widthFit } from '../../fit'
 
 const BASE_FOV = 40
@@ -50,8 +50,9 @@ export function useReduced() {
 }
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-/** Full tier dolly. Low tier is a shorter push along the fit ray. */
+/** Full tier dolly. A warp arrival (hub into a case) is longer. Low tier stays a short push. */
 const FLY_MS = 0.64
+const WARP_FLY_S = 1.05
 const LOW_FLY_MS = 0.28
 
 /**
@@ -77,19 +78,24 @@ export function CameraRig({
   const t0 = useRef(performance.now())
   const start = useRef<V3 | null>(null)
   const rest = useRef<V3>(pos)
+  const flyDur = useRef(tier === 'low' ? LOW_FLY_MS : FLY_MS)
   const target = useMemo(() => new THREE.Vector3(), [])
   useFrame((state, dt) => {
     const next: V3 = [pos[0], pos[1], pos[2]]
     const lookAt: V3 = [look[0], look[1], look[2]]
-    const dur = tier === 'low' ? LOW_FLY_MS : FLY_MS
-    const elapsed = (performance.now() - t0.current) / 1000
-    let k = snap ? 1 : easeOutCubic(Math.min(1, elapsed / dur))
     if (!start.current) {
-      const push = snap ? 0 : tier === 'low' ? 0.06 : 0.16
+      const long = takeWarpFly() && !snap && tier !== 'low'
+      flyDur.current = snap ? 0.01 : tier === 'low' ? LOW_FLY_MS : long ? WARP_FLY_S : FLY_MS
+      const push = snap ? 0 : tier === 'low' ? 0.06 : long ? 0.32 : 0.16
       const hint: V3 = tier === 'low' || snap ? [0, 0, 0] : from
       start.current = flyStart(next, lookAt, tier === 'low' || snap ? null : peekCamera(), hint, push)
       rest.current = next
-    } else if (!snap && k > 0.99 && vlen(vsub(next, rest.current)) > 0.35) {
+    }
+    const dur = flyDur.current
+    const elapsed = (performance.now() - t0.current) / 1000
+    let k = snap ? 1 : easeOutCubic(Math.min(1, elapsed / dur))
+    if (start.current && !snap && k > 0.99 && vlen(vsub(next, rest.current)) > 0.35) {
+      flyDur.current = tier === 'low' ? LOW_FLY_MS : FLY_MS
       // A new subject (another specimen, a refit) gets a short dolly instead of a cut.
       t0.current = performance.now()
       k = 0

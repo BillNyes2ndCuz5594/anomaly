@@ -48,6 +48,18 @@ export function flyStart(rest: V3, look: V3, previous: V3 | null, from: V3, push
 }
 
 let memory: V3 | null = null
+let warpFly = false
+
+/** The next case camera (hub into a case) should take the long dolly. One shot. */
+export function noteWarpFly(): void {
+  warpFly = true
+}
+
+export function takeWarpFly(): boolean {
+  const v = warpFly
+  warpFly = false
+  return v
+}
 
 /** Remember a settled camera so the next step can leave from it. */
 export function noteCamera(pos: V3): void {

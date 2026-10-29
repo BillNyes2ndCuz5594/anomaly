@@ -1,0 +1,210 @@
+/* Lab A and Lab C only. Shared case rules stay in index.css. */
+
+[data-testid='lab-a'] .organ-btn,
+[data-testid='lab-a'] .job-card .btn,
+[data-testid='lab-c'] .btn,
+[data-testid='lab-c'] .chip,
+[data-testid='lab-c'] .spec-card,
+[data-testid='lab-c'] .spec-card li,
+[data-testid='lab-a'] .job-text,
+[data-testid='lab-c'] .job-text,
+[data-testid='lab-a'] .verdict,
+[data-testid='lab-a'] .verdict p,
+[data-testid='lab-c'] .verdict,
+[data-testid='lab-c'] .verdict p {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+[data-testid='lab-a'] .job-card .btn,
+[data-testid='lab-c'] .group-grid .btn,
+[data-testid='lab-c'] .sort-step .row .btn,
+[data-testid='lab-c'] .chip,
+[data-testid='lab-c'] .job-card .btn {
+  white-space: nowrap;
+}
+
+[data-testid='lab-a'] .organ-list {
+  gap: 8px;
+}
+
+[data-testid='lab-a'] .organ-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 6px 8px 6px 10px;
+  gap: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  border-color: rgba(62, 230, 255, 0.38);
+  background:
+    linear-gradient(var(--tint), var(--tint)) left / 3px 100% no-repeat,
+    rgba(8, 16, 30, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-testid='lab-a'] .organ-name {
+  min-width: 0;
+}
+
+[data-testid='lab-a'] .organ-btn .swatch {
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 8px var(--tint);
+}
+
+[data-testid='lab-a'] .organ-btn:disabled {
+  opacity: 0.72;
+}
+
+[data-testid='lab-a'] .organ-btn.is-lit {
+  opacity: 1;
+  border-color: var(--tint);
+  background:
+    linear-gradient(var(--tint), var(--tint)) left / 4px 100% no-repeat,
+    color-mix(in srgb, var(--tint) 24%, rgba(8, 16, 30, 0.94));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--tint) 45%, transparent);
+}
+
+[data-testid='lab-a'] .organ-btn.is-hot:not(:disabled),
+[data-testid='lab-a'] .organ-btn:focus-visible:not(:disabled),
+[data-testid='lab-a'] .organ-btn:active:not(:disabled),
+[data-testid='lab-a'] .organ-btn[data-pressed='true']:not(:disabled) {
+  border-color: var(--cyan);
+  background:
+    linear-gradient(var(--tint), var(--tint)) left / 4px 100% no-repeat,
+    rgba(62, 230, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(62, 230, 255, 0.45);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-testid='lab-a'] .organ-btn:hover:not(:disabled) {
+    border-color: var(--cyan);
+    background:
+      linear-gradient(var(--tint), var(--tint)) left / 4px 100% no-repeat,
+      rgba(62, 230, 255, 0.16);
+  }
+}
+
+[data-testid='lab-a'] .job-card .btn.primary,
+[data-testid='lab-c'] .job-card .btn.primary {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+[data-testid='lab-a'] .btn.primary:active:not(:disabled),
+[data-testid='lab-a'] .btn.primary[data-pressed='true']:not(:disabled),
+[data-testid='lab-c'] .btn.primary:active:not(:disabled),
+[data-testid='lab-c'] .btn.primary[data-pressed='true']:not(:disabled) {
+  background: #8adcea;
+  box-shadow: inset 0 2px 0 rgba(4, 40, 48, 0.35);
+}
+
+[data-testid='lab-c'] .spec-card {
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+[data-testid='lab-c'] .spec-card li {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+[data-testid='lab-c'] .sort-step .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+
+[data-testid='lab-c'] .sort-step .row .btn,
+[data-testid='lab-c'] .group-grid .btn {
+  min-height: 44px;
+  min-width: 0;
+  width: 100%;
+  letter-spacing: 0.04em;
+  padding: 0 8px;
+}
+
+[data-testid='lab-c'] .group-grid {
+  gap: 8px;
+}
+
+[data-testid='lab-c'] .group-grid .btn {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  padding: 0 4px;
+}
+
+[data-testid='lab-c'] .sort-step[aria-disabled='true'] {
+  opacity: 1;
+}
+
+[data-testid='lab-c'] .sort-step[aria-disabled='true'] .btn {
+  color: #c5d4ea;
+  border-color: rgba(157, 178, 209, 0.35);
+  background: rgba(8, 14, 26, 0.55);
+}
+
+[data-testid='lab-c'] .btn:focus-visible:not(:disabled):not(.primary),
+[data-testid='lab-c'] .btn:active:not(:disabled):not(.on):not(.primary),
+[data-testid='lab-c'] .btn[data-pressed='true']:not(:disabled):not(.on):not(.primary),
+[data-testid='lab-c'] .chip:focus-visible,
+[data-testid='lab-c'] .chip:active,
+[data-testid='lab-c'] .chip[data-pressed='true'] {
+  border-color: var(--cyan);
+  background: rgba(62, 230, 255, 0.2);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.28);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-testid='lab-c'] .btn:hover:not(:disabled):not(.on):not(.primary),
+  [data-testid='lab-c'] .chip:hover:not(.now) {
+    border-color: var(--cyan);
+    background: rgba(62, 230, 255, 0.14);
+  }
+}
+
+[data-testid='lab-c'] .btn.on {
+  opacity: 1;
+  color: var(--text);
+  background: rgba(255, 181, 71, 0.24);
+  border-color: var(--amber);
+  box-shadow: inset 0 -3px 0 var(--amber), 0 0 14px rgba(255, 181, 71, 0.28);
+}
+
+[data-testid='lab-c'] .chip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+[data-testid='lab-c'] .chip.now {
+  box-shadow: inset 0 -3px 0 var(--amber);
+}
+
+[data-testid='lab-c'] .chip.done {
+  box-shadow: inset 3px 0 0 #2fe3b0;
+}
+
+[data-testid='lab-a'] .side-panel > .muted.tiny,
+[data-testid='lab-c'] .intro {
+  font-size: 0.875rem;
+}
+
+@media (max-width: 600px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
+  [data-testid='lab-c'] .group-grid .btn {
+    font-size: 0.75rem;
+    letter-spacing: 0.01em;
+    padding: 0 2px;
+  }
+
+  [data-testid='lab-c'] .sort-step .row .btn {
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    padding: 0 6px;
+  }
+}

@@ -1,5 +1,6 @@
 import { lazy, Suspense, type CSSProperties } from 'react'
-import type { Item } from '../../content/schema'
+import type { Item, Visual } from '../../content/schema'
+import { isStageVisual } from '../../three/paintHold'
 import SceneDiagram from './SceneDiagram'
 import { pairRatios } from '../../three/models/specimenSizes'
 
@@ -19,11 +20,12 @@ const NOTE_STYLE: CSSProperties = {
   pointerEvents: 'none',
 }
 
-export default function ItemVisual({ item }: { item: Item }) {
+export default function ItemVisual({ item, upcoming = null }: { item: Item; upcoming?: Visual | null }) {
   const v = item.visual
   // Animals far apart in real size are drawn closer than they are so the small one stays readable; say so quietly.
   const notToScale = v.kind === 'specimen' && pairRatios(v.ids).notToScale
-  const is3D = v.kind === 'organ' || v.kind === 'specimen' || v.kind === 'plantanimal'
+  const is3D = isStageVisual(v)
+  const next = upcoming && isStageVisual(upcoming) ? upcoming : null
   return (
     <figure
       className={`panel brackets visual-panel kind-${v.kind}`}
@@ -35,7 +37,7 @@ export default function ItemVisual({ item }: { item: Item }) {
       {is3D ? (
         <div className="visual-3d">
           <Suspense fallback={<div className="visual-loading mono muted">Loading scan...</div>}>
-            <MiniCanvas visual={v} />
+            <MiniCanvas visual={v} upcoming={next} />
           </Suspense>
           {notToScale ? (
             <p className="mono" data-testid="not-to-scale" aria-hidden="true" style={NOTE_STYLE}>

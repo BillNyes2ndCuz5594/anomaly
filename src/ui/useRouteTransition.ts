@@ -3,7 +3,8 @@ import { STILL } from '../lib/flags'
 import { parseHash, useHash } from '../lib/router'
 import { stepsFor, type CaseKind, type CaseStep } from '../state/session'
 import type { Tier } from '../state/quality'
-import { motionMode, routeMs, stepDirection, veilKind, type MotionMode, type VeilKind } from './motionMode'
+import { noteWarpFly } from '../three/flyPose'
+import { motionMode, RESULTS_MS, routeMs, stepDirection, veilDir, veilKind, type MotionMode, type VeilKind } from './motionMode'
 
 export type Phase = 'idle' | 'cover' | 'reveal'
 
@@ -12,12 +13,13 @@ export type Phase = 'idle' | 'cover' | 'reveal'
  * Reduced motion and ?still=1 swap with no veil. A tap during the cover skips to the new screen.
  * Cover is the only moment input is held, and it stays well under 600 ms.
  */
-export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string; phase: Phase; kind: VeilKind; mode: MotionMode } {
+export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string; phase: Phase; kind: VeilKind; dir: 'forward' | 'back'; mode: MotionMode } {
   const target = useHash()
   const mode = motionMode({ reduced, still: STILL, tier })
   const [shown, setShown] = useState(target)
   const [phase, setPhase] = useState<Phase>('idle')
   const [kind, setKind] = useState<VeilKind>('scan')
+  const [dir, setDir] = useState<'forward' | 'back'>('forward')
   const shownRef = useRef(shown)
   const phaseRef = useRef(phase)
   useLayoutEffect(() => {
@@ -31,12 +33,14 @@ export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string
     const to = parseHash(target).name
     const nextKind = veilKind(from, to)
     setKind(nextKind)
+    setDir(veilDir(from, to))
     if (mode === 'still') {
       setShown(target)
       setPhase('idle')
       return
     }
-    const { cover, reveal } = routeMs(mode)
+    if (mode === 'full' && nextKind === 'warp' && (to === 'case' || to === 'cold')) noteWarpFly()
+    const { cover, reveal } = routeMs(mode, nextKind)
     setPhase('cover')
     let swallow = true
     let t1 = 0
@@ -71,14 +75,14 @@ export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string
     }
   }, [target, mode])
 
-  return { hash: shown, phase, kind, mode }
+  return { hash: shown, phase, kind, dir, mode }
 }
 
 /**
  * Short scan between case steps. It does not cover the screen, so the labs stay clickable,
  * and a tap ends it early. Skipped while a route veil is already playing.
  */
-export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string, routePhase: Phase, mode: MotionMode): { phase: 'idle' | 'on'; dir: 'forward' | 'back' } {
+export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string, routePhase: Phase, mode: MotionMode): { phase: 'idle' | 'on'; dir: 'forward' | 'back'; kind: 'step' | 'results' } {
   const [phase, setPhase] = useState<'idle' | 'on'>('idle')
   const [dir, setDir] = useState<'forward' | 'back'>('forward')
   const prev = useRef(step)
@@ -100,7 +104,8 @@ export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string
       window.removeEventListener('pointerdown', skip, true)
       setPhase('idle')
     }
-    t = window.setTimeout(skip, mode === 'fade' ? 200 : 480)
+    const ms = mode === 'fade' ? 200 : step === 'results' ? RESULTS_MS : 480
+    t = window.setTimeout(skip, ms)
     window.addEventListener('pointerdown', skip, true)
     return () => {
       window.clearTimeout(t)
@@ -109,5 +114,5 @@ export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string
     }
   }, [step, kind, routeName, routePhase, mode])
 
-  return { phase, dir }
+  return { phase, dir, kind: step === 'results' ? 'results' : 'step' }
 }
