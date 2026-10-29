@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { flyStart, noteCamera, peekCamera, resetCameraMemory, vlen, vsub, type V3 } from './flyPose'
+import { flyStart, noteCamera, noteWarpFly, peekCamera, resetCameraMemory, takeWarpFly, vlen, vsub, type V3 } from './flyPose'
 
 const rest: V3 = [0, 3, 10]
 const look: V3 = [0, 1, 0]
@@ -27,6 +27,14 @@ describe('fly start', () => {
     const behind = flyStart(rest, look, [0, 1, -8], [0, 0, 0], 0.16)
     expect(behind[2]).toBeGreaterThan(look[2])
     expect(behind[2]).toBeCloseTo(aligned[2], 4)
+  })
+})
+
+describe('warp fly flag', () => {
+  it('arms one long dolly and then clears', () => {
+    noteWarpFly()
+    expect(takeWarpFly()).toBe(true)
+    expect(takeWarpFly()).toBe(false)
   })
 })
 

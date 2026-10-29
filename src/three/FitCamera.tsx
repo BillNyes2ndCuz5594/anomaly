@@ -68,12 +68,18 @@ function measureVisible(root: THREE.Object3D, out: V3[]): void {
  * (data-fit). The proof run reads it and asserts the whole model is inside the canvas. Cheap: every 20 frames.
  * Measures the outline of the real meshes, not a box, so a turned wide model is judged by its true silhouette.
  */
-export function usePublishFit(pose: { position: V3; target: V3 }, measure: RefObject<THREE.Object3D | null> | undefined, fallback: Box) {
+export function usePublishFit(
+  pose: { position: V3; target: V3 },
+  measure: RefObject<THREE.Object3D | null> | undefined,
+  fallback: Box,
+  enabledRef?: { current: boolean },
+) {
   const gl = useThree((s) => s.gl)
   const size = useThree((s) => s.size)
   const frame = useFrameFractions()
   const n = useRef(0)
   useFrame((state) => {
+    if (enabledRef && !enabledRef.current) return
     if (n.current++ % 20 !== 0) return
     let pts = boxCorners(fallback)
     const obj = measure?.current
@@ -105,7 +111,16 @@ const DAMP_RATE = 9
  * The resting pose is always the exact fit, and while easing in from behind the model only ever
  * looks smaller, so the whole model stays inside the canvas. Reduced motion and still mode snap.
  */
-export function FitCamera({ view, measure }: { view: FitView; measure?: RefObject<THREE.Object3D | null> }) {
+export function FitCamera({
+  view,
+  measure,
+  enabledRef,
+}: {
+  view: FitView
+  measure?: RefObject<THREE.Object3D | null>
+  /** When set, only the slot whose ref is true drives the camera. */
+  enabledRef?: { current: boolean }
+}) {
   const pose = useFitPose(view)
   const reduced = useGame((s) => s.settings.reducedMotion)
   const snap = reduced || STILL
@@ -113,6 +128,7 @@ export function FitCamera({ view, measure }: { view: FitView; measure?: RefObjec
   const goalPos = useMemo(() => new THREE.Vector3(), [])
   const goalLook = useMemo(() => new THREE.Vector3(), [])
   useFrame((state, dt) => {
+    if (enabledRef && !enabledRef.current) return
     const cam = state.camera
     goalPos.set(...pose.position)
     goalLook.set(...pose.target)
@@ -134,6 +150,6 @@ export function FitCamera({ view, measure }: { view: FitView; measure?: RefObjec
     cam.position.copy(cur.current.pos)
     cam.lookAt(cur.current.look)
   })
-  usePublishFit(pose, measure, view.box)
+  usePublishFit(pose, measure, view.box, enabledRef)
   return null
 }

@@ -1,13 +1,15 @@
 import { lazy, Suspense } from 'react'
-import type { Item } from '../../content/schema'
+import type { Item, Visual } from '../../content/schema'
+import { isStageVisual } from '../../three/scenes/case/paintHold'
 import SceneDiagram from './SceneDiagram'
 
 // One small shared R3F canvas for organ, specimen and plantanimal art. Loaded on demand.
 const MiniCanvas = lazy(() => import('../../three/ItemVisualCanvas'))
 
-export default function ItemVisual({ item }: { item: Item }) {
+export default function ItemVisual({ item, upcoming = null }: { item: Item; upcoming?: Visual | null }) {
   const v = item.visual
-  const is3D = v.kind === 'organ' || v.kind === 'specimen' || v.kind === 'plantanimal'
+  const is3D = isStageVisual(v)
+  const next = upcoming && isStageVisual(upcoming) ? upcoming : null
   return (
     <figure
       className={`panel brackets visual-panel kind-${v.kind}`}
@@ -19,7 +21,7 @@ export default function ItemVisual({ item }: { item: Item }) {
       {is3D ? (
         <div className="visual-3d">
           <Suspense fallback={<div className="visual-loading mono muted">Loading scan...</div>}>
-            <MiniCanvas visual={v} />
+            <MiniCanvas visual={v} upcoming={next} />
           </Suspense>
         </div>
       ) : null}

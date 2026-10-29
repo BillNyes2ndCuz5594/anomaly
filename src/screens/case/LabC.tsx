@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
-import './labs-ac.css'
-import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 
 const GROUPS = ['mammal', 'bird', 'reptile', 'amphibian', 'fish', 'arthropod'] as const
@@ -26,7 +24,6 @@ export default function LabC() {
   const p = prog[sp.id] ?? { backbone: false, group: false }
   const doneCount = specimens.filter((s) => prog[s.id]?.group).length
   const allDone = doneCount === specimens.length
-  const press = usePressed()
 
   useEffect(() => {
     useFx.getState().setSpecimen(sp.id)
@@ -96,10 +93,10 @@ export default function LabC() {
         <div className="sort-step">
           <h3 className="section-title mono">1. Backbone?</h3>
           <div className="row">
-            <button type="button" className={`btn${p.backbone && sp.backbone ? ' on' : ''}`} data-testid="sort-backbone-yes" disabled={p.backbone} onClick={() => sortBackbone(true)} {...press('back-yes', p.backbone)}>
+            <button type="button" className={`btn${p.backbone && sp.backbone ? ' on' : ''}`} data-testid="sort-backbone-yes" disabled={p.backbone} onClick={() => sortBackbone(true)}>
               Backbone
             </button>
-            <button type="button" className={`btn${p.backbone && !sp.backbone ? ' on' : ''}`} data-testid="sort-backbone-no" disabled={p.backbone} onClick={() => sortBackbone(false)} {...press('back-no', p.backbone)}>
+            <button type="button" className={`btn${p.backbone && !sp.backbone ? ' on' : ''}`} data-testid="sort-backbone-no" disabled={p.backbone} onClick={() => sortBackbone(false)}>
               No backbone
             </button>
           </div>
@@ -115,7 +112,6 @@ export default function LabC() {
                 data-testid={`sort-group-${g}`}
                 disabled={!p.backbone || p.group}
                 onClick={() => sortGroup(g)}
-                {...press(g, !p.backbone || p.group)}
               >
                 {cap(g)}
               </button>
@@ -139,7 +135,6 @@ export default function LabC() {
                   data-testid={`specimen-chip-${s.id}`}
                   aria-current={i === idx ? 'true' : undefined}
                   onClick={() => choose(s.id)}
-                  {...press(s.id)}
                 >
                   {prog[s.id]?.group ? <span aria-hidden="true">{'\u2714 '}</span> : null}
                   <span className="chip-n" aria-hidden="true">
@@ -160,7 +155,7 @@ export default function LabC() {
             <p className="job-text">{!p.backbone ? 'Does this specimen have a backbone?' : 'Which group does it belong to?'}</p>
           )}
           {p.group ? (
-            <button type="button" className="btn primary" data-testid="lab-next" onClick={advance} autoFocus {...press('next')}>
+            <button type="button" className="btn primary" data-testid="lab-next" onClick={advance} autoFocus>
               {allDone ? 'Finish lab' : 'Next specimen'}
             </button>
           ) : null}

@@ -1,5 +1,10 @@
 # Development log
 
+## Evidence paint hold
+
+The pelican and owl panel could read as a flat clear about 180 ms after Next. The same canvas stayed mounted, but the new hero shaders were not ready, so the renderer presented the cleared frame. By 400 ms it was painted. A slow phone can hit that same gap.
+
+The item canvas keeps drawing the current specimen while the next one compiles in a hidden slot, then presents that compiled scene. The upcoming item is compiled before Next, with that item's lights, and those materials stay mounted so the program cache is not dropped. The proof samples the organ to pelican and owl glide five times at 180 ms and still requires a luma spread above 12.
 ## Lab A and Lab C bench
 
 Lab A and Lab C shared the hub deck: a thin hologram ring, flat light, and a success ring on Lab A that grew through the arms. The HUD buttons took their hover cue from a mouse media query, and the hover tick could retrigger every 70 ms.
@@ -28,6 +33,23 @@ What this pass does:
 No cue was skipped for a locked file. Lab correct and wrong come from the verdict element those screens already render. Item results come from `useSession.answers`.
 
 Gates on this branch: `npm test` 288/288 (check-assets clean), `npm run build`, `npm run lint` with 0 errors. `AN_TAG=sfx PROOF_OUT=./proof-sfx node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. `AN_TAG=sfxm PROOF_OUT=./proof-sfxm node scripts/mobile.mjs` reported 0 problems and 0 console errors on s23 portrait, s23 landscape, tablet portrait, and tablet landscape. Settings showed Sound ON and Volume 55% at 1920x1080 and at 360x780.
+
+## Signature transitions
+
+Phase 1 reads as a brisk 0.5 s navy wipe. This pass keeps that for settings, the art check, and ordinary case steps, and spends the time on three arrivals.
+
+Durations, full tier:
+
+- Title to hub (`launch`): cover 160 ms, reveal 1120 ms, total 1280 ms.
+- Hub to case and case back to hub (`warp`): cover 180 ms, reveal 1080 ms, total 1260 ms. The case camera dolly on that arrival is 1.05 s and starts farther back than the fit.
+- Case step into results: 1120 ms handoff, pointer-events none. Mastery rows and reward cards are delayed in sequence inside that window.
+- Scan and dissolve routes stay at 150 + 380 ms. Low tier is 90 + 180 ms of opacity, with the grid, sweeps, mark, and mask forced off. Reduced motion and `?still=1` stay at 0.
+
+The closed frame is the stack, not a flat fill: radial cyan and amber light, a tilted grid, scanlines, a dot field, two sweeps, a cyan edge, and the ANOMALY wordmark. Launch starts as that full plate and contracts to a point, so the hub is revealed from the edges. Warp clips the plate off in the direction of travel, and the HUD panels, titles, and buttons follow.
+
+The evidence blank frame was the item glide. It animated opacity on `.item-grid`, which is an ancestor of the WebGL canvas, so the panel went empty while the opacity was below 1. The question and the answer column still slide. The visual stays outside the keyed question body, so the same canvas swaps specimens instead of remounting. Proof checks a real organ-to-specimen swap at about 180 ms and requires the canvas to still be there, at full opacity, with a painted picture.
+
+On a phone portrait the same screen failed a different check. Coarse pointers give each stem word a 44 px hit target, and L142-07 is a long question, so the 200 px stage started below the fold (44 percent inside the first view). Putting the stage first was not enough on its own: the next tap scrolls the answer to the center of the item scroller and the stage left with it. In that 600 px portrait layout, `.item-main` is `display: contents` and the stage is `position: sticky` at the top of `.item-grid`, so the model stays in the first view while the question scrolls. The canvas ancestor still has no opacity animation and no transform.
 
 ## Flow transitions
 

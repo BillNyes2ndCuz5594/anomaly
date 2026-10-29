@@ -3,8 +3,6 @@ import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import { ORGAN_LIST } from '../../three/models/humanList'
-import './labs-ac.css'
-import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 
 interface Feedback {
@@ -22,9 +20,6 @@ export default function LabA() {
   const task = lab.tasks[i]
   const done = fb?.ok === true
   const last = i === lab.tasks.length - 1
-  const hot = useFx((s) => s.hover)
-  const lit = useFx((s) => s.lit)
-  const press = usePressed()
 
   const pick = useCallback(
     (id: string) => {
@@ -33,7 +28,6 @@ export default function LabA() {
       fx.flashPart(id, id === task.organ)
       if (id === task.organ) {
         setFb({ ok: true, word: 'Correct', text: task.why })
-        useFx.getState().setLit([id])
         unlock([`organ:${id}`])
       } else {
         setFb({ ok: false, word: 'Not that one.', text: task.hint })
@@ -51,15 +45,11 @@ export default function LabA() {
       const fx = useFx.getState()
       fx.setPick(null)
       fx.setHover(null)
-      fx.setLit([])
       document.body.style.cursor = ''
     }
   }, [])
 
   function advance() {
-    const fx = useFx.getState()
-    fx.setLit([])
-    fx.setHover(null)
     if (last) next()
     else {
       setI(i + 1)
@@ -82,7 +72,7 @@ export default function LabA() {
             <button
               key={o.id}
               type="button"
-              className={`organ-btn${hot === o.id ? ' is-hot' : ''}${lit.includes(o.id) ? ' is-lit' : ''}`}
+              className="organ-btn"
               data-testid={`organ-${o.id}`}
               style={{ ['--tint' as string]: o.tint }}
               disabled={done}
@@ -91,10 +81,9 @@ export default function LabA() {
               onMouseLeave={() => useFx.getState().setHover(null)}
               onFocus={() => useFx.getState().setHover(o.id)}
               onBlur={() => useFx.getState().setHover(null)}
-              {...press(o.id, done)}
             >
               <span className="swatch" aria-hidden="true" />
-              <span className="organ-name">{o.label}</span>
+              {o.label}
             </button>
           ))}
         </div>
@@ -125,7 +114,7 @@ export default function LabA() {
             <p className="muted">Pick the organ that does this job.</p>
           )}
           {done ? (
-            <button type="button" className="btn primary" data-testid="lab-next" onClick={advance} autoFocus {...press('next')}>
+            <button type="button" className="btn primary" data-testid="lab-next" onClick={advance} autoFocus>
               {last ? 'Finish lab' : 'Next job'}
             </button>
           ) : null}

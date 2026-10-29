@@ -2154,6 +2154,9 @@ textarea.input {
   }
 }
 
+/* Route veil. The stack is the cover: gradient, grid, scanlines, noise, the ANOMALY mark.
+   Launch (title to hub) irises open. Warp (hub and case) pushes through. Scan and dissolve stay short.
+   Low tier hides every extra layer and fades opacity only. Reduced motion hides the veil entirely. */
 .veil {
   position: absolute;
   inset: 0;
@@ -2166,28 +2169,119 @@ textarea.input {
 .veil[data-phase='reveal'] {
   visibility: visible;
 }
-/* Cover is the only moment the veil takes the pointer, so a tap can skip it. Reveal stays click-through. */
 .veil[data-phase='cover'] {
   pointer-events: auto;
   cursor: pointer;
 }
-.veil-fill {
+.veil-stack {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0b1424, #070c17 55%, #061018);
   opacity: 0;
 }
-.veil-grid {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, rgba(62, 230, 255, 0.07) 0 1px, transparent 1px 4px);
-  opacity: 0;
-  mix-blend-mode: screen;
-}
+.veil-fill,
+.veil-glow,
+.veil-grid,
+.veil-scanlines,
+.veil-noise,
+.veil-sweep,
+.veil-edge,
+.veil-bits,
+.veil-mark,
 .veil-line {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset: 0;
+  pointer-events: none;
+}
+.veil-fill {
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(62, 230, 255, 0.28), transparent 46%),
+    radial-gradient(ellipse at 82% 12%, rgba(255, 181, 71, 0.22), transparent 28%),
+    radial-gradient(ellipse at 14% 86%, rgba(62, 230, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, #10203a 0%, #0a1426 46%, #07141c 100%);
+}
+.veil-glow {
+  background: radial-gradient(circle at 50% 46%, transparent 0 18%, rgba(62, 230, 255, 0.18) 19% 20%, transparent 21%);
+  opacity: 0.9;
+}
+.veil-grid {
+  background:
+    repeating-linear-gradient(90deg, rgba(62, 230, 255, 0.2) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(0deg, rgba(62, 230, 255, 0.16) 0 1px, transparent 1px 56px);
+  transform: perspective(520px) rotateX(62deg) scale(1.8);
+  transform-origin: center 78%;
+  opacity: 0.55;
+  mask-image: linear-gradient(180deg, transparent, #000 18% 70%, transparent);
+}
+.veil-scanlines {
+  background: repeating-linear-gradient(0deg, rgba(180, 245, 255, 0.14) 0 1px, transparent 1px 4px);
+  opacity: 0.45;
+  mix-blend-mode: screen;
+}
+.veil-noise {
+  background-image: radial-gradient(rgba(62, 230, 255, 0.55) 0.6px, transparent 0.7px);
+  background-size: 3px 3px;
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+.veil-sweep {
+  inset: auto 0 auto 0;
+  top: 0;
+  height: 18%;
+  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.28), transparent);
+  opacity: 0;
+}
+.veil-sweep.b {
+  height: 8%;
+  background: linear-gradient(180deg, transparent, rgba(255, 181, 71, 0.35), transparent);
+}
+.veil-edge {
+  inset: 7%;
+  border: 1px solid rgba(62, 230, 255, 0.75);
+  box-shadow: 0 0 28px rgba(62, 230, 255, 0.35), inset 0 0 28px rgba(62, 230, 255, 0.16);
+  opacity: 0;
+}
+.veil-bits i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  opacity: 0;
+}
+.veil-bits i:nth-child(odd) { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.veil-bits i:nth-child(1) { left: 12%; top: 22%; }
+.veil-bits i:nth-child(2) { left: 28%; top: 64%; }
+.veil-bits i:nth-child(3) { left: 46%; top: 18%; }
+.veil-bits i:nth-child(4) { left: 63%; top: 72%; }
+.veil-bits i:nth-child(5) { left: 74%; top: 30%; }
+.veil-bits i:nth-child(6) { left: 84%; top: 58%; }
+.veil-bits i:nth-child(7) { left: 18%; top: 80%; }
+.veil-bits i:nth-child(8) { left: 55%; top: 46%; }
+.veil-mark {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+}
+.veil-mark span {
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  font-size: clamp(1.6rem, 6vw, 4.4rem);
+  color: var(--cyan);
+  text-indent: 0.42em;
+  text-shadow: 0 0 22px rgba(62, 230, 255, 0.65);
+}
+.veil-mark small {
+  font-family: var(--font-mono);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  color: var(--amber);
+}
+.veil-line {
+  inset: auto 0 auto 0;
   top: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--cyan) 18%, #fff 50%, var(--cyan) 82%, transparent);
@@ -2195,135 +2289,156 @@ textarea.input {
   opacity: 0;
   transform: translate3d(0, 0, 0);
 }
-.veil[data-phase='cover'] .veil-fill {
+
+.veil[data-phase='cover'] .veil-stack {
   animation: veil-cover 0.15s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 }
-.veil[data-phase='reveal'] .veil-fill {
+.veil[data-kind='launch'][data-phase='cover'] .veil-stack { animation-duration: 0.16s; }
+.veil[data-kind='warp'][data-phase='cover'] .veil-stack { animation-duration: 0.18s; }
+.veil[data-phase='cover'] .veil-mark { animation: mark-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.veil[data-phase='cover'] .veil-edge { animation: edge-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+.veil[data-kind='scan'][data-phase='reveal'] .veil-stack {
   opacity: 1;
   animation: veil-reveal 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-.veil[data-phase='cover'] .veil-grid,
-.veil[data-phase='reveal'] .veil-grid {
-  animation: veil-grid 0.38s linear forwards;
-}
-.veil[data-kind='scan'][data-phase='cover'] .veil-line,
-.veil[data-kind='scan'][data-phase='reveal'] .veil-line {
-  animation: veil-line 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-.veil[data-kind='scan'][data-phase='cover'] .veil-line {
-  animation-duration: 0.15s;
-}
-/* Deploy: an iris opens from the middle, like the hub coming online. */
-.veil[data-kind='deploy'] .veil-fill {
-  -webkit-mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
-  mask-image: radial-gradient(circle at center, transparent 0 39%, #000 46%);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: 280% 280%;
-  mask-size: 280% 280%;
-}
-.veil[data-kind='deploy'][data-phase='cover'] .veil-fill {
-  animation: veil-iris-close 0.15s cubic-bezier(0.4, 0, 0.6, 1) forwards;
-}
-.veil[data-kind='deploy'][data-phase='reveal'] .veil-fill {
-  animation: veil-iris 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-/* Dissolve: opacity only, for settings and the art check. */
-.veil[data-kind='dissolve'][data-phase='reveal'] .veil-fill {
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-stack {
+  opacity: 1;
   animation: veil-fade-out 0.38s linear forwards;
 }
-/* Low tier: a plain fade, no mask, no scan line, no grid. */
+.veil[data-kind='launch'][data-phase='reveal'] .veil-stack,
+.veil[data-kind='deploy'][data-phase='reveal'] .veil-stack {
+  opacity: 1;
+  animation: launch-open 1.12s cubic-bezier(0.16, 0.84, 0.24, 1) forwards;
+}
+.veil[data-kind='warp'][data-phase='reveal'] .veil-stack {
+  opacity: 1;
+  animation: warp-open 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.veil[data-kind='warp'][data-dir='back'][data-phase='reveal'] .veil-stack {
+  animation-name: warp-open-up;
+}
+
+.veil[data-phase='reveal'] .veil-grid { animation: grid-drift 1.08s linear forwards; }
+.veil[data-kind='scan'][data-phase='reveal'] .veil-grid,
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-grid { animation-duration: 0.38s; }
+.veil[data-phase='reveal'] .veil-sweep { animation: sweep-down 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-phase='reveal'] .veil-sweep.b { animation-delay: 0.16s; animation-duration: 0.9s; }
+.veil[data-kind='scan'][data-phase='reveal'] .veil-sweep,
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-sweep { animation-duration: 0.38s; }
+.veil[data-kind='warp'][data-dir='back'][data-phase='reveal'] .veil-sweep { animation-name: sweep-up; }
+.veil[data-phase='reveal'] .veil-edge { animation: edge-unfold 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-kind='scan'][data-phase='reveal'] .veil-edge { animation-duration: 0.38s; }
+.veil[data-phase='reveal'] .veil-mark { animation: mark-out 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-kind='scan'][data-phase='reveal'] .veil-mark,
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-mark { animation-duration: 0.38s; }
+.veil[data-phase='reveal'] .veil-bits i { animation: bit-drift 1.08s linear forwards; }
+.veil-bits i:nth-child(2) { animation-delay: 0.08s; }
+.veil-bits i:nth-child(3) { animation-delay: 0.14s; }
+.veil-bits i:nth-child(4) { animation-delay: 0.05s; }
+.veil-bits i:nth-child(5) { animation-delay: 0.18s; }
+.veil-bits i:nth-child(6) { animation-delay: 0.1s; }
+.veil-bits i:nth-child(7) { animation-delay: 0.22s; }
+.veil-bits i:nth-child(8) { animation-delay: 0.12s; }
+.veil[data-kind='scan'][data-phase='cover'] .veil-line,
+.veil[data-kind='scan'][data-phase='reveal'] .veil-line,
+.veil[data-kind='warp'][data-phase='cover'] .veil-line,
+.veil[data-kind='warp'][data-phase='reveal'] .veil-line,
+.veil[data-kind='launch'][data-phase='reveal'] .veil-line {
+  animation: veil-line 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.veil[data-kind='launch'][data-phase='reveal'] .veil-line,
+.veil[data-kind='warp'][data-phase='reveal'] .veil-line { animation-duration: 1.08s; }
+.veil[data-kind='scan'][data-phase='cover'] .veil-line { animation-duration: 0.15s; }
+
+html[data-motion='fade'] .veil-glow,
 html[data-motion='fade'] .veil-grid,
+html[data-motion='fade'] .veil-scanlines,
+html[data-motion='fade'] .veil-noise,
+html[data-motion='fade'] .veil-sweep,
+html[data-motion='fade'] .veil-edge,
+html[data-motion='fade'] .veil-bits,
+html[data-motion='fade'] .veil-mark,
 html[data-motion='fade'] .veil-line {
   display: none;
 }
-html[data-motion='fade'] .veil[data-phase='cover'] .veil-fill {
-  animation: veil-cover 0.09s linear forwards;
+/* Low tier: one opacity fade. These beat the launch and warp masks. */
+html[data-motion='fade'] .veil .veil-stack {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  clip-path: none !important;
+  animation-name: veil-fade-out !important;
+  animation-duration: 0.18s !important;
+  animation-timing-function: linear !important;
+  animation-fill-mode: forwards !important;
 }
-html[data-motion='fade'] .veil[data-phase='reveal'] .veil-fill {
-  animation: veil-fade-out 0.18s linear forwards;
+html[data-motion='fade'] .veil[data-phase='cover'] .veil-stack {
+  animation-name: veil-cover !important;
+  animation-duration: 0.09s !important;
 }
-@keyframes veil-cover {
-  to {
-    opacity: 1;
-  }
-}
-@keyframes veil-reveal {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
-  to {
-    clip-path: inset(100% 0 0 0);
-  }
-}
-@keyframes veil-line {
-  0% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-  85% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(0, 100vh, 0);
-    opacity: 0;
-  }
-}
-@keyframes veil-grid {
-  0% {
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.85;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-@keyframes veil-iris-close {
-  from {
-    opacity: 0;
-    -webkit-mask-size: 240% 240%;
-    mask-size: 240% 240%;
-  }
-  to {
-    opacity: 1;
-    -webkit-mask-size: 0% 0%;
-    mask-size: 0% 0%;
-  }
-}
-@keyframes veil-iris {
-  0% {
-    opacity: 1;
-    -webkit-mask-size: 0% 0%;
-    mask-size: 0% 0%;
-  }
-  72% {
-    opacity: 1;
-    -webkit-mask-size: 200% 200%;
-    mask-size: 200% 200%;
-  }
-  100% {
-    opacity: 0;
-    -webkit-mask-size: 280% 280%;
-    mask-size: 280% 280%;
-  }
-}
-@keyframes veil-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-html[data-reduced-motion='true'] .veil {
-  display: none;
+html[data-motion='fade'] .veil[data-phase='idle'] .veil-stack {
+  animation: none !important;
+  opacity: 0 !important;
 }
 
-/* Case step scan. It does not block the pointer. Low tier is a short dim. */
+@keyframes veil-cover { to { opacity: 1; } }
+@keyframes veil-reveal {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(100% 0 0 0); }
+}
+@keyframes veil-line {
+  0% { transform: translate3d(0, 0, 0); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(0, 100vh, 0); opacity: 0; }
+}
+@keyframes veil-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes launch-open {
+  0% { clip-path: circle(140% at 50% 46%); opacity: 1; }
+  18% { clip-path: circle(72% at 50% 46%); opacity: 1; }
+  100% { clip-path: circle(0% at 50% 46%); opacity: 1; }
+}
+@keyframes warp-open {
+  0% { clip-path: inset(0); opacity: 1; }
+  100% { clip-path: inset(100% 0 0 0); opacity: 1; }
+}
+@keyframes warp-open-up {
+  0% { clip-path: inset(0); opacity: 1; }
+  100% { clip-path: inset(0 0 100% 0); opacity: 1; }
+}
+@keyframes grid-drift {
+  from { transform: perspective(520px) rotateX(62deg) scale(1.7) translate3d(0, 36px, 0); }
+  to { transform: perspective(520px) rotateX(58deg) scale(2.05) translate3d(0, -28px, 0); }
+}
+@keyframes sweep-down {
+  0% { transform: translate3d(0, -20%, 0); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate3d(0, 520%, 0); opacity: 0; }
+}
+@keyframes sweep-up {
+  0% { transform: translate3d(0, 520%, 0); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate3d(0, -20%, 0); opacity: 0; }
+}
+@keyframes edge-in { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
+@keyframes edge-unfold {
+  0% { opacity: 0.2; transform: scale(0.92); }
+  28% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.14); }
+}
+@keyframes mark-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes mark-out {
+  0% { opacity: 1; transform: scale(1); }
+  46% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+@keyframes bit-drift {
+  0% { opacity: 0; transform: translate3d(0, 16px, 0); }
+  18% { opacity: 0.95; }
+  100% { opacity: 0; transform: translate3d(14px, -64px, 0); }
+}
+html[data-reduced-motion='true'] .veil { display: none; }
+
+/* Case step scan. It does not block the pointer. Results holds a longer layered pass. Low tier is a short dim. */
 .handoff {
   position: absolute;
   inset: 0;
@@ -2332,84 +2447,59 @@ html[data-reduced-motion='true'] .veil {
   visibility: hidden;
   overflow: hidden;
 }
-.handoff[data-phase='on'] {
-  visibility: visible;
+.handoff[data-phase='on'] { visibility: visible; }
+.handoff-grid,
+.handoff-sweep,
+.handoff-edge { position: absolute; inset: 0; pointer-events: none; }
+.handoff-grid {
+  background:
+    repeating-linear-gradient(90deg, rgba(62, 230, 255, 0.16) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(0deg, rgba(62, 230, 255, 0.12) 0 1px, transparent 1px 48px);
+  opacity: 0;
+  mask-image: linear-gradient(180deg, transparent, #000 20% 80%, transparent);
 }
-html[data-motion='full'] .handoff[data-phase='on']::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 16%;
+.handoff-sweep {
+  inset: auto 0 auto 0;
   top: 0;
-  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.2), transparent);
-  animation: handoff-sweep 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  height: 14%;
+  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.28), transparent);
+  opacity: 0;
 }
-html[data-motion='full'] .handoff[data-dir='back'][data-phase='on']::before {
-  animation-name: handoff-sweep-up;
+.handoff-sweep.delay { height: 6%; background: linear-gradient(180deg, transparent, rgba(255, 181, 71, 0.4), transparent); }
+.handoff-edge {
+  inset: 8%;
+  border: 1px solid rgba(62, 230, 255, 0.55);
+  box-shadow: 0 0 18px rgba(62, 230, 255, 0.25);
+  opacity: 0;
 }
-html[data-motion='full'] .handoff[data-phase='on']::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #fff, var(--cyan), transparent);
-  box-shadow: 0 0 12px rgba(62, 230, 255, 0.65);
-  animation: handoff-line 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+html[data-motion='full'] .handoff[data-phase='on'] .handoff-sweep {
+  animation: sweep-down 0.48s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
+html[data-motion='full'] .handoff[data-dir='back'][data-phase='on'] .handoff-sweep { animation-name: sweep-up; }
+html[data-motion='full'] .handoff[data-phase='on'] .handoff-sweep.delay { animation-delay: 0.08s; }
+html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-grid {
+  animation: handoff-grid 1.12s linear forwards;
+}
+html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-sweep {
+  animation-duration: 1.12s;
+}
+html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-edge {
+  animation: edge-unfold 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+html[data-motion='fade'] .handoff-grid,
+html[data-motion='fade'] .handoff-sweep,
+html[data-motion='fade'] .handoff-edge { display: none; }
 html[data-motion='fade'] .handoff[data-phase='on'] {
-  background: rgba(7, 12, 23, 0.4);
+  background: rgba(7, 12, 23, 0.35);
   animation: handoff-fade 0.2s linear forwards;
 }
-@keyframes handoff-sweep {
-  from {
-    transform: translate3d(0, -30%, 0);
-    opacity: 0.2;
-  }
-  18% {
-    opacity: 1;
-  }
-  to {
-    transform: translate3d(0, 620%, 0);
-    opacity: 0;
-  }
+@keyframes handoff-grid {
+  0% { opacity: 0; }
+  18% { opacity: 0.7; }
+  100% { opacity: 0; }
 }
-@keyframes handoff-sweep-up {
-  from {
-    transform: translate3d(0, 620%, 0);
-    opacity: 0.2;
-  }
-  18% {
-    opacity: 1;
-  }
-  to {
-    transform: translate3d(0, -30%, 0);
-    opacity: 0;
-  }
-}
-@keyframes handoff-line {
-  from {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-  to {
-    transform: translate3d(0, 100vh, 0);
-    opacity: 0;
-  }
-}
-@keyframes handoff-fade {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-html[data-reduced-motion='true'] .handoff {
-  display: none;
-}
+@keyframes handoff-fade { from { opacity: 1; } to { opacity: 0; } }
+html[data-reduced-motion='true'] .handoff { display: none; }
 
 /* ======================================================================
    S4: case closed stamp, light burst, results rewards
@@ -3312,6 +3402,21 @@ a,
   }
   .visual-3d {
     min-height: 200px;
+  }
+  /* Touch word targets are 44px tall, so a long stem can shove the model below the first view.
+     A later tap scrolls the answer into the center, which would carry a top-of-flow stage off screen.
+     Lead with the stage and pin it to the scrollport for the whole item. */
+  .item-grid.stage-3d .item-main {
+    display: contents;
+  }
+  .item-grid.stage-3d .visual-panel {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    align-self: start;
+    max-height: 42dvh;
+    background-color: var(--navy-0);
   }
   .opt-btn {
     padding: 8px 10px;
