@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer-core'
 import { spawn, spawnSync } from 'node:child_process'
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { gzipSync } from 'node:zlib'
+import { gzipSync, inflateSync } from 'node:zlib'
 import { createServer } from 'node:net'
 import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -16,6 +16,77 @@ import { setTimeout as sleep } from 'node:timers/promises'
 const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 const ROOT = new URL('..', import.meta.url).pathname
 const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
+
+function unfilterPng(filter, row, prev, bpp) {
+  if (filter === 0) return
+  for (let x = 0; x < row.length; x++) {
+    const left = x >= bpp ? row[x - bpp] : 0
+    const up = prev[x]
+    const ul = x >= bpp ? prev[x - bpp] : 0
+    if (filter === 1) row[x] = (row[x] + left) & 255
+    else if (filter === 2) row[x] = (row[x] + up) & 255
+    else if (filter === 3) row[x] = (row[x] + ((left + up) >> 1)) & 255
+    else if (filter === 4) {
+      const p = left + up - ul
+      const pa = Math.abs(p - left)
+      const pb = Math.abs(p - up)
+      const pc = Math.abs(p - ul)
+      const pr = pa <= pb && pa <= pc ? left : pb <= pc ? up : ul
+      row[x] = (row[x] + pr) & 255
+    }
+  }
+}
+
+/** Standard deviation of luma for a PNG buffer. A flat panel scores near 0. A painted 3D view scores much higher. */
+function pngSpread(buf) {
+  const u = Buffer.isBuffer(buf) ? buf : Buffer.from(buf)
+  if (u.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') return 0
+  let pos = 8
+  let width = 0
+  let height = 0
+  let color = 0
+  const idat = []
+  while (pos + 8 <= u.length) {
+    const len = u.readUInt32BE(pos)
+    const typ = u.subarray(pos + 4, pos + 8).toString('ascii')
+    const chunk = u.subarray(pos + 8, pos + 8 + len)
+    pos += 12 + len
+    if (typ === 'IHDR') {
+      width = chunk.readUInt32BE(0)
+      height = chunk.readUInt32BE(4)
+      color = chunk[9]
+    } else if (typ === 'IDAT') idat.push(chunk)
+    else if (typ === 'IEND') break
+  }
+  const raw = inflateSync(Buffer.concat(idat))
+  const bpp = color === 6 ? 4 : 3
+  const stride = width * bpp
+  let n = 0
+  let sum = 0
+  let sum2 = 0
+  let i = 0
+  const prev = Buffer.alloc(stride)
+  const row = Buffer.alloc(stride)
+  for (let y = 0; y < height; y++) {
+    const filter = raw[i]
+    i += 1
+    raw.copy(row, 0, i, i + stride)
+    i += stride
+    unfilterPng(filter, row, prev, bpp)
+    prev.set(row)
+    if (y % 4 !== 0) continue
+    for (let x = 0; x < width; x += 4) {
+      const p = x * bpp
+      const luma = row[p] * 0.3 + row[p + 1] * 0.5 + row[p + 2] * 0.2
+      sum += luma
+      sum2 += luma * luma
+      n += 1
+    }
+  }
+  if (!n) return 0
+  const mean = sum / n
+  return Math.sqrt(Math.max(0, sum2 / n - mean * mean))
+}
 // A free port, so a stale preview server from an earlier run can never be tested by accident.
 const PORT = await new Promise((resolve) => {
   const srv = createServer()
@@ -123,7 +194,7 @@ async function waitFrames(page, n = 3) {
 }
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
-const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp', 's19-strip-route', 's19-strip-step', 's19-strip-modal', 's19-strip-item', 's19-strip-results']
+const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp', 's19-strip-route', 's19-strip-step', 's19-strip-modal', 's19-strip-item', 's19-strip-results', 's20-strip-title-hub', 's20-strip-hub-case', 's20-strip-results']
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -226,93 +297,115 @@ async function motionShots(page, name, w) {
     await resume()
     await settleMotion(page)
   }
-  // Frame strips of the new transitions: four scrubbed times, composited left to right.
-  const strips = {
-    hub: 's19-strip-route',
-    briefing: 's19-strip-step',
-    firstrun: 's19-strip-modal',
-    'item-rkea': 's19-strip-item',
-    'results-with-code': 's19-strip-results',
+  // Frame strips. s19 keeps four frames. s20 signature moments use six, in a 3 by 2 grid.
+  const plans = []
+  if (name === 'hub') {
+    plans.push({ file: 's19-strip-route', times: [40, 280, 640, 1040], columns: 4, mode: 'launch' })
+    plans.push({ file: 's20-strip-title-hub', times: [30, 180, 400, 640, 880, 1100], columns: 3, mode: 'launch' })
+  } else if (name === 'briefing') {
+    plans.push({ file: 's19-strip-step', times: [30, 120, 240, 380], columns: 4, mode: 'step' })
+    plans.push({ file: 's20-strip-hub-case', times: [30, 180, 400, 640, 880, 1060], columns: 3, mode: 'warp' })
+  } else if (name === 'firstrun') {
+    plans.push({ file: 's19-strip-modal', times: [30, 120, 240, 380], columns: 4, mode: 'modal' })
+  } else if (name === 'item-rkea') {
+    plans.push({ file: 's19-strip-item', times: [30, 120, 240, 380], columns: 4, mode: 'item' })
+  } else if (name === 'results-with-code') {
+    plans.push({ file: 's19-strip-results', times: [40, 280, 640, 1000], columns: 4, mode: 'results' })
+    plans.push({ file: 's20-strip-results', times: [40, 200, 420, 680, 900, 1100], columns: 3, mode: 'results' })
   }
-  if (strips[name]) {
-    const times = [30, 120, 240, 380]
+  for (const plan of plans) {
     const frames = []
-    for (const t of times) {
+    for (const t of plan.times) {
       await page.evaluate(
-        (nm, ms) => {
+        (mode, ms) => {
           document.documentElement.dataset.motion = 'full'
           const restart = (sel) => {
             const els = [...document.querySelectorAll(sel)]
             els.forEach((e) => (e.style.animation = 'none'))
             void document.body.offsetWidth
             els.forEach((e) => (e.style.animation = ''))
-            return els
           }
-          if (nm === 'hub') {
-            const v = document.querySelector('.veil')
-            v.dataset.kind = 'deploy'
-            v.dataset.phase = 'idle'
-            void v.offsetWidth
-            v.dataset.phase = 'reveal'
-          } else if (nm === 'briefing') {
+          const veil = document.querySelector('.veil')
+          const hand = document.querySelector('.handoff')
+          if (hand) hand.dataset.phase = 'idle'
+          if (mode === 'launch' || mode === 'warp') {
+            veil.dataset.kind = mode === 'launch' ? 'launch' : 'warp'
+            veil.dataset.dir = 'forward'
+            veil.dataset.phase = 'idle'
+            void veil.offsetWidth
+            veil.dataset.phase = 'reveal'
+          } else if (mode === 'step') {
             const host = document.querySelector('.step-host')
             if (host) host.dataset.dir = 'forward'
             restart('.step-host')
-          } else if (nm === 'firstrun') {
+          } else if (mode === 'modal') {
             restart('.presence, .presence .modal-backdrop, .presence .modal')
-          } else if (nm === 'item-rkea') {
+          } else if (mode === 'item') {
             const grid = document.querySelector('.item-grid')
             if (grid) grid.dataset.dir = 'forward'
-            restart('.item-grid, .item-grid .visual-panel')
-          } else if (nm === 'results-with-code') {
+            restart('.item-grid .item-head, .item-grid .stem-panel, .item-grid .item-side, .item-grid .visual-panel')
+          } else if (mode === 'results') {
+            if (hand) {
+              hand.dataset.kind = 'results'
+              hand.dataset.dir = 'forward'
+              hand.dataset.phase = 'idle'
+              void hand.offsetWidth
+              hand.dataset.phase = 'on'
+            }
             const body = document.querySelector('.results-body')
             if (body) body.dataset.reveal = 'yes'
-            restart('.results-body, .results-side .reward')
+            restart('.results-body, .results-body .bar-row, .results-side .reward')
           }
           const root =
-            nm === 'hub'
-              ? document.querySelector('.veil')
-              : nm === 'briefing'
+            mode === 'launch' || mode === 'warp'
+              ? veil
+              : mode === 'step'
                 ? document.querySelector('.step-host')
-                : nm === 'firstrun'
+                : mode === 'modal'
                   ? document.querySelector('.presence') || document.querySelector('.modal-backdrop')
-                  : nm === 'item-rkea'
+                  : mode === 'item'
                     ? document.querySelector('.item-grid')
                     : document.querySelector('.results-body')
+          const roots = mode === 'results' ? [document.querySelector('.results-body'), hand].filter(Boolean) : [root]
           for (const a of document.getAnimations()) {
             const el = a.effect && a.effect.target
-            if (!el || !el.closest || !root || !(el === root || root.contains(el))) continue
+            if (!el || !el.closest) continue
+            if (!roots.some((r) => r && (el === r || r.contains(el)))) continue
             if (a.effect.getTiming().iterations === Infinity) continue
             a.pause()
             const dur = Number(a.effect.getTiming().duration) || 1
             a.currentTime = Math.min(ms, Math.max(0, dur - 1))
           }
         },
-        name,
+        plan.mode,
         t,
       )
       frames.push(await page.screenshot({ encoding: 'base64', type: 'png' }))
     }
-    await page.evaluate((imgs) => {
+    await page.evaluate(async (imgs, columns) => {
       const old = document.getElementById('motion-strip')
       if (old) old.remove()
       const el = document.createElement('div')
       el.id = 'motion-strip'
-      el.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;gap:4px;padding:4px;box-sizing:border-box;background:#02060c'
+      const rows = Math.ceil(imgs.length / columns)
+      el.style.cssText = `position:fixed;inset:0;z-index:100000;display:grid;grid-template-columns:repeat(${columns},1fr);grid-template-rows:repeat(${rows},1fr);gap:4px;padding:4px;box-sizing:border-box;background:#02060c`
+      const pending = []
       for (const src of imgs) {
         const i = document.createElement('img')
         i.alt = ''
         i.src = 'data:image/png;base64,' + src
-        i.style.cssText = 'flex:1 1 0;width:0;height:100%;object-fit:cover;object-position:center'
+        i.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center'
         el.appendChild(i)
+        pending.push(i.decode().catch(() => {}))
       }
       document.body.appendChild(el)
-    }, frames)
-    await write(strips[name])
-    const stripFile = `${String(ORDER.indexOf(strips[name]) + 1).padStart(2, '0')}-${strips[name]}-${w}.png`
+      await Promise.all(pending)
+    }, frames, plan.columns)
+    await write(plan.file)
+    const stripFile = `${String(ORDER.indexOf(plan.file) + 1).padStart(2, '0')}-${plan.file}-${w}.png`
     try {
       mkdirSync('/opt/cursor/artifacts/transitions', { recursive: true })
-      copyFileSync(`${OUT}/${stripFile}`, `/opt/cursor/artifacts/transitions/${strips[name]}.png`)
+      copyFileSync(`${OUT}/${stripFile}`, `/opt/cursor/artifacts/transitions/${plan.file}.png`)
     } catch {
       // Artifact dir is optional. The proof file is the source of truth.
     }
@@ -321,6 +414,8 @@ async function motionShots(page, name, w) {
       document.documentElement.dataset.motion = 'still'
       const v = document.querySelector('.veil')
       if (v) v.dataset.phase = 'idle'
+      const h = document.querySelector('.handoff')
+      if (h) h.dataset.phase = 'idle'
       for (const a of document.getAnimations()) {
         if (a.playState === 'paused') a.finish()
       }
@@ -1068,6 +1163,50 @@ try {
     await page.close()
   }
 
+  // Evidence glide: a real 3D item swap must keep a painted panel. Five passes, the check that flaked on SwiftShader.
+  for (let pass = 1; pass <= 5; pass++) {
+    console.log(`\n== evidence glide ${pass}/5 ==`)
+    const page = await profilePage(browser, BASE, '?tier=high&qaitems=L14-01,L315-03', VIEWPORTS.find((v) => v.width === 1920), errors)
+    await toCaseStep(page, 'items')
+    await page.waitForSelector('.visual-3d canvas')
+    await sleep(2200)
+    const organ = CONTENT.items.find((x) => x.id === 'L14-01')
+    await page.click(`[data-testid="option-${organ.key}"]`)
+    await page.click('[data-testid="lock-in"]')
+    await page.waitForSelector('[data-testid="item-result"]')
+    await page.evaluate(() => {
+      const c = document.querySelector('.visual-3d canvas')
+      if (c) c.dataset.keep = '1'
+    })
+    await page.click('[data-testid="next-item"]')
+    await sleep(180)
+    const mid = await page.evaluate(() => {
+      const panel = document.querySelector('.visual-panel')
+      const r = panel.getBoundingClientRect()
+      const cs = getComputedStyle(panel)
+      const grid = getComputedStyle(document.querySelector('.item-grid'))
+      return {
+        kept: !!document.querySelector('.visual-3d canvas[data-keep="1"]'),
+        opacity: cs.opacity,
+        gridAnim: grid.animationName,
+        x: r.x,
+        y: r.y,
+        w: r.width,
+        h: r.height,
+      }
+    })
+    const clip = { x: Math.max(0, Math.round(mid.x)), y: Math.max(0, Math.round(mid.y)), width: Math.max(2, Math.round(mid.w)), height: Math.max(2, Math.round(mid.h)) }
+    const shotBuf = await page.screenshot({ clip })
+    const spread = pngSpread(shotBuf)
+    const detail = `luma spread ${spread.toFixed(1)}`
+    check(`evidence glide keeps the same 3D canvas (${pass}/5)`, mid.kept === true, String(mid.kept))
+    check(`evidence glide does not fade the 3D panel (${pass}/5)`, Number(mid.opacity) === 1 && (mid.gridAnim === 'none' || mid.gridAnim === ''), `opacity ${mid.opacity}, grid ${mid.gridAnim}`)
+    check(`evidence glide still shows a painted 3D panel (${pass}/5)`, spread > 12, detail)
+    console.log(`  glide ${pass}/5 ${detail}`)
+    if (spread <= 12) writeFileSync(`${OUT}/debug-glide-mid-${pass}.png`, shotBuf)
+    await page.close()
+  }
+
   // ---------- fps under 4x CPU throttle, hub and lab A, per backend (Auto tier, no ?tier pin) ----------
   const vp = VIEWPORTS[0]
   const BACKENDS = { webgpu: '', webgl2: '?backend=webgl2' }
@@ -1345,7 +1484,7 @@ try {
 
   console.log('\n== summary ==')
   const failed = checks.filter((c) => !c.ok)
-  const MOTION_1920_ONLY = 9 // s17-motion-* and s19-strip-* shots exist at 1920 only
+  const MOTION_1920_ONLY = 12 // s17-motion-*, s19-strip-* and s20-strip-* shots exist at 1920 only
   const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
   check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)

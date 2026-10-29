@@ -323,17 +323,27 @@ html[data-motion='still'] .step-host {
   }
 }
 
-/* Evidence card slides in. The scan line crosses the picture, clipped by the panel. */
-html[data-motion='full'] .item-grid[data-dir='forward'] {
+/* Evidence copy slides in. The 3D panel is not in this list: opacity or a transform on an ancestor blanks the WebGL canvas. */
+html[data-motion='full'] .item-grid[data-dir='forward'] .item-head,
+html[data-motion='full'] .item-grid[data-dir='forward'] .stem-panel,
+html[data-motion='full'] .item-grid[data-dir='forward'] .item-side {
   animation: item-glide 0.42s var(--ease-out) both;
 }
-html[data-motion='full'] .item-grid[data-dir='back'] {
+html[data-motion='full'] .item-grid[data-dir='back'] .item-head,
+html[data-motion='full'] .item-grid[data-dir='back'] .stem-panel,
+html[data-motion='full'] .item-grid[data-dir='back'] .item-side {
   animation: item-glide-back 0.42s var(--ease-out) both;
 }
-html[data-motion='fade'] .item-grid {
+html[data-motion='fade'] .item-grid .item-head,
+html[data-motion='fade'] .item-grid .stem-panel,
+html[data-motion='fade'] .item-grid .item-side {
   animation: screen-in 0.18s linear both;
 }
-html[data-motion='still'] .item-grid {
+html[data-motion='still'] .item-grid,
+html[data-motion='still'] .item-grid .item-head,
+html[data-motion='still'] .item-grid .stem-panel,
+html[data-motion='still'] .item-grid .item-side,
+html[data-motion='still'] .item-grid .visual-panel {
   animation: none;
 }
 @keyframes item-glide {
@@ -375,10 +385,17 @@ html[data-motion='full'] .item-grid .visual-panel::after {
   }
 }
 
-/* Results: the file rises, rewards slide in from the side, bars ease to their new width. */
+/* Results: the file rises, rows and rewards follow, bars ease to their new width. */
 html[data-motion='full'] .results-body {
-  animation: results-rise 0.5s var(--ease-out) both;
+  animation: results-rise 0.72s var(--ease-out) both;
 }
+html[data-motion='full'] .results-body .bar-row {
+  animation: row-in 0.46s var(--ease-out) both;
+}
+html[data-motion='full'] .results-body .bar-row:nth-child(1) { animation-delay: 0.16s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(2) { animation-delay: 0.28s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(3) { animation-delay: 0.4s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(4) { animation-delay: 0.52s; }
 html[data-motion='fade'] .results-body {
   animation: screen-in 0.18s linear both;
 }
@@ -396,7 +413,46 @@ html[data-motion='full'] .bar-fill {
 }
 html[data-motion='full'] .results-side > .reward {
   animation-name: reward-in;
-  animation-duration: 0.42s;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-timing-function: var(--ease-out);
+}
+html[data-motion='full'] .results-side > .reward:nth-child(1) { animation-delay: 0.22s; }
+html[data-motion='full'] .results-side > .reward:nth-child(2) { animation-delay: 0.34s; }
+html[data-motion='full'] .results-side > .reward:nth-child(3) { animation-delay: 0.46s; }
+html[data-motion='full'] .results-side > .reward:nth-child(4) { animation-delay: 0.58s; }
+
+/* Signature arrival: panels, titles and buttons follow the veil instead of popping in together. */
+html[data-motion='full'] .screen-host[data-arrive='launch'],
+html[data-motion='full'] .screen-host[data-arrive='warp'] {
+  animation: arrive-hud 0.9s var(--ease-out) both;
+}
+html[data-motion='full'] .screen-host[data-arrive='launch'] .panel,
+html[data-motion='full'] .screen-host[data-arrive='warp'] .panel {
+  animation: hud-in 0.55s var(--ease-out) both;
+  animation-delay: 0.14s;
+}
+html[data-motion='full'] .screen-host[data-arrive='launch'] .panel:nth-of-type(2),
+html[data-motion='full'] .screen-host[data-arrive='warp'] .panel:nth-of-type(2) {
+  animation-delay: 0.26s;
+}
+html[data-motion='full'] .screen-host[data-arrive='launch'] .panel-title,
+html[data-motion='full'] .screen-host[data-arrive='warp'] .panel-title {
+  animation: rise-in 0.48s var(--ease-out) both;
+  animation-delay: 0.2s;
+}
+html[data-motion='full'] .screen-host[data-arrive='launch'] .btn,
+html[data-motion='full'] .screen-host[data-arrive='warp'] .btn {
+  animation: rise-in 0.42s var(--ease-out) both;
+  animation-delay: 0.32s;
+}
+@keyframes arrive-hud {
+  from { opacity: 0; translate: 0 18px; }
+  22% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; }
+}
+html[data-motion='still'] .screen-host[data-arrive] {
+  animation: none;
 }
 @keyframes reward-in {
   from {
@@ -459,8 +515,13 @@ html[data-motion='still'] .presence .modal.panel {
   .stamp,
   .step-host,
   .item-grid,
+  .item-grid .item-head,
+  .item-grid .stem-panel,
+  .item-grid .item-side,
   .results-body,
+  .results-body .bar-row,
   .handoff,
+  .screen-host[data-arrive],
   .presence,
   .presence .modal-backdrop,
   .presence .modal.panel {
@@ -495,8 +556,13 @@ html[data-reduced-motion='true'] .report-code,
 html[data-reduced-motion='true'] .stamp,
 html[data-reduced-motion='true'] .step-host,
 html[data-reduced-motion='true'] .item-grid,
+html[data-reduced-motion='true'] .item-grid .item-head,
+html[data-reduced-motion='true'] .item-grid .stem-panel,
+html[data-reduced-motion='true'] .item-grid .item-side,
 html[data-reduced-motion='true'] .results-body,
+html[data-reduced-motion='true'] .results-body .bar-row,
 html[data-reduced-motion='true'] .handoff,
+html[data-reduced-motion='true'] .screen-host[data-arrive],
 html[data-reduced-motion='true'] .presence,
 html[data-reduced-motion='true'] .presence .modal-backdrop,
 html[data-reduced-motion='true'] .presence .modal.panel {
