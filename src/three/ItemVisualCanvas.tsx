@@ -10,6 +10,7 @@ import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import { createRenderer } from './renderer'
+import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
 import { hasHero, loadHero } from './models/heroSpecimens'
 import { visualToken, prepareNextHold } from './paintHold'
 import { animalParts, plantParts } from './models/creatures'
@@ -396,11 +397,24 @@ export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: 
   const tierRef = useRef(tier)
   // These canvases are small, so Low tier still gets a sharp image: up to 2x pixels and edge smoothing.
   const dpr = tier === 'low' ? Math.max(dprForTier(tier, window.devicePixelRatio), Math.min(window.devicePixelRatio || 1, 2)) : dprForTier(tier, window.devicePixelRatio)
-  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}, tierRef.current === 'low'), [])
+  // A lost GPU context remounts this canvas with a fresh renderer (see recovery.ts).
+  const [gen, setGen] = useState(0)
+  const onLost = useCallback((api: string) => {
+    if (!noteGpuLoss(api).remount) return
+    const remount = () => {
+      if (document.hidden) {
+        document.addEventListener('visibilitychange', remount, { once: true })
+        return
+      }
+      window.setTimeout(() => setGen((g) => g + 1), REMOUNT_DELAY_MS)
+    }
+    remount()
+  }, [])
+  const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}, tierRef.current === 'low', onLost), [onLost])
   const camera = useMemo(() => ({ fov: 35, near: 0.1, far: 120, position: [0, 3, 12] as [number, number, number] }), [])
 
   return (
-    <Canvas gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
+    <Canvas key={gen} gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
       <StageSize />
       <StageBackdrop />
       <HeldSlots visual={visual} upcoming={upcoming ?? null} low={tier === 'low'} />

@@ -10,6 +10,7 @@ import TitleScreen from './screens/TitleScreen'
 const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
 import { resolveTier } from './state/quality'
 import { useRuntime } from './state/runtime'
+import { isChunkLoadError, noteGpuLoss, reloadForNewDeploy, setRuntimeForceWebGL } from './three/recovery'
 import { useSession } from './state/session'
 import { useGame } from './state/store'
 import { Announcer } from './ui/announce'
@@ -25,13 +26,29 @@ const HubScene = lazy(() => import('./three/scenes/HubScene'))
 const AmbientScene = lazy(() => import('./three/scenes/AmbientScene'))
 const CaseScene = lazy(() => import('./three/scenes/CaseScene'))
 
-class StageBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
+/**
+ * Catches a crash in the 3D layer. A lazy chunk from an older deploy reloads the page once. Anything else gets
+ * one retry on three's WebGL2 backend (a fresh canvas) before the game settles for the 2D interface.
+ */
+class StageBoundary extends Component<{ children: ReactNode }, { failed: boolean; tries: number }> {
+  state = { failed: false, tries: 0 }
+  private timer = 0
   static getDerivedStateFromError() {
     return { failed: true }
   }
   componentDidCatch(error: unknown) {
+    if (isChunkLoadError(error) && reloadForNewDeploy()) return
+    if (this.state.tries < 1) {
+      console.warn('3D layer crashed, retrying on WebGL2.', error)
+      setRuntimeForceWebGL()
+      noteGpuLoss('WebGL')
+      this.timer = window.setTimeout(() => this.setState((s) => ({ failed: false, tries: s.tries + 1 })), 300)
+      return
+    }
     console.warn('3D layer unavailable, continuing with the 2D interface.', error)
+  }
+  componentWillUnmount() {
+    window.clearTimeout(this.timer)
   }
   render() {
     return this.state.failed ? <div className="stage-fallback" aria-hidden="true" /> : this.props.children
