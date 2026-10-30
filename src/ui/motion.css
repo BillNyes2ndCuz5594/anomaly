@@ -436,10 +436,10 @@ html[data-motion='full'] .stepbar li.now::after {
 /* HUD panels slide in with the travel and flash a cyan edge once, 50 ms apart.
    The visual panel is excluded: it hosts the item canvas, and no ancestor of a
    WebGL canvas ever animates opacity, filter, or transform. */
-html[data-motion='full'] .step-host[data-dir='forward'] .panel:not(.visual-panel) {
+html[data-motion='full'] .step-host[data-dir='forward'] .panel:not(.visual-panel):not(.side-panel) {
   animation: panel-charge-fwd 0.3s var(--ease-out) 0.06s backwards;
 }
-html[data-motion='full'] .step-host[data-dir='back'] .panel:not(.visual-panel) {
+html[data-motion='full'] .step-host[data-dir='back'] .panel:not(.visual-panel):not(.side-panel) {
   animation: panel-charge-back 0.3s var(--ease-out) 0.06s backwards;
 }
 html[data-motion='full'] .step-host[data-dir='forward'] .panel:nth-child(3):not(.visual-panel) {
@@ -460,8 +460,13 @@ html[data-motion='full'] .step-host[data-dir='back'] .panel:nth-child(4):not(.vi
 html[data-motion='full'] .step-host[data-dir='back'] .panel:nth-child(n + 5):not(.visual-panel) {
   animation-delay: 0.21s;
 }
+/* The side panel and the dock are carried across steps by the shared element glide in
+   CaseScreen, which measures their boxes. They only flash, so the glide stays exact. */
+html[data-motion='full'] .step-host .side-panel {
+  animation: edge-charge 0.36s var(--ease-out) 0.06s backwards;
+}
 html[data-motion='full'] .step-host .dock {
-  animation: dock-charge 0.3s var(--ease-out) 0.11s backwards;
+  animation: edge-charge 0.36s var(--ease-out) 0.11s backwards;
 }
 @keyframes panel-charge-fwd {
   from {
@@ -481,13 +486,11 @@ html[data-motion='full'] .step-host .dock {
       0 0 30px rgba(62, 230, 255, 0.4);
   }
 }
-@keyframes dock-charge {
+@keyframes edge-charge {
   from {
-    opacity: 0;
-    translate: 0 14px;
     box-shadow:
-      0 0 0 1px rgba(62, 230, 255, 0.7),
-      0 0 26px rgba(62, 230, 255, 0.35);
+      inset 0 0 0 1px rgba(62, 230, 255, 0.85),
+      0 0 30px rgba(62, 230, 255, 0.4);
   }
 }
 
