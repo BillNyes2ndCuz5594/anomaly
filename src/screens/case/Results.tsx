@@ -8,35 +8,32 @@ import { useSession } from '../../state/session'
 import { CATALOG_BENCHMARKS } from '../../lib/catalog.generated'
 import { MASTERY_LABEL, rankFor, useGame } from '../../state/store'
 import ReportCodePanel from '../../ui/ReportCodePanel'
+import { countValue } from '../../ui/countUp'
 import { useMotionMode } from '../../ui/useMotionMode'
+import { debriefLine, verdictWord } from './resultsDebrief'
 import { CaseTop } from './ui'
+import './results-debrief.css'
 
 function dueLabel(iso: string | null | undefined): string {
   if (!iso) return 'No review scheduled yet'
   return new Date(parseISO(iso)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-/** Counts up from 0 to target. Jumps straight to the target with reduced motion or ?still=1. */
-function useCountUp(target: number, startDelay = 450, ms = 1100): number {
-  const reduced = useGame((s) => s.settings.reducedMotion)
-  const snap = reduced || STILL
-  const [v, setV] = useState(snap ? target : 0)
+/** Counts up from 0. Reduced motion and ?still=1 show the final number immediately. */
+function useCountUp(target: number, snap: boolean, startDelay = 220, ms = 680): number {
+  const [v, setV] = useState(0)
   useEffect(() => {
-    if (snap) {
-      setV(target)
-      return
-    }
+    if (snap) return
     let raf = 0
     const t0 = performance.now() + startDelay
     const tick = (now: number) => {
-      const k = Math.max(0, Math.min(1, (now - t0) / ms))
-      setV(Math.round(target * (1 - Math.pow(1 - k, 3))))
-      if (k < 1) raf = requestAnimationFrame(tick)
+      setV(countValue(target, now - t0, ms))
+      if (now - t0 < ms) raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [target, snap, startDelay, ms])
-  return v
+  return snap ? target : v
 }
 
 const LABELS: Record<string, string> = Object.fromEntries(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
@@ -48,26 +45,32 @@ export default function Results() {
   const kind = useSession((s) => s.kind)
   const benchmarks = useSession((s) => s.benchmarks)
   const caseId = useSession((s) => s.caseId) ?? content.case.id
-  const caseLabel = kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`
+  const cold = kind === 'cold'
+  const def = cold ? content.coldCase : content.case
+  const caseLabel = cold ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`
   const paint = useSession((s) => s.paint)
   const progress = useGame((s) => s.progress)
   const mastery = useGame((s) => s.mastery)
   const intelTotal = useGame((s) => s.intel)
   const cases = useGame((s) => s.cases)
   const codexCount = useGame((s) => s.codex.length)
+  const reduced = useGame((s) => s.settings.reducedMotion)
   const motion = useMotionMode()
-  const [shown, setShown] = useState(motion !== 'full')
+  const snap = reduced || STILL || motion === 'still'
+  const [revealed, setRevealed] = useState(false)
   useEffect(() => {
-    if (motion !== 'full') {
-      setShown(true)
-      return
-    }
-    const id = window.setTimeout(() => setShown(true), 280)
+    if (motion !== 'full') return
+    const id = window.setTimeout(() => setRevealed(true), 280)
     return () => window.clearTimeout(id)
   }, [motion])
+  const shown = motion !== 'full' || revealed
 
   const intel = answers.reduce((n, a) => n + a.intel, 0)
-  const intelShown = useCountUp(intel)
+  const intelShown = useCountUp(intel, snap)
+  const closed = Boolean(cases[caseId]?.closed)
+  const score = cases[caseId]?.score ?? answers.filter((a) => a.correct).length
+  const total = cases[caseId]?.total ?? items.length
+  const scoreShown = useCountUp(score, snap, 160, 640)
   const rows = benchmarks.map((b) => {
     const mine = items.filter((i) => i.benchmark === b)
     const got = mine.filter((i) => answers.find((a) => a.itemId === i.id)?.correct).length
@@ -77,11 +80,39 @@ export default function Results() {
   })
 
   return (
-    <div className="screen case-screen results-screen" data-testid="results">
+    <div className="screen case-screen results-screen rd-screen" data-testid="results">
       <CaseTop step="results" />
       <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
+        <section className="panel brackets rd-hero" aria-label="Case result">
+          <div className="reward verdict-block" data-testid="case-status" data-closed={closed ? 'yes' : 'no'}>
+            <span className="label amber">{caseLabel}</span>
+            <p>
+              <span aria-hidden="true">{closed ? '\u2714' : '\u25CB'}</span> <strong>{verdictWord(closed, cold)}</strong>
+            </p>
+            <p className="rd-scoreline">
+              <span className="sr-only">
+                {score} of {total} correct
+              </span>
+              <span aria-hidden="true">
+                <span className="rd-score-num">{scoreShown}</span> of {total} correct
+              </span>
+            </p>
+          </div>
+          <div className="reward rd-intel" data-testid="intel-earned">
+            <span className="label amber">Intel earned</span>
+            <strong className="reward-num" aria-label={`${intel} Intel earned`}>
+              <span className="sr-only">{intel}</span>
+              <span className="rd-count" aria-hidden="true">
+                {intelShown}
+              </span>
+            </strong>
+            <span className="muted tiny">Total Intel: {intelTotal}</span>
+          </div>
+          <p className="rd-dispatch">{debriefLine(closed, cold, def.debriefClosed, def.debriefOpen)}</p>
+        </section>
+
         <section className="panel brackets results-panel" aria-label="Mastery changes">
-          <h1 className="panel-title">MASTERY UPDATE</h1>
+          <h1 className="panel-title">Mastery update</h1>
           <ul className="bars" data-testid="mastery-bars">
             {rows.map((r) => {
               const frac = shown ? stageFraction(r.to) : stageFraction(r.from)
@@ -129,25 +160,11 @@ export default function Results() {
           </ul>
         </section>
 
-        <aside className="panel brackets results-side" aria-label="Rewards">
-          <div className="reward verdict-block" data-testid="case-status" data-closed={cases[caseId]?.closed ? 'yes' : 'no'}>
-            <span className="label amber">{caseLabel}</span>
-            <p>
-              <span aria-hidden="true">{cases[caseId]?.closed ? '\u2714' : '\u25CB'}</span>{' '}
-              <strong>{cases[caseId]?.closed ? (kind === 'cold' ? 'Residue cleared' : 'Case closed') : 'Case still open'}</strong>
-            </p>
-            <span className="muted tiny">
-              {cases[caseId] ? `${cases[caseId].score} of ${cases[caseId].total} correct` : ''}
-            </span>
-          </div>
-          <div className="reward" data-testid="intel-earned">
-            <span className="label amber">INTEL EARNED</span>
-            <strong className="reward-num" aria-label={`${intel} Intel earned`}>{intelShown}</strong>
-            <span className="muted tiny">Total Intel: {intelTotal}</span>
-          </div>
+        <aside className="panel brackets results-side" aria-label="Shift file">
+          <h2 className="panel-title">Shift file</h2>
           <div className={paint ? 'reward unlocked' : 'reward'} data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
             {paint ? <Burst color="#ffb547" spread={90} delay={0.9} big={false} /> : null}
-            <span className="label amber">DRONE PAINT</span>
+            <span className="label amber">Drone paint</span>
             {paint ? (
               <p>
                 <span aria-hidden="true">{'\u2605'}</span> Unlocked: <strong>{paint}</strong>
@@ -157,7 +174,7 @@ export default function Results() {
             )}
           </div>
           <div className="reward">
-            <span className="label amber">AGENT</span>
+            <span className="label amber">Agent</span>
             <p>
               Rank: <strong data-testid="results-rank">{rankFor(mastery)}</strong>
             </p>
