@@ -1,5 +1,9 @@
 # Changelog
 
+## Panther rescan
+
+- The Florida panther evidence model is rescanned (wave 11): a FLUX 3 reference into Hunyuan 3D v3.1 Pro, so it reads as a tawny furred cat with real shoulder and leg muscle and amber eyes instead of smooth salmon plastic. 18k triangles, 282 KB. Low tier keeps the procedural model.
+
 ## Backdrop loops v2
 
 - Swamp (title and hub), cells (Lab A), canopy (Lab B) and water (Lab C) loops are regenerated: FLUX 3 stills animated with Veo 3.1 first and last frame, 960x540, in the navy and cyan palette. The cells loop no longer uses bokeh glitter.
