@@ -1,5 +1,20 @@
 # Development log
 
+## Briefing and Lab B
+
+The briefing pair floated as two rings, and the manatee was the same hologram treatment as the body. Lab B floated the deer above the floor. Phone briefing hid the last dispatch line under the sticky actions. Phone Lab B hid the intro under the match buttons.
+
+What this pass does:
+
+- `briefing-labb.css` is scoped to `.briefing-screen` and `.labb-screen`. It does not restyle Lab A or Lab C. Phone portrait sets the Lab B sheet to 56dvh on the screen so the dock moves with it. Short landscape tightens gaps until both cards fit with no scroll.
+- `usePressed` keeps a pressed attribute until the pointer lifts, because `:active` is brief on some phones. Hover is limited to a fine pointer.
+- The table, stands, and lights are marked out of the fit measure. Lab B keeps its view box and margin. The manatee uses the lit scan so the gray animal reads next to the hologram body.
+- 3D name plates were tried and removed. They sat on the flipper, the deer legs, and the oak roots. The panel labels are the names.
+
+Frames and fit numbers are in `docs/devlog/briefing-labb.md`.
+
+Gates on this branch: `npm test` 302/302 (check-assets clean), `npm run build`, `npm run lint` with 0 errors. `AN_TAG=bl PROOF_OUT=/tmp/proof-bl node scripts/proof.mjs` passed 293/293 checks and 70 screenshots with 0 console errors. Briefing fit at 1920 was -0.213 and Lab B was -0.077. `AN_TAG=blm PROOF_OUT=/tmp/proof-blm node scripts/mobile.mjs` reported 0 problems and 0 console errors on s23 portrait, s23 landscape, tablet portrait, and tablet landscape. Briefing and Lab B were 0 problems on all four, including the matched and contrast states.
+
 ## Honest specimen pairs
 
 Evidence rows were sizing animals by horizontal length only. The camera then framed the procedural silhouette. After the pelican rescan, that scan is a tall narrow bird inside a long procedural box, and the height cap lets it stand 5 percent above that box. On the wide evidence panel (aspect just under 1.9, camera elevation 0.42) the pelican head crossed the top margin (fit over about -0.007; the check needs -0.02 or better).
