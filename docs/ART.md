@@ -73,6 +73,15 @@ Rules for video clips
   shader (`LoopSky`) as a soft window above the horizon, graded to the navy and cyan palette, never a box. The
   precached WebP poster shows first and the video crosses in after its first decoded frame. Low tier and reduced
   motion get the poster only. Videos are not precached, so offline play keeps the poster. Spend $1.84.
+- Wave 5: the four loops are redone at higher quality. The old cells loop was bokeh glitter with heavy depth of field,
+  against the rules above. Each still is FLUX 3 (`blackforestlabs/flux-3/text-to-image`, 1.5k, 2048x1152, about
+  $0.11) with an art directed prompt (navy #030814 to #0b1a2e, cyan rim light, low key, even focus, no bokeh, no
+  text, brightest band in the middle third so the dome window reads). Each loop is Veo 3.1 first and last frame
+  (`fal-ai/veo3.1/first-last-frame-to-video`, 4 s, 1080p, no audio, $0.80) with the same still as both frames and a
+  locked camera prompt, so only fog, moss, membranes or caustics move. The encode trims to 3.2 s with a 0.8 s seam
+  crossfade, light denoise and a per clip grade, 1280x720 VP9 plus H.264 (water 960x540), 140 to 480 KB, and a
+  960x540 WebP poster from the first loop frame. Seams measure under 0.1 of 255 mean difference (water matches its
+  own frame to frame caustic motion). Spend $3.64.
 - Wave 4a: app icons, favicon and a 1200x630 share image. The icons are drawn by `scripts/gen-icons.mjs` in the
   title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
   screen. No fal spend.

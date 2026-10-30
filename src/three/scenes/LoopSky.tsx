@@ -18,8 +18,9 @@ import waterWebm from '../../assets/video/backdrop-water.webm?url'
 import waterMp4 from '../../assets/video/backdrop-water.mp4?url'
 import waterPoster from '../../assets/video/backdrop-water.webp?url'
 
-// Ambient loops painted into the sky dome. Each clip is a 4.2 s seamless loop (start and end frames matched at
-// generation, then a 0.8 s crossfade at the seam), 960x540, VP9 WebM with an H.264 MP4 fallback, 20 to 80 KB.
+// Ambient loops painted into the sky dome. Each clip is a 3.2 s seamless loop (start and end frames matched at
+// generation, then a 0.8 s crossfade at the seam), 1280x720 (water 960x540, its caustics are costly), VP9 WebM
+// with an H.264 MP4 fallback, 140 to 480 KB. Posters are 960x540 WebP, 40 to 130 KB.
 // The clip lives inside the dome shader: a soft window in a band above the horizon, graded toward the navy and
 // cyan palette and faded into the sky gradient on every edge, so it never reads as a box. The poster frame (the
 // first frame of the loop, precached) shows first and the video crossfades in after its first decoded frame, so
