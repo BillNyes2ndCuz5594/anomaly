@@ -20,6 +20,7 @@ import { useGame } from '../state/store'
 import PostFX from './PostFX'
 import { preloadHeroes } from './models/heroSpecimens'
 import { createRenderer } from './renderer'
+import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
 import { InsetsContext, NO_INSETS, type Insets } from './insets'
 import { hudInsets } from '../screens/case/layout'
 
@@ -199,20 +200,42 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   }, [tier])
 
   const initialTier = useRef<Tier>(resolveTier(quality, autoTier))
+  // Bumped when the GPU context is lost: the canvas remounts with a fresh renderer instead of staying blank.
+  const [gen, setGen] = useState(0)
+  const onLost = useCallback((api: string) => {
+    const d = noteGpuLoss(api)
+    if (!d.remount) return
+    const remount = () => {
+      if (document.hidden) {
+        document.addEventListener('visibilitychange', remount, { once: true })
+        return
+      }
+      window.setTimeout(() => setGen((g) => g + 1), REMOUNT_DELAY_MS)
+    }
+    remount()
+  }, [])
   const gl = useCallback(
     (props: Record<string, unknown>) =>
-      createRenderer(props, initialTier.current, (backend) => {
-        const rt = useRuntime.getState()
-        rt.setBackend(backend)
-        if (isAutoActive(useGame.getState().settings.quality)) rt.setAutoTier(autoStartTier(backend))
-      }),
-    [],
+      createRenderer(
+        props,
+        initialTier.current,
+        (backend) => {
+          const rt = useRuntime.getState()
+          const first = rt.backend === 'none'
+          rt.setBackend(backend)
+          if (first && isAutoActive(useGame.getState().settings.quality)) rt.setAutoTier(autoStartTier(backend))
+        },
+        false,
+        onLost,
+      ),
+    [onLost],
   )
 
   const camera = useMemo(() => ({ fov: 40, near: 0.1, far: 200, position: [0, 3, 12] as [number, number, number] }), [])
 
   return (
     <Canvas
+      key={gen}
       gl={gl as never}
       dpr={dpr}
       camera={camera}
