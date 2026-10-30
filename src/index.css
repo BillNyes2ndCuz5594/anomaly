@@ -2487,6 +2487,7 @@ html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff
   animation: edge-unfold 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 html[data-motion='fade'] .handoff-grid,
+html[data-motion='fade'] .handoff-band,
 html[data-motion='fade'] .handoff-sweep,
 html[data-motion='fade'] .handoff-edge { display: none; }
 html[data-motion='fade'] .handoff[data-phase='on'] {
