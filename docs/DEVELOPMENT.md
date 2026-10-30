@@ -7,6 +7,11 @@
 - The step's own HUD panels (job card, stem, options, never the visual panel that hosts the item canvas) enter with a directional slide plus one cyan edge flash, staggered 50 ms apart and done by 510 ms. The side panel and the dock are carried across steps by the shared element glide, which measures their boxes, so they only take the edge flash and never slide.
 - Fade tier, reduced motion, and `?still=1` are unchanged: no band, no pulse, no slide. Total step motion stays at or under 560 ms and never blocks input.
 
+## Item art pauses off screen
+
+- The item art canvas (ItemVisualCanvas) now runs `frameloop="never"` while its wrapper is scrolled off screen (IntersectionObserver, threshold 0, 120px root margin) or the tab is hidden, and `always` otherwise. Both signals start visible so the first paint and every existing screenshot are unchanged, and missing IntersectionObserver falls back to always on.
+- On resume the R3F clock is flushed (`clock.getDelta()` in ResumeClock) so delta animations like the sway do not take one huge jump after a pause. The A/B slot swap in HeldSlots uses raw rAF and a manual render, so it still completes while the loop is paused and never gets stuck on the old item.
+
 ## Briefing and Lab B
 
 The briefing pair floated as two rings, and the manatee was the same hologram treatment as the body. Lab B floated the deer above the floor. Phone briefing hid the last dispatch line under the sticky actions. Phone Lab B hid the intro under the match buttons.
