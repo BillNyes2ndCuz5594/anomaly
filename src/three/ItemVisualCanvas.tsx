@@ -12,6 +12,7 @@ import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import { createRenderer } from './renderer'
 import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
+import { shouldRender, useDocumentHidden, useOnScreen } from './itemVisibility'
 import { hasHero, loadHero } from './models/heroSpecimens'
 import { visualToken, prepareNextHold } from './paintHold'
 import { animalParts, plantParts } from './models/creatures'
@@ -387,6 +388,20 @@ function HeldSlots({ visual, upcoming, low }: { visual: Visual; upcoming: Visual
   )
 }
 
+/**
+ * The R3F clock keeps running while the loop is paused, so the first frame after a pause would
+ * otherwise hand every delta animation one huge jump. Flush that time on resume.
+ */
+function ResumeClock({ running }: { running: boolean }) {
+  const clock = useThree((s) => s.clock)
+  const was = useRef(running)
+  useEffect(() => {
+    if (running && !was.current) clock.getDelta()
+    was.current = running
+  }, [running, clock])
+  return null
+}
+
 /** The shared small canvas for item art. One renderer. The visible slot stays up until the next one has compiled. */
 export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: Visual; upcoming?: Visual | null }) {
   const quality = useGame((s) => s.settings.quality)
@@ -410,12 +425,20 @@ export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: 
   }, [])
   const gl = useCallback((props: Record<string, unknown>) => createRenderer(props, tierRef.current, () => {}, tierRef.current === 'low', onLost), [onLost])
   const camera = useMemo(() => ({ fov: 35, near: 0.1, far: 120, position: [0, 3, 12] as [number, number, number] }), [])
+  // Pause the render loop while the art is scrolled off screen or the tab is hidden. Both start visible.
+  const wrap = useRef<HTMLDivElement | null>(null)
+  const onScreen = useOnScreen(wrap)
+  const hidden = useDocumentHidden()
+  const running = shouldRender(onScreen, hidden)
 
   return (
-    <Canvas key={gen} gl={gl as never} dpr={dpr} camera={camera} frameloop="always" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
-      <StageSize />
-      <StageBackdrop />
-      <HeldSlots visual={visual} upcoming={upcoming ?? null} low={tier === 'low'} />
-    </Canvas>
+    <div ref={wrap} style={{ position: 'absolute', inset: 0 }}>
+      <Canvas key={gen} gl={gl as never} dpr={dpr} camera={camera} frameloop={running ? 'always' : 'never'} aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
+        <ResumeClock running={running} />
+        <StageSize />
+        <StageBackdrop />
+        <HeldSlots visual={visual} upcoming={upcoming ?? null} low={tier === 'low'} />
+      </Canvas>
+    </div>
   )
 }
