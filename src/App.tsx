@@ -156,6 +156,7 @@ export default function App() {
       </div>
       <div className="handoff" data-phase={hand.phase} data-dir={hand.dir} data-kind={hand.kind} aria-hidden="true">
         <div className="handoff-grid" />
+        <div className="handoff-band" />
         <div className="handoff-sweep" />
         <div className="handoff-sweep delay" />
         <div className="handoff-edge" />

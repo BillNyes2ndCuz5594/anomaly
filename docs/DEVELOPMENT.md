@@ -1,5 +1,12 @@
 # Development log
 
+## Step handoff
+
+- A case step change now reads as a hologram handoff on the full tier. A cyan scan band with a soft glow trail and a faint scanline texture crosses the whole view in the travel direction (forward is left to right, back is right to left) over 480 ms. It is a pointer-events none child of the handoff overlay, which is a sibling of the 3D layer, so no opacity, filter, or transform is ever animated on an ancestor of the WebGL canvas.
+- The stepper mark for the new step charges up when it becomes current: the number ring pulses once with a cyan halo and a bright underline fills across the pill. The compact dots pulse the same way.
+- The HUD panels (the side panel and the dock, never the visual panel that hosts the item canvas) enter with a directional slide plus one cyan edge flash, staggered 50 ms apart and done by 510 ms.
+- Fade tier, reduced motion, and `?still=1` are unchanged: no band, no pulse, no slide. Total step motion stays at or under 560 ms and never blocks input.
+
 ## Briefing and Lab B
 
 The briefing pair floated as two rings, and the manatee was the same hologram treatment as the body. Lab B floated the deer above the floor. Phone briefing hid the last dispatch line under the sticky actions. Phone Lab B hid the intro under the match buttons.
