@@ -1,10 +1,11 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import * as THREE from 'three/webgpu'
 import { STILL, STILL_YAW } from '../lib/flags'
 import { FitCamera } from './FitCamera'
-import { pointsBox, sweepYaw, translatePoints, unionBox, type Box, type V3 } from './fit'
-import { DISPLAY_YAW, specimenOutline, specimenRing } from './models/specimenBox'
+import { pointsBox, sweepYaw, unionBox, type Box } from './fit'
+import { DISPLAY_YAW, placeEvidence, shapeReach, specimenRing } from './models/specimenBox'
+import { heroIfReady, onHeroReady } from './models/heroSpecimens'
 import type { Visual } from '../content/schema'
 import { resolveTier, dprForTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -74,22 +75,16 @@ const AX = 3.0
 const PA_VIEW = { box: { min: [-5.3, -1.42, -2.0], max: [5.3, 3.7, 2.0] } as Box, elevation: 0.3 }
 const FIT = 3.0
 
-/** Centers of a row of specimens. Spaced by the real horizontal reach of each silhouette (legs, antennae, tails, base ring) so neighbours never touch. */
-function rowX(ids: string[]): number[] {
-  const yaw = STILL ? STILL_YAW : SPECIMEN_YAW
-  const sway = STILL ? 0.02 : SWAY_SPECIMEN
-  const ext = ids.map((id) => {
-    const xs = specimenOutline(id, FIT, yaw, sway).map((p) => p[0])
-    return { l: -Math.min(...xs), r: Math.max(...xs) }
-  })
-  const xs: number[] = []
-  let x = 0
-  ext.forEach((e, i) => {
-    if (i > 0) x += ext[i - 1].r + e.l + 0.5
-    xs.push(x)
-  })
-  const mid = (xs[0] - ext[0].l + xs[xs.length - 1] + ext[ext.length - 1].r) / 2
-  return xs.map((v) => v - mid)
+/** Honest relative sizes and facing. Once every scan has loaded, lengths come from the scans; before that, the proxy. */
+function evidenceFor(ids: string[], scans: boolean) {
+  const base = STILL ? STILL_YAW : SPECIMEN_YAW
+  const reachOf = (id: string): number => {
+    const h = scans ? heroIfReady(id) : undefined
+    if (!h) return shapeReach(id)
+    const b = h.geo.boundingBox ?? (h.geo.computeBoundingBox(), h.geo.boundingBox!)
+    return Math.max(b.max.x - b.min.x, b.max.z - b.min.z)
+  }
+  return placeEvidence(ids, FIT, base, STILL ? 0.02 : SWAY_SPECIMEN, reachOf)
 }
 
 function SpecimenVisual({ ids, low, enabledRef }: { ids: string[]; low: boolean; enabledRef: { current: boolean } }) {
@@ -99,20 +94,23 @@ function SpecimenVisual({ ids, low, enabledRef }: { ids: string[]; low: boolean;
   // pedestals and animals use more of its height instead of leaving a dark band above and below.
   const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height))
   const elevation = aspect < 1.9 ? 0.42 : 0.28
-  const view = useMemo(() => {
-    const xs = rowX(ids)
-    const pts: V3[] = ids.flatMap((id, i) => translatePoints(specimenOutline(id, FIT, STILL ? STILL_YAW : SPECIMEN_YAW, STILL ? 0.02 : SWAY_SPECIMEN), [xs[i], 0, 0]))
-    return { box: pointsBox(pts), points: pts, elevation, margin: 0.14 }
-  }, [ids, elevation])
-  const xs = useMemo(() => rowX(ids), [ids])
+  const heroIds = useMemo(() => (low ? [] : ids.filter(hasHero)), [ids, low])
+  useEffect(() => {
+    heroIds.forEach((id) => void loadHero(id))
+  }, [heroIds])
+  const scans = useSyncExternalStore(onHeroReady, () => heroIds.length > 0 && heroIds.every((id) => !!heroIfReady(id)))
+  const { placed, points } = useMemo(() => evidenceFor(ids, scans), [ids, scans])
+  const view = useMemo(() => ({ box: pointsBox(points), points, elevation, margin: 0.14 }), [points, elevation])
   return (
     <>
       <FitCamera view={view} measure={content} enabledRef={enabledRef} />
       <group ref={content}>
-        {ids.map((id, i) => (
-          <group key={id} position={[xs[i], 0, 0]}>
-            <StagePedestal radius={specimenRing(id, FIT)} low={low} />
-            <Specimen id={id} fit={FIT} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
+        {placed.map((s) => (
+          <group key={s.id} position={[s.x, 0, 0]}>
+            <StagePedestal radius={specimenRing(s.id, s.fit)} low={low} />
+            <group rotation={[0, s.flip, 0]}>
+              <Specimen id={s.id} fit={s.fit} sway={SWAY_SPECIMEN} yaw={SPECIMEN_YAW} reduced={reduced} />
+            </group>
           </group>
         ))}
       </group>
