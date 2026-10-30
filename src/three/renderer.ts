@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import type { Backend, Tier } from '../state/quality'
 import { TIER_CONFIG, urlForceWebGL } from '../state/quality'
+import { runtimeForceWebGL } from './recovery'
 
 export interface RendererInfo {
   renderer: THREE.WebGPURenderer
@@ -23,18 +24,30 @@ export async function createRenderer(
   onBackend: (b: Backend) => void,
   /** Smooth edges even when the tier has antialiasing off (small item canvases). */
   forceAntialias = false,
+  /** Called once when the GPU device or WebGL context is lost. The caller remounts the canvas. */
+  onLost?: (api: string) => void,
 ): Promise<THREE.WebGPURenderer> {
   const renderer = new THREE.WebGPURenderer({
     ...props,
     canvas: props.canvas as HTMLCanvasElement,
     antialias: forceAntialias || TIER_CONFIG[tier].antialias,
     alpha: false,
-    forceWebGL: urlForceWebGL(),
+    forceWebGL: urlForceWebGL() || runtimeForceWebGL(),
     powerPreference: 'high-performance',
   })
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1
   renderer.outputColorSpace = THREE.SRGBColorSpace
+  if (onLost) {
+    let lost = false
+    renderer.onDeviceLost = (info: { api: string; message: string; reason?: string | null }) => {
+      ;(renderer as unknown as { _isDeviceLost: boolean })._isDeviceLost = true
+      if (lost) return
+      lost = true
+      console.warn(`3D: ${info.api} context lost (${info.message}${info.reason ? `, ${info.reason}` : ''}). Rebuilding the renderer.`)
+      onLost(info.api)
+    }
+  }
   await renderer.init()
   onBackend(detectBackend(renderer))
   return renderer

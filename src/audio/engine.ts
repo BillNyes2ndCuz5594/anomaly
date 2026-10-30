@@ -5,6 +5,12 @@ import { clampSoundVolume, DEFAULT_SOUND_VOLUME } from '../state/settings'
 /** Full volume on a full-scale bus. 10^(-12/20). The compressor sits after this. */
 const MASTER_AT_FULL = 0.2512
 
+/** Hover ticks pile up if every button the pointer crosses speaks. */
+export const HOVER_GAP_MS = 120
+/** How long the bed fades before a hidden tab suspends the context. */
+export const HIDE_FADE_S = 0.16
+export const HIDE_SUSPEND_MS = 180
+
 const AMBIENT_HZ = [55, 82.4, 164.8] as const
 const AMBIENT_MIX = [0.55, 0.28, 0.08] as const
 
@@ -72,6 +78,7 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
   let ambientWanted = false
   let ambient: AmbientVoice | null = null
   let muteTimer: ReturnType<typeof setTimeout> | 0 = 0
+  let hideTimer: ReturnType<typeof setTimeout> | 0 = 0
   const lastAt = new Map<string, number>()
 
   function block(cue: CueId, bypassSound = false): AudioBlock | null {
@@ -158,6 +165,25 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
     }
   }
 
+  function clearHideTimer(): void {
+    if (hideTimer) {
+      clearTimeout(hideTimer)
+      hideTimer = 0
+    }
+  }
+
+  /** Ease the bed to `target`. Values stay above the exponential-ramp floor. */
+  function fadeAmbientTo(target: number, seconds: number): void {
+    if (!ambient || !ctx) return
+    const t = ctx.currentTime
+    const g = ambient.gain.gain
+    const from = Math.max(g.value, 0.0001)
+    const to = Math.max(target, 0.0001)
+    g.cancelScheduledValues(t)
+    g.setValueAtTime(from, t)
+    g.exponentialRampToValueAtTime(to, t + Math.max(0.02, seconds))
+  }
+
   function stopAmbient(immediate: boolean): void {
     if (!ambient || !ctx) {
       ambient = null
@@ -212,6 +238,7 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
 
   function haltNow(): void {
     clearMuteTimer()
+    clearHideTimer()
     stopAmbient(true)
     suspend()
   }
@@ -247,7 +274,7 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
     play(cue, playOpts) {
       const bypass = playOpts?.bypassSound === true
       if (block(cue, bypass)) return
-      const gap = cue === 'hover' ? 70 : cue === 'solved' ? 700 : cue === 'pickup' ? 80 : 40
+      const gap = cue === 'hover' ? HOVER_GAP_MS : cue === 'solved' ? 700 : cue === 'pickup' ? 80 : 40
       if (tooSoon(cue, gap)) return
       try {
         const audio = ensureCtx()
@@ -285,15 +312,32 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
     },
     onVisibility() {
       if (hidden()) {
+        // Let the hum fall away, then suspend. A hard suspend clicks the bed off.
+        if (ambient && ctx && ctx.state === 'running') {
+          fadeAmbientTo(0.0001, HIDE_FADE_S)
+          clearHideTimer()
+          const id = setTimeout(() => {
+            hideTimer = 0
+            if (hidden()) suspend()
+          }, HIDE_SUSPEND_MS)
+          if (typeof id === 'object' && id && 'unref' in id) id.unref()
+          hideTimer = id
+          return
+        }
+        clearHideTimer()
         suspend()
         return
       }
+      clearHideTimer()
       if (!transportOpen()) {
         haltNow()
         return
       }
       resume()
-      if (ambientWanted) ensureAmbient()
+      if (ambientWanted) {
+        if (ambient) fadeAmbientTo(AMBIENT_BUS_GAIN, 0.45)
+        else ensureAmbient()
+      }
     },
   }
 }
