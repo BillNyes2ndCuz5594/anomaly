@@ -53,10 +53,10 @@ Rules for video clips
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped; wave 8: rescanned from a low front photo |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs, and in wave 7 by a scan from a low front photo |
-| 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome |
+| 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome; wave 10: redone with Veo 3.1 at 1280x720 |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2 scans; wave 6 rescans the bass, pelican, frog, owl, tortoise and grasshopper |
 | 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot); wave 7: rescanned lying level, no tusk |
-| 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops |
+| 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops; wave 10: all four redone |
 | 8 | Plants and organ models | Lab A, Lab B | Wave 4b: organ scans (brain, heart, lungs, liver, stomach, pancreas, large intestine, kidneys) and live oak sprig and acorn scans shipped; wave 5a adds bladder, small intestine, eyes, ears, nose and tongue; wave 5c adds the scanned deer skin and oak trunk |
 | 8b | Lab A human body | Lab A, Briefing | Wave 5a: scanned body shell and muscle layer replace the sculpted mannequin on Medium and up |
 | 8c | Scene diagrams (water cycle, coast, planets, comet, plant pots) | Evidence items, art check | Wave 5b: NASA photos of the Sun and planets, a painted coast plate, cloud and seedling pot on Medium and up; Low keeps the vector art |
@@ -73,15 +73,6 @@ Rules for video clips
   shader (`LoopSky`) as a soft window above the horizon, graded to the navy and cyan palette, never a box. The
   precached WebP poster shows first and the video crosses in after its first decoded frame. Low tier and reduced
   motion get the poster only. Videos are not precached, so offline play keeps the poster. Spend $1.84.
-- Wave 5: the four loops are redone at higher quality. The old cells loop was bokeh glitter with heavy depth of field,
-  against the rules above. Each still is FLUX 3 (`blackforestlabs/flux-3/text-to-image`, 1.5k, 2048x1152, about
-  $0.11) with an art directed prompt (navy #030814 to #0b1a2e, cyan rim light, low key, even focus, no bokeh, no
-  text, brightest band in the middle third so the dome window reads). Each loop is Veo 3.1 first and last frame
-  (`fal-ai/veo3.1/first-last-frame-to-video`, 4 s, 1080p, no audio, $0.80) with the same still as both frames and a
-  locked camera prompt, so only fog, moss, membranes or caustics move. The encode trims to 3.2 s with a 0.8 s seam
-  crossfade, light denoise and a per clip grade, 1280x720 VP9 plus H.264 (water 960x540), 140 to 480 KB, and a
-  960x540 WebP poster from the first loop frame. Seams measure under 0.1 of 255 mean difference (water matches its
-  own frame to frame caustic motion). Spend $3.64.
 - Wave 4a: app icons, favicon and a 1200x630 share image. The icons are drawn by `scripts/gen-icons.mjs` in the
   title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
   screen. No fal spend.
@@ -136,6 +127,15 @@ Rules for video clips
   with the cream stripe along its side and wide toe pads. FLUX Ultra references were also drawn for both and rejected
   (the tortoise was the wrong species again and the frog stripe was missing). Low tier keeps the procedural models.
   Spend $2.07 (four nano-banana-pro and two FLUX Ultra references, two scans).
+- Wave 10: the four loops are redone at higher quality. The old cells loop was bokeh glitter with heavy depth of field,
+  against the rules above. Each still is FLUX 3 (`blackforestlabs/flux-3/text-to-image`, 1.5k, 2048x1152, about
+  $0.11) with an art directed prompt (navy #030814 to #0b1a2e, cyan rim light, low key, even focus, no bokeh, no
+  text, brightest band in the middle third so the dome window reads). Each loop is Veo 3.1 first and last frame
+  (`fal-ai/veo3.1/first-last-frame-to-video`, 4 s, 1080p, no audio, $0.80) with the same still as both frames and a
+  locked camera prompt, so only fog, moss, membranes or caustics move. The encode trims to 3.2 s with a 0.8 s seam
+  crossfade, light denoise and a per clip grade, 1280x720 VP9 plus H.264 (water 960x540), 140 to 480 KB, and a
+  960x540 WebP poster from the first loop frame. Seams measure under 0.1 of 255 mean difference (water matches its
+  own frame to frame caustic motion). Spend $3.64.
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
