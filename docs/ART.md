@@ -53,7 +53,7 @@ Rules for video clips
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped; wave 8: rescanned from a low front photo |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs, and in wave 7 by a scan from a low front photo |
-| 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome; wave 10: redone with Veo 3.1 at 1280x720 |
+| 5 | Title and hub backdrop | First screen every session | Wave 3: shipped, swamp loop painted into the sky dome; wave 10: redone with Veo 3.1 at 960x540 |
 | 6 | Pelican, tortoise, frog, shark, bass, owl, grasshopper | Lab C, Briefing, items | Wave 2 scans; wave 6 rescans the bass, pelican, frog, owl, tortoise and grasshopper |
 | 6b | Manatee | Lab C close-up, items | Wave 5a: rescanned (wave 2 scan had a forked tail and an ear dot); wave 7: rescanned lying level, no tusk |
 | 7 | Lab ambience (Briefing, Lab A, B, C backdrops) | Labs | Wave 3: shipped, swamp, cells, canopy and water loops; wave 10: all four redone |
@@ -133,9 +133,10 @@ Rules for video clips
   text, brightest band in the middle third so the dome window reads). Each loop is Veo 3.1 first and last frame
   (`fal-ai/veo3.1/first-last-frame-to-video`, 4 s, 1080p, no audio, $0.80) with the same still as both frames and a
   locked camera prompt, so only fog, moss, membranes or caustics move. The encode trims to 3.2 s with a 0.8 s seam
-  crossfade, light denoise and a per clip grade, 1280x720 VP9 plus H.264 (water 960x540), 140 to 480 KB, and a
+  crossfade, light denoise and a per clip grade, 960x540 VP9 plus H.264, 100 to 480 KB, and a
   960x540 WebP poster from the first loop frame. Seams measure under 0.1 of 255 mean difference (water matches its
-  own frame to frame caustic motion). Spend $3.64.
+  own frame to frame caustic motion). A 1280x720 encode was tried first and dropped: decoding it slowed the next
+  item's 3D compile enough to blank the evidence glide on SwiftShader. Spend $3.64.
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
