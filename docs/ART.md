@@ -49,7 +49,7 @@ Rules for video clips
 
 | Rank | Asset | Where it shows | Status |
 | --- | --- | --- | --- |
-| 1 | Florida panther | Evidence item, art check | Wave 1 scan, replaced in wave 6 (plain tawny coat, tail hanging low) |
+| 1 | Florida panther | Evidence item, art check | Wave 1 scan, replaced in wave 6 (plain tawny coat, tail hanging low); wave 11: rescanned with Hunyuan 3D v3.1 Pro (fur texture, muscle, amber eyes) |
 | 2 | Blue crab | Evidence items, Lab C | Wave 1: scan shipped; wave 8: rescanned from a low front photo |
 | 3 | American alligator | Evidence item | Wave 1: scan shipped |
 | 4 | Garden spider | Evidence item | Wave 1 scan, replaced in wave 2 by a top-down scan standing on its legs, and in wave 7 by a scan from a low front photo |
@@ -137,6 +137,13 @@ Rules for video clips
   960x540 WebP poster from the first loop frame. Seams measure under 0.1 of 255 mean difference (water matches its
   own frame to frame caustic motion). A 1280x720 encode was tried first and dropped: decoding it slowed the next
   item's 3D compile enough to blank the evidence glide on SwiftShader. Spend $3.64.
+- Wave 11: the Florida panther. The wave 6 scan read as smooth salmon plastic. The new reference is FLUX 3
+  (`blackforestlabs/flux-3/text-to-image`, 1.5k) with an art directed prompt (broadside profile facing right, plain
+  tawny coat with real fur texture, cream chin and belly, dark ear backs and muzzle marks, all four paws flat, plain
+  light grey studio, even light), the better of two seeds. It is scanned with Hunyuan 3D v3.1 Pro
+  (`fal-ai/hunyuan-3d/v3.1/pro/image-to-3d`, 40k faces, PBR), which gives clear shoulder and leg muscle, a detailed
+  face and amber eyes. Optimized the usual way to 18k triangles and 282 KB. Same yaw, sizing and framing rules; Low
+  tier keeps the procedural model. Spend $0.75 (two FLUX 3 references, one scan).
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
