@@ -1,5 +1,9 @@
 # Changelog
 
+## Backdrop loops v2
+
+- Swamp (title and hub), cells (Lab A), canopy (Lab B) and water (Lab C) loops are regenerated: FLUX 3 stills animated with Veo 3.1 first and last frame, 960x540, in the navy and cyan palette. The cells loop no longer uses bokeh glitter.
+
 ## Briefing and Lab B
 
 - Briefing stages the body scan and a lit manatee on a shared table, with a lip scan that stays off the figures.
