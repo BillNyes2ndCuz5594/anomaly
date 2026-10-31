@@ -1,7 +1,26 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
-import { color, float, length, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv } from 'three/tsl'
+import {
+  color,
+  float,
+  length,
+  mix,
+  normalView,
+  normalWorld,
+  oneMinus,
+  positionLocal,
+  positionViewDirection,
+  pow,
+  saturate,
+  sin,
+  smoothstep,
+  texture,
+  time,
+  uv,
+  vec3,
+} from 'three/tsl'
+import { iceGiantTexture } from '../materials/planetTextures'
 import { makeRadialTexture } from './common'
 
 /**
@@ -98,15 +117,42 @@ export function NightBody({
     m.depthWrite = false
     m.fog = false
     m.blending = THREE.AdditiveBlending
-    m.opacity = rich ? 0.42 : 0.32
+    m.opacity = rich ? 0.28 : 0.22
     return m
   }, [tex, rich])
+  const bodyMat = useMemo(() => {
+    // Same recipe as the hub planet: key light from the upper right, soft terminator, small ambient floor, cool rim.
+    const m = new THREE.MeshBasicNodeMaterial()
+    const albedo = rich ? texture(iceGiantTexture(), uv()).rgb : vec3(0.62, 0.72, 0.8)
+    const lit = smoothstep(-0.05, 0.85, normalWorld.dot(vec3(0.5, 0.6, 0.62).normalize()))
+    const rim = pow(oneMinus(saturate(normalView.dot(positionViewDirection))), 3).mul(0.45)
+    m.colorNode = albedo.mul(lit.add(0.08)).add(vec3(0.25, 0.85, 1).mul(rim))
+    m.fog = false
+    return m
+  }, [rich])
+  const ringMat = useMemo(() => {
+    // Translucent pale ice ring: fine radial banding, one dark gap, soft inner and outer edges.
+    const m = new THREE.MeshBasicNodeMaterial()
+    const u = length(positionLocal.xy).sub(0.82).div(0.26)
+    const fine = sin(u.mul(15.0).add(1.0)).mul(0.5).add(0.5).mul(0.7).add(sin(u.mul(57.0)).mul(0.5).add(0.5).mul(0.3))
+    const gap = oneMinus(smoothstep(0.5, 0.55, u).mul(oneMinus(smoothstep(0.62, 0.68, u))))
+    const edge = smoothstep(0.0, 0.08, u).mul(oneMinus(smoothstep(0.9, 1.0, u)))
+    m.colorNode = mix(color('#7fa6bf'), color('#cfe6f2'), fine)
+    m.opacityNode = fine.mul(0.35).add(0.22).mul(gap).mul(edge).mul(0.7)
+    m.transparent = true
+    m.depthWrite = false
+    m.fog = false
+    m.side = THREE.DoubleSide
+    return m
+  }, [])
   useEffect(
     () => () => {
       tex.dispose()
       glowMat.dispose()
+      bodyMat.dispose()
+      ringMat.dispose()
     },
-    [tex, glowMat],
+    [tex, glowMat, bodyMat, ringMat],
   )
   useFrame(({ camera }, dt) => {
     if (spin.current && !calm) spin.current.rotation.y += dt * 0.04
@@ -114,19 +160,21 @@ export function NightBody({
   })
   return (
     <group position={position}>
-      <mesh ref={glow} scale={[rich ? 3.4 : 2.4, rich ? 3.4 : 2.4, 1]}>
+      <mesh ref={glow} scale={[rich ? 2.6 : 2.0, rich ? 2.6 : 2.0, 1]}>
         <planeGeometry args={[1, 1]} />
         <primitive object={glowMat} attach="material" />
       </mesh>
-      <group ref={spin}>
-        <mesh>
-          <sphereGeometry args={[0.55, 24, 16]} />
-          <meshStandardMaterial color="#d5dde6" roughness={0.82} metalness={0.08} />
-        </mesh>
+      <group rotation={[0, 0, 0.35]}>
+        <group ref={spin}>
+          <mesh>
+            <sphereGeometry args={[0.55, 48, 32]} />
+            <primitive object={bodyMat} attach="material" />
+          </mesh>
+        </group>
         {rich ? (
-          <mesh rotation={[1.15, 0.15, 0.35]}>
-            <ringGeometry args={[0.82, 1.08, 40]} />
-            <meshBasicMaterial color="#9fd4ea" transparent opacity={0.45} side={THREE.DoubleSide} depthWrite={false} />
+          <mesh rotation={[1.15, 0.15, 0]}>
+            <ringGeometry args={[0.82, 1.08, 64]} />
+            <primitive object={ringMat} attach="material" />
           </mesh>
         ) : null}
       </group>

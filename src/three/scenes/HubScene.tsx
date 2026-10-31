@@ -63,7 +63,7 @@ export default function HubScene() {
       <FloorPool position={[0, 0.02, 0]} radius={6.2} opacity={0.5} />
       <FloorPool position={[DRONE_POS[0], 0.02, DRONE_POS[2]]} radius={2.2} inner="rgba(180,220,255,0.16)" opacity={0.4} />
       <ConsoleRing radius={13} count={16} arc={Math.PI * 1.1} />
-      <MapTable reduced={calm} />
+      <MapTable reduced={calm} rich={rich} />
       {rich ? <VolumeColumn position={[0.15, TABLE_TOP_Y + 1.35, -0.15]} radius={1.15} height={2.5} calm={calm} /> : null}
       <Markers reduced={calm} />
       <Drone reduced={calm} position={DRONE_POS} scale={1} />

@@ -144,6 +144,12 @@ Rules for video clips
   (`fal-ai/hunyuan-3d/v3.1/pro/image-to-3d`, 40k faces, PBR), which gives clear shoulder and leg muscle, a detailed
   face and amber eyes. Optimized the usual way to 18k triangles and 282 KB. Same yaw, sizing and framing rules; Low
   tier keeps the procedural model. Spend $0.75 (two FLUX 3 references, one scan).
+- Wave 12: planet textures for the title night body and the hub planet and moon, which were flat grey and procedural
+  bands. Three art directed equirectangular maps from FLUX 3 (`blackforestlabs/flux-3/text-to-image`, 1k, 2:1): a
+  cream and tan banded gas giant, a pale frost white and glacier blue ice giant, and a grey cratered regolith moon.
+  Each is made seamless with a half width roll and a crossfade over the join, then saved as WebP, 18 to 47 KB. The
+  title body wears the ice giant with a tilted axis and a pale ice ring, the hub planet wears the gas giant and the
+  hub moon the regolith map. Low tier keeps the procedural look. Spend $0.18.
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
