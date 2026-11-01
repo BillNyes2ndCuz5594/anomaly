@@ -209,7 +209,16 @@ function Planet({ reduced, rich }: { reduced: boolean; rich: boolean }) {
   const moonMat = useMemo(
     () =>
       rich
-        ? new THREE.MeshStandardNodeMaterial({ color: '#ffffff', map: moonTexture(), roughness: 0.95, metalness: 0 })
+        ? new THREE.MeshStandardNodeMaterial({
+            color: '#ffffff',
+            map: moonTexture(),
+            // Cool lift so the cratered map stays as bright as the old flat moon against the navy sky.
+            emissive: '#c4d6ea',
+            emissiveMap: moonTexture(),
+            emissiveIntensity: 0.8,
+            roughness: 0.95,
+            metalness: 0,
+          })
         : new THREE.MeshStandardNodeMaterial({ color: '#9aa8b8', roughness: 0.9, metalness: 0 }),
     [rich],
   )
