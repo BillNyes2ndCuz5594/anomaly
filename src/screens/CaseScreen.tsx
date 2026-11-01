@@ -39,13 +39,14 @@ const CARRY: readonly [string, number][] = [
 function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
   const caseId = useSession((s) => s.caseId)
   const step = useSession((s) => s.step)
+  const caseDef = useSession((s) => s.caseDef)
   const start = useSession((s) => s.start)
   const motion = useMotionMode()
   const hostRef = useRef<HTMLDivElement>(null)
   const [seen, setSeen] = useState(step)
   const [dir, setDir] = useState<'forward' | 'back'>('forward')
   if (step !== seen) {
-    const steps = stepsFor(kind)
+    const steps = stepsFor(kind, caseDef)
     setDir(stepDirection(steps.findIndex((s) => s.id === seen), steps.findIndex((s) => s.id === step)))
     setSeen(step)
   }
@@ -90,6 +91,8 @@ function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getStat
       return <LabB />
     case 'lab-c':
       return <LabC />
+    case 'lab':
+      return null
     case 'items':
       return <ItemPlayer />
     case 'debrief':
