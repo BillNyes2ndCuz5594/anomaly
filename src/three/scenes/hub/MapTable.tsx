@@ -21,12 +21,14 @@ import {
   sin,
   smoothstep,
   step,
+  texture,
   time,
   uv,
   vec3,
 } from 'three/tsl'
 import { FLORIDA_LONLAT, lonLatToXZ, MAP_PINGS } from '../../data/florida'
 import { createHologramMaterial, HOLO_CYAN } from '../../materials/hologram'
+import { gasGiantTexture, moonTexture } from '../../materials/planetTextures'
 
 export const TABLE_RADIUS = 3.7
 export const TABLE_TOP_Y = 1.0
@@ -166,7 +168,7 @@ function Florida({ calm }: { calm: boolean }) {
 const PLANET_ANGLE = 2.55
 
 /** Orbiting planet with a ring, and a small moon. A hint of the space cases. */
-function Planet({ reduced }: { reduced: boolean }) {
+function Planet({ reduced, rich }: { reduced: boolean; rich: boolean }) {
   const orbit = useRef<THREE.Group>(null)
   const moon = useRef<THREE.Group>(null)
   const planetMat = useMemo(() => {
@@ -179,14 +181,17 @@ function Planet({ reduced }: { reduced: boolean }) {
     const b2 = sin(lat.mul(33.0).add(1.3).add(warp.mul(0.5))).mul(0.5).add(0.5)
     const band = b1.mul(0.65).add(b2.mul(0.35))
     const polar = smoothstep(0.55, 0.98, lat.abs())
-    const albedo = mix(mix(vec3(0.43, 0.3, 0.2), vec3(0.89, 0.76, 0.55), band), vec3(0.3, 0.3, 0.36), polar.mul(0.55))
+    // Medium and up reads the painted map, with a lighter polar haze. Low keeps the procedural bands.
+    const albedo = rich
+      ? mix(texture(gasGiantTexture(), uv()).rgb, vec3(0.7, 0.72, 0.78), polar.mul(0.3))
+      : mix(mix(vec3(0.43, 0.3, 0.2), vec3(0.89, 0.76, 0.55), band), vec3(0.3, 0.3, 0.36), polar.mul(0.55))
     const ndl = normalWorld.dot(vec3(-0.5, 0.6, 0.62).normalize())
     const lit = smoothstep(-0.05, 0.85, ndl)
     const facing = saturate(normalView.dot(positionViewDirection))
     const rim = pow(oneMinus(facing), 3).mul(0.5)
     m.colorNode = albedo.mul(lit.mul(1.0).add(0.07)).add(vec3(0.25, 0.85, 1).mul(rim))
     return m
-  }, [])
+  }, [rich])
   const ringMat = useMemo(() => {
     // Thin translucent ring: fine radial banding, one dark gap, soft edges.
     const m = new THREE.MeshBasicNodeMaterial()
@@ -201,9 +206,27 @@ function Planet({ reduced }: { reduced: boolean }) {
     m.side = THREE.DoubleSide
     return m
   }, [])
-  const moonMat = useMemo(() => new THREE.MeshStandardNodeMaterial({ color: '#9aa8b8', roughness: 0.9, metalness: 0 }), [])
+  const moonMat = useMemo(
+    () =>
+      rich
+        ? new THREE.MeshStandardNodeMaterial({
+            color: '#ffffff',
+            map: moonTexture(),
+            // Cool lift so the cratered map stays as bright as the old flat moon against the navy sky.
+            emissive: '#c4d6ea',
+            emissiveMap: moonTexture(),
+            emissiveIntensity: 0.8,
+            roughness: 0.95,
+            metalness: 0,
+          })
+        : new THREE.MeshStandardNodeMaterial({ color: '#9aa8b8', roughness: 0.9, metalness: 0 }),
+    [rich],
+  )
   const trail = useMemo(() => createHologramMaterial({ opacity: 0.5, intensity: 0.7, scanDensity: 3, scanSpeed: reduced ? 0 : 0.2, sweep: 0 }), [reduced])
   useEffect(() => () => trail.dispose(), [trail])
+  useEffect(() => () => planetMat.dispose(), [planetMat])
+  useEffect(() => () => ringMat.dispose(), [ringMat])
+  useEffect(() => () => moonMat.dispose(), [moonMat])
   useFrame((state, dt) => {
     if (reduced) return
     // The planet drifts along a short arc in the upper left sky, clear of the case labels and the panel.
@@ -219,7 +242,7 @@ function Planet({ reduced }: { reduced: boolean }) {
       <group ref={orbit} rotation={[0, PLANET_ANGLE, 0]}>
         <group position={[TABLE_RADIUS - 0.6, 0, 0]}>
           <mesh>
-            <sphereGeometry args={[0.3, 32, 20]} />
+            <sphereGeometry args={[0.3, 48, 32]} />
             <primitive object={planetMat} attach="material" />
           </mesh>
           <mesh rotation={[1.3, 0.0, -0.3]}>
@@ -238,7 +261,7 @@ function Planet({ reduced }: { reduced: boolean }) {
   )
 }
 
-export default function MapTable({ reduced }: { reduced: boolean }) {
+export default function MapTable({ reduced, rich }: { reduced: boolean; rich: boolean }) {
   const trim = useMemo(() => {
     const m = new THREE.MeshBasicNodeMaterial()
     m.colorNode = color(HOLO_CYAN).mul(1.5)
@@ -286,7 +309,7 @@ export default function MapTable({ reduced }: { reduced: boolean }) {
       </mesh>
       <RadarFace calm={reduced} />
       <Florida calm={reduced} />
-      <Planet reduced={reduced} />
+      <Planet reduced={reduced} rich={rich} />
     </group>
   )
 }
