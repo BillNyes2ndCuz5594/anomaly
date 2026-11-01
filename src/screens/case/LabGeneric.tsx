@@ -101,7 +101,8 @@ export default function LabGeneric() {
       document.body.style.cursor = ''
     }
   }, [lab.kind])
-  const onDais = st.current
+  // What the 3D slab stands for: the current card, or the slot being filled in an order lab. Null hides it.
+  const onDais = order ? (slot ? `slot-${slot}` : null) : st.current
   useEffect(() => {
     useFx.getState().setCard(onDais)
   }, [onDais])

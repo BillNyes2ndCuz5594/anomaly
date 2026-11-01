@@ -71,6 +71,8 @@ function Slab({ reduced }: { reduced: boolean }) {
   useFrame((state) => {
     const g = group.current
     if (!g) return
+    // Nothing left to place: the slab goes away.
+    g.visible = card !== null
     const calm = reduced || STILL
     if (born.current === null) born.current = state.clock.elapsedTime
     const age = state.clock.elapsedTime - born.current
