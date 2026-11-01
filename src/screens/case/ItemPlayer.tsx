@@ -7,6 +7,8 @@ import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announce'
+import { flyChip } from '../../ui/flyChip'
+import { useMotionMode } from '../../ui/useMotionMode'
 import { CoreVignette } from '../../ui/FrostOverlay'
 import { CaseTop } from './ui'
 import ItemVisual from './ItemVisual'
@@ -40,6 +42,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     return m
   }, [phrases])
 
+  const motion = useMotionMode()
   const [tagged, setTagged] = useState<Set<number>>(new Set())
   const [earnedPhrases, setEarned] = useState<Set<number>>(new Set())
   const [selected, setSelected] = useState<number | null>(null)
@@ -97,9 +100,10 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (pi !== undefined && !phrases[pi].tokens.every((i) => tagged.has(i)) && !earnedPhrases.has(pi)) {
         setEarned((e) => new Set(e).add(pi))
         setToast(`Intel +${INTEL.keyWord}: key words found`)
+        flyChip(`+${INTEL.keyWord}`, document.querySelector(`[data-testid="word-${t}"]`), document.querySelector('[data-testid="rkea-key-words"]'), motion)
       }
     },
-    [locked, phraseOf, phrases, tagged, earnedPhrases],
+    [locked, phraseOf, phrases, tagged, earnedPhrases, motion],
   )
 
   const strike = useCallback(
@@ -121,10 +125,11 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (!struckEver.has(i)) {
         setStruckEver((s) => new Set(s).add(i))
         setToast(`Intel +${INTEL.eliminate}: decoy ruled out`)
+        flyChip(`+${INTEL.eliminate}`, document.querySelector(`[data-testid="option-${i}"]`), document.querySelector('[data-testid="rkea-eliminate"]'), motion)
       }
       setSelected((s) => (s === i ? null : s))
     },
-    [locked, item.key, struckEver],
+    [locked, item.key, struckEver, motion],
   )
 
   const choose = useCallback(
@@ -286,7 +291,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         </div>
       {createPortal(
         <div className="panel brackets options-panel">
-          <div role="group" aria-label="Answer options" className="options">
+          <div role="group" aria-label="Answer options" className="options" data-verdict={result ? (result.correct ? 'ok' : 'bad') : undefined}>
             {item.options.map((o, i) => {
               const isStruck = struck.has(i)
               const isSel = selected === i
