@@ -1,7 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { content } from '../../content/schema'
 import { useReadAloud, wordAt } from '../../lib/speech'
+import { useRuntime } from '../../state/runtime'
 import { useSession } from '../../state/session'
+import { FrostCreep } from '../../ui/FrostOverlay'
+import { useMotionMode } from '../../ui/useMotionMode'
 import { CaseTop } from './ui'
 import { usePressed } from './usePressed'
 import './briefing-labb.css'
@@ -32,9 +35,25 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1
   const press = usePressed()
 
+  // Cold case: "Open the evidence" pulls a canister first (500 ms in full motion), then the usual step change.
+  const motion = useMotionMode()
+  const leaving = useRef(false)
+  const timer = useRef(0)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const proceed = () => {
+    if (!cold) return next()
+    if (leaving.current) return
+    leaving.current = true
+    useRuntime.getState().pullCanister()
+    const ms = motion === 'full' ? 500 : motion === 'fade' ? 250 : 0
+    if (ms === 0) next()
+    else timer.current = window.setTimeout(next, ms)
+  }
+
   return (
     <div className="screen case-screen briefing-screen" data-testid={cold ? 'cold-intro' : 'briefing'}>
       <CaseTop step="briefing" />
+      {cold ? <FrostCreep /> : null}
       <aside className="panel brackets side-panel dispatch-card" aria-label={cold ? 'Dispatch briefing, cold case' : 'Dispatch briefing'}>
         <header className="dispatch-head">
           <span className="dispatch-dot" aria-hidden="true" />
@@ -85,7 +104,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
               </span>
             ) : null}
           </div>
-          <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} {...press('next')} onClick={next}>
+          <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} {...press('next')} onClick={proceed}>
             {cold ? 'Open the evidence' : 'Start field lab'}
           </button>
         </div>
