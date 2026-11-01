@@ -121,6 +121,8 @@ const CHROME_ARGS = [
   '--disable-dev-shm-usage',
   '--renderer-process-limit=2',
 ]
+// A software GPU can take minutes on one tall screenshot; PROOF_PROTOCOL_TIMEOUT_MS raises the CDP timeout for such machines.
+const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || 300000
 
 mkdirSync(OUT, { recursive: true })
 for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f)) rmSync(join(OUT, f))
@@ -734,7 +736,7 @@ let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
+  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
   writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
