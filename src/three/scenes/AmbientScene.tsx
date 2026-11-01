@@ -4,8 +4,8 @@ import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 
-/** Quiet backdrop for Settings and placeholder screens: dark deck, grid, dust, slow drift. */
-export default function AmbientScene() {
+/** Quiet backdrop for Settings and placeholder screens: dark deck, grid, dust, slow drift. `frost` is the cold case run: the frost sky loop. */
+export default function AmbientScene({ frost = false }: { frost?: boolean } = {}) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
@@ -21,7 +21,7 @@ export default function AmbientScene() {
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights rim={0.6} />
-      <Backdrop />
+      <Backdrop clip={frost ? 'frost' : undefined} />
       <DeckPlate />
       <GridFloor fade={30} intensity={0.45} />
       <ConsoleRing radius={16} count={16} arc={Math.PI * 1.2} />

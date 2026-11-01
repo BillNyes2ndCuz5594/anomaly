@@ -11,6 +11,13 @@ interface RuntimeState {
   /** Hub marker highlighted by keyboard focus or hover on its HTML mirror. */
   focusedMarker: 'case' | 'cold' | null
   setFocusedMarker: (m: 'case' | 'cold' | null) => void
+  /** Transient cold case events. Not persisted. `n` counts events, so a scene can tell a new one from an old one. */
+  coreFx: { ok: boolean; n: number } | null
+  /** Lock in on a cold evidence item: the residue core reacts (right or wrong). */
+  fireCoreFx: (ok: boolean) => void
+  /** Counts "Open the evidence" presses: the locker pulls a canister. */
+  coldPull: number
+  pullCanister: () => void
   setBackend: (b: Backend) => void
   setAutoTier: (t: Tier) => void
   setDprStep: (n: number) => void
@@ -24,6 +31,10 @@ export const useRuntime = create<RuntimeState>((set) => ({
   fps: 0,
   focusedMarker: null,
   setFocusedMarker: (focusedMarker) => set({ focusedMarker }),
+  coreFx: null,
+  fireCoreFx: (ok) => set((s) => ({ coreFx: { ok, n: (s.coreFx?.n ?? 0) + 1 } })),
+  coldPull: 0,
+  pullCanister: () => set((s) => ({ coldPull: s.coldPull + 1 })),
   setBackend: (backend) => set({ backend }),
   setAutoTier: (autoTier) => set({ autoTier }),
   setDprStep: (dprStep) => set({ dprStep }),
