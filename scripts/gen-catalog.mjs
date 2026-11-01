@@ -1,10 +1,12 @@
-// Regenerates src/lib/catalog.generated.ts from the content JSON.
+// Regenerates src/lib/catalog.generated.ts from the merged content: the base JSON, then every case pack that
+// PACK_ORDER in src/content/index.ts lists, in that order (scripts/lib/content.mjs mirrors the loader).
 // The benchmark and item lists are APPEND ONLY: report codes store indexes into them.
 // New benchmarks or items are added at the end. Existing entries keep their position.
 // Usage: node scripts/gen-catalog.mjs
 import { readFileSync, writeFileSync } from 'node:fs'
+import { loadContent } from './lib/content.mjs'
 
-const content = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
+const content = loadContent()
 const OUT = new URL('../src/lib/catalog.generated.ts', import.meta.url)
 
 let prev = { benchmarks: [], items: [] }
