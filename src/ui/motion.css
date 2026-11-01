@@ -1047,8 +1047,8 @@ html[data-motion='fade'] .debrief-list > .debrief-item {
   position: absolute;
   left: 6px;
   top: 4px;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   color: var(--amber);
   text-shadow: 0 0 6px rgba(255, 181, 71, 0.6);
 }
@@ -1168,7 +1168,7 @@ html[data-motion='full'] .match-btn[data-react='ok'] {
   position: absolute;
   right: 3px;
   top: 1px;
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   line-height: 1;
   color: var(--cyan);
 }
@@ -1218,7 +1218,7 @@ html[data-motion='full'] .bin-n {
   filter: drop-shadow(0 0 3px currentColor);
 }
 .vitals-word {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   white-space: nowrap;
 }
