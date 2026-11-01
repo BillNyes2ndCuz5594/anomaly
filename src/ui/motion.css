@@ -1380,13 +1380,18 @@ html[data-motion='full'] .case-btn.cyan[data-due='yes']::before {
 /* ---------- wave 5 juice: debrief loop gallery, residue alert, settings feedback, 2D fallback ---------- */
 
 /* H3: residue alert inside the cold case card. Screen blended over the card, poster holds after the clip. */
-.case-btn { position: relative; }
+.case-btn[data-due='yes'] { position: relative; }
 .residue-alert {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
   mix-blend-mode: screen;
+}
+/* Mask the left edge so the canister never sits under the card title text (card only, not the QA gallery). */
+.case-btn .residue-alert {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, transparent 42%, #000 68%);
+  mask-image: linear-gradient(90deg, transparent 0, transparent 42%, #000 68%);
 }
 .residue-alert img,
 .residue-alert video {
