@@ -137,3 +137,78 @@
     margin-right: -0.1em;
   }
 }
+
+/* S6: case status word on each dispatch row, and the mastery list grouped by reporting category. */
+.hub-screen .case-status {
+  display: inline-block;
+  margin-left: 0.6em;
+  font-weight: 700;
+  color: #9fe8ff;
+}
+
+.hub-screen .case-status.open {
+  color: var(--amber);
+}
+
+.hub-screen .case-status.closed {
+  color: #2fe3b0;
+}
+
+.hub-screen .mastery-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.hub-screen .mastery-group {
+  border-top: 1px solid rgba(62, 230, 255, 0.18);
+}
+
+.hub-screen .mastery-group > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.hub-screen .mastery-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.hub-screen .mastery-group > summary::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--cyan);
+  border-bottom: 2px solid var(--cyan);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+.hub-screen .mastery-group[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+.hub-screen .mastery-group-name {
+  flex: 1;
+}
+
+.hub-screen .mastery-group-count {
+  font-weight: 400;
+  font-size: 0.8125rem;
+}
+
+.hub-screen .mastery-group > summary:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.hub-screen .mastery-group > .mastery-list {
+  padding-bottom: var(--sp-3);
+}

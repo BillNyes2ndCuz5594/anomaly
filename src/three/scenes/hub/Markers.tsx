@@ -1,6 +1,7 @@
 import { Billboard } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { content } from '../../../content'
 import * as THREE from 'three/webgpu'
 import { color, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
 import { STILL } from '../../../lib/flags'
@@ -10,13 +11,13 @@ import { useRuntime } from '../../../state/runtime'
 import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
 import { TABLE_TOP_Y } from './MapTable'
-import { markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed } from './markerMotion'
+import { layoutMarkers, markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from './markerMotion'
 
 const tmpScale = new THREE.Vector3()
 const tmpHit = new THREE.Vector3()
 
 interface MarkerProps {
-  id: 'case' | 'cold'
+  id: MarkerId
   lon: number
   lat: number
   height: number
@@ -199,27 +200,39 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
   )
 }
 
-/** Case markers floating over the map. Mirrored as HTML buttons in the side panel. */
+const COLD_SPOT = { id: 'cold', lon: -81.1, lat: 26.2 }
+
+/** Short unit name for a marker label: "Unit 3: Living Things" reads "Living Things". */
+const unitShort = (label: string) => label.replace(/^Unit\s+\d+:\s*/, '')
+
+/** Case markers floating over the map, one per case (amber) plus the cold case (cyan). Mirrored as HTML buttons in the side panel. */
 export default function Markers({ reduced }: { reduced: boolean }) {
   const due = useReviewDue()
+  const places = useMemo(() => layoutMarkers(content.cases.map((c) => ({ id: c.id, lon: c.marker.lon, lat: c.marker.lat })), [COLD_SPOT]), [])
   return (
     <>
-      <Marker
-        id="case"
-        lon={-81.4}
-        lat={28.5}
-        height={1.75}
-        hex="#ffb547"
-        title="CASE 03-1 VITALS"
-        sub="Living Things"
-        to="/case/03-1"
-        side={1}
-        reduced={reduced}
-      />
+      {places.map((p, i) => {
+        const c = content.cases[i]
+        return (
+          <Marker
+            key={c.id}
+            id={c.id}
+            lon={p.lon}
+            lat={p.lat}
+            height={p.height}
+            hex="#ffb547"
+            title={`CASE ${c.id} ${c.codename}`}
+            sub={unitShort(c.unitLabel)}
+            to={`/case/${c.id}`}
+            side={p.side}
+            reduced={reduced}
+          />
+        )
+      })}
       <Marker
         id="cold"
-        lon={-81.1}
-        lat={26.2}
+        lon={COLD_SPOT.lon}
+        lat={COLD_SPOT.lat}
         height={1.2}
         hex="#3ee6ff"
         title="COLD CASE RESIDUE"

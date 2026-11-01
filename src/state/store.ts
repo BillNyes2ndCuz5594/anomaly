@@ -32,14 +32,6 @@ export interface Profile {
   codename: string
 }
 
-/** Benchmarks shown on the hub before real content lands (S2). Ids only, no item text. */
-export const HUB_BENCHMARKS: readonly { id: string; label: string }[] = [
-  { id: 'SC.5.L.14.1', label: 'Human organs and functions' },
-  { id: 'SC.5.L.14.2', label: 'Plant and animal structures' },
-  { id: 'SC.3.L.15.1', label: 'Classifying animals' },
-  { id: 'SC.5.N.1.1', label: 'Scientific investigations' },
-]
-
 export interface ItemHistoryEntry {
   itemId: string
   correct: boolean
@@ -90,12 +82,29 @@ export function makeProfile(agentNumber: number, classCode: string): Profile {
   return { classCode: code, agentNumber: n, codename: generateCodename(n, code) }
 }
 
+/** Rank floor: an agent who knows fewer benchmarks than this is measured as if they knew this many. */
+export const RANK_MIN_KNOWN = 4
+
+/** Share of full mastery each rank needs, in order (Cadet, Field Agent, Specialist, Commander). */
+export const RANK_STEPS: readonly [number, string][] = [
+  [12 / 16, 'Commander'],
+  [7 / 16, 'Specialist'],
+  [3 / 16, 'Field Agent'],
+  [1 / 16, 'Cadet'],
+]
+
+/**
+ * Rank from the fraction of full mastery over the benchmarks the agent knows (has met, so not Unseen), with a floor
+ * of four so one lucky benchmark is not a Commander. The old rule counted raw points, which a full year of cases
+ * would make trivial; this one depends only on the agent's own record, so adding cases (new, unseen benchmarks)
+ * never demotes anyone. With four or fewer known benchmarks it gives exactly the old ranks (1, 3, 7, 12 points).
+ */
 export function rankFor(mastery: Record<string, MasteryStage>): string {
-  const points = Object.values(mastery).reduce((sum, s) => sum + MASTERY_STAGES.indexOf(s), 0)
-  if (points >= 12) return 'Commander'
-  if (points >= 7) return 'Specialist'
-  if (points >= 3) return 'Field Agent'
-  if (points >= 1) return 'Cadet'
+  const stages = Object.values(mastery).map((s) => MASTERY_STAGES.indexOf(s)).filter((n) => n > 0)
+  const points = stages.reduce((sum, n) => sum + n, 0)
+  const top = (MASTERY_STAGES.length - 1) * Math.max(RANK_MIN_KNOWN, stages.length)
+  const share = points / top
+  for (const [need, name] of RANK_STEPS) if (share >= need - 1e-9) return name
   return 'Recruit'
 }
 
