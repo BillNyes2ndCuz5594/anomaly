@@ -44,8 +44,8 @@ describe('teacher analysis', () => {
     expect(categoryOf('SC.5.P.8.1')).toBe('Physical')
     expect(categoryOf('SC.5.L.14.1')).toBe('Life')
     expect(a.categories.map((c) => c.name)).toEqual(['Nature of Science', 'Earth and Space', 'Physical', 'Life'])
-    expect(a.categories.find((c) => c.name === 'Physical')?.pct).toBeNull()
-    expect(a.categories.find((c) => c.name === 'Life')?.pct).not.toBeNull()
+    // The catalog now holds benchmarks in every category, and the sample class touches all of them.
+    for (const c of a.categories) expect(c.pct, c.name).not.toBeNull()
   })
 
   it('color scale runs dark to light and picks readable text', () => {

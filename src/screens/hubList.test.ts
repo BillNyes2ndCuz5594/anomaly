@@ -18,12 +18,13 @@ describe('hub case status', () => {
 })
 
 describe('hub mastery groups', () => {
-  it('lists the VITALS benchmarks under Life Science', () => {
+  it('lists every category once the packs are in, with the VITALS benchmarks under Life Science', () => {
     const g = hubBenchmarkGroups(content.cases, [], label)
-    expect(g.map((x) => x.category)).toEqual(['life'])
-    expect(g[0].label).toBe('Life Science')
-    expect(g[0].benchmarks.map((b) => b.id)).toEqual(vitalsCase.benchmarks)
-    expect(g[0].benchmarks[0].label).toBe('label SC.5.L.14.1')
+    expect(g.map((x) => x.category)).toEqual(['nature', 'earth', 'physical', 'life'])
+    const life = g.find((x) => x.category === 'life')
+    expect(life?.label).toBe('Life Science')
+    for (const b of vitalsCase.benchmarks) expect(life?.benchmarks.map((x) => x.id)).toContain(b)
+    expect(life?.benchmarks.find((b) => b.id === 'SC.5.L.14.1')?.label).toBe('label SC.5.L.14.1')
   })
 
   it('unions every case, keeps category order, and adds benchmarks in progress once', () => {

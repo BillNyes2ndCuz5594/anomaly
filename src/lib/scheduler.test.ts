@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { content } from '../content'
-import type { Item } from '../content/schema'
+import { categoryOfBenchmark, type Item } from '../content/schema'
 import { applyResult, emptyRecord } from '../state/mastery'
 import { anyReviewDue, dueColdBenchmarks, pickReview } from './scheduler'
 
@@ -13,9 +13,9 @@ describe('pickReview', () => {
     expect(picks).toHaveLength(4)
     expect(new Set(picks.map((p) => p.id)).size).toBe(4)
     expect(picks.every((p) => p.pool === 'cold')).toBe(true)
-    // Two categories exist in the cold pool, so the first two picks must differ.
-    expect(picks[0].category).not.toBe(picks[1].category)
-    expect(new Set(picks.map((p) => p.category)).size).toBe(2)
+    // All four reporting categories exist in the cold pool, so four picks cover four categories.
+    expect(categoryOfBenchmark(picks[0].benchmark)).not.toBe(categoryOfBenchmark(picks[1].benchmark))
+    expect(new Set(picks.map((p) => categoryOfBenchmark(p.benchmark))).size).toBe(4)
     expect(new Set(picks.map((p) => p.benchmark)).size).toBe(4)
   })
 

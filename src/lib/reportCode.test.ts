@@ -47,7 +47,9 @@ describe('report code', () => {
       recent: Array.from({ length: 25 }, (_, i) => ({ itemId: CATALOG_ITEMS[i].id, correct: i % 2 === 0 })),
     }
     const code = encodeReport(full)
-    expect(code.replace(/-/g, '').length).toBeLessThan(110)
+    // Version 2 caps a code at 31 benchmarks (22 bits each) and 20 results (10 bits each) over a 43-bit header:
+    // 930 bits, 186 characters, plus the 2 checksum characters. A code never grows past that.
+    expect(code.replace(/-/g, '').length).toBeLessThanOrEqual(188)
     const res = decodeReport(code)
     expect(res.ok && res.report.recent.length).toBe(20)
   })

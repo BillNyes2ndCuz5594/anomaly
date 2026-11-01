@@ -46,6 +46,23 @@ function LABELS(id) {
     'SC.5.E.5.3': 'Objects in the solar system',
     'SC.5.E.7.1': 'The water cycle',
     'SC.5.E.7.2': 'Ocean and the water cycle',
+    'SC.5.N.2.2': 'Results others can repeat',
+    'SC.5.E.5.1': 'Galaxies and stars',
+    'SC.4.E.5.4': 'Day, night and the Moon',
+    'SC.4.E.6.2': 'Minerals and rocks',
+    'SC.4.E.6.4': 'Weathering, erosion and resources',
+    'SC.5.E.7.3': 'Weather and climate',
+    'SC.5.P.8.1': 'Solids, liquids and gases',
+    'SC.5.P.8.3': 'Mixtures and dissolving',
+    'SC.5.P.9.1': 'Changes and temperature',
+    'SC.5.P.10.1': 'Forms of energy',
+    'SC.5.P.10.2': 'Energy causes change',
+    'SC.5.P.10.4': 'Electricity and energy changes',
+    'SC.5.P.13.1': 'Forces and motion',
+    'SC.3.L.14.1': 'Plant parts and their jobs',
+    'SC.4.L.16.4': 'Life cycles',
+    'SC.5.L.17.1': 'Adaptations and environments',
+    'SC.4.L.17.3': 'Energy through food chains',
   }
   return m[id] ?? id
 }

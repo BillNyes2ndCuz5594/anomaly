@@ -5,7 +5,7 @@ import raw from './anomaly-content.json'
 import type { CaseDef, CasePack, CodexEntry, ColdCaseDef, Content, Item, VitalsLabs } from './schema'
 
 /** Case packs to load, in unit order. Ids match the file names in src/content/packs/. */
-export const PACK_ORDER: readonly string[] = []
+export const PACK_ORDER: readonly string[] = ['00-1', '01-1', '02-1', '02-2', '04-1', '05-1', '06-1', '07-1', '07-2']
 
 interface BaseContent {
   case: CaseDef
