@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import { flyChip } from '../../ui/flyChip'
+import { useMotionMode } from '../../ui/useMotionMode'
+import VitalsStable from '../../ui/VitalsStable'
 import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
@@ -27,6 +30,9 @@ export default function LabC() {
   const doneCount = specimens.filter((s) => prog[s.id]?.group).length
   const allDone = doneCount === specimens.length
   const press = usePressed()
+  const motion = useMotionMode()
+  // L3: the bin count remounts on each change, and CSS bumps it once the chip lands (400 ms).
+  const binCount = (g: string) => specimens.filter((s) => prog[s.id]?.group && s.group === g).length
 
   useEffect(() => {
     useFx.getState().setSpecimen(sp.id)
@@ -47,7 +53,8 @@ export default function LabC() {
     if (p.backbone) return
     if (yes === sp.backbone) {
       setProg({ ...prog, [sp.id]: { ...p, backbone: true } })
-      useFx.getState().flashPart(sp.id, true)
+      // The id prefix tells the 3D specimen to add its x-ray fresnel pass on top of the usual hop.
+      useFx.getState().flashPart(`xray:${sp.id}`, true)
       setSay({ ok: true, word: 'Correct', text: sp.backbone ? 'This one has a backbone.' : 'This one has no backbone.' })
     } else {
       useFx.getState().flashPart(sp.id, false)
@@ -60,6 +67,7 @@ export default function LabC() {
     if (g === sp.group) {
       setProg({ ...prog, [sp.id]: { ...p, group: true } })
       unlock([`specimen:${sp.id}`])
+      if (motion === 'full') flyChip(sp.name, document.querySelector(`[data-testid="specimen-chip-${sp.id}"]`), document.querySelector(`[data-testid="sort-group-${g}"]`), motion, 400)
       useFx.getState().flashPart(sp.id, true)
       setSay({ ok: true, word: 'Correct', text: `${sp.name} goes in the ${sp.group} group.` })
     } else {
@@ -122,6 +130,11 @@ export default function LabC() {
                 {...press(g, !p.backbone || p.group)}
               >
                 {cap(g)}
+                {binCount(g) > 0 ? (
+                  <span key={binCount(g)} className="bin-n mono" aria-hidden="true">
+                    {binCount(g)}
+                  </span>
+                ) : null}
               </button>
             ))}
           </div>
@@ -130,6 +143,7 @@ export default function LabC() {
 
       <section className="dock" aria-label="Specimen tray">
         <div className="panel brackets job-card">
+          {p.group && allDone ? <VitalsStable /> : null}
           <div className="job-head">
             <span className="mono label amber">
               SORTED {doneCount} OF {specimens.length}
