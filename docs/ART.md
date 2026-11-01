@@ -150,6 +150,7 @@ Rules for video clips
   Each is made seamless with a half width roll and a crossfade over the join, then saved as WebP, 18 to 47 KB. The
   title body wears the ice giant with a tilted axis and a pale ice ring, the hub planet wears the gas giant and the
   hub moon the regolith map. Low tier keeps the procedural look. Spend $0.18.
+- Wave 12 also adds the cold case frost loop: a FLUX 3 still (2k, best of two seeds) of a frozen archive vault, looped with Veo 3.1 first and last frame (same still both ends, locked camera, 4 s, 1080p, no audio), trimmed to 3.2 s with a 0.8 s seam crossfade, graded and saved as 960x540 VP9 WebM (264 KB), H.264 MP4 (316 KB) and a WebP poster (128 KB). Spend $1.04. The cold case centrepiece is now a frozen residue crystal cluster with an amber core, glow, orbit ring and rising frost motes.
 
 ### Photo credits (wave 5b, all public domain, NASA)
 
