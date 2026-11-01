@@ -957,11 +957,12 @@ html[data-motion='full'] .rd-tick {
   height: 160%;
   aspect-ratio: 1;
   max-width: 70%;
-  translate: 0 -50%;
+  /* Nudged left so the seal sits beside the CASE and score text instead of under it. */
+  translate: -22% -50%;
   z-index: -1;
   pointer-events: none;
   mix-blend-mode: screen;
-  opacity: 0.6;
+  opacity: 0.78;
   overflow: hidden;
 }
 .seal-sting[data-open='yes'] {
