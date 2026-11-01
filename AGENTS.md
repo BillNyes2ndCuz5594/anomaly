@@ -9,3 +9,4 @@
 - Before finishing: `npm run build` and `npm test` must pass and `node scripts/proof.mjs` must report zero console errors.
 - Orphan-asset guard: `npm test` runs scripts/check-assets.mjs first. Every file under public/art/ or src/assets/ must be referenced by file name in src/, index.html, teacher.html or vite.config.ts, else the test run fails with the list.
 - Self-test lives in src/lib/checkAssets.test.ts (uses a temp dir). Do not leave fixtures in public/.
+- Secrets: this repo is public. Never commit API keys, tokens, passwords, .env files, personal emails, phone numbers or local paths like C:\Users\<name>. Read keys only from environment variables at runtime or build time, never hardcode them, and never echo them into logs, docs or commit messages. The secret-scan CI check must stay green.
