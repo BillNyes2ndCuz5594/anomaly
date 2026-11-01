@@ -17,6 +17,9 @@ import canopyPoster from '../../assets/video/backdrop-canopy.webp?url'
 import waterWebm from '../../assets/video/backdrop-water.webm?url'
 import waterMp4 from '../../assets/video/backdrop-water.mp4?url'
 import waterPoster from '../../assets/video/backdrop-water.webp?url'
+import frostWebm from '../../assets/video/backdrop-frost.webm?url'
+import frostMp4 from '../../assets/video/backdrop-frost.mp4?url'
+import frostPoster from '../../assets/video/backdrop-frost.webp?url'
 
 // Ambient loops painted into the sky dome. Each clip is a 3.2 s seamless loop (start and end frames matched at
 // generation, then a 0.8 s crossfade at the seam), 960x540 (the dome window is soft, and 1280x720 decode slowed
@@ -26,13 +29,14 @@ import waterPoster from '../../assets/video/backdrop-water.webp?url'
 // first frame of the loop, precached) shows first and the video crossfades in after its first decoded frame, so
 // there is no flash or black frame. Low tier and reduced motion get the poster only, with no video element.
 
-export type LoopClip = 'swamp' | 'cells' | 'canopy' | 'water'
+export type LoopClip = 'swamp' | 'cells' | 'canopy' | 'water' | 'frost'
 
 const CLIPS: Record<LoopClip, { webm: string; mp4: string; poster: string }> = {
   swamp: { webm: swampWebm, mp4: swampMp4, poster: swampPoster },
   cells: { webm: cellsWebm, mp4: cellsMp4, poster: cellsPoster },
   canopy: { webm: canopyWebm, mp4: canopyMp4, poster: canopyPoster },
   water: { webm: waterWebm, mp4: waterMp4, poster: waterPoster },
+  frost: { webm: frostWebm, mp4: frostMp4, poster: frostPoster },
 }
 
 /** Elevation band (radians above the horizon) and azimuth width the clip covers on the dome. */

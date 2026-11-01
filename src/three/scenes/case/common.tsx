@@ -139,7 +139,7 @@ export function LabEnvironment({ children, ring = true, floorY = 0 }: { children
   const tier = useTier()
   const step = useSession((s) => s.step)
   const kind = useSession((s) => s.kind)
-  const clip = kind === 'cold' ? undefined : STEP_CLIP[step]
+  const clip = kind === 'cold' ? 'frost' : STEP_CLIP[step]
   return (
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.017]} />

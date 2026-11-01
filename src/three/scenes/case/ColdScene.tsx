@@ -3,7 +3,9 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { tintedHolo } from '../../materials/tinted'
-import { CameraRig, LabEnvironment, Pedestal, useReduced } from './common'
+import { STILL } from '../../../lib/flags'
+import { makeRadialTexture } from '../common'
+import { CameraRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
 
 // Evidence locker: a wall of cubbies, each holding a hologram canister with a sample floating inside.
 // A scan beam sweeps across the wall. Canisters flare as it passes. Okabe-Ito tints, one per theme.
@@ -206,21 +208,112 @@ function Locker({ reduced }: { reduced: boolean }) {
   )
 }
 
-/** The sample under the scanner: a slowly turning crystal over the projector ring. */
+const SHARDS: { pos: [number, number, number]; rot: [number, number, number]; s: number }[] = [
+  { pos: [0.62, -0.62, 0.1], rot: [0.2, 0, -0.5], s: 0.34 },
+  { pos: [-0.58, -0.66, 0.2], rot: [-0.15, 0.6, 0.55], s: 0.3 },
+  { pos: [0.1, -0.7, 0.62], rot: [0.6, 0.2, 0.15], s: 0.28 },
+  { pos: [-0.2, -0.68, -0.6], rot: [-0.55, 0, -0.2], s: 0.32 },
+  { pos: [0.5, -0.66, -0.45], rot: [-0.4, 0.3, -0.6], s: 0.24 },
+]
+const MOTES = 18
+
+/** Frozen residue: a pale ice crystal cluster with an amber core, a glow, an orbit ring and rising frost motes. */
 function ScanSample({ reduced }: { reduced: boolean }) {
-  const mat = useMemo(() => tintedHolo('#ffb547', 0.8), [])
-  const ref = useRef<THREE.Mesh>(null)
-  useEffect(() => () => mat.dispose(), [mat])
+  const tier = useTier()
+  const full = tier !== 'low'
+  const still = reduced || STILL
+  const { ice, core, ringMat, moteMat, glowMat, glowTex, coreGeo, ringGeo, moteGeo, moteData } = useMemo(() => {
+    const ice = tintedHolo('#9fefff', 0.55)
+    const add = (c: string, op: number) => {
+      const m = new THREE.MeshBasicNodeMaterial()
+      m.color.set(c)
+      m.opacity = op
+      m.transparent = true
+      m.blending = THREE.AdditiveBlending
+      m.depthWrite = false
+      return m
+    }
+    const glowTex = makeRadialTexture('rgba(207,238,255,0.9)', 'rgba(62,230,255,0)')
+    const glowMat = new THREE.SpriteNodeMaterial({ map: glowTex, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending })
+    const moteData = Array.from({ length: MOTES }, (_, i) => ({
+      a: i * 2.4,
+      r: 0.5 + ((i * 37) % 11) / 11,
+      y: ((i * 53) % 17) / 17,
+      v: 0.12 + ((i * 29) % 7) / 40,
+    }))
+    return {
+      ice,
+      core: add('#ffb547', 0.75),
+      ringMat: add('#3ee6ff', 0.55),
+      moteMat: add('#cfeeff', 0.7),
+      glowMat,
+      glowTex,
+      coreGeo: new THREE.OctahedronGeometry(0.26, 0),
+      ringGeo: new THREE.TorusGeometry(1.1, 0.01, 6, 64),
+      moteGeo: new THREE.OctahedronGeometry(0.025, 0),
+      moteData,
+    }
+  }, [])
+  useEffect(
+    () => () => {
+      ice.dispose()
+      core.dispose()
+      ringMat.dispose()
+      moteMat.dispose()
+      glowMat.dispose()
+      glowTex.dispose()
+      coreGeo.dispose()
+      ringGeo.dispose()
+      moteGeo.dispose()
+    },
+    [ice, core, ringMat, moteMat, glowMat, glowTex, coreGeo, ringGeo, moteGeo],
+  )
+  const spin = useRef<THREE.Group>(null)
+  const ring = useRef<THREE.Mesh>(null)
+  const motes = useRef<THREE.InstancedMesh>(null)
   useFrame((state, dt) => {
-    if (!ref.current) return
-    if (!reduced) ref.current.rotation.y += dt * 0.7
-    ref.current.position.y = 1.5 + (reduced ? 0 : Math.sin(state.clock.elapsedTime * 1.3) * 0.08)
+    const t = state.clock.elapsedTime
+    if (still) {
+      core.opacity = 0.75
+    } else {
+      if (spin.current) {
+        spin.current.rotation.y += dt * 0.25
+        spin.current.position.y = 1.5 + Math.sin(t * 1.3) * 0.08
+      }
+      if (ring.current) ring.current.rotation.z += dt * 0.3
+      core.opacity = 0.725 + 0.175 * Math.sin(t * 1.8)
+    }
+    const m = motes.current
+    if (!m) return
+    moteData.forEach((d, i) => {
+      const k = still ? d.y : (d.y + t * d.v * 0.2) % 1
+      const a = d.a + (still ? 0 : t * 0.2)
+      tmpM.compose(tmpP.set(Math.cos(a) * d.r, k * 3.2 - 1.4, Math.sin(a) * d.r), tmpQ, tmpS.setScalar(1))
+      m.setMatrixAt(i, tmpM)
+    })
+    m.instanceMatrix.needsUpdate = true
   })
   return (
-    <mesh ref={ref} position={[0, 1.5, 0]} rotation={[0.3, 0, 0.15]} scale={[1, 1.5, 1]}>
-      <octahedronGeometry args={[0.7, 0]} />
-      <primitive object={mat} attach="material" />
-    </mesh>
+    <group>
+      <group ref={spin} position={[0, 1.5, 0]}>
+        <mesh rotation={[0.3, 0, 0.15]} scale={[1, 1.5, 1]} material={ice}>
+          <octahedronGeometry args={[0.7, 0]} />
+        </mesh>
+        {SHARDS.map((sh, i) => (
+          <mesh key={i} position={sh.pos} rotation={sh.rot} scale={[sh.s, sh.s * 2.2, sh.s]} material={ice}>
+            <octahedronGeometry args={[1, 0]} />
+          </mesh>
+        ))}
+        <mesh geometry={coreGeo} material={core} scale={[1, 1.4, 1]} rotation={[0.3, 0, 0.15]} />
+      </group>
+      {full && (
+        <>
+          <sprite position={[0, 1.5, -1]} scale={[3, 3, 1]} material={glowMat} />
+          <instancedMesh ref={motes} args={[moteGeo, moteMat, MOTES]} frustumCulled={false} position={[0, 1.4, 0]} />
+        </>
+      )}
+      <mesh ref={ring} geometry={ringGeo} material={ringMat} position={[0, 1.5, 0]} rotation={[1.1, 0.3, 0]} />
+    </group>
   )
 }
 
@@ -233,7 +326,7 @@ export default function ColdScene() {
       <CameraRig pos={[0, 3.6, 14.6]} look={[0, 3.0, 0]} from={[-4, 2, 4]} />
       <Locker reduced={reduced} />
       <group position={[0, 0, 3.2]}>
-        <Pedestal radius={1.5} tint="#ffb547" />
+        <Pedestal radius={1.5} tint="#3ee6ff" />
         <ScanSample reduced={reduced} />
       </group>
     </>
