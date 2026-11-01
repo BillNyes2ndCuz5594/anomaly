@@ -2,12 +2,14 @@
 // They reach a case step by playing the real UI with the content, only faster than the proof run.
 import puppeteer from 'puppeteer-core'
 import { spawn } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { loadContent } from './content.mjs'
 
 export const ROOT = new URL('../..', import.meta.url).pathname
-export const CONTENT = JSON.parse(readFileSync(new URL('../../src/content/anomaly-content.json', import.meta.url), 'utf8'))
+/** Merged content: `case` is VITALS, `items` holds the base items plus every listed pack (the cold case can draw any). */
+export const CONTENT = loadContent()
 
 export const CHROME_ARGS = [
   '--no-sandbox',
