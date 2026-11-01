@@ -47,8 +47,10 @@ export default function LabC() {
     if (p.backbone) return
     if (yes === sp.backbone) {
       setProg({ ...prog, [sp.id]: { ...p, backbone: true } })
+      useFx.getState().flashPart(sp.id, true)
       setSay({ ok: true, word: 'Correct', text: sp.backbone ? 'This one has a backbone.' : 'This one has no backbone.' })
     } else {
+      useFx.getState().flashPart(sp.id, false)
       setSay({ ok: false, word: 'Not quite.', text: 'Read the card again, then try the other bin.' })
     }
   }
@@ -58,8 +60,10 @@ export default function LabC() {
     if (g === sp.group) {
       setProg({ ...prog, [sp.id]: { ...p, group: true } })
       unlock([`specimen:${sp.id}`])
+      useFx.getState().flashPart(sp.id, true)
       setSay({ ok: true, word: 'Correct', text: `${sp.name} goes in the ${sp.group} group.` })
     } else {
+      useFx.getState().flashPart(sp.id, false)
       setSay({ ok: false, word: 'Not quite.', text: 'Check the card for body covering and how the young are born.' })
     }
   }

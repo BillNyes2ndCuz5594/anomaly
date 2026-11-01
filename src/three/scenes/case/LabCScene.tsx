@@ -66,7 +66,7 @@ export default function LabCScene() {
       <group ref={content}>
         <LabBench kind="specimen" radius={ring} />
         <Pedestal radius={ring} />
-        <Specimen key={id} id={id} fit={FIT} yaw={YAW} sway={SWAY} reduced={reduced} pop />
+        <Specimen key={id} id={id} fit={FIT} yaw={YAW} sway={SWAY} reduced={reduced} pop react />
       </group>
       <ScanBar key={`scan-${id}`} id={id} radius={ring} reduced={reduced} />
     </>
