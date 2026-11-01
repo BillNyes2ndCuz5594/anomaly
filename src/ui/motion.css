@@ -1239,3 +1239,140 @@ html[data-motion='fade'] .vitals-stable {
     display: none;
   }
 }
+
+/* ---------- Juice wave 3: launch and warp streak inside the veil fill ---------- */
+.warp-streak {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.warp-streak img,
+.warp-streak video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.warp-streak video {
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-out);
+}
+.warp-streak video.live {
+  opacity: 1;
+}
+
+/* ---------- Juice wave 3: holo agent badge (M2) and codename decode (M1) ---------- */
+.agent-head {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.agent-foil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+html[data-motion='full'] .agent-foil {
+  transition:
+    transform 0.6s var(--ease-out),
+    opacity 0.4s var(--ease-out);
+  transform: scale(1.12);
+}
+html[data-motion='full'] .agent-head:hover .agent-foil,
+html[data-motion='full'] .agent-head:focus-within .agent-foil {
+  opacity: 0.3;
+  animation: foil-shimmer 2.4s var(--ease-out) infinite alternate;
+}
+@keyframes foil-shimmer {
+  from { transform: scale(1.12) translate3d(-4%, -2%, 0); }
+  to { transform: scale(1.12) translate3d(4%, 2%, 0); }
+}
+/* Low tier: the decode is a plain fade. Still: the final text is already there. */
+html[data-motion='fade'] .codename[data-decode='fade'] {
+  animation: modal-fade 0.6s var(--ease-out) backwards;
+}
+
+/* ---------- Juice wave 3: start shift charge ring (T3) ---------- */
+html[data-motion='full'] .title-screen [data-testid='start-shift'][data-pressed='yes'] {
+  animation: charge-ring 0.25s var(--ease-out) both;
+}
+html[data-motion='fade'] .title-screen [data-testid='start-shift'][data-pressed='yes'] {
+  animation: modal-fade 0.25s var(--ease-out) both;
+}
+@keyframes charge-ring {
+  from { box-shadow: 0 0 0 0 rgba(62, 230, 255, 0.85), inset 0 0 0 0 rgba(62, 230, 255, 0.5); }
+  to { box-shadow: 0 0 0 14px rgba(62, 230, 255, 0), inset 0 0 22px 2px rgba(62, 230, 255, 0.35); }
+}
+
+/* ---------- Juice wave 3: modal bracket snap (M3), 250 ms ---------- */
+.modal.panel { position: relative; }
+html[data-motion='full'] .modal.panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --b: var(--cyan);
+  --bl: 16px;
+  background:
+    linear-gradient(var(--b), var(--b)) top left / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) top left / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) top right / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) top right / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom left / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom left / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom right / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom right / 2px var(--bl) no-repeat;
+  animation: bracket-snap 0.25s var(--ease-out) both;
+}
+html[data-motion='full'] .modal.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.35) 50%, transparent) 0 0 / 100% 18% no-repeat;
+  animation: bracket-wipe 0.25s var(--ease-out) both;
+}
+@keyframes bracket-snap {
+  from { inset: -12px; opacity: 0; }
+  60% { opacity: 1; }
+  to { inset: 0; opacity: 0.001; }
+}
+@keyframes bracket-wipe {
+  from { background-position: 0 -20%; opacity: 1; }
+  to { background-position: 0 120%; opacity: 0; }
+}
+
+/* ---------- Juice wave 3: review due frost puff (H2), 3 s cycle ---------- */
+html[data-motion='full'] .case-btn.cyan[data-due='yes'] {
+  animation: due-breathe 3s ease-in-out infinite;
+}
+html[data-motion='full'] .case-btn.cyan[data-due='yes']::before {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(200, 245, 255, 0.9) 0 1.5px, transparent 2px) 20% 80% / 9px 9px,
+    radial-gradient(circle, rgba(62, 230, 255, 0.8) 0 1px, transparent 1.6px) 70% 60% / 7px 7px;
+  animation: frost-puff 3s ease-out infinite;
+}
+@keyframes due-breathe {
+  0%, 100% { box-shadow: 0 0 10px rgba(62, 230, 255, 0.3); }
+  50% { box-shadow: 0 0 24px rgba(62, 230, 255, 0.7); }
+}
+@keyframes frost-puff {
+  from { transform: translate3d(0, 6px, 0); opacity: 0.9; }
+  to { transform: translate3d(0, -26px, 0); opacity: 0; }
+}
