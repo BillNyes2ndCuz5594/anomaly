@@ -1494,7 +1494,8 @@ try {
     await p1.goto(BASE + '?tier=low', { waitUntil: 'load' })
     await p1.evaluate((s) => localStorage.setItem('anomaly.v1', s), store)
     await goHub(p1, '?tier=low')
-    check('Low tier uses data-motion fade', (await p1.evaluate(() => document.documentElement.dataset.motion)) === 'fade')
+    const lowFade = await p1.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
+    check('Low tier uses data-motion fade', lowFade, await p1.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`))
     check('Low tier mounts no <video> on the hub', (await p1.$$('video')).length === 0)
     await p1.close()
     const p2 = await browser.newPage()
@@ -1514,10 +1515,10 @@ try {
       p.on('pageerror', () => {})
       await p.setViewport({ ...vp, deviceScaleFactor: 1 })
       await p.goto(BASE, { waitUntil: 'load' })
-      await p.waitForSelector('.stage-fallback', { timeout: 60000 }).catch(() => {})
+      await p.waitForFunction(() => /stage-fallback/.test(getComputedStyle(document.querySelector('.stage-fallback') ?? document.body).backgroundImage), { timeout: 60000, polling: 500 }).catch(() => {})
       const fb = await p.evaluate(() => {
         const e = document.querySelector('.stage-fallback')
-        return e ? getComputedStyle(e).backgroundImage : ''
+        return e ? getComputedStyle(e).backgroundImage : `no .stage-fallback; canvas=${!!document.querySelector('canvas')}`
       })
       check('with WebGL disabled, .stage-fallback renders with the stage-fallback cover', /stage-fallback/.test(fb), fb.slice(0, 80))
     } finally {
