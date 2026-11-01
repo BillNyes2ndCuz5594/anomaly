@@ -132,7 +132,7 @@ export function FitRig({
 }
 
 /** Ambient sky loop for each case step. */
-const STEP_CLIP: Partial<Record<string, LoopClip>> = { briefing: 'swamp', 'lab-a': 'cells', 'lab-b': 'canopy', 'lab-c': 'water' }
+const STEP_CLIP: Partial<Record<string, LoopClip>> = { briefing: 'swamp', 'lab-a': 'cells', 'lab-b': 'canopy', 'lab-c': 'water', debrief: 'debrief', results: 'debrief' }
 
 /** Shared lab environment: deck, grid, console ring, fog, dust. */
 export function LabEnvironment({ children, ring = true, floorY = 0 }: { children?: ReactNode; ring?: boolean; floorY?: number }) {

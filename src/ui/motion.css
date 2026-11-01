@@ -1376,3 +1376,98 @@ html[data-motion='full'] .case-btn.cyan[data-due='yes']::before {
   from { transform: translate3d(0, 6px, 0); opacity: 0.9; }
   to { transform: translate3d(0, -26px, 0); opacity: 0; }
 }
+
+/* ---------- wave 5 juice: debrief loop gallery, residue alert, settings feedback, 2D fallback ---------- */
+
+/* H3: residue alert inside the cold case card. Screen blended over the card, poster holds after the clip. */
+.case-btn { position: relative; }
+.residue-alert {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.residue-alert img,
+.residue-alert video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.residue-alert .residue-poster { opacity: 0.55; }
+.residue-alert .residue-video { opacity: 0; transition: opacity 250ms var(--ease-out); }
+.residue-alert[data-live='yes'] .residue-video { opacity: 0.9; }
+html[data-motion='fade'] .residue-alert .residue-poster,
+.residue-alert[data-mode='fade'] .residue-poster { animation: h3-poster 250ms var(--ease-out) both; }
+@keyframes h3-poster { from { opacity: 0; } }
+.case-code, .case-sub { position: relative; }
+
+/* S1: switch knob slides with a glow trail, the tier badge flickers when the tier changes (250 ms). */
+.toggle-box::after { transition: transform 250ms var(--ease-out), background-color 150ms, box-shadow 250ms var(--ease-out); }
+.toggle input:checked + .toggle-box { box-shadow: 0 0 10px color-mix(in srgb, var(--cyan) 45%, transparent); }
+html[data-motion='full'] .toggle input:checked + .toggle-box::after { box-shadow: -10px 0 8px -4px color-mix(in srgb, var(--cyan) 70%, transparent); }
+html[data-motion='full'] .toggle input:not(:checked) + .toggle-box::after { box-shadow: 10px 0 8px -4px color-mix(in srgb, var(--muted) 50%, transparent); transition-duration: 250ms; }
+html[data-motion='fade'] .toggle-box::after { transition-property: background-color, opacity; transition-duration: 250ms; }
+html[data-motion='fade'] .toggle input:checked + .toggle-box::after { transform: translateX(18px); transition: background-color 250ms; }
+html[data-motion='still'] .toggle-box,
+html[data-motion='still'] .toggle-box::after { transition: none !important; }
+.tier-badge {
+  margin-left: var(--sp-2);
+  padding: 1px 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  border: 1px solid color-mix(in srgb, var(--cyan) 60%, transparent);
+  border-radius: 3px;
+  background: rgba(4, 10, 20, 0.8);
+}
+.tier-badge[data-blip='flick'] { animation: s1-flicker 250ms steps(1, end) both; }
+html[data-motion='fade'] .tier-badge[data-blip='flick'] { animation: s1-fade 250ms var(--ease-out) both; }
+html[data-motion='still'] .tier-badge[data-blip='flick'] { animation: none; }
+@keyframes s1-flicker {
+  0% { opacity: 0.2; box-shadow: 0 0 10px var(--cyan); }
+  30% { opacity: 1; }
+  50% { opacity: 0.35; }
+  75% { opacity: 1; box-shadow: 0 0 8px var(--cyan); }
+  100% { opacity: 1; box-shadow: none; }
+}
+@keyframes s1-fade { from { opacity: 0; } }
+
+/* F1: 2D fallback when the 3D layer fails. Static in every mode. */
+.stage-fallback {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url('../assets/textures/stage-fallback.webp') center / cover no-repeat, linear-gradient(180deg, #0a1426, #060a14);
+}
+
+/* Q1: juice gallery on #/visuals/juice. */
+.visuals-tabs { display: inline-flex; gap: var(--sp-2); }
+.visuals-grid.juice { grid-template-columns: 1fr; }
+.juice-head { margin: 0; }
+.juice-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) repeat(3, minmax(0, 2fr));
+  gap: 10px;
+  align-items: start;
+}
+.juice-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.juice-cell {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  background: #000;
+  border: 1px solid var(--line);
+}
+.juice-cell img,
+.juice-cell video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.juice-cell[data-screen='yes'] img,
+.juice-cell[data-screen='yes'] video { mix-blend-mode: screen; }
+.juice-cell.juice-live { aspect-ratio: 16 / 9; }
+.juice-cell .residue-alert { position: absolute; }
+.juice-cell figcaption { position: absolute; left: 4px; bottom: 2px; }
+@media (max-width: 720px) {
+  .juice-row { grid-template-columns: 1fr; }
+}

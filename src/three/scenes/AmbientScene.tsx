@@ -2,10 +2,11 @@ import { useFrame } from '@react-three/fiber'
 import { resolveTier } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
+import type { LoopClip } from './LoopSky'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 
-/** Quiet backdrop for Settings and placeholder screens: dark deck, grid, dust, slow drift. `frost` is the cold case run: the frost sky loop. */
-export default function AmbientScene({ frost = false }: { frost?: boolean } = {}) {
+/** Quiet backdrop for Settings and placeholder screens: dark deck, grid, dust, slow drift. `frost` is the cold case run: the frost sky loop. `clip` picks another loop (the debrief room). */
+export default function AmbientScene({ frost = false, clip }: { frost?: boolean; clip?: LoopClip } = {}) {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
@@ -21,7 +22,7 @@ export default function AmbientScene({ frost = false }: { frost?: boolean } = {}
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights rim={0.6} />
-      <Backdrop clip={frost ? 'frost' : undefined} />
+      <Backdrop clip={frost ? 'frost' : clip} />
       <DeckPlate />
       <GridFloor fade={30} intensity={0.45} />
       <ConsoleRing radius={16} count={16} arc={Math.PI * 1.2} />
