@@ -141,12 +141,15 @@ interface FxState {
   bridges: [string, string][]
   /** Lab C specimen on the turntable. */
   specimen: string | null
+  /** Generic Field Lab: the card on the dais (null for an order lab or when every card is placed). */
+  card: string | null
   setHover: (id: string | null) => void
   flashPart: (id: string, ok: boolean) => void
   setLit: (ids: string[]) => void
   setPick: (fn: ((id: string) => void) | null) => void
   setBridges: (b: [string, string][]) => void
   setSpecimen: (id: string | null) => void
+  setCard: (id: string | null) => void
 }
 
 export const useFx = create<FxState>((set) => ({
@@ -156,10 +159,12 @@ export const useFx = create<FxState>((set) => ({
   pick: null,
   bridges: [],
   specimen: null,
+  card: null,
   setHover: (hover) => set({ hover }),
   flashPart: (id, ok) => set((s) => ({ flash: { id, ok, n: (s.flash?.n ?? 0) + 1 } })),
   setLit: (lit) => set({ lit }),
   setPick: (pick) => set({ pick }),
   setBridges: (bridges) => set({ bridges }),
   setSpecimen: (specimen) => set({ specimen }),
+  setCard: (card) => set({ card }),
 }))

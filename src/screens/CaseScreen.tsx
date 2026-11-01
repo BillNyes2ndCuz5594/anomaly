@@ -11,6 +11,7 @@ import ItemPlayer from './case/ItemPlayer'
 import LabA from './case/LabA'
 import LabB from './case/LabB'
 import LabC from './case/LabC'
+import LabGeneric from './case/LabGeneric'
 import Results from './case/Results'
 
 function Placeholder({ label, text }: { label: string; text: string }) {
@@ -92,7 +93,7 @@ function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getStat
     case 'lab-c':
       return <LabC />
     case 'lab':
-      return null
+      return <LabGeneric />
     case 'items':
       return <ItemPlayer />
     case 'debrief':
