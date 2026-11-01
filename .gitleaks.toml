@@ -1,0 +1,10 @@
+# Gitleaks config for ANOMALY. Extends the built in rule set.
+# Only add allowlist entries for findings verified as false positives,
+# scoped as tightly as possible (exact path or exact commit).
+title = "anomaly gitleaks config"
+
+[extend]
+useDefault = true
+
+# No allowlist yet: the full history scan on 2026-11-01 found zero findings.
+# Add [allowlist] entries here only for verified false positives.
