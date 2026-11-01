@@ -10,6 +10,7 @@ import { MASTERY_LABEL, rankFor, useGame } from '../../state/store'
 import ReportCodePanel from '../../ui/ReportCodePanel'
 import { countValue } from '../../ui/countUp'
 import { FrostThaw } from '../../ui/FrostOverlay'
+import SealSting from '../../ui/SealSting'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { debriefLine, verdictWord } from './resultsDebrief'
 import { CaseTop } from './ui'
@@ -86,6 +87,7 @@ export default function Results() {
       {cold ? <FrostThaw open={!closed} /> : null}
       <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
         <section className="panel brackets rd-hero" aria-label="Case result">
+          {cold ? null : <SealSting open={!closed} />}
           <div className="reward verdict-block" data-testid="case-status" data-closed={closed ? 'yes' : 'no'}>
             <span className="label amber">{caseLabel}</span>
             <p>
@@ -105,7 +107,10 @@ export default function Results() {
             <strong className="reward-num" aria-label={`${intel} Intel earned`}>
               <span className="sr-only">{intel}</span>
               <span className="rd-count" aria-hidden="true">
-                {intelShown}
+                {/* Keyed on every fifth step so the tick cue (D4) replays in CSS. */}
+                <span key={snap ? 0 : Math.floor(intelShown / 5)} className="rd-tick">
+                  {intelShown}
+                </span>
               </span>
             </strong>
             <span className="muted tiny">Total Intel: {intelTotal}</span>
@@ -131,6 +136,7 @@ export default function Results() {
                         <Burst color="#ffb547" spread={70} delay={1.45} big={false} />
                       </span>
                     ) : null}
+                    {r.rose && motion === 'full' ? <i className="bar-sweep" aria-hidden="true" /> : null}
                     {[1, 2, 3].map((t) => (
                       <i key={t} className="bar-tick" style={{ left: `${t * 25}%` }} aria-hidden="true" />
                     ))}
