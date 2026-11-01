@@ -14,6 +14,7 @@ import {
   isAutoActive,
   isPostTier,
 } from '../state/quality'
+import { PCFShadowMap } from 'three/webgpu'
 import type * as THREE from 'three/webgpu'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
@@ -164,6 +165,9 @@ function useHudInsets(fallbackRight: number, vertical: boolean): Insets {
   return fallbackRight === 0 && !vertical ? NO_INSETS : ins
 }
 
+/** No scene casts shadows. R3F sets PCFSoftShadowMap (deprecated in three r186) whenever shadows is a boolean, so pass an object. */
+const SHADOWS = { enabled: false, type: PCFShadowMap }
+
 export interface StageProps {
   children: ReactNode
   /** Pixels reserved on the right for HUD panels when none is found in the DOM yet. */
@@ -240,6 +244,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       dpr={dpr}
       camera={camera}
       frameloop={hidden ? 'never' : 'always'}
+      shadows={SHADOWS}
       aria-hidden="true"
       style={{ position: 'absolute', inset: 0 }}
     >
