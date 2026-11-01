@@ -59,6 +59,6 @@ Each content lane listed the three items it was least sure about. Review these f
 - **P8.3-01** (SOLVENT): the mixture-separation diagram shows a magnet over the tray, which hints at the answer.
 - **L17.1-04** (HABITAT): flamingo colour from food (carotenoids in shrimp and algae); the table wording "Zoo food with color from shrimp added" may need more background.
 - **L16.4-03** (CANOPY): lady beetle "stays still on a leaf while its body changes"; the dragonfly decoy and the local name "palmetto bug" are worth a look.
-- **L17.3-02, L17.3-03** (HABITAT): labels for the food-web-estuary diagram were written before the diagram existed (Sea grass, Algae, Shrimp, Blue crab, Small fish, Brown pelican); check they land on the right pictures. Same for plant-parts (root, stem, leaf, flower, fruit).
+- **L17.3-02, L17.3-03** (HABITAT): the food-web-estuary labels were realigned to the drawn slots (Sea grass and algae, Shrimp, Blue crab, Small fish, Bass, Brown pelican); the PM checked every other guessed slot order against the drawings (plant-parts, weathering-erosion, mineral-streak, florida-resources, weather-instruments, cloud-types, light-path) and they match.
 - **SC.5.N.2.2 items and SC.4.E.6.4 items**: their limits are UNVERIFIED in the research document; written in the plainest form, said so in tisCheck.
 - **02-2 unitLabel** is "Unit 2: Weather (Earth Structures)"; rename to match the real unit order.

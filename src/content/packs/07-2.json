@@ -409,11 +409,11 @@
     "kind": "scene",
     "id": "food-web-estuary",
     "labels": [
-     "Sea grass",
-     "Algae",
+     "Sea grass and algae",
      "Shrimp",
      "Blue crab",
      "Small fish",
+     "Bass",
      "Brown pelican"
     ]
    },
@@ -450,11 +450,11 @@
     "kind": "scene",
     "id": "food-web-estuary",
     "labels": [
-     "Sea grass",
-     "Algae",
+     "Sea grass and algae",
      "Shrimp",
      "Blue crab",
      "Small fish",
+     "Bass",
      "Brown pelican"
     ]
    },
