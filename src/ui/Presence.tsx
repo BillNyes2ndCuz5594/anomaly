@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { STILL } from '../lib/flags'
 import { useGame } from '../state/store'
 
-const EXIT_MS = 200
+const EXIT_MS = 260
 
 /**
  * Keeps a modal mounted long enough to play its exit.
