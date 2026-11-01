@@ -592,6 +592,8 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
   const autoTier = useRuntime((s) => s.autoTier)
   const art = resolveTier(quality, autoTier) !== 'low'
   // Measure the panel so the viewBox matches its aspect and labels get their real rendered size.
+  // The first measure can land while the item grid is still settling (fonts, the step glide), so the
+  // next two frames read again before the ResizeObserver takes over.
   useLayoutEffect(() => {
     const el = svg.current
     if (!el) return
@@ -600,10 +602,16 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
       setBox((b) => (Math.abs(b.w - r.width) < 0.5 && Math.abs(b.h - r.height) < 0.5 ? b : { w: r.width, h: r.height }))
     }
     read()
-    if (typeof ResizeObserver === 'undefined') return
-    const ro = new ResizeObserver(read)
-    ro.observe(el)
-    return () => ro.disconnect()
+    let raf = requestAnimationFrame(() => {
+      read()
+      raf = requestAnimationFrame(read)
+    })
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(read)
+    ro?.observe(el)
+    return () => {
+      cancelAnimationFrame(raf)
+      ro?.disconnect()
+    }
   }, [])
   const vb = useMemo(() => viewBoxFor(box.w, box.h), [box])
   const size = labelSize(baseScale(box.w, box.h), TEXT_SCALE[textSize])

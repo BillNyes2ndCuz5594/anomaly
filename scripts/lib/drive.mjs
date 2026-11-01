@@ -151,11 +151,40 @@ export async function setTextSize(page, t) {
 }
 
 /**
+ * Waits until every scene diagram has measured its final box: the viewBox aspect matches the element
+ * and data-label-size is the size diagramText.ts computes for that box (MIN_LABEL_PX 14 times the text
+ * scale over the base 400x220 scale, clamped to 7..28). A diagram measures itself through a
+ * ResizeObserver, and on a software GPU that callback can trail the layout by a second or two, so a
+ * check taken too early would read a stale viewBox. Gives up after 8 s and lets the check report.
+ */
+export async function waitForDiagramsSettled(page) {
+  try {
+    await page.waitForFunction(
+      () => {
+        const ts = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--text-scale')) || 1
+        for (const svg of document.querySelectorAll('svg.scene-svg')) {
+          const r = svg.getBoundingClientRect()
+          if (r.width < 2) continue
+          const vb = svg.viewBox.baseVal
+          if (Math.abs(r.width / r.height - vb.width / vb.height) > 0.03) return false
+          const scale = Math.min(r.width / 400, r.height / 220)
+          const want = Math.min(28, Math.max(7, (14 * Math.max(0.5, ts)) / Math.max(0.05, scale)))
+          if (Math.abs(parseFloat(svg.dataset.labelSize) - want) > 0.06) return false
+        }
+        return true
+      },
+      { timeout: 8000, polling: 100 },
+    )
+  } catch {}
+}
+
+/**
  * Checks every scene diagram on the page: each text bbox inside the svg viewBox, no two label bboxes
  * intersecting, no letterboxing (viewBox aspect equals the element aspect) and the rendered font size
  * at least 14px times the text scale.
  */
 export async function svgReport(page) {
+  await waitForDiagramsSettled(page)
   return page.evaluate(() => {
     const ts = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--text-scale')) || 1
     const tol = 0.75
