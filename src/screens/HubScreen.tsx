@@ -4,6 +4,7 @@ import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { HUB_BENCHMARKS, MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
+import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
@@ -35,6 +36,7 @@ function CaseButton({
   to,
   code,
   sub,
+  fx,
 }: {
   id: MarkerId
   testId: string
@@ -43,6 +45,7 @@ function CaseButton({
   to: string
   code: string
   sub: ReactNode
+  fx?: ReactNode
 }) {
   const setFocused = useRuntime((s) => s.setFocusedMarker)
   const pressed = useSyncExternalStore(subscribeMarkerPressed, () => markerPressed(id), () => false)
@@ -63,6 +66,7 @@ function CaseButton({
       onPointerCancel={() => setMarkerPressed(id, false)}
       onPointerLeave={() => setMarkerPressed(id, false)}
     >
+      {fx}
       <span className="case-code">{code}</span>
       <span className="case-sub">{sub}</span>
     </button>
@@ -139,6 +143,7 @@ export default function HubScreen() {
               testId="cold-marker"
               className="case-btn cyan"
               due={due ? 'yes' : 'no'}
+              fx={due ? <ResidueAlert /> : undefined}
               to="/cold/cold-1"
               code="COLD CASE RESIDUE"
               sub={

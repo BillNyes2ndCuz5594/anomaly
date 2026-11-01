@@ -105,6 +105,11 @@ function bindUi(engine: AudioEngine): void {
   )
   let pointerAt = 0
   document.addEventListener('pointerdown', () => { pointerAt = performance.now() }, true)
+  // Changing the graphics tier in Settings gives the same cue as a switch.
+  document.addEventListener('change', (e) => {
+    const el = e.target
+    if (el instanceof HTMLSelectElement && el.dataset.testid === 'setting-quality') engine.play('toggle', { up: true })
+  })
   document.addEventListener(
     'focusin',
     (e) => {
