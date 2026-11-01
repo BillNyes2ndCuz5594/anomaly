@@ -49,6 +49,12 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   const depthMat = useMemo(() => (mode === 'holo' ? depthOnlyMaterial() : null), [mode])
   useEffect(() => () => mat.dispose(), [mat])
   useEffect(() => () => depthMat?.dispose(), [depthMat])
+  // L3: x-ray pass. A second shell on the shared hologram fresnel shader, faded in and out over 600 ms on the backbone answer.
+  const xrayOn = react && !reduced && !STILL && !low && mode === 'lit'
+  const xmat = useMemo(() => (xrayOn ? tintedHolo('#3ee6ff', 0, false) : null), [xrayOn])
+  useEffect(() => () => xmat?.dispose(), [xmat])
+  const xmesh = useRef<THREE.Mesh>(null)
+  const xt0 = useRef<number | null>(null)
   const group = useRef<THREE.Group>(null)
   const born = useRef<number | null>(null)
 
@@ -96,7 +102,8 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
         if (seen.current === null) seen.current = f?.n ?? 0
         else if (f && f.n !== seen.current) {
           seen.current = f.n
-          if (f.id === id) rx.current = { ok: f.ok, t0: t }
+          if (f.id === id || f.id === `xray:${id}`) rx.current = { ok: f.ok, t0: t }
+          if (f.id === `xray:${id}`) xt0.current = t
         }
         const r = rx.current
         if (r) {
@@ -112,6 +119,12 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
           if (a >= 1) rx.current = null
         }
       }
+    }
+    if (xmat && xmesh.current) {
+      const a = xt0.current === null ? 1 : Math.min(1, (t - xt0.current) / 0.6)
+      xmat.opacity = xt0.current === null ? 0 : 1.1 * Math.sin(Math.PI * a)
+      xmesh.current.visible = xmat.opacity > 0.01
+      if (a >= 1) xt0.current = null
     }
     gr.rotation.order = 'YXZ'
     gr.rotation.x = pitch
@@ -132,6 +145,11 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
       <mesh geometry={geo}>
         <primitive object={mat} attach="material" />
       </mesh>
+      {xmat ? (
+        <mesh ref={xmesh} geometry={geo} scale={1.015} visible={false} renderOrder={2}>
+          <primitive object={xmat} attach="material" />
+        </mesh>
+      ) : null}
     </group>
   )
 }

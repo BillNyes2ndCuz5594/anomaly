@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { PAIR_TINTS } from '../../three/scenes/case/pairTints'
+import { useBlip } from '../../ui/useBlip'
+import VitalsStable from '../../ui/VitalsStable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { usePressed } from './usePressed'
 import './briefing-labb.css'
@@ -25,6 +27,9 @@ export default function LabB() {
   const [ci, setCi] = useState(0)
   const [tried, setTried] = useState<number[]>([])
   const [cDone, setCDone] = useState(false)
+  // L2: which button reacted and how, for 500 ms. A correct match also fires the arc in the 3D scene.
+  const [react, fireReact] = useBlip<string>(500)
+  const reactOf = (key: string) => (react && react.split(':')[1].split(',').includes(key) ? react.split(':')[0] : undefined)
 
   const pairs = lab.pairs
   const plantOrder = useMemo(() => [...pairs].reverse(), [pairs])
@@ -58,6 +63,7 @@ export default function LabB() {
       if (matched.includes(pairId) || phase !== 'match') return
       const plantId = `p:${partKey(pairs.find((p) => p.id === pairId)!.plant)}`
       if (!armed) {
+        fireReact(`bad:p-${pairId}`)
         setSay({ ok: false, word: 'Pick an animal part first.', text: 'Then choose the plant part that does the same job.' })
         useFx.getState().flashPart(plantId, false)
         return
@@ -69,13 +75,15 @@ export default function LabB() {
         syncFx(null, list)
         const p = pairs.find((x) => x.id === pairId)!
         useFx.getState().flashPart(plantId, true)
+        fireReact(`ok:p-${pairId},a-${pairId}`)
         setSay({ ok: true, word: 'Match', text: p.why })
       } else {
         useFx.getState().flashPart(plantId, false)
+        fireReact(`bad:p-${pairId},a-${armed}`)
         setSay({ ok: false, word: 'Not a match.', text: 'Think about the job each part does, then try another plant part.' })
       }
     },
-    [armed, matched, pairs, phase, syncFx],
+    [armed, matched, pairs, phase, syncFx, fireReact],
   )
 
   const handle3D = useCallback(
@@ -162,6 +170,7 @@ export default function LabB() {
                       type="button"
                       className={`match-btn${armed === p.id ? ' armed' : ''}${done ? ' matched' : ''}`}
                       data-testid={`match-${p.id}-animal`}
+                      data-react={reactOf(`a-${p.id}`)}
                       aria-pressed={armed === p.id}
                       disabled={done}
                       style={done ? ({ borderColor: tint, '--pair': tint } as CSSProperties) : undefined}
@@ -191,6 +200,7 @@ export default function LabB() {
                       type="button"
                       className={`match-btn${done ? ' matched' : ''}`}
                       data-testid={`match-${p.id}-plant`}
+                      data-react={reactOf(`p-${p.id}`)}
                       disabled={done}
                       style={done ? ({ borderColor: tint, '--pair': tint } as CSSProperties) : undefined}
                       {...press(`p-${p.id}`, done)}
@@ -212,6 +222,7 @@ export default function LabB() {
           </>
         ) : (
           <div className="contrast" data-testid="contrast-card">
+            {cDone && ci === lab.contrast.length - 1 ? <VitalsStable /> : null}
             <span className="mono label amber">
               CONTRAST CARD {ci + 1} OF {lab.contrast.length}
             </span>
