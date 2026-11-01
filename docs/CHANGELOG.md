@@ -1,5 +1,13 @@
 # Changelog
 
+## S7: a case for every assessed benchmark
+
+- Nine new case packs under `src/content/packs/` (00-1 PROTOCOL, 01-1 ORBIT, 02-1 FRONT, 02-2 BEDROCK, 04-1 SOLVENT, 05-1 CURRENT, 06-1 TRACTION, 07-1 CANOPY, 07-2 HABITAT): 128 items, every one of the 23 benchmarks the Grade 5 SSA assesses, each pack with a sort, match or order Field Lab. All of it is marked teacher review pending in `docs/CONTENT_REVIEW.md`.
+- 42 new scene diagrams (vector SVG, label slots, art check page) for Nature of Science, Space, Earth, Physical and Life items.
+- `docs/research/ssa-grade5-benchmarks.md`: the assessed benchmarks, also-assesses groupings and content limits from the FDOE item specifications, with a status label per row.
+- `docs/TEACHER_GUIDE.md`, `docs/CONTENT_REVIEW.md`, `docs/ROADMAP.md`; `scripts/check-pack.mjs` and `scripts/review-sheet.mjs`.
+- Diagram labels no longer measure before the item grid settles, and the proof waits for a settled viewBox.
+
 ## S6: Case files
 
 - The engine reads any number of cases. VITALS stays in `anomaly-content.json`; every other case is a pack in `src/content/packs/<caseId>.json`, loaded in `PACK_ORDER` (`src/content/index.ts`). A pack on disk that is not listed fails `npm test`.
