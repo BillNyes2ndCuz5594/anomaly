@@ -40,3 +40,17 @@ export default function WarpStreak() {
     </div>
   )
 }
+
+/**
+ * Full mode only: a hidden, paused copy of the warp clip mounted before any veil starts, so the browser has fetched
+ * and decoded it by the first launch and the veil plays streaks instead of only the poster. fade and still never
+ * render this, so they still create no video element.
+ */
+export function WarpPreload() {
+  return (
+    <video className="warp-preload" muted playsInline preload="auto" tabIndex={-1} aria-hidden="true" style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}>
+      <source src={warpWebm} type="video/webm" />
+      <source src={warpMp4} type="video/mp4" />
+    </video>
+  )
+}
