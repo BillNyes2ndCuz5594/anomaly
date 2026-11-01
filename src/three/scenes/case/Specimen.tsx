@@ -8,6 +8,8 @@ import { specimenGeo } from '../../models/creatures'
 import { SPECIMEN_LOOK } from '../../materials/detailMaps'
 import { useTier } from './common'
 import { specimenScale } from '../../models/specimenBox'
+import { useFx } from '../../../state/session'
+import { AQUATIC, idPhase } from './specimenLife'
 
 export interface SpecimenProps {
   id: string
@@ -22,10 +24,12 @@ export interface SpecimenProps {
   pop?: boolean
   /** Sways by this many radians around `yaw` instead of spinning. */
   sway?: number
+  /** Lab C: hop or shake when the answer flash for this id fires. */
+  react?: boolean
 }
 
 /** One low poly specimen, grounded at y = 0. Lit and flat shaded, or as a cyan hologram. */
-export default function Specimen({ id, fit = 3, spin = false, reduced = false, mode = 'lit', yaw = -0.45, pop = false, sway = 0 }: SpecimenProps) {
+export default function Specimen({ id, fit = 3, spin = false, reduced = false, mode = 'lit', yaw = -0.45, pop = false, sway = 0, react = false }: SpecimenProps) {
   const tier = useTier()
   const low = tier === 'low'
   const g = useMemo(() => specimenGeo(id, low ? 0.55 : 1), [id, low])
@@ -48,19 +52,74 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   const group = useRef<THREE.Group>(null)
   const born = useRef<number | null>(null)
 
+  const phase = useMemo(() => idPhase(id), [id])
+  const aquatic = AQUATIC.has(id)
+  const life = !reduced && !STILL && !low
+  const seen = useRef<number | null>(null)
+  const rx = useRef<{ ok: boolean; t0: number } | null>(null)
+  const extraYaw = useRef(0)
+
   useFrame((state, dt) => {
     const gr = group.current
     if (!gr) return
-    if (born.current === null) born.current = state.clock.elapsedTime
+    const t = state.clock.elapsedTime
+    if (born.current === null) born.current = t
+    gr.rotation.y -= extraYaw.current
     if (STILL) gr.rotation.y = STILL_YAW
-    else if (sway > 0) gr.rotation.y = yaw + (reduced ? 0 : Math.sin(state.clock.elapsedTime * 0.55) * sway)
+    else if (sway > 0) gr.rotation.y = yaw + (reduced ? 0 : Math.sin(t * 0.55) * sway)
     else if (spin && !reduced) gr.rotation.y += dt * 0.55
     else if (!spin) gr.rotation.y = yaw
+    let s = k
     if (pop && !reduced) {
-      const a = Math.min(1, (state.clock.elapsedTime - born.current) / 0.55)
+      const a = Math.min(1, (t - born.current) / 0.55)
       const e = 1 - Math.pow(1 - a, 3)
-      gr.scale.setScalar(k * (0.2 + 0.8 * e) * (a < 1 ? 1 + Math.sin(a * Math.PI) * 0.08 : 1))
-    } else gr.scale.setScalar(k)
+      s = k * (0.2 + 0.8 * e) * (a < 1 ? 1 + Math.sin(a * Math.PI) * 0.08 : 1)
+    }
+    let sx = 1
+    let sy = 1
+    let py = 0
+    let pitch = 0
+    let roll = 0
+    let yawX = 0
+    if (life) {
+      if (aquatic) {
+        py = 0.012 * fit * (1 + Math.sin(t * 0.9 + phase))
+        pitch = 0.035 * Math.sin(t * 0.9 + 0.8 + phase)
+        roll = 0.02 * Math.sin(t * 0.7 + phase)
+      } else {
+        const b = Math.sin(t * 1.6 + phase)
+        sy = 1 + 0.012 * b
+        sx = 1 - 0.005 * b
+      }
+      if (react) {
+        const f = useFx.getState().flash
+        if (seen.current === null) seen.current = f?.n ?? 0
+        else if (f && f.n !== seen.current) {
+          seen.current = f.n
+          if (f.id === id) rx.current = { ok: f.ok, t0: t }
+        }
+        const r = rx.current
+        if (r) {
+          const a = Math.min(1, (t - r.t0) / (r.ok ? 0.45 : 0.5))
+          if (r.ok) {
+            const e = 1 - (1 - a) * (1 - a)
+            const w = Math.sin(Math.PI * e)
+            py += w * 0.07 * fit
+            const p = 1 + 0.035 * w
+            sx *= p
+            sy *= p
+          } else yawX = Math.sin(a * Math.PI * 6) * 0.13 * (1 - a)
+          if (a >= 1) rx.current = null
+        }
+      }
+    }
+    gr.rotation.order = 'YXZ'
+    gr.rotation.x = pitch
+    gr.rotation.z = roll
+    gr.rotation.y += yawX
+    extraYaw.current = yawX
+    gr.position.y = py
+    gr.scale.set(s * sx, s * sy, s * sx)
   })
 
   return (
