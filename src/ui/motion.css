@@ -1004,3 +1004,238 @@ html[data-motion='full'] .debrief-item .why-letter > span[aria-hidden='true'] {
 html[data-motion='fade'] .debrief-list > .debrief-item {
   animation: fx-fade 0.3s linear both;
 }
+
+/* ======================================================================
+   Juice wave 4: case 03-1 briefing and labs. Modes come from html[data-motion]:
+   full = themed motion, fade = opacity or color only, still = final state at once.
+   ====================================================================== */
+
+/* B1: incoming transmission monitor. The clip is on pure black, so it blends with screen. */
+@keyframes w4-feed-video {
+  from { opacity: 0; }
+}
+@keyframes w4-fade {
+  from { opacity: 0; }
+}
+.briefing-feed {
+  position: relative;
+  align-self: flex-start;
+  width: min(100%, 220px);
+  aspect-ratio: 960 / 549;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(62, 230, 255, 0.4);
+  border-radius: 4px;
+  flex: none;
+}
+.briefing-feed img,
+.briefing-feed video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.briefing-feed .feed-video[data-live='no'] {
+  opacity: 0;
+}
+.briefing-feed .feed-video[data-live='yes'] {
+  animation: w4-feed-video 0.25s linear both;
+}
+.briefing-feed .feed-tag {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  text-shadow: 0 0 6px rgba(255, 181, 71, 0.6);
+}
+html[data-motion='fade'] .briefing-feed .feed-poster {
+  animation: w4-fade 0.4s linear both;
+}
+@media (max-height: 520px) {
+  .briefing-feed {
+    width: 130px;
+  }
+}
+
+/* B2: the dispatch hook types in word by word over 600 ms; the longest word glitches amber. */
+@keyframes w4-type {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes w4-glitch {
+  0% { color: var(--amber); text-shadow: 2px 0 rgba(255, 181, 71, 0.7), -2px 0 rgba(62, 230, 255, 0.6); translate: 1px 0; }
+  25% { translate: -2px 0; }
+  50% { color: var(--amber); translate: 2px 0; }
+  75% { translate: -1px 0; }
+  100% { color: inherit; text-shadow: none; translate: 0 0; }
+}
+html[data-motion='full'] .dispatch-hook .hook-w {
+  animation: w4-type 0.01s steps(1, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards;
+}
+html[data-motion='full'] .dispatch-hook .hook-glitch {
+  display: inline-block;
+  animation:
+    w4-type 0.01s steps(1, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards,
+    w4-glitch 0.45s steps(5, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards;
+}
+html[data-motion='fade'] .dispatch-hook {
+  animation: w4-fade 0.4s linear both;
+}
+
+/* L1: Lab A organ lock. Correct: a cyan ring pulses out of the row. Wrong: amber flash and a 2 px panel shake. */
+@keyframes w4-pulse-ring {
+  from { opacity: 0.9; scale: 0.9; }
+  to { opacity: 0; scale: 1.18 1.7; }
+}
+@keyframes w4-amber-flash {
+  0% { background-color: rgba(255, 181, 71, 0.5); }
+  100% { background-color: transparent; }
+}
+@keyframes w4-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -2px 0; }
+  40% { translate: 2px 0; }
+  60% { translate: -2px 0; }
+  80% { translate: 2px 0; }
+}
+.organ-btn,
+.match-btn {
+  position: relative;
+}
+.organ-btn[data-react='ok'],
+.match-btn[data-react='ok'] {
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px rgba(62, 230, 255, 0.55);
+}
+.organ-btn[data-react='bad'],
+.match-btn[data-react='bad'] {
+  border-color: var(--amber);
+  box-shadow: 0 0 12px rgba(255, 181, 71, 0.5);
+}
+html[data-motion='full'] .organ-btn[data-react='ok']::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--cyan);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: w4-pulse-ring 0.45s var(--ease-out) both;
+}
+html[data-motion='full'] .organ-btn[data-react='bad']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: w4-amber-flash 0.45s var(--ease-out) both;
+}
+html[data-motion='full'] .side-panel[data-react='bad'] {
+  animation: w4-shake 0.45s linear;
+}
+
+/* L2: Lab B. A wrong match fizzles amber and breaks apart; a right one flares cyan (the arc itself is in 3D). */
+@keyframes w4-fizz {
+  0% { translate: 0 0; opacity: 1; }
+  25% { translate: -2px 0; opacity: 0.6; }
+  50% { translate: 2px 0; opacity: 1; }
+  75% { translate: -1px 0; opacity: 0.7; }
+  100% { translate: 0 0; opacity: 1; }
+}
+@keyframes w4-flare {
+  from { box-shadow: 0 0 22px rgba(62, 230, 255, 0.9); }
+}
+html[data-motion='full'] .match-btn[data-react='bad'] {
+  animation: w4-fizz 0.5s steps(8, end);
+}
+html[data-motion='full'] .match-btn[data-react='ok'] {
+  animation: w4-flare 0.5s var(--ease-out);
+}
+
+/* L3: Lab C. The chip flies in JS (flyChip, 400 ms); the bin count bumps when it lands. */
+@keyframes w4-bump {
+  0% { scale: 1; }
+  50% { scale: 1.45; }
+  100% { scale: 1; }
+}
+.group-grid .btn {
+  position: relative;
+}
+.bin-n {
+  position: absolute;
+  right: 3px;
+  top: 1px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--cyan);
+}
+html[data-motion='full'] .bin-n {
+  animation: w4-bump 0.25s var(--ease-out) 0.4s backwards;
+}
+
+/* L4: "vitals stable". The ECG sweeps across the card, then flatlines into a check (700 ms). */
+@keyframes w4-ecg {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes w4-vitals-in {
+  from { opacity: 0; }
+}
+.job-card,
+.contrast {
+  position: relative;
+}
+.vitals-stable {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  pointer-events: none;
+  color: var(--cyan);
+  z-index: 1;
+}
+.vitals-stable svg {
+  flex: 1;
+  height: 22px;
+  min-width: 0;
+  overflow: visible;
+}
+.vitals-stable path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.vitals-word {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+html[data-motion='full'] .vitals-stable .ecg-line {
+  animation: w4-ecg 0.5s linear backwards;
+}
+html[data-motion='full'] .vitals-stable .ecg-check {
+  animation: w4-ecg 0.2s var(--ease-out) 0.5s backwards;
+}
+html[data-motion='full'] .vitals-stable .vitals-word {
+  animation: w4-vitals-in 0.2s linear 0.5s backwards;
+}
+html[data-motion='fade'] .vitals-stable {
+  animation: w4-vitals-in 0.4s linear both;
+}
+@media (max-width: 520px) {
+  .vitals-word {
+    display: none;
+  }
+}

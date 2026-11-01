@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import { content } from '../../content/schema'
 import { useReadAloud, wordAt } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
 import { useSession } from '../../state/session'
+import BriefingFeed from '../../ui/BriefingFeed'
 import { FrostCreep } from '../../ui/FrostOverlay'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { CaseTop } from './ui'
@@ -35,6 +36,10 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1
   const press = usePressed()
 
+  // B2: the hook types in word by word over 600 ms (CSS) and the longest word glitches amber. The full text stays in the DOM.
+  const hookWords = useMemo(() => c.dispatchHook.split(' '), [c.dispatchHook])
+  const glitchAt = useMemo(() => hookWords.reduce((best, w, i, a) => (w.length > a[best].length ? i : best), 0), [hookWords])
+
   // Cold case: "Open the evidence" pulls a canister first (500 ms in full motion), then the usual step change.
   const motion = useMotionMode()
   const leaving = useRef(false)
@@ -63,7 +68,17 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
           </span>
         </header>
         <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
-        <p className="dispatch-hook">{c.dispatchHook}</p>
+        {cold ? null : <BriefingFeed />}
+        <p className="dispatch-hook" data-testid="dispatch-hook" style={{ '--wn': hookWords.length } as CSSProperties}>
+          {hookWords.map((w, i) => (
+            <Fragment key={i}>
+              <span className={i === glitchAt ? 'hook-w hook-glitch' : 'hook-w'} style={{ '--wi': i } as CSSProperties}>
+                {w}
+              </span>
+              {i < hookWords.length - 1 ? ' ' : null}
+            </Fragment>
+          ))}
+        </p>
         {cold ? null : (
           <ul className="dispatch-key" aria-label="On the table">
             <li>

@@ -3,6 +3,8 @@ import { content } from '../../content/schema'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import { ORGAN_LIST } from '../../three/models/humanList'
+import { useBlip } from '../../ui/useBlip'
+import VitalsStable from '../../ui/VitalsStable'
 import './labs-ac.css'
 import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
@@ -25,12 +27,15 @@ export default function LabA() {
   const hot = useFx((s) => s.hover)
   const lit = useFx((s) => s.lit)
   const press = usePressed()
+  // L1: which row reacted and how, for 450 ms.
+  const [react, fireReact] = useBlip<string>(450)
 
   const pick = useCallback(
     (id: string) => {
       if (done) return
       const fx = useFx.getState()
       fx.flashPart(id, id === task.organ)
+      fireReact(`${id === task.organ ? 'ok' : 'bad'}:${id}`)
       if (id === task.organ) {
         setFb({ ok: true, word: 'Correct', text: task.why })
         useFx.getState().setLit([id])
@@ -39,7 +44,7 @@ export default function LabA() {
         setFb({ ok: false, word: 'Not that one.', text: task.hint })
       }
     },
-    [done, task, unlock],
+    [done, task, unlock, fireReact],
   )
 
   // The 3D layer calls the registered handler on a click. Keep it pointed at the latest closure.
@@ -71,7 +76,7 @@ export default function LabA() {
     <div className="screen case-screen" data-testid="lab-a">
       <CaseTop step="lab-a" />
 
-      <aside className="panel brackets side-panel" aria-label="Organ list">
+      <aside className="panel brackets side-panel" aria-label="Organ list" data-react={react?.startsWith('bad') ? 'bad' : undefined}>
         <PanelHead code="FIELD LAB A" title="ORGAN OPS" />
         <p className="intro">{lab.scenario}</p>
         <p className="intro strong">{lab.intro}</p>
@@ -84,6 +89,7 @@ export default function LabA() {
               type="button"
               className={`organ-btn${hot === o.id ? ' is-hot' : ''}${lit.includes(o.id) ? ' is-lit' : ''}`}
               data-testid={`organ-${o.id}`}
+              data-react={react?.endsWith(`:${o.id}`) ? react.split(':')[0] : undefined}
               style={{ ['--tint' as string]: o.tint }}
               disabled={done}
               onClick={() => pick(o.id)}
@@ -103,6 +109,7 @@ export default function LabA() {
 
       <section className="dock" aria-label="Job card">
         <div className="panel brackets job-card" data-testid="task-card">
+          {done && last ? <VitalsStable /> : null}
           <div className="job-head">
             <span className="mono label amber">
               JOB {i + 1} OF {lab.tasks.length}
