@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, type CSSProperties } from 'react'
-import { content } from '../../content/schema'
+import { content } from '../../content'
 import { useReadAloud, wordAt } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
 import { useSession } from '../../state/session'
@@ -7,13 +7,15 @@ import BriefingFeed from '../../ui/BriefingFeed'
 import { FrostCreep } from '../../ui/FrostOverlay'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { CaseTop } from './ui'
+import { useCaseDef } from './useCaseDef'
 import { usePressed } from './usePressed'
 import './briefing-labb.css'
 
 export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) {
   const next = useSession((s) => s.next)
   const cold = kind === 'cold'
-  const c = cold ? content.coldCase : content.case
+  const def = useCaseDef()
+  const c = cold ? content.coldCase : def
   const text = c.briefing.join(' ')
   const ra = useReadAloud(text)
 
@@ -67,7 +69,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             <i /> <i /> <i /> <i />
           </span>
         </header>
-        <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${content.case.id} ${c.codename}`}</h1>
+        <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${def.id} ${c.codename}`}</h1>
         {cold ? null : <BriefingFeed />}
         <p className="dispatch-hook" data-testid="dispatch-hook" style={{ '--wn': hookWords.length } as CSSProperties}>
           {hookWords.map((w, i) => (
@@ -79,7 +81,8 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             </Fragment>
           ))}
         </p>
-        {cold ? null : (
+        {/* VITALS stages the body scan and the manatee; other cases preview their Field Lab dais instead. */}
+        {cold || def.lab.kind !== 'vitals' ? null : (
           <ul className="dispatch-key" aria-label="On the table">
             <li>
               <span className="key-dot scan" aria-hidden="true" /> Body scan

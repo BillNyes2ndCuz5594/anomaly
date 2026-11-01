@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { BANNED_WORDS, content, keyShares, studentStrings, validateContent, type Content } from './schema'
+import { content, VITALS_LABS } from '.'
+import { BANNED_WORDS, keyShares, studentStrings, validateContent, type Content } from './schema'
 
 describe('content (SPEC section 11)', () => {
   it('passes validateContent with no problems', () => {
@@ -56,7 +57,7 @@ describe('content (SPEC section 11)', () => {
 
   it('has lab organ ids that exist in the codex or model list', () => {
     const codexOrgans = new Set(content.codex.filter((e) => e.id.startsWith('organ:')).map((e) => e.id.slice(6)))
-    for (const t of content.case.labs.organOps.tasks) expect(codexOrgans.has(t.organ), t.organ).toBe(true)
+    for (const t of VITALS_LABS.organOps.tasks) expect(codexOrgans.has(t.organ), t.organ).toBe(true)
   })
 })
 

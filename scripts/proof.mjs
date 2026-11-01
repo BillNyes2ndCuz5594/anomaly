@@ -2,6 +2,8 @@
 // title, first run, hub, settings, case 03-1 (briefing, labs, RKEA items, debrief, results with report code),
 // cold case RESIDUE, resume with code, Teacher HQ (sample class and a real decoded code),
 // then fps under 4x CPU throttle on the hub and lab A, initial load size, and a summary.
+// S6: when PACK_ORDER lists a case pack, each viewport also walks the first one (hub marker, briefing, the generic
+// Field Lab through the HUD buttons, evidence, debrief, results). With no pack listed the walk is skipped with a note.
 // Output goes to /workspace/anomaly-proof/. Exit code is non-zero on any console error, page error or failed check.
 // Usage: npm run build && node scripts/proof.mjs
 import puppeteer from 'puppeteer-core'
@@ -11,11 +13,16 @@ import { join } from 'node:path'
 import { gzipSync, inflateSync } from 'node:zlib'
 import { createServer } from 'node:net'
 import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
+import { loadContent, loadPacks } from './lib/content.mjs'
+import { walkPack } from './lib/caseWalk.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 const ROOT = new URL('..', import.meta.url).pathname
-const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
+/** S6: the packs PACK_ORDER lists, and the merged content (base plus packs). `case` stays VITALS; the cold case can draw pack items. */
+const PACKS = loadPacks()
+const MERGED = loadContent()
+const CONTENT = MERGED
 
 function unfilterPng(filter, row, prev, bpp) {
   if (filter === 0) return
@@ -195,6 +202,8 @@ async function waitFrames(page, n = 3) {
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
 const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp', 's19-strip-route', 's19-strip-step', 's19-strip-modal', 's19-strip-item', 's19-strip-results', 's20-strip-title-hub', 's20-strip-hub-case', 's20-strip-results']
+// S6 shots are appended, so every existing screenshot keeps its number. They exist only when a pack is listed.
+if (PACKS.length) ORDER.push('pack-briefing', 'pack-lab', 'pack-results')
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -1009,6 +1018,14 @@ try {
     await sleep(300)
     await shot(tp, 'teacher-decoded', w, { fullPage: true })
     await tp.close()
+
+    // S6: the first case pack, through the generic Field Lab.
+    if (PACKS.length) {
+      const walk = await walkPack(page, PACKS[0], MERGED, { check, label: `${w}`, shot: (name) => shot(page, name, w) })
+      check(`pack walk ran every step (${w})`, walk.steps.length === 6, walk.steps.join(', '))
+    } else if (w === VIEWPORTS[0].width) {
+      console.log('note: no case pack is listed in PACK_ORDER yet, so the generic lab walk is skipped')
+    }
     await page.close()
   }
 
@@ -1283,6 +1300,18 @@ try {
   }
   check('Low tier draws fewer calls than High (no post, shadow or extra particles) on hub', pins.low.hub.calls < pins.high.hub.calls, `${pins.low.hub.calls} vs ${pins.high.hub.calls}`)
   check('Low tier draws fewer calls than High on lab A', pins.low.labA.calls < pins.high.labA.calls, `${pins.low.labA.calls} vs ${pins.high.labA.calls}`)
+  if (PACKS.length) {
+    const goPackLab = async (page, search) => {
+      await page.goto(BASE + search + `#/case/${PACKS[0].case.id}`, { waitUntil: 'load' })
+      await page.waitForSelector('[data-testid="briefing"]', { timeout: 120000 })
+      await sleep(1500)
+      await page.click('[data-testid="briefing-continue"]')
+      await page.waitForSelector('[data-testid="lab-generic"]', { timeout: 120000 })
+    }
+    for (const tier of ['low', 'medium']) pins[tier].packLab = await readScene(`?tier=${tier}`, goPackLab)
+    check('generic lab draws under 70 calls on Medium', pins.medium.packLab.tier === 'medium' && pins.medium.packLab.calls < 70, `${pins.medium.packLab.calls}`)
+    check('Low tier draws fewer calls than Medium on the generic lab', pins.low.packLab.calls < pins.medium.packLab.calls, `${pins.low.packLab.calls} vs ${pins.medium.packLab.calls}`)
+  }
 
   {
     // Scene churn: hub, settings, hub, settings ... geometry and texture counts must plateau (dispose on unmount).

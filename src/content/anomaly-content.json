@@ -3,11 +3,31 @@
   "id": "03-1",
   "codename": "VITALS",
   "unit": "U03 Living Things",
+  "unitLabel": "Unit 3: Living Things",
+  "category": "life",
   "benchmarks": [
    "SC.5.L.14.1",
    "SC.5.L.14.2",
    "SC.3.L.15.1"
   ],
+  "evidencePlan": [
+   {
+    "benchmark": "SC.5.L.14.1",
+    "count": 2
+   },
+   {
+    "benchmark": "SC.5.L.14.2",
+    "count": 2
+   },
+   {
+    "benchmark": "SC.3.L.15.1",
+    "count": 1
+   }
+  ],
+  "marker": {
+   "lon": -81.4,
+   "lat": 28.5
+  },
   "dispatchHook": "Scanner glitch on the Space Coast. Organs and animals filed wrong.",
   "briefing": [
    "Agent, a medical scanner on the Space Coast just scrambled its body map.",
@@ -15,6 +35,9 @@
    "Route organs, match plant and animal parts, and re-sort the specimens.",
    "Then clear the evidence check, preferably with fewer errors than the scanner."
   ],
+  "lab": {
+   "kind": "vitals"
+  },
   "labs": {
    "organOps": {
     "scenario": "A launch-pad technician's body scan lost every organ label, and the job cards are piling up.",

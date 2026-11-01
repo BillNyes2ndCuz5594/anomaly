@@ -3,6 +3,7 @@
 //   s23-portrait 360x780 dpr3, s23-landscape 780x360 dpr3, tab-portrait 800x1280, tab-landscape 1280x800.
 // Flow: title, Start shift, first run, hub, settings, case 03-1 briefing, Lab A (including one tap directly on the
 // 3D hologram), Lab B, Lab C, 5 evidence items, debrief, results, cold case, results, plus a rotation on Lab A.
+// S6: when PACK_ORDER lists a case pack, the first one's generic Field Lab is audited and played by touch too.
 // Every screen is screenshotted to /workspace/anomaly-proof/mobile/ and checked. The exit code is non-zero on:
 // console or page error, failed request, horizontal document scroll, a visible control outside the viewport
 // horizontally, a tapped element whose center is covered, a control under 44x44 CSS px (inline stem words only
@@ -14,6 +15,8 @@ import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'nod
 import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CHROME_ARGS, CONTENT, freePort, startPreview } from './lib/drive.mjs'
+import { loadPacks } from './lib/content.mjs'
+import { nextMove } from './lib/caseWalk.mjs'
 
 const OUT = (process.env.PROOF_OUT || '/workspace/anomaly-proof') + '/mobile'
 const PHONE_UA = 'Mozilla/5.0 (Linux; Android 14; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'
@@ -40,6 +43,7 @@ for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f) && (!wanted.length
 
 const tid = (id) => `[data-testid="${id}"]`
 const c = CONTENT.case
+const PACKS = loadPacks()
 
 /** Runs inside the page: every check on the current screen. Returns metrics and a list of problem strings. */
 function pageChecks() {
@@ -433,6 +437,28 @@ async function runDevice(dev, base) {
     await page.setViewport(view(false))
     await audit('rotated-back-lab-a', 3000)
     if (!(await page.evaluate(() => window.__noReload === 1))) problem('rotate', 'page reloaded on orientation change')
+
+    // S6: the generic Field Lab of the first case pack, every card placed by touch.
+    if (PACKS.length) {
+      const pack = PACKS[0].case
+      screen = 'lab-generic'
+      await page.evaluate((id) => (location.hash = `#/case/${id}`), pack.id)
+      await page.waitForSelector(tid('briefing'))
+      await tapId('briefing-continue')
+      await page.waitForSelector(tid('lab-generic'))
+      await audit('lab-generic', 3000)
+      const total = pack.lab.kind === 'sort' ? pack.lab.cards.length : pack.lab.kind === 'match' ? pack.lab.left.length : pack.lab.steps.length
+      for (let n = 0; n < total; n++) {
+        const move = await nextMove(page, pack.lab)
+        await tapId(move.right)
+        await page.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'yes')
+        await sleep(150)
+      }
+      await page.waitForSelector(tid('lab-next'))
+      await audit('lab-generic-done', 1500)
+    } else if (tag === DEVICES[0].tag) {
+      console.log('note: no case pack is listed in PACK_ORDER yet, so the generic lab screen is skipped')
+    }
     report.ok = true
   } catch (e) {
     report.ok = false

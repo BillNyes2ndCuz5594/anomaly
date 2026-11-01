@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOG_BENCHMARKS, CATALOG_ITEMS } from '../lib/catalog.generated'
-import { classHash, decodeReport, encodeReport } from '../lib/reportCode'
-import { content } from '../content/schema'
+import { classHash, decodeReport, encodeReport, LAYOUTS, REPORT_VERSION } from '../lib/reportCode'
+import { content } from '../content'
 import { applyResult, emptyRecord, type BenchmarkRecord } from './mastery'
 import { buildReportData, mergeReport } from './reportMerge'
 
@@ -31,8 +31,9 @@ describe('catalog', () => {
   })
 
   it('fits the code field widths and has no dashes in labels or stems', () => {
-    expect(CATALOG_BENCHMARKS.length).toBeLessThanOrEqual(31)
-    expect(CATALOG_ITEMS.length).toBeLessThanOrEqual(128)
+    // S6: report codes are version 2 (7 bit benchmark index, 9 bit item index). Before S6 the limits were 31 and 128.
+    expect(CATALOG_BENCHMARKS.length).toBeLessThanOrEqual(2 ** LAYOUTS[REPORT_VERSION].bench)
+    expect(CATALOG_ITEMS.length).toBeLessThanOrEqual(2 ** LAYOUTS[REPORT_VERSION].item)
     for (const s of [...CATALOG_BENCHMARKS.map((b) => b.label), ...CATALOG_ITEMS.map((i) => i.stem)]) {
       expect(s).not.toMatch(/[\u2013\u2014]/)
     }

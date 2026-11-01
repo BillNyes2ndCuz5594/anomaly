@@ -14,7 +14,8 @@ Read `docs/SPEC.md` (source of truth) and `docs/PLAN.md` (stages) first.
 - `npm run build`: type check and production build (main app plus `teacher.html`).
 - `npm test`: unit tests (vitest).
 - `node scripts/proof.mjs`: starts `vite preview` on a free port, walks the whole product in headless Chrome at 1366x768 and 1920x1080, and writes 18 numbered screenshots per size (all at `?tier=high`, so bloom and vignette show), `fps.json` (Auto tier, per backend: WebGPU and WebGL2, throttled and unthrottled) and `proof-summary.json` (also draw calls per scene and per tier, load bytes) to `/workspace/anomaly-proof/`. Exits non-zero on any console error. Run `npm run build` first.
-- `node scripts/gen-catalog.mjs`: regenerates `src/lib/catalog.generated.ts` after content changes (append only, see below).
+- `node scripts/gen-catalog.mjs`: regenerates `src/lib/catalog.generated.ts` after content changes (append only, see below). It reads the base file plus the packs `PACK_ORDER` lists.
+- `node scripts/smoke-cases.mjs`: a short check of the hub and the first case pack (briefing, generic Field Lab, evidence, debrief, results) at 1366x768 on Medium (draw calls) and 360x780. Run `npm run build` first. With no pack listed it checks the hub and skips the walk.
 - `npm run icons`: regenerates the PWA icons in `public/` (needs local Chrome).
 
 URL switches (query string, before the `#`):
@@ -31,12 +32,13 @@ URL switches (query string, before the `#`):
 - `src/three/`: renderer, `Stage`, `PostFX`, `materials/hologram.ts`, `scenes/*`.
 - `src/screens/`: HUD screens (title, hub, settings, case placeholder).
 - `src/state/`: zustand store (`anomaly.v1`), quality tiers and Auto logic, runtime facts.
+- `src/content/`: `schema.ts` (types and `validateContent`), `index.ts` (the only module that reads content JSON: merges `anomaly-content.json` with the packs in `PACK_ORDER`, exports `content`, `caseById`), `packs/<caseId>.json` (one case per file, shape `CasePack`), `__fixtures__/` (test packs, never listed).
 - `src/ui/`: shared HUD components.
 - `src/teacher/`: Teacher HQ entry (must not import three).
 
 ## Report codes and Teacher HQ
 
-- `src/lib/reportCode.ts`: encode and decode (Crockford base32, groups of 4, 2 character checksum). Pure, shared with Teacher HQ.
+- `src/lib/reportCode.ts`: encode and decode (Crockford base32, groups of 4, 2 character checksum). Pure, shared with Teacher HQ. Codes are version 2 (7 bit benchmark index, 9 bit item index); version 1 codes still decode.
 - `src/lib/catalog.generated.ts`: the fixed, ordered benchmark list and item index list. Report codes store indexes into it, so it is APPEND ONLY. Never reorder or remove entries. After adding items or benchmarks to the content JSON, run `node scripts/gen-catalog.mjs`; `npm test` fails if the catalog and content disagree.
 - `src/lib/scheduler.ts`: spaced review picker for the cold case (due items first, then unseen, spread across categories).
 - `src/state/reportMerge.ts`: builds a report from progress and merges a decoded report back in (never lowers progress).

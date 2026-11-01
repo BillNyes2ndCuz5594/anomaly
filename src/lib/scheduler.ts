@@ -1,9 +1,15 @@
 // Spaced review scheduler for cold cases (SPEC section 8). Pure: callers pass progress, history and today.
-import type { Item } from '../content/schema'
+import { categoryOfBenchmark, type Item } from '../content/schema'
 import { isDue, type BenchmarkRecord } from '../state/mastery'
 import { seeded, type HistoryEntry } from './rkea'
 
 export const COLD_ITEM_COUNT = 4
+
+/**
+ * Reporting category of an item, from its benchmark code. The base file spells categories out ("Life Science") and
+ * packs use short names ("life"), so the spread reads the benchmark instead of the free text.
+ */
+const catOf = (it: Item) => categoryOfBenchmark(it.benchmark)
 
 export type ReviewTier = 'due' | 'unseen' | 'seen'
 
@@ -65,8 +71,8 @@ export function pickReview(
     const bestTier = Math.min(...left.map((i) => TIER_RANK[tierOf(i)]))
     const cands = left.filter((i) => TIER_RANK[tierOf(i)] === bestTier)
     cands.sort((a, b) => {
-      const ca = catCount.get(a.category) ?? 0
-      const cb = catCount.get(b.category) ?? 0
+      const ca = catCount.get(catOf(a)) ?? 0
+      const cb = catCount.get(catOf(b)) ?? 0
       if (ca !== cb) return ca - cb
       const ba = benchCount.get(a.benchmark) ?? 0
       const bb = benchCount.get(b.benchmark) ?? 0
@@ -84,7 +90,7 @@ export function pickReview(
     })
     const pick = cands[0]
     chosen.push(pick)
-    catCount.set(pick.category, (catCount.get(pick.category) ?? 0) + 1)
+    catCount.set(catOf(pick), (catCount.get(catOf(pick)) ?? 0) + 1)
     benchCount.set(pick.benchmark, (benchCount.get(pick.benchmark) ?? 0) + 1)
   }
   return chosen

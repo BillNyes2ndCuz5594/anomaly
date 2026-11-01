@@ -1,19 +1,28 @@
 import { create } from 'zustand'
-import type { Item } from '../content/schema'
-import { content } from '../content/schema'
+import type { CaseDef, Item } from '../content/schema'
+import { caseById, content, vitalsCase } from '../content'
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
 import { toISODate } from './mastery'
 import { useGame } from './store'
 
-export type CaseStep = 'briefing' | 'lab-a' | 'lab-b' | 'lab-c' | 'items' | 'debrief' | 'results'
+export type CaseStep = 'briefing' | 'lab-a' | 'lab-b' | 'lab-c' | 'lab' | 'items' | 'debrief' | 'results'
 
 export const CASE_STEPS: readonly { id: CaseStep; label: string }[] = [
   { id: 'briefing', label: 'Briefing' },
   { id: 'lab-a', label: 'Lab A' },
   { id: 'lab-b', label: 'Lab B' },
   { id: 'lab-c', label: 'Lab C' },
+  { id: 'items', label: 'Evidence' },
+  { id: 'debrief', label: 'Debrief' },
+  { id: 'results', label: 'Results' },
+]
+
+/** Any case other than VITALS: one generic Field Lab (sort, match or order) from the case's `lab`. */
+export const LAB_STEPS: readonly { id: CaseStep; label: string }[] = [
+  { id: 'briefing', label: 'Briefing' },
+  { id: 'lab', label: 'Field Lab' },
   { id: 'items', label: 'Evidence' },
   { id: 'debrief', label: 'Debrief' },
   { id: 'results', label: 'Results' },
@@ -29,8 +38,10 @@ export const COLD_STEPS: readonly { id: CaseStep; label: string }[] = [
   { id: 'results', label: 'Results' },
 ]
 
-export function stepsFor(kind: CaseKind) {
-  return kind === 'cold' ? COLD_STEPS : CASE_STEPS
+/** Steps for a case kind. VITALS (or no case yet) keeps its three labs; every other case gets the generic Field Lab. */
+export function stepsFor(kind: CaseKind, caseDef?: CaseDef | null) {
+  if (kind === 'cold') return COLD_STEPS
+  return caseDef && caseDef.lab.kind !== 'vitals' ? LAB_STEPS : CASE_STEPS
 }
 
 export interface AnswerRecord {
@@ -53,6 +64,8 @@ export interface ResultsSummary {
 
 interface SessionState {
   caseId: string | null
+  /** The case being played (null for the cold case and before start). */
+  caseDef: CaseDef | null
   kind: CaseKind
   step: CaseStep
   items: Item[]
@@ -76,6 +89,7 @@ export function newSeed(): string {
 
 export const useSession = create<SessionState>((set, get) => ({
   caseId: null,
+  caseDef: null,
   kind: 'case',
   step: 'briefing',
   items: [],
@@ -86,21 +100,22 @@ export const useSession = create<SessionState>((set, get) => ({
   paint: null,
   start: (caseId, kind = 'case') => {
     const st = useGame.getState()
+    const caseDef = kind === 'case' ? caseById(caseId) ?? vitalsCase : null
     const qa = kind === 'case' ? QA_ITEMS.map((id) => content.items.find((it) => it.id === id)) : []
     const items =
       qa.length > 0 && qa.every(Boolean)
         ? (qa as Item[])
         : kind === 'cold'
         ? pickReview(content.items, st.progress, st.itemHistory, toISODate(), newSeed())
-        : pickEvidence(content.items, st.itemHistory, newSeed())
-    const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : content.case.benchmarks
+        : pickEvidence(content.items, st.itemHistory, newSeed(), (caseDef ?? vitalsCase).evidencePlan)
+    const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : (caseDef ?? vitalsCase).benchmarks
     const before: Record<string, string> = {}
     for (const b of benchmarks) before[b] = st.progress[b]?.stage ?? 'unseen'
-    set({ caseId, kind, step: 'briefing', items, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
+    set({ caseId, caseDef, kind, step: 'briefing', items, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
   },
   go: (step) => set({ step }),
   next: () => {
-    const steps = stepsFor(get().kind)
+    const steps = stepsFor(get().kind, get().caseDef)
     const i = steps.findIndex((s) => s.id === get().step)
     const n = steps[Math.min(i + 1, steps.length - 1)]
     set({ step: n.id })
@@ -126,12 +141,15 @@ interface FxState {
   bridges: [string, string][]
   /** Lab C specimen on the turntable. */
   specimen: string | null
+  /** Generic Field Lab: the card on the dais (null for an order lab or when every card is placed). */
+  card: string | null
   setHover: (id: string | null) => void
   flashPart: (id: string, ok: boolean) => void
   setLit: (ids: string[]) => void
   setPick: (fn: ((id: string) => void) | null) => void
   setBridges: (b: [string, string][]) => void
   setSpecimen: (id: string | null) => void
+  setCard: (id: string | null) => void
 }
 
 export const useFx = create<FxState>((set) => ({
@@ -141,10 +159,12 @@ export const useFx = create<FxState>((set) => ({
   pick: null,
   bridges: [],
   specimen: null,
+  card: null,
   setHover: (hover) => set({ hover }),
   flashPart: (id, ok) => set((s) => ({ flash: { id, ok, n: (s.flash?.n ?? 0) + 1 } })),
   setLit: (lit) => set({ lit }),
   setPick: (pick) => set({ pick }),
   setBridges: (bridges) => set({ bridges }),
   setSpecimen: (specimen) => set({ specimen }),
+  setCard: (card) => set({ card }),
 }))

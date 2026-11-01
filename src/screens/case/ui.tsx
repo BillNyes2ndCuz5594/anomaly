@@ -2,11 +2,13 @@ import type { ReactNode } from 'react'
 import { navigate } from '../../lib/router'
 import { useReadAloud } from '../../lib/speech'
 import { stepsFor, useSession, type CaseKind, type CaseStep } from '../../state/session'
-import { content } from '../../content/schema'
+import { content } from '../../content'
+import type { CaseDef } from '../../content/schema'
+import { useCaseDef } from './useCaseDef'
 import { useAnnounce } from '../../ui/announce'
 
-export function StepBar({ step, kind = 'case' }: { step: CaseStep; kind?: CaseKind }) {
-  const steps = stepsFor(kind)
+export function StepBar({ step, kind = 'case', caseDef = null }: { step: CaseStep; kind?: CaseKind; caseDef?: CaseDef | null }) {
+  const steps = stepsFor(kind, caseDef)
   const idx = steps.findIndex((s) => s.id === step)
   return (
     <div className="stepwrap">
@@ -44,13 +46,14 @@ export function StepBar({ step, kind = 'case' }: { step: CaseStep; kind?: CaseKi
 
 export function CaseTop({ step }: { step: CaseStep }) {
   const kind = useSession((s) => s.kind)
+  const def = useCaseDef()
   return (
     <div className="topbar case-top">
       <button type="button" className="btn small ghost" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
         Hub
       </button>
-      <StepBar step={step} kind={kind} />
-      <span className="label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`}</span>
+      <StepBar step={step} kind={kind} caseDef={kind === 'cold' ? null : def} />
+      <span className="label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${def.id} ${def.codename}`}</span>
     </div>
   )
 }

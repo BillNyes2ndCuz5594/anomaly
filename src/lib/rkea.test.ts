@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { content } from '../content/schema'
+import { content, vitalsCase } from '../content'
 import { findKeyPhrases, normalizeWord, pickEvidence, tokenizeStem } from './rkea'
 
 describe('key phrases', () => {
@@ -24,7 +24,7 @@ describe('key phrases', () => {
 
 describe('pickEvidence', () => {
   const pick = (history: { itemId: string; correct: boolean; date: string }[] = [], seed = 'a') =>
-    pickEvidence(content.items, history, seed)
+    pickEvidence(content.items, history, seed, vitalsCase.evidencePlan)
 
   it('returns 2 + 2 + 1 from the right benchmarks in plan order', () => {
     const p = pick()
@@ -53,7 +53,7 @@ describe('pickEvidence', () => {
   it('brings missed items back before items answered correctly', () => {
     const all = content.items.filter((i) => i.pool === 'case' && i.benchmark === 'SC.3.L.15.1')
     const history = all.map((i, n) => ({ itemId: i.id, correct: n !== 3, date: '2026-10-05' }))
-    const p = pickEvidence(content.items, history, 's')
+    const p = pickEvidence(content.items, history, 's', vitalsCase.evidencePlan)
     expect(p[4].id).toBe(all[3].id)
   })
 })

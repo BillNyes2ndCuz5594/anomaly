@@ -3,7 +3,7 @@ import { MIN_PAIR_RATIO, MIN_ROW_RATIO, SPECIMEN_LENGTH_M, pairRatios } from './
 import { LAB_SPECIMENS, specimenGeo } from './creatures'
 import { SCAN_HEIGHT, pairSizing, placeEvidence, shapeReach, specimenScale } from './specimenBox'
 import { fitPoints, projectPoints, type V3 } from '../fit'
-import raw from '../../content/anomaly-content.json'
+import { content as raw } from '../../content'
 
 const pairs: string[][] = []
 ;(function walk(o: unknown) {
