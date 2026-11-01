@@ -3,12 +3,28 @@
 //
 // Bit layout (MSB first), then Crockford base32, 5 bits per character, plus 2 checksum characters:
 //   version 4 | class hash 16 | agent-1 6 | day 12 | benchmark count 5
-//   per benchmark: index 6 | attempts 6 | correct 6 | stage 3
-//   recent count 5, then per result: item index 7 | correct 1
+//   per benchmark: index B | attempts 6 | correct 6 | stage 3
+//   recent count 5, then per result: item index I | correct 1
+// Version 1: B = 6, I = 7 (64 benchmarks, 128 items). Version 2 (S6): B = 7, I = 9 (128 benchmarks, 512 items).
+// encodeReport writes version 2. decodeReport reads both, so old codes keep working in the game and Teacher HQ.
 import { CATALOG_BENCHMARKS, CATALOG_ITEMS } from './catalog.generated'
 import { fnv1a, sanitizeClassCode } from './codename'
 
-export const REPORT_VERSION = 1
+export const REPORT_VERSION = 2
+/** Index widths per version. Everything else in the layout is the same. */
+export const LAYOUTS: Readonly<Record<number, { bench: number; item: number }>> = {
+  1: { bench: 6, item: 7 },
+  2: { bench: 7, item: 9 },
+}
+/** The benchmark count field is 5 bits, so one code carries at most this many benchmarks. */
+export const MAX_BENCHMARKS = 31
+
+/** The ordered lists report codes index into. Defaults to the generated catalog; tests pass bigger ones. */
+export interface ReportCatalog {
+  benchmarks: readonly { id: string }[]
+  items: readonly { id: string }[]
+}
+const CATALOG: ReportCatalog = { benchmarks: CATALOG_BENCHMARKS, items: CATALOG_ITEMS }
 export const EPOCH = '2026-08-01'
 export const MAX_RECENT = 20
 export const MAX_ATTEMPTS = 63
@@ -125,32 +141,40 @@ function capPair(attempts: number, correct: number): [number, number] {
   return [MAX_ATTEMPTS, clamp((c * MAX_ATTEMPTS) / attempts, 0, MAX_ATTEMPTS)]
 }
 
-export function encodeReport(data: Omit<ReportData, 'version'> & { version?: number }): string {
+/**
+ * Writes a report code. Version 2 unless `data.version` asks for another (version 1 is still written exactly as
+ * before, for tests and old fixtures; an index that does not fit its width is left out). Unknown versions use the
+ * version 2 layout. At most MAX_BENCHMARKS benchmarks and MAX_RECENT recent results are kept.
+ */
+export function encodeReport(data: Omit<ReportData, 'version'> & { version?: number }, catalog: ReportCatalog = CATALOG): string {
+  const version = data.version ?? REPORT_VERSION
+  const lay = LAYOUTS[version] ?? LAYOUTS[REPORT_VERSION]
   const w = new BitWriter()
-  w.put(data.version ?? REPORT_VERSION, 4)
+  w.put(version, 4)
   w.put(data.classHash & 0xffff, 16)
   w.put(clamp(data.agent, 1, 40) - 1, 6)
   w.put(clamp(data.day, 0, 4095), 12)
 
   const marks = data.benchmarks
-    .map((b) => ({ b, idx: CATALOG_BENCHMARKS.findIndex((x) => x.id === b.id) }))
-    .filter((x) => x.idx >= 0)
+    .map((b) => ({ b, idx: catalog.benchmarks.findIndex((x) => x.id === b.id) }))
+    .filter((x) => x.idx >= 0 && x.idx < 2 ** lay.bench)
+    .slice(0, MAX_BENCHMARKS)
   w.put(marks.length, 5)
   for (const { b, idx } of marks) {
     const [a, c] = capPair(Math.max(0, b.attempts), Math.max(0, b.correct))
-    w.put(idx, 6)
+    w.put(idx, lay.bench)
     w.put(a, 6)
     w.put(c, 6)
     w.put(Math.max(0, STAGE_NAMES.indexOf(b.stage)), 3)
   }
 
   const recent = data.recent
-    .map((r) => ({ r, idx: CATALOG_ITEMS.findIndex((x) => x.id === r.itemId) }))
-    .filter((x) => x.idx >= 0)
+    .map((r) => ({ r, idx: catalog.items.findIndex((x) => x.id === r.itemId) }))
+    .filter((x) => x.idx >= 0 && x.idx < 2 ** lay.item)
     .slice(-MAX_RECENT)
   w.put(recent.length, 5)
   for (const { r, idx } of recent) {
-    w.put(idx, 7)
+    w.put(idx, lay.item)
     w.put(r.correct ? 1 : 0, 1)
   }
 
@@ -169,7 +193,8 @@ function symbolOf(ch: string): number {
 
 const MIN_CHARS = 12
 
-export function decodeReport(text: string): DecodeResult {
+/** Reads a version 1 or version 2 report code. */
+export function decodeReport(text: string, catalog: ReportCatalog = CATALOG): DecodeResult {
   const clean = text.replace(/[\s-]+/g, '')
   if (!clean) return { ok: false, error: 'No code found. Paste the report code first.' }
   const symbols: number[] = []
@@ -189,7 +214,8 @@ export function decodeReport(text: string): DecodeResult {
   const r = new BitReader(bits)
   try {
     const version = r.get(4)
-    if (version !== REPORT_VERSION) {
+    const lay = LAYOUTS[version]
+    if (!lay) {
       return { ok: false, error: `This code is from a different version of ANOMALY (version ${version}). Update the game or Teacher HQ.` }
     }
     const hash = r.get(16)
@@ -199,11 +225,11 @@ export function decodeReport(text: string): DecodeResult {
     const nb = r.get(5)
     const benchmarks: ReportBenchmark[] = []
     for (let i = 0; i < nb; i++) {
-      const idx = r.get(6)
+      const idx = r.get(lay.bench)
       const attempts = r.get(6)
       const correct = r.get(6)
       const stage = r.get(3)
-      const def = CATALOG_BENCHMARKS[idx]
+      const def = catalog.benchmarks[idx]
       if (!def) return { ok: false, error: `Unknown benchmark number ${idx}. This code may be from a newer version.` }
       if (stage >= STAGE_NAMES.length || correct > attempts) return { ok: false, error: 'The progress numbers in this code are not valid.' }
       benchmarks.push({ id: def.id, attempts, correct, stage: STAGE_NAMES[stage] })
@@ -212,9 +238,9 @@ export function decodeReport(text: string): DecodeResult {
     if (nr > MAX_RECENT) return { ok: false, error: 'The recent results list in this code is too long.' }
     const recent: ReportRecent[] = []
     for (let i = 0; i < nr; i++) {
-      const idx = r.get(7)
+      const idx = r.get(lay.item)
       const ok = r.get(1) === 1
-      const def = CATALOG_ITEMS[idx]
+      const def = catalog.items[idx]
       if (!def) return { ok: false, error: `Unknown item number ${idx}. This code may be from a newer version.` }
       recent.push({ itemId: def.id, correct: ok })
     }
