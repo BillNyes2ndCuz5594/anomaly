@@ -7,6 +7,7 @@ const LabAScene = lazy(() => import('./case/LabAScene'))
 const LabBScene = lazy(() => import('./case/LabBScene'))
 const ColdScene = lazy(() => import('./case/ColdScene'))
 const LabCScene = lazy(() => import('./case/LabCScene'))
+const LabGenericScene = lazy(() => import('./case/LabGenericScene'))
 const EvidenceCore = lazy(() => import('./case/ColdScene').then((m) => ({ default: m.EvidenceCore })))
 
 /** 3D backdrop for the active case step. Lab scenes load lazily, one chunk each. */
@@ -57,6 +58,12 @@ export default function CaseScene({ cold = false }: { cold?: boolean }) {
       return (
         <Suspense fallback={null}>
           <LabCScene />
+        </Suspense>
+      )
+    case 'lab':
+      return (
+        <Suspense fallback={null}>
+          <LabGenericScene />
         </Suspense>
       )
     default:
