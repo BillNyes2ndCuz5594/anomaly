@@ -1,5 +1,14 @@
 # Changelog
 
+## S6: Case files
+
+- The engine reads any number of cases. VITALS stays in `anomaly-content.json`; every other case is a pack in `src/content/packs/<caseId>.json`, loaded in `PACK_ORDER` (`src/content/index.ts`). A pack on disk that is not listed fails `npm test`.
+- `validateContent` checks every case (lab shape, evidence plan, marker, category) and every pack on its own, and names id clashes between packs.
+- One generic Field Lab (sort, match or order) for every case but VITALS, with a 3D dais, a hologram slab for the current card and one pedestal per bin, card or slot. Wrong answers say "Not quite." with a hint and cost nothing.
+- The hub lists every case with a status word (New, Open, Closed with the date), places up to ten markers apart, and groups benchmark mastery under the four reporting categories. Rank follows the fraction of mastery over the benchmarks an agent knows, so new cases never demote anyone.
+- Report codes are version 2 (128 benchmarks, 512 items). Version 1 codes still decode in the game and in Teacher HQ.
+- `node scripts/smoke-cases.mjs` walks the hub and the first pack's Field Lab without the full proof run.
+
 ## Panther rescan
 
 - The Florida panther evidence model is rescanned (wave 11): a FLUX 3 reference into Hunyuan 3D v3.1 Pro, so it reads as a tawny furred cat with real shoulder and leg muscle and amber eyes instead of smooth salmon plastic. 18k triangles, 282 KB. Low tier keeps the procedural model.
