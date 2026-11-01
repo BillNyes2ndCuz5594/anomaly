@@ -76,6 +76,13 @@ export function labTargets(lab: GenericLab): LabTarget[] {
   }
 }
 
+/** Targets in the order the HUD lists them. Order labs list their steps shuffled (as in `state.cards`), never in answer order. */
+export function visibleTargets(lab: GenericLab, state: LabState): LabTarget[] {
+  const all = labTargets(lab)
+  if (lab.kind !== 'order') return all
+  return state.cards.map((id) => all.find((t) => t.id === id)).filter((t): t is LabTarget => !!t)
+}
+
 /** Number of places a target owns in the 3D scene: bins, right cards, or slots for an order lab. */
 export function pedestalIds(lab: GenericLab): string[] {
   return lab.kind === 'order' ? lab.steps.map((_, i) => `slot-${i + 1}`) : labTargets(lab).map((t) => t.id)

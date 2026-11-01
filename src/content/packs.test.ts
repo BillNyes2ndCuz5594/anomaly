@@ -158,7 +158,7 @@ describe('validateContent and validatePack catch pack problems', () => {
 
   it('finds a dash anywhere in a pack', () => {
     const p = pack()
-    p.case.briefing[0] = 'A dash – here.'
+    p.case.briefing[0] = 'A dash \u2013 here.'
     expect(has(validatePack(p), 'em or en dash')).toBe(true)
   })
 })

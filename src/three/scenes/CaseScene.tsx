@@ -14,6 +14,7 @@ const EvidenceCore = lazy(() => import('./case/ColdScene').then((m) => ({ defaul
 export default function CaseScene({ cold = false }: { cold?: boolean }) {
   const step = useSession((s) => s.step)
   const kind = useSession((s) => s.kind)
+  const generic = useSession((s) => s.caseDef !== null && s.caseDef.lab.kind !== 'vitals')
   if (cold) {
     if (kind === 'cold' && step === 'briefing') {
       return (
@@ -37,11 +38,8 @@ export default function CaseScene({ cold = false }: { cold?: boolean }) {
   if (kind === 'cold') return <AmbientScene />
   switch (step) {
     case 'briefing':
-      return (
-        <Suspense fallback={null}>
-          <BriefingScene />
-        </Suspense>
-      )
+      // VITALS stages its body scan and manatee. Every other case previews its Field Lab dais (no card yet).
+      return <Suspense fallback={null}>{generic ? <LabGenericScene /> : <BriefingScene />}</Suspense>
     case 'lab-a':
       return (
         <Suspense fallback={null}>

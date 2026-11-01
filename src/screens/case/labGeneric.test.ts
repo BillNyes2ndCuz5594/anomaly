@@ -17,6 +17,7 @@ import {
   shuffleSteps,
   stepInSlot,
   targetOpen,
+  visibleTargets,
   type GenericLab,
   type LabState,
 } from './labGeneric'
@@ -138,6 +139,16 @@ describe('generic lab: order', () => {
     })
     expect(s.feedback?.text).toBe(orderLab.why)
     expect(labReduce(orderLab, s, { type: 'select', id: 'heat' })).toBe(s)
+  })
+
+  it('lists the step buttons shuffled, never in answer order', () => {
+    for (const seed of ['x', 'y', 'agent 7']) {
+      const s = initLab(orderLab, seed)
+      const shown = visibleTargets(orderLab, s).map((t) => t.id)
+      expect(shown).toEqual(s.cards)
+      expect(shown).not.toEqual(orderLab.steps.map((x) => x.id))
+    }
+    expect(visibleTargets(sortLab, initLab(sortLab)).map((t) => t.id)).toEqual(['solid', 'liquid', 'gas'])
   })
 
   it('gives one pedestal per slot', () => {

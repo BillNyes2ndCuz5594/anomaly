@@ -81,7 +81,8 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             </Fragment>
           ))}
         </p>
-        {cold ? null : (
+        {/* VITALS stages the body scan and the manatee; other cases preview their Field Lab dais instead. */}
+        {cold || def.lab.kind !== 'vitals' ? null : (
           <ul className="dispatch-key" aria-label="On the table">
             <li>
               <span className="key-dot scan" aria-hidden="true" /> Body scan

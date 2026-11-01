@@ -11,7 +11,7 @@ import {
   isComplete,
   labCards,
   labReduce,
-  labTargets,
+  visibleTargets,
   nextSlot,
   pedestalFor,
   placedCount,
@@ -55,7 +55,7 @@ export default function LabGeneric() {
   const hot = useFx((s) => s.hover)
   const cards = labCards(lab)
   const byId = new Map(cards.map((c) => [c.id, c]))
-  const targets = labTargets(lab)
+  const targets = visibleTargets(lab, st)
   const done = isComplete(lab, st)
   const total = cards.length
   const slot = nextSlot(lab, st)
@@ -171,8 +171,10 @@ export default function LabGeneric() {
                   onBlur={() => hoverTarget(null)}
                   {...press(t.id, disabled)}
                 >
-                  {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'✔ '}</span> : null}
-                  <span className="target-name">{t.name}</span>
+                  <span className="target-name">
+                    {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'\u2714 '}</span> : null}
+                    {t.name}
+                  </span>
                   {t.sub ? <span className="target-sub">{t.sub}</span> : null}
                   {count > 0 ? (
                     <span key={count} className="bin-n mono" aria-hidden="true">
@@ -189,7 +191,7 @@ export default function LabGeneric() {
       <section className="dock" aria-label={order ? 'Step slots' : 'Card tray'}>
         <div className="panel brackets job-card">
           <div className="job-head">
-            <span className="mono label amber">
+            <span className="mono label amber" data-testid="lab-placed">
               PLACED {placedCount(st)} OF {total}
             </span>
             {order ? (
@@ -223,7 +225,7 @@ export default function LabGeneric() {
                       onClick={() => act({ type: 'select', id })}
                       {...press(`card-${id}`, placed)}
                     >
-                      {placed ? <span aria-hidden="true">{'✔ '}</span> : null}
+                      {placed ? <span aria-hidden="true">{'\u2714 '}</span> : null}
                       <span className="chip-n" aria-hidden="true">
                         {i + 1}
                       </span>
