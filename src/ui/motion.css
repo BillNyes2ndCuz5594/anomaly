@@ -1359,7 +1359,8 @@ html[data-motion='full'] .case-btn.cyan[data-due='yes'] {
 html[data-motion='full'] .case-btn.cyan[data-due='yes']::before {
   content: '';
   position: absolute;
-  right: 14px;
+  /* Clear of the right-edge chevron (it spans the last 16 to 28 px of the card). */
+  right: 52px;
   top: 50%;
   width: 18px;
   height: 18px;
