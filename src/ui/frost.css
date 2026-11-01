@@ -1,0 +1,101 @@
+/* Cold case frost overlays (FrostOverlay.tsx). The art is on pure black, so screen blend makes the black vanish. */
+.frost-ov {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+.frost-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+.frost-canvas {
+  image-rendering: auto;
+}
+.frost-video {
+  opacity: 0;
+  transition: opacity 250ms var(--ease-out);
+}
+.frost-video[data-live='yes'] {
+  opacity: 0.6;
+}
+.frost-video.fading[data-live='yes'] {
+  opacity: 0;
+  transition-duration: 600ms;
+}
+
+/* fade tier: opacity only */
+.frost-fade-in {
+  transition: opacity 400ms var(--ease-out);
+}
+.frost-fade-in[data-on='no'] {
+  opacity: 0;
+}
+
+/* thaw: the start frame hands over to the video, then the end or hold still stays */
+.thaw .frost-end {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+.thaw .frost-start {
+  transition: opacity 600ms var(--ease-out);
+}
+.thaw[data-live='yes'] .frost-start {
+  opacity: 0;
+  transition-duration: 200ms;
+}
+.thaw .thaw-video[data-live='yes'] {
+  opacity: 0.9;
+}
+.thaw[data-phase='done'] .thaw-video {
+  opacity: 0;
+  transition-duration: 600ms;
+}
+.thaw[data-phase='done'] .frost-start {
+  opacity: 0;
+}
+.thaw[data-phase='done'] .frost-end {
+  opacity: 0.4;
+}
+.thaw[data-phase='done'] .frost-end[data-open='yes'] {
+  opacity: 0.85;
+}
+/* still: the final state at once */
+.thaw[data-mode='still'] .frost-end {
+  opacity: 0.4;
+  transition: none;
+}
+.thaw[data-mode='still'][data-open='yes'] .frost-end {
+  opacity: 0.85;
+}
+
+/* wrong answer on cold evidence: a brief amber vignette */
+.core-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(255, 181, 71, 0.34) 100%);
+  opacity: 0;
+  animation: core-vignette 600ms var(--ease-out) both;
+}
+.core-vignette[data-mode='fade'] {
+  animation-duration: 250ms;
+}
+@keyframes core-vignette {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

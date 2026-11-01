@@ -3,9 +3,13 @@ import { createPortal } from 'react-dom'
 import { codexById, type Item } from '../../content/schema'
 import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
+import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announce'
+import { flyChip } from '../../ui/flyChip'
+import { useMotionMode } from '../../ui/useMotionMode'
+import { CoreVignette } from '../../ui/FrostOverlay'
 import { CaseTop } from './ui'
 import ItemVisual from './ItemVisual'
 import { isStageVisual } from '../../three/paintHold'
@@ -38,6 +42,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     return m
   }, [phrases])
 
+  const motion = useMotionMode()
   const [tagged, setTagged] = useState<Set<number>>(new Set())
   const [earnedPhrases, setEarned] = useState<Set<number>>(new Set())
   const [selected, setSelected] = useState<number | null>(null)
@@ -95,9 +100,10 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (pi !== undefined && !phrases[pi].tokens.every((i) => tagged.has(i)) && !earnedPhrases.has(pi)) {
         setEarned((e) => new Set(e).add(pi))
         setToast(`Intel +${INTEL.keyWord}: key words found`)
+        flyChip(`+${INTEL.keyWord}`, document.querySelector(`[data-testid="word-${t}"]`), document.querySelector('[data-testid="rkea-key-words"]'), motion)
       }
     },
-    [locked, phraseOf, phrases, tagged, earnedPhrases],
+    [locked, phraseOf, phrases, tagged, earnedPhrases, motion],
   )
 
   const strike = useCallback(
@@ -119,10 +125,11 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (!struckEver.has(i)) {
         setStruckEver((s) => new Set(s).add(i))
         setToast(`Intel +${INTEL.eliminate}: decoy ruled out`)
+        flyChip(`+${INTEL.eliminate}`, document.querySelector(`[data-testid="option-${i}"]`), document.querySelector('[data-testid="rkea-eliminate"]'), motion)
       }
       setSelected((s) => (s === i ? null : s))
     },
-    [locked, item.key, struckEver],
+    [locked, item.key, struckEver, motion],
   )
 
   const choose = useCallback(
@@ -147,6 +154,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     const intel = keyTagged * INTEL.keyWord + struckEver.size * INTEL.eliminate + (correct ? INTEL.correct : 0)
     const rec: AnswerRecord = { itemId: item.id, picked: selected, correct, keyTagged, eliminated: struckEver.size, hintsUsed: hints, intel }
     setResult(rec)
+    // Cold case: the residue core on the stage reacts to the answer (transient event, not saved).
+    if (useSession.getState().kind === 'cold') useRuntime.getState().fireCoreFx(correct)
     ra.stop()
     onLocked(rec)
   }, [locked, selected, item, phrases, tagged, struckEver, hints, ra, onLocked])
@@ -282,7 +291,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         </div>
       {createPortal(
         <div className="panel brackets options-panel">
-          <div role="group" aria-label="Answer options" className="options">
+          <div role="group" aria-label="Answer options" className="options" data-verdict={result ? (result.correct ? 'ok' : 'bad') : undefined}>
             {item.options.map((o, i) => {
               const isStruck = struck.has(i)
               const isSel = selected === i
@@ -414,6 +423,7 @@ export default function ItemPlayer() {
     else setIdx(idx + 1)
   }, [idx, items.length, go])
 
+  const cold = useSession((s) => s.kind === 'cold')
   const [sideEl, setSideEl] = useState<HTMLElement | null>(null)
   if (!item) return null
   const stage3d = item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal'
@@ -421,6 +431,7 @@ export default function ItemPlayer() {
   return (
     <div className="screen case-screen item-screen" data-testid="item-player">
       <CaseTop step="items" />
+      {cold ? <CoreVignette /> : null}
       {/* The 3D visual stays mounted across items. Keying it would rebuild the canvas, and fading the grid would blank that canvas mid-glide. */}
       <div className={`item-grid${stage3d ? ' stage-3d' : ''}${stageMany ? ' stage-many' : ''}`} data-dir={dir}>
         <section className="item-main">
