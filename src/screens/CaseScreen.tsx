@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { content } from '../content/schema'
+import { caseById, content } from '../content'
 import { navigate } from '../lib/router'
 import { stepsFor, useSession } from '../state/session'
 import { carryDelta, carryForget } from '../ui/carry'
@@ -104,6 +104,6 @@ export default function CaseScreen({ kind, id }: { kind: 'case' | 'cold'; id: st
     if (id !== content.coldCase.id) return <Placeholder label={`COLD CASE ${id.toUpperCase()}`} text="No such case on file." />
     return <CaseFlow id={id} kind="cold" />
   }
-  if (id !== content.case.id) return <Placeholder label={`CASE ${id.toUpperCase()}`} text="No such case on file." />
+  if (!caseById(id)) return <Placeholder label={`CASE ${id.toUpperCase()}`} text="No such case on file." />
   return <CaseFlow id={id} kind="case" />
 }

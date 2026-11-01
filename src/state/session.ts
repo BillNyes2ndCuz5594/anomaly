@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Item } from '../content/schema'
-import { content } from '../content/schema'
+import { caseById, content, vitalsCase } from '../content'
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
@@ -92,8 +92,8 @@ export const useSession = create<SessionState>((set, get) => ({
         ? (qa as Item[])
         : kind === 'cold'
         ? pickReview(content.items, st.progress, st.itemHistory, toISODate(), newSeed())
-        : pickEvidence(content.items, st.itemHistory, newSeed())
-    const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : content.case.benchmarks
+        : pickEvidence(content.items, st.itemHistory, newSeed(), (caseById(caseId) ?? vitalsCase).evidencePlan)
+    const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : (caseById(caseId) ?? vitalsCase).benchmarks
     const before: Record<string, string> = {}
     for (const b of benchmarks) before[b] = st.progress[b]?.stage ?? 'unseen'
     set({ caseId, kind, step: 'briefing', items, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })

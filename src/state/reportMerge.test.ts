@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOG_BENCHMARKS, CATALOG_ITEMS } from '../lib/catalog.generated'
 import { classHash, decodeReport, encodeReport } from '../lib/reportCode'
-import { content } from '../content/schema'
+import { content } from '../content'
 import { applyResult, emptyRecord, type BenchmarkRecord } from './mastery'
 import { buildReportData, mergeReport } from './reportMerge'
 

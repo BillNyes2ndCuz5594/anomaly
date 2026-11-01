@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { content, type Item } from '../content/schema'
+import { content } from '../content'
+import type { Item } from '../content/schema'
 import { applyResult, emptyRecord } from '../state/mastery'
 import { anyReviewDue, dueColdBenchmarks, pickReview } from './scheduler'
 

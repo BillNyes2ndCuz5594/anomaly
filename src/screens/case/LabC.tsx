@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import VitalsStable from '../../ui/VitalsStable'
-import { content } from '../../content/schema'
+import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import './labs-ac.css'
@@ -18,7 +18,7 @@ interface Progress {
 }
 
 export default function LabC() {
-  const lab = content.case.labs.specimenSort
+  const lab = VITALS_LABS.specimenSort
   const specimens = lab.specimens
   const next = useSession((s) => s.next)
   const unlock = useGame((s) => s.unlockCodex)

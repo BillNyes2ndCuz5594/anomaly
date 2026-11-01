@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Burst from '../../ui/Burst'
 import { STILL } from '../../lib/flags'
-import { content } from '../../content/schema'
+import { content } from '../../content'
 import { navigate } from '../../lib/router'
 import { MASTERY_STAGES, parseISO, stageFraction, stageIndex, type MasteryStage } from '../../state/mastery'
 import { useSession } from '../../state/session'
@@ -14,6 +14,7 @@ import SealSting from '../../ui/SealSting'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { debriefLine, verdictWord } from './resultsDebrief'
 import { CaseTop } from './ui'
+import { useCaseDef } from './useCaseDef'
 import './results-debrief.css'
 
 function dueLabel(iso: string | null | undefined): string {
@@ -46,10 +47,11 @@ export default function Results() {
   const before = useSession((s) => s.stagesBefore)
   const kind = useSession((s) => s.kind)
   const benchmarks = useSession((s) => s.benchmarks)
-  const caseId = useSession((s) => s.caseId) ?? content.case.id
+  const caseDef = useCaseDef()
+  const caseId = useSession((s) => s.caseId) ?? caseDef.id
   const cold = kind === 'cold'
-  const def = cold ? content.coldCase : content.case
-  const caseLabel = cold ? `COLD CASE ${content.coldCase.codename}` : `CASE ${content.case.id} ${content.case.codename}`
+  const def = cold ? content.coldCase : caseDef
+  const caseLabel = cold ? `COLD CASE ${content.coldCase.codename}` : `CASE ${caseDef.id} ${caseDef.codename}`
   const paint = useSession((s) => s.paint)
   const progress = useGame((s) => s.progress)
   const mastery = useGame((s) => s.mastery)

@@ -38,11 +38,8 @@ export function findKeyPhrases(stem: string, keyWords: string[]): KeyPhrase[] {
 
 // ---------- evidence selection ----------
 
-export const EVIDENCE_PLAN: readonly { benchmark: string; count: number }[] = [
-  { benchmark: 'SC.5.L.14.1', count: 2 },
-  { benchmark: 'SC.5.L.14.2', count: 2 },
-  { benchmark: 'SC.3.L.15.1', count: 1 },
-]
+/** Items per benchmark for one case's evidence check. Each case carries its own (`CaseDef.evidencePlan`). */
+export type EvidencePlan = readonly { benchmark: string; count: number }[]
 
 export interface HistoryEntry {
   itemId: string
@@ -73,7 +70,7 @@ export function pickEvidence(
   items: Item[],
   history: HistoryEntry[],
   seed: string,
-  plan: readonly { benchmark: string; count: number }[] = EVIDENCE_PLAN,
+  plan: EvidencePlan,
 ): Item[] {
   const last = new Map<string, HistoryEntry>()
   for (const h of history) {

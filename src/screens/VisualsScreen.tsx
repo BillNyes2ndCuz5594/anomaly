@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { content } from '../content/schema'
+import { content } from '../content'
 import { navigate } from '../lib/router'
 import ItemVisual from './case/ItemVisual'
 import type { Visual } from '../content/schema'

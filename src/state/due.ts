@@ -1,4 +1,4 @@
-import { content } from '../content/schema'
+import { content } from '../content'
 import { anyReviewDue } from '../lib/scheduler'
 import { toISODate } from './mastery'
 import { useGame } from './store'

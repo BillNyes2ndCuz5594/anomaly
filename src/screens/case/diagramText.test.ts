@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { content } from '../../content/schema'
+import { content } from '../../content'
 import { TEXT_SCALE } from '../../state/settings'
 import { sceneLabelSpecs } from './diagramLabels'
 import { BASE_H, BASE_W, MIN_LABEL_PX, baseScale, intersects, labelSize, layoutLabels, textWidth, viewBoxFor, wrapText } from './diagramText'

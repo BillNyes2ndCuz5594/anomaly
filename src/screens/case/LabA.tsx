@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { content } from '../../content/schema'
+import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import { ORGAN_LIST } from '../../three/models/humanList'
@@ -16,7 +16,7 @@ interface Feedback {
 }
 
 export default function LabA() {
-  const lab = content.case.labs.organOps
+  const lab = VITALS_LABS.organOps
   const next = useSession((s) => s.next)
   const unlock = useGame((s) => s.unlockCodex)
   const [i, setI] = useState(0)

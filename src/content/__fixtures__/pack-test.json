@@ -1,0 +1,462 @@
+{
+ "case": {
+  "id": "90-1",
+  "codename": "TESTBED",
+  "unit": "U90 Test Matter",
+  "unitLabel": "Unit 90: Test Matter",
+  "category": "physical",
+  "benchmarks": [
+   "SC.5.P.8.1",
+   "SC.5.P.9.1"
+  ],
+  "evidencePlan": [
+   {
+    "benchmark": "SC.5.P.8.1",
+    "count": 3
+   },
+   {
+    "benchmark": "SC.5.P.9.1",
+    "count": 2
+   }
+  ],
+  "marker": {
+   "lon": -80.6,
+   "lat": 28.39
+  },
+  "dispatchHook": "Test signal at the Cape. Samples filed in the wrong state.",
+  "briefing": [
+   "Agent, this is a test case for the case file engine.",
+   "A lab freezer at the Cape lost power and mixed up its sample labels.",
+   "Sort each sample by its state of matter.",
+   "Then clear the evidence check."
+  ],
+  "lab": {
+   "kind": "sort",
+   "intro": "Read each sample card. Put it in the bin for its state of matter.",
+   "bins": [
+    {
+     "id": "solid",
+     "name": "Solid",
+     "hint": "A solid keeps its own shape, even outside a container."
+    },
+    {
+     "id": "liquid",
+     "name": "Liquid",
+     "hint": "A liquid flows and takes the shape of its container, but keeps its volume."
+    },
+    {
+     "id": "gas",
+     "name": "Gas",
+     "hint": "A gas spreads out to fill the whole container it is in."
+    }
+   ],
+   "cards": [
+    {
+     "id": "ice",
+     "name": "Ice cube",
+     "card": [
+      "Keeps its own shape.",
+      "Feels hard and cold."
+     ],
+     "bin": "solid",
+     "why": "An ice cube keeps its own shape, so it is a solid."
+    },
+    {
+     "id": "juice",
+     "name": "Orange juice",
+     "card": [
+      "Flows when poured.",
+      "Takes the shape of the cup."
+     ],
+     "bin": "liquid",
+     "why": "Juice flows and takes the shape of its cup, so it is a liquid."
+    },
+    {
+     "id": "balloon-air",
+     "name": "Air in a balloon",
+     "card": [
+      "Fills the whole balloon.",
+      "You cannot see it."
+     ],
+     "bin": "gas",
+     "why": "Air spreads out to fill the whole balloon, so it is a gas."
+    },
+    {
+     "id": "rock",
+     "name": "Rock",
+     "card": [
+      "Keeps its own shape.",
+      "Feels rough."
+     ],
+     "bin": "solid",
+     "why": "A rock keeps its own shape, so it is a solid."
+    },
+    {
+     "id": "milk",
+     "name": "Milk",
+     "card": [
+      "Flows when poured.",
+      "Keeps the same volume in any glass."
+     ],
+     "bin": "liquid",
+     "why": "Milk flows and keeps its volume, so it is a liquid."
+    },
+    {
+     "id": "steam",
+     "name": "Water vapor",
+     "card": [
+      "Spreads through the whole room.",
+      "Forms when water boils."
+     ],
+     "bin": "gas",
+     "why": "Water vapor spreads out to fill the space it is in, so it is a gas."
+    }
+   ]
+  },
+  "debriefClosed": "Case closed. The test samples are back in the right bins.",
+  "debriefOpen": "Case stays open for now. The test samples come back as a cold case soon."
+ },
+ "items": [
+  {
+   "id": "TEST-P8.1-01",
+   "benchmark": "SC.5.P.8.1",
+   "testedAs": "SC.5.P.8.1",
+   "category": "physical",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Kai pours water from a tall glass into a wide bowl. What happens to the shape of the water?",
+   "options": [
+    "It changes to the shape of the bowl.",
+    "It keeps the shape of the tall glass.",
+    "It turns into a gas.",
+    "It turns into a solid."
+   ],
+   "key": 0,
+   "why": [
+    "Correct. A liquid takes the shape of its container.",
+    "Decoy: a liquid does not keep its own shape. A solid does.",
+    "Decoy: pouring does not change water into a gas.",
+    "Decoy: pouring does not change water into a solid."
+   ],
+   "keyWords": [
+    "pours water",
+    "shape of the water"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Water poured",
+    "columns": [
+     "Container",
+     "Shape of the water"
+    ],
+    "rows": [
+     [
+      "Tall glass",
+      "Tall and narrow"
+     ],
+     [
+      "Wide bowl",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table with two containers, a tall glass and a wide bowl, and the shape of the water in each.",
+   "tisCheck": "Basic property of liquids (shape). No particle model.",
+   "misconceptions": "Liquids keep their shape; pouring changes the state."
+  },
+  {
+   "id": "TEST-P8.1-02",
+   "benchmark": "SC.5.P.8.1",
+   "testedAs": "SC.5.P.8.1",
+   "category": "physical",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A sealed jar holds a gas. Which sentence about the gas in the jar is true?",
+   "options": [
+    "It stays in a small pile at the bottom.",
+    "It spreads out to fill the whole jar.",
+    "It keeps its own shape like a block.",
+    "It has no mass at all."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: a gas does not pile up. It spreads out.",
+    "Correct. A gas spreads out to fill its whole container.",
+    "Decoy: a gas does not keep its own shape. A solid does.",
+    "Decoy: a gas is matter, so it has mass."
+   ],
+   "keyWords": [
+    "sealed jar",
+    "gas in the jar"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "States of matter",
+    "columns": [
+     "State",
+     "Shape"
+    ],
+    "rows": [
+     [
+      "Solid",
+      "Own shape"
+     ],
+     [
+      "Gas",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table comparing the shape of a solid and a gas. The gas row is blank.",
+   "tisCheck": "Basic property of gases (fills container). No particle model.",
+   "misconceptions": "Gases have no mass; gases settle like solids."
+  },
+  {
+   "id": "TEST-P8.1-03",
+   "benchmark": "SC.5.P.8.1",
+   "testedAs": "SC.5.P.8.1",
+   "category": "physical",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Mia puts a wooden block in a box, then in a cup. Which property of the block stays the same in both?",
+   "options": [
+    "Its state changes to liquid.",
+    "Its mass gets smaller in the cup.",
+    "Its shape stays the same.",
+    "Its color turns clear."
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: moving the block does not change its state.",
+    "Decoy: moving the block does not change its mass.",
+    "Correct. A solid keeps its own shape in any container.",
+    "Decoy: moving the block does not change its color."
+   ],
+   "keyWords": [
+    "wooden block",
+    "stays the same"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Wooden block",
+    "columns": [
+     "Container",
+     "Shape"
+    ],
+    "rows": [
+     [
+      "Box",
+      "Block"
+     ],
+     [
+      "Cup",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table showing a wooden block in a box and in a cup. The shape in the cup is blank.",
+   "tisCheck": "Basic property of solids (shape). No density.",
+   "misconceptions": "A container changes a solid's mass or shape."
+  },
+  {
+   "id": "TEST-P9.1-01",
+   "benchmark": "SC.5.P.9.1",
+   "testedAs": "SC.5.P.9.1",
+   "category": "physical",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Two ice cubes sit on plates. One plate is in the sun and one is in the shade. Which ice cube melts faster?",
+   "options": [
+    "The one in the shade, because shade is colder.",
+    "Both melt at the same time.",
+    "Neither one melts.",
+    "The one in the sun, because it gets warmer."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: colder places slow melting down.",
+    "Decoy: the two cubes are at different temperatures.",
+    "Decoy: ice melts when it warms up.",
+    "Correct. A higher temperature makes ice melt faster."
+   ],
+   "keyWords": [
+    "ice cubes",
+    "melts faster"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Ice cubes",
+    "columns": [
+     "Plate",
+     "Place"
+    ],
+    "rows": [
+     [
+      "Plate 1",
+      "Sun"
+     ],
+     [
+      "Plate 2",
+      "Shade"
+     ]
+    ]
+   },
+   "alt": "A table with two plates of ice cubes, one in the sun and one in the shade.",
+   "tisCheck": "Temperature affects a physical change (melting). No heat transfer terms.",
+   "misconceptions": "Shade and sun do not change melting speed."
+  },
+  {
+   "id": "TEST-P9.1-02",
+   "benchmark": "SC.5.P.9.1",
+   "testedAs": "SC.5.P.9.1",
+   "category": "physical",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "Leo puts a pot of water on a hot stove. What happens to the water as it gets very hot?",
+   "options": [
+    "It freezes into ice.",
+    "It evaporates into water vapor.",
+    "It turns into sand.",
+    "It stays the same forever."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: heating does not freeze water. Cooling does.",
+    "Correct. Heat makes water evaporate into a gas.",
+    "Decoy: water cannot turn into sand.",
+    "Decoy: heat changes water. It does not stay the same."
+   ],
+   "keyWords": [
+    "hot stove",
+    "very hot"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Heating water",
+    "columns": [
+     "Step",
+     "Water"
+    ],
+    "rows": [
+     [
+      "Start",
+      "Liquid"
+     ],
+     [
+      "Very hot",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table showing water at the start as a liquid and a blank cell for very hot water.",
+   "tisCheck": "Temperature affects evaporation. No boiling point numbers.",
+   "misconceptions": "Heating freezes water; water disappears."
+  },
+  {
+   "id": "TEST-P8.1-04",
+   "benchmark": "SC.5.P.8.1",
+   "testedAs": "SC.5.P.8.1",
+   "category": "physical",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Which object is a liquid at room temperature?",
+   "options": [
+    "a spoon",
+    "a pencil",
+    "apple juice",
+    "a marble"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: a spoon is a solid.",
+    "Decoy: a pencil is a solid.",
+    "Correct. Apple juice flows, so it is a liquid.",
+    "Decoy: a marble is a solid."
+   ],
+   "keyWords": [
+    "liquid",
+    "room temperature"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Objects",
+    "columns": [
+     "Object",
+     "Flows?"
+    ],
+    "rows": [
+     [
+      "Spoon",
+      "?"
+     ],
+     [
+      "Apple juice",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table listing a spoon and apple juice with a blank column for whether each flows.",
+   "tisCheck": "Identify a liquid. No particle model.",
+   "misconceptions": "Hard objects and liquids confused."
+  },
+  {
+   "id": "TEST-P9.1-03",
+   "benchmark": "SC.5.P.9.1",
+   "testedAs": "SC.5.P.9.1",
+   "category": "physical",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Ana puts a cup of water in the freezer overnight. What does the water become?",
+   "options": [
+    "ice",
+    "steam",
+    "air",
+    "juice"
+   ],
+   "key": 0,
+   "why": [
+    "Correct. Cold temperatures freeze water into ice.",
+    "Decoy: steam forms when water is heated.",
+    "Decoy: water does not turn into air in a freezer.",
+    "Decoy: water does not turn into juice."
+   ],
+   "keyWords": [
+    "freezer overnight",
+    "water become"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Freezer test",
+    "columns": [
+     "Time",
+     "Water"
+    ],
+    "rows": [
+     [
+      "Evening",
+      "Liquid"
+     ],
+     [
+      "Morning",
+      "?"
+     ]
+    ]
+   },
+   "alt": "A table showing a cup of water as a liquid in the evening and a blank cell for the morning.",
+   "tisCheck": "Temperature affects freezing. No freezing point numbers.",
+   "misconceptions": "Freezing makes water disappear or turn to gas."
+  }
+ ],
+ "codex": [
+  {
+   "id": "lab:90-1:ice",
+   "title": "Ice",
+   "line": "Ice is water as a solid. It keeps its own shape."
+  },
+  {
+   "id": "lab:90-1:steam",
+   "title": "Water vapor",
+   "line": "Water vapor is water as a gas. It spreads out to fill its space."
+  }
+ ]
+}
