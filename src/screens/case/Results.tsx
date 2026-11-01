@@ -9,6 +9,7 @@ import { CATALOG_BENCHMARKS } from '../../lib/catalog.generated'
 import { MASTERY_LABEL, rankFor, useGame } from '../../state/store'
 import ReportCodePanel from '../../ui/ReportCodePanel'
 import { countValue } from '../../ui/countUp'
+import { FrostThaw } from '../../ui/FrostOverlay'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { debriefLine, verdictWord } from './resultsDebrief'
 import { CaseTop } from './ui'
@@ -82,6 +83,7 @@ export default function Results() {
   return (
     <div className="screen case-screen results-screen rd-screen" data-testid="results">
       <CaseTop step="results" />
+      {cold ? <FrostThaw open={!closed} /> : null}
       <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
         <section className="panel brackets rd-hero" aria-label="Case result">
           <div className="reward verdict-block" data-testid="case-status" data-closed={closed ? 'yes' : 'no'}>

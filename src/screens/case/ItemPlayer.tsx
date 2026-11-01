@@ -3,9 +3,11 @@ import { createPortal } from 'react-dom'
 import { codexById, type Item } from '../../content/schema'
 import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
+import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announce'
+import { CoreVignette } from '../../ui/FrostOverlay'
 import { CaseTop } from './ui'
 import ItemVisual from './ItemVisual'
 import { isStageVisual } from '../../three/paintHold'
@@ -147,6 +149,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     const intel = keyTagged * INTEL.keyWord + struckEver.size * INTEL.eliminate + (correct ? INTEL.correct : 0)
     const rec: AnswerRecord = { itemId: item.id, picked: selected, correct, keyTagged, eliminated: struckEver.size, hintsUsed: hints, intel }
     setResult(rec)
+    // Cold case: the residue core on the stage reacts to the answer (transient event, not saved).
+    if (useSession.getState().kind === 'cold') useRuntime.getState().fireCoreFx(correct)
     ra.stop()
     onLocked(rec)
   }, [locked, selected, item, phrases, tagged, struckEver, hints, ra, onLocked])
@@ -414,6 +418,7 @@ export default function ItemPlayer() {
     else setIdx(idx + 1)
   }, [idx, items.length, go])
 
+  const cold = useSession((s) => s.kind === 'cold')
   const [sideEl, setSideEl] = useState<HTMLElement | null>(null)
   if (!item) return null
   const stage3d = item.visual.kind === 'organ' || item.visual.kind === 'specimen' || item.visual.kind === 'plantanimal'
@@ -421,6 +426,7 @@ export default function ItemPlayer() {
   return (
     <div className="screen case-screen item-screen" data-testid="item-player">
       <CaseTop step="items" />
+      {cold ? <CoreVignette /> : null}
       {/* The 3D visual stays mounted across items. Keying it would rebuild the canvas, and fading the grid would blank that canvas mid-glide. */}
       <div className={`item-grid${stage3d ? ' stage-3d' : ''}${stageMany ? ' stage-many' : ''}`} data-dir={dir}>
         <section className="item-main">
