@@ -104,7 +104,7 @@ export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string
       window.removeEventListener('pointerdown', skip, true)
       setPhase('idle')
     }
-    const ms = mode === 'fade' ? 200 : step === 'results' ? RESULTS_MS : 480
+    const ms = mode === 'fade' ? 260 : step === 'results' ? RESULTS_MS : 480
     t = window.setTimeout(skip, ms)
     window.addEventListener('pointerdown', skip, true)
     return () => {

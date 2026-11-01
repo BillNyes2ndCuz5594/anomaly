@@ -2143,11 +2143,12 @@ textarea.input {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  animation: screen-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation: screen-in 0.3s var(--ease-out) backwards;
 }
 .step-host {
   animation-duration: 0.24s;
 }
+html[data-motion='still'] .screen-host { animation: none; }
 @keyframes screen-in {
   from {
     opacity: 0;
@@ -2304,7 +2305,7 @@ textarea.input {
 }
 .veil[data-kind='dissolve'][data-phase='reveal'] .veil-stack {
   opacity: 1;
-  animation: veil-fade-out 0.38s linear forwards;
+  animation: veil-fade-out 0.38s var(--ease-out) forwards;
 }
 .veil[data-kind='launch'][data-phase='reveal'] .veil-stack,
 .veil[data-kind='deploy'][data-phase='reveal'] .veil-stack {
@@ -2344,6 +2345,7 @@ textarea.input {
 .veil[data-kind='scan'][data-phase='reveal'] .veil-line,
 .veil[data-kind='warp'][data-phase='cover'] .veil-line,
 .veil[data-kind='warp'][data-phase='reveal'] .veil-line,
+.veil[data-kind='dissolve'][data-phase='reveal'] .veil-line,
 .veil[data-kind='launch'][data-phase='reveal'] .veil-line {
   animation: veil-line 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
@@ -2368,8 +2370,8 @@ html[data-motion='fade'] .veil .veil-stack {
   mask-image: none !important;
   clip-path: none !important;
   animation-name: veil-fade-out !important;
-  animation-duration: 0.18s !important;
-  animation-timing-function: linear !important;
+  animation-duration: 0.26s !important;
+  animation-timing-function: var(--ease-out) !important;
   animation-fill-mode: forwards !important;
 }
 html[data-motion='fade'] .veil[data-phase='cover'] .veil-stack {
@@ -2492,7 +2494,7 @@ html[data-motion='fade'] .handoff-sweep,
 html[data-motion='fade'] .handoff-edge { display: none; }
 html[data-motion='fade'] .handoff[data-phase='on'] {
   background: rgba(7, 12, 23, 0.35);
-  animation: handoff-fade 0.2s linear forwards;
+  animation: handoff-fade 0.26s var(--ease-out) forwards;
 }
 @keyframes handoff-grid {
   0% { opacity: 0; }
