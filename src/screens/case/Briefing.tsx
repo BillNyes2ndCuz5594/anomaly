@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
+import { Fragment, useEffect, useMemo, useRef, type CSSProperties } from 'react'
 import { content } from '../../content/schema'
 import { useReadAloud, wordAt } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
@@ -71,10 +71,12 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
         {cold ? null : <BriefingFeed />}
         <p className="dispatch-hook" data-testid="dispatch-hook" style={{ '--wn': hookWords.length } as CSSProperties}>
           {hookWords.map((w, i) => (
-            <span key={i} className={i === glitchAt ? 'hook-w hook-glitch' : 'hook-w'} style={{ '--wi': i } as CSSProperties}>
-              {w}
-              {i < hookWords.length - 1 ? ' ' : ''}
-            </span>
+            <Fragment key={i}>
+              <span className={i === glitchAt ? 'hook-w hook-glitch' : 'hook-w'} style={{ '--wi': i } as CSSProperties}>
+                {w}
+              </span>
+              {i < hookWords.length - 1 ? ' ' : null}
+            </Fragment>
           ))}
         </p>
         {cold ? null : (
