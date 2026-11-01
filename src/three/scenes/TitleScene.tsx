@@ -189,7 +189,7 @@ export default function TitleScene() {
       <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights />
       <SubjectLights strength={rich ? 1 : 0.8} />
-      <Backdrop clip="swamp" />
+      <Backdrop clip="title" />
       {rich ? <SkyBand calm={calm} /> : null}
       <NightBody position={[-12.2, 9.2, -17]} calm={calm} rich={rich} />
       <DeckPlate />

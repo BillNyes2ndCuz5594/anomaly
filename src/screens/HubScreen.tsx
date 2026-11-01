@@ -1,4 +1,4 @@
-import { useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { codexById } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
@@ -7,6 +7,10 @@ import { useRuntime } from '../state/runtime'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
+import { clearCodenameDecode, peekCodenameDecode } from '../ui/decode'
+import { useDecode } from '../ui/useDecode'
+import { useMotionMode } from '../ui/useMotionMode'
+import foilBadge from '../assets/textures/agent-badge-foil.webp?url'
 import './title-hub.css'
 
 export const HUB_PANEL_WIDTH = 360
@@ -71,6 +75,13 @@ export default function HubScreen() {
   const codex = useGame((s) => s.codex)
   const progress = useGame((s) => s.progress)
   const due = useReviewDue()
+  const mode = useMotionMode()
+  const codenameRef = useRef<HTMLHeadingElement>(null)
+  const [decode] = useState(peekCodenameDecode)
+  useEffect(() => {
+    if (decode) clearCodenameDecode()
+  }, [decode])
+  useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
   // The four starter benchmarks, plus any other benchmark the agent has answered.
   const labelOf = new Map(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
@@ -97,8 +108,9 @@ export default function HubScreen() {
 
       <aside className="panel brackets hub-panel" aria-label="Agent panel" style={{ width: HUB_PANEL_WIDTH }}>
         <header className="agent-head">
+          <img className="agent-foil" src={foilBadge} alt="" aria-hidden="true" decoding="async" />
           <span className="label">Field agent</span>
-          <h2 className="codename" data-testid="codename">
+          <h2 className="codename" data-testid="codename" ref={codenameRef} data-decode={decode ? mode : undefined}>
             {profile.codename}
           </h2>
           <p className="agent-meta">

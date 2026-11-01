@@ -1239,3 +1239,64 @@ html[data-motion='fade'] .vitals-stable {
     display: none;
   }
 }
+
+/* ---------- Juice wave 3: launch and warp streak inside the veil fill ---------- */
+.warp-streak {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.warp-streak img,
+.warp-streak video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.warp-streak video {
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-out);
+}
+.warp-streak video.live {
+  opacity: 1;
+}
+
+/* ---------- Juice wave 3: holo agent badge (M2) and codename decode (M1) ---------- */
+.agent-head {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.agent-foil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+html[data-motion='full'] .agent-foil {
+  transition:
+    transform 0.6s var(--ease-out),
+    opacity 0.4s var(--ease-out);
+  transform: scale(1.12);
+}
+html[data-motion='full'] .agent-head:hover .agent-foil,
+html[data-motion='full'] .agent-head:focus-within .agent-foil {
+  opacity: 0.3;
+  animation: foil-shimmer 2.4s var(--ease-out) infinite alternate;
+}
+@keyframes foil-shimmer {
+  from { transform: scale(1.12) translate3d(-4%, -2%, 0); }
+  to { transform: scale(1.12) translate3d(4%, 2%, 0); }
+}
+/* Low tier: the decode is a plain fade. Still: the final text is already there. */
+html[data-motion='fade'] .codename[data-decode='fade'] {
+  animation: modal-fade 0.6s var(--ease-out) backwards;
+}
