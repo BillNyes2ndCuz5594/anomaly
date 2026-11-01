@@ -1,0 +1,643 @@
+{
+  "case": {
+    "id": "02-2",
+    "codename": "BEDROCK",
+    "unit": "U02 Weather",
+    "unitLabel": "Unit 2: Weather (Earth Structures)",
+    "category": "earth",
+    "benchmarks": [
+      "SC.4.E.6.2",
+      "SC.4.E.6.4"
+    ],
+    "evidencePlan": [
+      {
+        "benchmark": "SC.4.E.6.2",
+        "count": 2
+      },
+      {
+        "benchmark": "SC.4.E.6.4",
+        "count": 3
+      }
+    ],
+    "marker": {
+      "lon": -84.28,
+      "lat": 30.44
+    },
+    "dispatchHook": "Creek survey near Tallahassee. Broken rock and moved rock filed as the same thing.",
+    "briefing": [
+      "Agent, a road crew near Tallahassee logged eight changes to the rock along a creek bank.",
+      "Their report calls every one of them erosion, and the engineers do not believe it.",
+      "Sort what broke the rock from what carried it away, then check the minerals and resources in the file.",
+      "Rock changes slowly, so there is time to read each card."
+    ],
+    "lab": {
+      "kind": "sort",
+      "intro": "Each card is a change the crew saw. Decide if the rock was broken into pieces or if pieces were carried away.",
+      "bins": [
+        {
+          "id": "weathering",
+          "name": "Weathering",
+          "hint": "Weathering breaks rock into smaller pieces, and the pieces stay where they are."
+        },
+        {
+          "id": "erosion",
+          "name": "Erosion",
+          "hint": "Erosion moves pieces of rock and soil from one place to another."
+        }
+      ],
+      "cards": [
+        {
+          "id": "root",
+          "name": "Live oak root",
+          "card": [
+            "A root grows into a crack in a boulder.",
+            "The crack gets wider and the rock splits."
+          ],
+          "bin": "weathering",
+          "why": "The root broke the rock apart where it sits, so this is weathering."
+        },
+        {
+          "id": "ice",
+          "name": "Frozen crack",
+          "card": [
+            "Water fills a crack in a mountain rock.",
+            "It freezes, takes up more space, and splits the rock."
+          ],
+          "bin": "weathering",
+          "why": "Ice split the rock into pieces without moving them, so this is weathering."
+        },
+        {
+          "id": "hot-cold",
+          "name": "Hot days, cold nights",
+          "card": [
+            "Desert rock heats up by day and cools at night.",
+            "Over many years, thin pieces flake off."
+          ],
+          "bin": "weathering",
+          "why": "Heating and cooling cracked the rock into pieces, so this is weathering."
+        },
+        {
+          "id": "sandblast",
+          "name": "Blowing sand",
+          "card": [
+            "Wind blasts sand grains against a rock tower.",
+            "The face of the rock wears into tiny bits."
+          ],
+          "bin": "weathering",
+          "why": "The blowing sand wore the rock down into smaller bits, so this is weathering."
+        },
+        {
+          "id": "creek",
+          "name": "Creek after a storm",
+          "card": [
+            "Brown water rushes down the creek.",
+            "It carries sand and pebbles downstream."
+          ],
+          "bin": "erosion",
+          "why": "Moving water carried rock pieces to a new place, so this is erosion."
+        },
+        {
+          "id": "rockslide",
+          "name": "Rockslide",
+          "card": [
+            "Loose rocks tumble down a steep hill.",
+            "They end up in a pile at the bottom."
+          ],
+          "bin": "erosion",
+          "why": "Gravity moved the rocks from the hill to the bottom, so this is erosion."
+        },
+        {
+          "id": "glacier",
+          "name": "Glacier",
+          "card": [
+            "A huge sheet of ice slides slowly downhill.",
+            "It drags rocks and soil along with it."
+          ],
+          "bin": "erosion",
+          "why": "The moving ice carried rocks and soil away, so this is erosion."
+        },
+        {
+          "id": "dune",
+          "name": "Moving dune",
+          "card": [
+            "Wind blows sand from one side of a dune to the other.",
+            "The dune slowly shifts across the beach."
+          ],
+          "bin": "erosion",
+          "why": "The wind moved the sand to a new place, so this is erosion."
+        }
+      ]
+    },
+    "debriefClosed": "Case closed. The creek bank report now says what broke and what moved.",
+    "debriefOpen": "Case stays open for now. The rock comes back as a cold case soon, and it will not have moved much."
+  },
+  "items": [
+    {
+      "id": "E6.2-01",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Ava rubs a mineral across a rough white tile. It leaves a line of colored powder. Which property is Ava testing?",
+      "options": [
+        "luster",
+        "streak",
+        "hardness",
+        "cleavage"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: luster is how shiny or dull a mineral's surface looks.",
+        "Correct: the color of the powder a mineral leaves on a white tile is its streak.",
+        "Decoy: hardness is about how easily a mineral can be scratched, not the color of its powder.",
+        "Decoy: cleavage is the way a mineral breaks along flat surfaces."
+      ],
+      "keyWords": [
+        "rough white tile",
+        "colored powder"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Mineral",
+          "Streak plate",
+          ""
+        ]
+      },
+      "alt": "A mineral sample dragged across a white tile, leaving a colored line, with a hand lens nearby.",
+      "tisCheck": "Mineral properties only; only the seven allowed minerals; no hardness scale; no identifying a mineral from its properties.",
+      "misconceptions": "Streak confused with luster or with hardness."
+    },
+    {
+      "id": "E6.2-02",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Leo tries to scratch two minerals with a steel nail. The nail scratches calcite. The nail does not scratch quartz. What does this test show?",
+      "options": [
+        "Calcite is harder than quartz.",
+        "Quartz and calcite have the same luster.",
+        "The nail is harder than both minerals.",
+        "Quartz is harder than calcite."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: this is backward, since the softer mineral is the one that gets scratched.",
+        "Decoy: a scratch test tells about hardness, not about shine.",
+        "Decoy: the nail could not scratch quartz, so it is not harder than quartz.",
+        "Correct: the nail scratched calcite but not quartz, so quartz is the harder mineral."
+      ],
+      "keyWords": [
+        "steel nail",
+        "does not scratch quartz",
+        "What does this test show"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Scratch Test",
+        "columns": [
+          "Mineral",
+          "Scratched by steel nail?"
+        ],
+        "rows": [
+          [
+            "Calcite",
+            "Yes"
+          ],
+          [
+            "Quartz",
+            "No"
+          ]
+        ]
+      },
+      "alt": "A table: the steel nail scratched calcite but did not scratch quartz.",
+      "tisCheck": "Hardness compared with a scratch test; only the seven allowed minerals; no hardness scale; no identifying a mineral from its properties; no numbers.",
+      "misconceptions": "The scratched mineral thought to be the harder one; hardness confused with luster."
+    },
+    {
+      "id": "E6.2-03",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A sample of pyrite looks shiny and gold. When it is rubbed on a white tile, it leaves a greenish black streak. Why do scientists often test streak and not only look at color?",
+      "options": [
+        "The outside color of a sample can change, but the streak color stays the same.",
+        "Streak shows how hard a mineral is.",
+        "Color is always the best way to tell minerals apart.",
+        "Streak shows how much a mineral weighs."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the color of a sample can vary, but the powder a mineral leaves is the same color each time, so streak is more useful.",
+        "Decoy: hardness is tested by scratching, not by the color of the powder.",
+        "Decoy: different minerals can look the same color, so color alone can fool you.",
+        "Decoy: mass is measured with a balance, not with a streak test."
+      ],
+      "keyWords": [
+        "shiny and gold",
+        "greenish black streak",
+        "not only look at color"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Pyrite",
+          "Streak plate",
+          "Greenish black streak"
+        ]
+      },
+      "alt": "A gold-colored mineral dragged across a white tile, leaving a greenish black line, with a hand lens nearby.",
+      "tisCheck": "Color and streak as properties, using pyrite as a named example the student does not identify; only the seven allowed minerals; no hardness scale; no identifying a mineral from its properties.",
+      "misconceptions": "Color thought to be the most reliable property; streak confused with hardness or with mass."
+    },
+    {
+      "id": "E6.2-04",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "A student finds three rocks. Rock 1 has layers with bits of shell in it. Rock 2 is glassy with tiny holes. Rock 3 has bands that look squeezed and folded. Which statement tells how each rock most likely formed?",
+      "options": [
+        "Rock 1 formed from cooled melted rock, Rock 2 from heat and pressure, and Rock 3 from pressed layers.",
+        "All three rocks formed from cooled melted rock.",
+        "Rock 1 formed from pressed layers of sediment, Rock 2 from cooled melted rock, and Rock 3 from heat and pressure.",
+        "Rock 1 formed from heat and pressure, Rock 2 from pressed layers, and Rock 3 from cooled melted rock."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: layers with shells come from sediment, not from melted rock.",
+        "Decoy: only the glassy rock with holes shows signs of cooled melted rock.",
+        "Correct: layers with shells mean sedimentary, glassy with holes means igneous, and squeezed bands mean metamorphic.",
+        "Decoy: folded bands come from heat and pressure, and the glassy rock came from cooled melted rock."
+      ],
+      "keyWords": [
+        "layers with bits of shell",
+        "glassy with tiny holes",
+        "squeezed and folded"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Rock 1",
+          "Rock 2",
+          "Rock 3"
+        ]
+      },
+      "alt": "Three rock samples: a layered rock, a glassy rock with holes, and a rock with folded bands.",
+      "tisCheck": "Three rock types by how they formed (SC.4.E.6.1); no changes from one rock type to another; no mineral makeup of rocks.",
+      "misconceptions": "Rock types mixed up; all rocks thought to come from lava."
+    },
+    {
+      "id": "E6.2-05",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Over a very long time, layers of sand and shells pile up on the floor of the Gulf. The layers are pressed together and cemented into rock. Which type of rock forms this way?",
+      "options": [
+        "igneous",
+        "metamorphic",
+        "sedimentary",
+        "mineral"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: igneous rock forms when melted rock cools.",
+        "Decoy: metamorphic rock forms when heat and pressure change a rock that already exists.",
+        "Correct: sedimentary rock forms from layers of sediment, like sand and shells, pressed and cemented together.",
+        "Decoy: a mineral is one of the materials that make up rocks, not a type of rock."
+      ],
+      "keyWords": [
+        "layers of sand and shells",
+        "pressed together",
+        "cemented"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      "alt": "Three rock samples labeled A, B, and C: a layered rock, a glassy rock with holes, and a rock with folded bands.",
+      "tisCheck": "Rock type by how it formed, in a Florida limestone context; no changes from one rock type to another.",
+      "misconceptions": "Rocks and minerals treated as the same; any pressing linked only to metamorphic rock."
+    },
+    {
+      "id": "E6.2-06",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "A student breaks open a rock and looks at it with a hand lens. She sees grains of different colors and shapes. Which statement about rocks and minerals is true?",
+      "options": [
+        "Rocks are made of one or more minerals.",
+        "Minerals are made of many kinds of rocks.",
+        "Every rock is made of only one mineral.",
+        "Rocks and minerals are exactly the same thing."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the grains she sees are minerals, and rocks are made of one or more minerals.",
+        "Decoy: this is backward, since minerals are the building blocks of rocks.",
+        "Decoy: the different grains show that a rock can hold more than one mineral.",
+        "Decoy: a rock is made of minerals, so the two are not the same thing."
+      ],
+      "keyWords": [
+        "grains of different colors",
+        "rocks and minerals"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "lab-tools",
+        "labels": [
+          "",
+          "",
+          "",
+          "",
+          "Hand lens"
+        ]
+      },
+      "alt": "Five lab tools on a bench with the hand lens labeled.",
+      "tisCheck": "The role of minerals in forming rocks; no mineral makeup of any named rock; no mineral identified.",
+      "misconceptions": "Rocks and minerals reversed or treated as the same thing."
+    },
+    {
+      "id": "E6.4-01",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "The root of a live oak grows into a crack in a limestone rock. Over many years, the root pushes the crack wider until the rock splits apart. What is this an example of?",
+      "options": [
+        "erosion",
+        "melting",
+        "freezing",
+        "weathering"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: erosion moves pieces to a new place, and these pieces stay where they are.",
+        "Decoy: a tree root cannot melt rock.",
+        "Decoy: no ice is part of this change.",
+        "Correct: the root broke the rock into smaller pieces, which is weathering."
+      ],
+      "keyWords": [
+        "live oak",
+        "splits apart"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Cracking rock",
+          "Root",
+          ""
+        ]
+      },
+      "alt": "A cliff with a crack, a tree root splitting the rock, and a stream carrying pebbles downhill.",
+      "tisCheck": "Physical weathering by plants; no landforms assessed; no dissolving of limestone.",
+      "misconceptions": "Weathering and erosion used as the same word."
+    },
+    {
+      "id": "E6.4-02",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "After heavy rain, a creek near Tallahassee turns brown. The fast water carries sand and pebbles downstream to a new place. Which process is the creek showing?",
+      "options": [
+        "weathering, because the rocks are breaking into pieces",
+        "erosion, because the water is moving sand and pebbles to a new place",
+        "weathering, because the water turns brown",
+        "erosion, because the rocks are melting in the water"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: nothing in the story says the rocks are breaking, only that they are carried.",
+        "Correct: erosion is the moving of rock and soil from one place to another, here by water.",
+        "Decoy: brown water is mud being carried away, which is erosion, not weathering.",
+        "Decoy: rocks do not melt in creek water."
+      ],
+      "keyWords": [
+        "carries sand and pebbles",
+        "to a new place"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "",
+          "",
+          "Stream carrying rock"
+        ]
+      },
+      "alt": "A cliff with a crack, a tree root splitting the rock, and a stream carrying pebbles downhill.",
+      "tisCheck": "Erosion by water vs weathering; no landforms named or assessed.",
+      "misconceptions": "Any change to rock called weathering; erosion thought to need breaking."
+    },
+    {
+      "id": "E6.4-03",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.6",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A mine in central Florida digs a resource out of the ground. Farmers use it to make fertilizer that helps crops grow. Which Florida resource is it?",
+      "options": [
+        "solar energy",
+        "wind",
+        "phosphate",
+        "limestone"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: solar energy comes from sunlight, not from a mine.",
+        "Decoy: wind is moving air, which cannot be dug from the ground.",
+        "Correct: phosphate is mined in central Florida and used to make fertilizer.",
+        "Decoy: limestone is also dug from the ground in Florida, but it is mostly used for building and roads."
+      ],
+      "keyWords": [
+        "out of the ground",
+        "fertilizer"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "florida-resources",
+        "labels": [
+          "Water",
+          "Quarry",
+          "Wind",
+          "Solar"
+        ]
+      },
+      "alt": "A Florida outline with small icons for a water well, a quarry, a wind turbine, and a solar panel.",
+      "tisCheck": "Florida resources limited to water, phosphate, oil, limestone, silicon, wind and solar energy (SC.4.E.6.6).",
+      "misconceptions": "Phosphate and limestone confused; energy sources thought to be mined."
+    },
+    {
+      "id": "E6.4-04",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.3",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "A Florida county wants to use resources that will not run out. Based on the table, which two resources should it choose?",
+      "options": [
+        "wind and sunlight",
+        "oil and phosphate",
+        "oil and wind",
+        "phosphate and sunlight"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: wind and sunlight are renewable, since they come back every day.",
+        "Decoy: oil and phosphate take millions of years to form, so they are nonrenewable.",
+        "Decoy: wind is renewable, but oil takes millions of years to form.",
+        "Decoy: sunlight is renewable, but phosphate takes millions of years to build up."
+      ],
+      "keyWords": [
+        "will not run out",
+        "Based on the table"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Where Resources Come From",
+        "columns": [
+          "Resource",
+          "How it is made or replaced"
+        ],
+        "rows": [
+          [
+            "Oil",
+            "Formed from the remains of living things over millions of years"
+          ],
+          [
+            "Phosphate",
+            "Built up in rock layers over millions of years"
+          ],
+          [
+            "Wind",
+            "Moves every day as the Sun heats the air"
+          ],
+          [
+            "Sunlight",
+            "Reaches Florida every day"
+          ]
+        ]
+      },
+      "alt": "A table: oil formed over millions of years, phosphate built up over millions of years, wind moves every day, and sunlight reaches Florida every day.",
+      "tisCheck": "Renewable vs nonrenewable (SC.4.E.6.3) with the allowed Florida resources; no computation.",
+      "misconceptions": "Resources found in Florida thought to last forever; every natural resource thought to be renewable."
+    },
+    {
+      "id": "E6.4-05",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "A park ranger lists four changes she saw on a field trip. Which change is erosion and not weathering?",
+      "options": [
+        "A root splits a boulder in two.",
+        "Wind carries sand across a beach and piles it into a dune.",
+        "Water freezes in a crack and breaks the rock.",
+        "A rock cracks after many hot days and cold nights."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: a root that breaks rock is weathering by plants.",
+        "Correct: the wind moves sand to a new place, which is erosion.",
+        "Decoy: ice that breaks rock in a crack is weathering.",
+        "Decoy: heating and cooling that cracks rock is weathering."
+      ],
+      "keyWords": [
+        "four changes",
+        "erosion and not weathering"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Cracking rock",
+          "Root",
+          "Stream carrying rock"
+        ]
+      },
+      "alt": "A cliff with a crack, a tree root splitting the rock, and a stream carrying pebbles downhill.",
+      "tisCheck": "Weathering by plants, ice and temperature change vs erosion by wind; the dune is context and no landform is assessed.",
+      "misconceptions": "Wind thought to only weather rock; erosion and weathering mixed up."
+    },
+    {
+      "id": "E6.4-06",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "Water freezes in a crack in a boulder high on a mountain, and a piece breaks off. Later, the piece falls into a river. The river carries it far downstream. Which list names the two processes in order?",
+      "options": [
+        "erosion, then weathering",
+        "weathering, then weathering again",
+        "erosion, then erosion again",
+        "weathering, then erosion"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: this reverses the order, since the rock broke before it was carried.",
+        "Decoy: being carried by the river is moving, not breaking.",
+        "Decoy: ice breaking the rock is breaking, not moving.",
+        "Correct: ice broke the rock first, which is weathering, and then the river moved the piece, which is erosion."
+      ],
+      "keyWords": [
+        "a piece breaks off",
+        "carries it far downstream",
+        "in order"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Cracking rock",
+          "",
+          "Stream carrying rock"
+        ]
+      },
+      "alt": "A cliff with a crack, a tree root splitting the rock, and a stream carrying pebbles downhill.",
+      "tisCheck": "Weathering by ice, then erosion by gravity and water, in one story; no landforms assessed.",
+      "misconceptions": "The order of weathering and erosion reversed; one word used for both."
+    }
+  ],
+  "codex": [
+    {
+      "id": "lab:02-2:root",
+      "title": "Plant roots",
+      "line": "A root that grows into a crack can split rock apart, which is weathering."
+    },
+    {
+      "id": "lab:02-2:ice",
+      "title": "Ice in cracks",
+      "line": "Water that freezes in a crack takes up more space and can split the rock."
+    },
+    {
+      "id": "lab:02-2:glacier",
+      "title": "Glaciers",
+      "line": "A glacier is a huge sheet of ice that moves slowly downhill and carries rock along, which is erosion."
+    }
+  ]
+}

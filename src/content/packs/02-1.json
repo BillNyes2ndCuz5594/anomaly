@@ -1,0 +1,624 @@
+{
+  "case": {
+    "id": "02-1",
+    "codename": "FRONT",
+    "unit": "U02 Weather",
+    "unitLabel": "Unit 2: Weather",
+    "category": "earth",
+    "benchmarks": [
+      "SC.5.E.7.1",
+      "SC.5.E.7.3"
+    ],
+    "evidencePlan": [
+      {
+        "benchmark": "SC.5.E.7.1",
+        "count": 2
+      },
+      {
+        "benchmark": "SC.5.E.7.3",
+        "count": 3
+      }
+    ],
+    "marker": {
+      "lon": -80.19,
+      "lat": 25.77
+    },
+    "dispatchHook": "Weather station scramble in Miami. Rain is falling before the clouds form.",
+    "briefing": [
+      "Agent, a weather station on the roof of a Miami school sent a forecast with its steps out of order.",
+      "It says rain falls before clouds form, and today's afternoon thunderstorm is marked as a mystery.",
+      "Put the water cycle back in order, then read the instruments yourself.",
+      "The instruments still work; it is the order that broke."
+    ],
+    "lab": {
+      "kind": "order",
+      "intro": "The station lost the order of the water cycle. Put the steps back so the water gets from the ocean to the rain.",
+      "prompt": "Put the steps of the water cycle in order, starting at the ocean.",
+      "steps": [
+        {
+          "id": "sun-heats",
+          "name": "The Sun heats the ocean",
+          "card": "Liquid water in the Atlantic warms up."
+        },
+        {
+          "id": "evaporation",
+          "name": "Water evaporates",
+          "card": "Warm liquid water changes into water vapor, a gas."
+        },
+        {
+          "id": "vapor-rises",
+          "name": "Water vapor rises and cools",
+          "card": "Rising air carries the gas high into the sky, where it is colder."
+        },
+        {
+          "id": "condensation",
+          "name": "Water vapor condenses into clouds",
+          "card": "The cooled gas turns into tiny liquid drops that make a cloud."
+        },
+        {
+          "id": "precipitation",
+          "name": "Rain falls",
+          "card": "Drops join, grow heavy, and fall back to Earth."
+        }
+      ],
+      "why": "The Sun's heat turns ocean water into water vapor, the vapor rises and cools into cloud drops, and the drops fall as rain that can flow back to the ocean."
+    },
+    "debriefClosed": "Case closed. The station runs in order again, and the afternoon storm is back on the forecast.",
+    "debriefOpen": "Case stays open for now. The weather comes back as a cold case soon, and so does the rain."
+  },
+  "items": [
+    {
+      "id": "E7.1-01",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Over the Atlantic, tiny water drops in a cloud join together and grow heavy. Then they fall to the ground as rain. Which part of the water cycle is this?",
+      "options": [
+        "evaporation",
+        "condensation",
+        "precipitation",
+        "freezing"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: evaporation is liquid water changing into water vapor, not drops falling.",
+        "Decoy: condensation makes the cloud drops, but falling rain is the next step.",
+        "Correct: water that falls from clouds as rain is precipitation.",
+        "Decoy: freezing turns liquid water into ice, and these drops fall as liquid rain."
+      ],
+      "keyWords": [
+        "grow heavy",
+        "fall to the ground as rain"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "water-cycle",
+        "labels": [
+          "Ocean",
+          "Water vapor",
+          "Cloud"
+        ]
+      },
+      "alt": "The water cycle over the ocean: water vapor rising, a cloud forming, and rain falling back down.",
+      "tisCheck": "Parts of the water cycle named in context; no terms for water moving through plants or into the soil.",
+      "misconceptions": "Condensation and precipitation confused; any change in water called evaporation."
+    },
+    {
+      "id": "E7.1-02",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "High in the sky over the mountains, water vapor in a cloud turns into ice crystals that fall as snow. In spring, the snow melts and flows into a river. Which list shows the states of the water in order?",
+      "options": [
+        "gas, solid, liquid",
+        "liquid, gas, solid",
+        "solid, gas, liquid",
+        "gas, liquid, gas"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: water vapor is a gas, snow is a solid, and melted snow in the river is a liquid.",
+        "Decoy: the water starts as water vapor, which is a gas, not a liquid.",
+        "Decoy: the snow comes second in the story, after the water vapor.",
+        "Decoy: snow is frozen water, so one of the states must be a solid."
+      ],
+      "keyWords": [
+        "water vapor",
+        "ice crystals",
+        "states of the water in order"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "water-cycle",
+        "labels": [
+          "",
+          "Water vapor",
+          "Cloud"
+        ]
+      },
+      "alt": "The water cycle with water vapor rising and a cloud forming high in the sky.",
+      "tisCheck": "States of water inside a water cycle story only; no terms for water moving through plants or into the soil.",
+      "misconceptions": "Water vapor thought to be a liquid; states listed out of order."
+    },
+    {
+      "id": "E7.1-03",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "After an afternoon storm in Orlando, puddles cover a paved parking lot. By the next afternoon, the puddles are gone. What happened to most of the water?",
+      "options": [
+        "The Sun's heat destroyed the water.",
+        "The water froze and turned into ice.",
+        "The water condensed into the pavement.",
+        "The water evaporated and became water vapor in the air."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: water does not disappear, because it changes state and moves into the air.",
+        "Decoy: a warm Orlando afternoon is far too hot for puddles to freeze.",
+        "Decoy: condensation is water vapor turning into liquid, the opposite of what happened.",
+        "Correct: the Sun's heat changed the liquid water into water vapor, a gas that mixed into the air."
+      ],
+      "keyWords": [
+        "puddles are gone",
+        "most of the water"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "ocean-evaporation",
+        "labels": [
+          "Sun"
+        ]
+      },
+      "alt": "The Sun shining on water, with wavy arrows of water vapor rising into the air.",
+      "tisCheck": "Evaporation in a water cycle context; no terms for water moving through plants or into the soil.",
+      "misconceptions": "Evaporated water thought to be gone for good; evaporation and condensation reversed."
+    },
+    {
+      "id": "E7.1-04",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.2",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "Rain falls on an orange grove in central Florida. The grove is far from any beach. Which statement best explains how the ocean is connected to this rain?",
+      "options": [
+        "Ocean water flows uphill through rivers to the grove.",
+        "Water evaporates from the ocean, forms clouds, and falls as rain over land.",
+        "Rain over land comes only from lakes, never from the ocean.",
+        "The ocean makes brand new water every day."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: rivers flow downhill toward the ocean, not away from it.",
+        "Correct: most water vapor comes from the ocean, and winds carry the clouds over land where the rain falls.",
+        "Decoy: lakes add some water vapor, but the ocean gives far more.",
+        "Decoy: Earth's water is used over and over, and the ocean does not make new water."
+      ],
+      "keyWords": [
+        "far from any beach",
+        "ocean is connected"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "water-cycle",
+        "labels": [
+          "Ocean",
+          "Water vapor",
+          "Cloud"
+        ]
+      },
+      "alt": "The water cycle over the ocean: water vapor rising, a cloud forming, and rain falling back down.",
+      "tisCheck": "The ocean's role in the water cycle through evaporation and precipitation (SC.5.E.7.2); no terms for water moving through plants or into the soil.",
+      "misconceptions": "Rain over land thought to come only from lakes; the ocean seen as separate from the water cycle."
+    },
+    {
+      "id": "E7.1-05",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "Every day, water in the Gulf changes into water vapor and rises into the air. What gives the water the energy to evaporate?",
+      "options": [
+        "heat from the Sun",
+        "the pull of the Moon",
+        "cold air above the water",
+        "salt in the ocean"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the Sun heats the water, and the heat changes liquid water into water vapor.",
+        "Decoy: the Moon's pull moves the tides, but it does not make water evaporate.",
+        "Decoy: cold air slows evaporation instead of causing it.",
+        "Decoy: salt stays behind in the ocean and does not give water the energy to evaporate."
+      ],
+      "keyWords": [
+        "water vapor",
+        "energy to evaporate"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "ocean-evaporation",
+        "labels": [
+          "Sun",
+          "Ocean"
+        ]
+      },
+      "alt": "The Sun shining on the ocean, with wavy arrows of water vapor rising.",
+      "tisCheck": "Evaporation in the water cycle with the Sun as the heat source; no terms for water moving through plants or into the soil.",
+      "misconceptions": "Tides and evaporation confused; cold seen as a cause of evaporation."
+    },
+    {
+      "id": "E7.1-06",
+      "benchmark": "SC.5.E.7.1",
+      "testedAs": "SC.5.E.7.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "A student builds a water cycle model. She sets an empty cup in the middle of a bowl of warm salt water, covers the bowl with plastic wrap, and puts it in the sun. Water drops form on the underside of the wrap and drip into the cup. Which part of the water cycle do the drops forming on the wrap show?",
+      "options": [
+        "evaporation",
+        "precipitation",
+        "condensation",
+        "melting"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: evaporation happens at the warm water, before the drops form.",
+        "Decoy: precipitation is the drops falling into the cup, which comes after they form.",
+        "Correct: water vapor cools on the wrap and changes back into liquid drops, just like a cloud forming.",
+        "Decoy: melting turns a solid into a liquid, and there is no ice in this model."
+      ],
+      "keyWords": [
+        "drops form on the underside",
+        "Which part of the water cycle"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Water Cycle Model",
+        "columns": [
+          "Part of the model",
+          "What the student sees"
+        ],
+        "rows": [
+          [
+            "Bowl of warm salt water",
+            "Sits in sunlight"
+          ],
+          [
+            "Plastic wrap",
+            "Drops form underneath"
+          ],
+          [
+            "Cup in the middle",
+            "Drops drip into it"
+          ]
+        ]
+      },
+      "alt": "A table: a bowl of warm salt water sits in sunlight, drops form under the plastic wrap, and drops drip into the cup in the middle.",
+      "tisCheck": "A model of the water cycle, with phases of water only in that context; no terms for water moving through plants or into the soil.",
+      "misconceptions": "Evaporation and condensation confused; drops forming mistaken for falling rain."
+    },
+    {
+      "id": "E7.3-01",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.3",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "The weather team at a school in Hialeah wants to record how much rain fell during an afternoon storm. Which instrument should the team read?",
+      "options": [
+        "thermometer",
+        "rain gauge",
+        "barometer",
+        "wind vane"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: a thermometer measures air temperature.",
+        "Correct: a rain gauge collects and measures how much rain falls.",
+        "Decoy: a barometer measures air pressure.",
+        "Decoy: a wind vane shows which way the wind blows."
+      ],
+      "keyWords": [
+        "how much rain fell",
+        "instrument"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weather-instruments",
+        "labels": [
+          "Thermometer",
+          "Barometer",
+          "Wind vane",
+          "Rain gauge"
+        ]
+      },
+      "alt": "A weather station post with a thermometer, a barometer, a wind vane with spinning wind cups, and a rain gauge.",
+      "tisCheck": "Weather instruments and what they measure; conceptual, no readings to compute.",
+      "misconceptions": "Barometer and rain gauge confused; any station tool thought to measure rain."
+    },
+    {
+      "id": "E7.3-02",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A student in Miami reads the school weather station three times on a summer day. Which pair of changes in her data most likely means a thunderstorm is coming?",
+      "options": [
+        "Air pressure rises and humidity falls.",
+        "Air pressure stays steady and the sky stays clear.",
+        "Humidity falls and the wind stops.",
+        "Air pressure falls and humidity rises."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: rising air pressure and drier air usually mean fair weather.",
+        "Decoy: the data show the pressure falling and clouds building, so nothing stayed steady.",
+        "Decoy: humidity went up in the data, not down.",
+        "Correct: falling air pressure and more water vapor in the air are signs that a storm is on the way."
+      ],
+      "keyWords": [
+        "pair of changes",
+        "thunderstorm is coming"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Weather Station Readings",
+        "columns": [
+          "Time",
+          "Air pressure",
+          "Humidity",
+          "Sky"
+        ],
+        "rows": [
+          [
+            "10 a.m.",
+            "Steady",
+            "60%",
+            "Clear"
+          ],
+          [
+            "1 p.m.",
+            "Falling",
+            "75%",
+            "Puffy clouds"
+          ],
+          [
+            "3 p.m.",
+            "Falling fast",
+            "90%",
+            "Tall dark clouds"
+          ]
+        ]
+      },
+      "alt": "A table: at 10 a.m. the pressure is steady, humidity is 60%, and the sky is clear; at 1 p.m. the pressure is falling, humidity is 75%, with puffy clouds; at 3 p.m. the pressure is falling fast, humidity is 90%, with tall dark clouds.",
+      "tisCheck": "Air pressure and humidity as weather factors read from a table; conceptual, no computation; cloud types are not told apart.",
+      "misconceptions": "Rising pressure linked to storms; humidity ignored."
+    },
+    {
+      "id": "E7.3-03",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.6",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "The table shows the temperatures and rainfall of three cities. Which city is most likely in the tropical climate zone?",
+      "options": [
+        "City C, because it is warm all year and gets heavy rain",
+        "City A, because it has the coldest temperatures",
+        "City B, because its temperature changes a lot with the seasons",
+        "None of them, because tropical places get no rain"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: tropical places near the equator are warm all year and often get heavy rain.",
+        "Decoy: very cold temperatures all year describe the polar zone.",
+        "Decoy: warm summers and cold winters describe the temperate zone.",
+        "Decoy: many tropical places, such as rainforests, get a lot of rain."
+      ],
+      "keyWords": [
+        "temperatures and rainfall",
+        "tropical climate zone"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Three Cities",
+        "columns": [
+          "City",
+          "Coldest month",
+          "Warmest month",
+          "Rain"
+        ],
+        "rows": [
+          [
+            "A",
+            "-25°C (-13°F)",
+            "5°C (41°F)",
+            "Little"
+          ],
+          [
+            "B",
+            "2°C (36°F)",
+            "24°C (75°F)",
+            "Some in every season"
+          ],
+          [
+            "C",
+            "25°C (77°F)",
+            "28°C (82°F)",
+            "Heavy"
+          ]
+        ]
+      },
+      "alt": "A table of three cities: City A is very cold with little rain, City B has cold winters and warm summers, and City C is warm all year with heavy rain.",
+      "tisCheck": "Climate zones limited to polar, temperate and tropical; conceptual; the difference between climate and weather is not assessed.",
+      "misconceptions": "Temperate and tropical confused; tropical thought to mean dry."
+    },
+    {
+      "id": "E7.3-04",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "On many summer days in Florida, mornings are sunny and hot. By mid-afternoon, tall dark clouds build and a thunderstorm brings heavy rain. Which condition helps these storms form?",
+      "options": [
+        "Cold, dry air sinks and stops clouds from forming.",
+        "Air pressure rises quickly every afternoon.",
+        "Warm, humid air rises and cools, and its water vapor forms tall clouds.",
+        "The Moon pulls water up from the ocean in the afternoon."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: sinking dry air keeps the sky clear instead of building storms.",
+        "Decoy: rising air pressure usually brings fair weather, not storms.",
+        "Correct: the Sun heats moist air, the air rises and cools, and its water vapor condenses into tall storm clouds.",
+        "Decoy: the Moon moves the tides, but it does not lift water into clouds."
+      ],
+      "keyWords": [
+        "sunny and hot",
+        "tall dark clouds",
+        "helps these storms form"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "cloud-types",
+        "labels": [
+          "",
+          "",
+          "",
+          "Afternoon storm cloud"
+        ]
+      },
+      "alt": "Four cloud shapes at their heights, with the tall storm tower labeled as the afternoon storm cloud.",
+      "tisCheck": "Florida afternoon thunderstorms from heat and humidity; cloud types are not told apart; the difference between climate and weather is not assessed.",
+      "misconceptions": "Storms linked to cold air or high pressure; tides confused with water vapor."
+    },
+    {
+      "id": "E7.3-05",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.4",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "During a strong summer thunderstorm near Ocala, lumps of ice as big as marbles bounce on the ground. What kind of precipitation is this?",
+      "options": [
+        "rain",
+        "snow",
+        "sleet",
+        "hail"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: rain is liquid water, not lumps of ice.",
+        "Decoy: snow is soft ice crystals that fall when the air is cold all the way down.",
+        "Decoy: sleet is small ice pellets that fall in cold weather, not big lumps in a summer storm.",
+        "Correct: hail is lumps of ice that grow inside tall thunderstorm clouds and can fall even in summer."
+      ],
+      "keyWords": [
+        "strong summer thunderstorm",
+        "lumps of ice"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "cloud-types",
+        "labels": [
+          "",
+          "",
+          "",
+          "Thunderstorm cloud"
+        ]
+      },
+      "alt": "Four cloud shapes at their heights, with the tall storm tower labeled as the thunderstorm cloud.",
+      "tisCheck": "Precipitation limited to rain, snow, sleet and hail; cloud types are not told apart.",
+      "misconceptions": "Sleet and hail confused; ice thought to fall only in winter."
+    },
+    {
+      "id": "E7.3-06",
+      "benchmark": "SC.5.E.7.3",
+      "testedAs": "SC.5.E.7.4",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "A weather team in North Carolina measured the air temperature inside a cloud and near the ground on four days. Precipitation fell each day. On which day did snow most likely reach the ground?",
+      "options": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: snow could form in Monday's cold cloud, but 10°C (50°F) air near the ground would melt it into rain.",
+        "Correct: the air was below freezing both in the cloud and near the ground, so snow could fall without melting.",
+        "Decoy: Wednesday's air was above freezing everywhere, so the precipitation was rain.",
+        "Decoy: Thursday's air was warm everywhere, so the precipitation was rain."
+      ],
+      "keyWords": [
+        "inside a cloud",
+        "near the ground",
+        "snow most likely"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Air Temperatures on Four Days",
+        "columns": [
+          "Day",
+          "Air in the cloud",
+          "Air near the ground"
+        ],
+        "rows": [
+          [
+            "Monday",
+            "-8°C (18°F)",
+            "10°C (50°F)"
+          ],
+          [
+            "Tuesday",
+            "-12°C (10°F)",
+            "-4°C (25°F)"
+          ],
+          [
+            "Wednesday",
+            "6°C (43°F)",
+            "20°C (68°F)"
+          ],
+          [
+            "Thursday",
+            "15°C (59°F)",
+            "28°C (82°F)"
+          ]
+        ]
+      },
+      "alt": "A table of four days: Monday, cloud -8°C and ground 10°C; Tuesday, cloud -12°C and ground -4°C; Wednesday, cloud 6°C and ground 20°C; Thursday, cloud 15°C and ground 28°C.",
+      "tisCheck": "Forms of precipitation linked to the weather at a place and time (SC.5.E.7.4); temperatures compared with freezing, no computation.",
+      "misconceptions": "Snow expected whenever a cloud is cold; the air near the ground ignored."
+    }
+  ],
+  "codex": [
+    {
+      "id": "lab:02-1:evaporation",
+      "title": "Evaporation",
+      "line": "Evaporation is liquid water changing into water vapor, a gas, as it is heated."
+    },
+    {
+      "id": "lab:02-1:condensation",
+      "title": "Condensation",
+      "line": "Condensation is water vapor cooling and changing back into tiny drops of liquid water."
+    },
+    {
+      "id": "lab:02-1:precipitation",
+      "title": "Precipitation",
+      "line": "Rain, snow, sleet, and hail are all water falling from clouds to the ground."
+    }
+  ]
+}
