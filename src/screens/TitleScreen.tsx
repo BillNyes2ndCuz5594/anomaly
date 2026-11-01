@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { navigate } from '../lib/router'
 import { useGame } from '../state/store'
+import { armCodenameDecode } from '../ui/decode'
 import FirstRunModal from '../ui/FirstRunModal'
 import Presence from '../ui/Presence'
 import ResumeModal from '../ui/ResumeModal'
@@ -77,6 +78,7 @@ export default function TitleScreen() {
           onCancel={() => setModal(null)}
           onConfirm={(n, code) => {
             createProfile(n, code)
+            armCodenameDecode()
             setModal(null)
             navigate('/hub')
           }}

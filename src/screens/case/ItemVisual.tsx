@@ -88,6 +88,8 @@ export default function ItemVisual({ item, upcoming = null }: { item: Item; upco
         </div>
       ) : null}
       {v.kind === 'scene' ? <SceneDiagram id={v.id} labels={v.labels} /> : null}
+      {/* Scan-in (E4): replays per item. CSS decides the motion mode; still draws nothing. */}
+      <i key={item.id} className="scan-in" aria-hidden="true" />
       <p className="sr-only" data-testid="visual-alt">
         {item.alt}
       </p>

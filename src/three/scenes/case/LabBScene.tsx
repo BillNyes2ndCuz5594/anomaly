@@ -8,6 +8,7 @@ import { FitRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
 import type { Box } from '../../fit'
 import PartMesh from './PartMesh'
 import { PAIR_TINTS } from './pairTints'
+import { useMotionMode } from '../../../ui/useMotionMode'
 import { StageLights, SubjectStand } from './briefingLabStage'
 import { partTint } from './briefingStage'
 
@@ -29,9 +30,21 @@ function worldCenter(side: 'a' | 'p', id: string, lod: number): THREE.Vector3 | 
 
 const tmpPoint = new THREE.Vector3()
 
+/** L2: the arc draws from the animal end to the plant end over 500 ms with 6 sparks flying off its head. */
+const ARC_S = 0.5
+const SPARKS = 6
+const sparkGeo = new THREE.SphereGeometry(0.05, 6, 4)
+const sparkSeed = Array.from({ length: SPARKS }, (_, i) => {
+  const a = i * 2.399 + 0.6
+  return { dx: Math.cos(a), dy: Math.sin(a), lag: i / SPARKS }
+})
+
 function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
   const reduced = useReduced()
+  const arcs = useMotionMode() === 'full' && !STILL
   const packet = useRef<THREE.Mesh>(null)
+  const sparks = useRef<THREE.Group>(null)
+  const born = useRef<number | null>(null)
   const lod = lodFor(useTier())
   const { geo, curve } = useMemo(() => {
     const a = worldCenter('a', ids[0].slice(2), lod) ?? new THREE.Vector3()
@@ -59,6 +72,25 @@ function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
     [geo, mat],
   )
   useFrame((state) => {
+    if (arcs) {
+      if (born.current === null) born.current = state.clock.elapsedTime
+      const a = Math.min(1, (state.clock.elapsedTime - born.current) / ARC_S)
+      const total = geo.index ? geo.index.count : 0
+      geo.setDrawRange(0, a >= 1 ? Infinity : Math.floor((total * a) / 3) * 3)
+      const g = sparks.current
+      if (g) {
+        g.visible = a < 1
+        if (a < 1) {
+          g.children.forEach((c, i) => {
+            const s = sparkSeed[i]
+            const k = Math.max(0, a - s.lag * 0.35)
+            curve.getPoint(Math.min(1, a), tmpPoint)
+            c.position.set(tmpPoint.x + s.dx * 0.55 * k, tmpPoint.y + s.dy * 0.55 * k, tmpPoint.z)
+            c.scale.setScalar(Math.max(0.01, 1 - k * 1.4))
+          })
+        }
+      }
+    }
     const t = reduced || STILL ? 0.35 : (state.clock.elapsedTime * 0.5) % 1
     const p = packet.current
     if (p) p.position.copy(curve.getPoint(t, tmpPoint))
@@ -68,6 +100,15 @@ function Bridge({ ids, tint }: { ids: [string, string]; tint: string }) {
       <mesh geometry={geo}>
         <primitive object={mat} attach="material" />
       </mesh>
+      {arcs ? (
+        <group ref={sparks}>
+          {sparkSeed.map((_, i) => (
+            <mesh key={i} geometry={sparkGeo}>
+              <primitive object={mat} attach="material" />
+            </mesh>
+          ))}
+        </group>
+      ) : null}
       <mesh ref={packet}>
         <sphereGeometry args={[0.12, 10, 8]} />
         <primitive object={mat} attach="material" />

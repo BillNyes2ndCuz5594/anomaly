@@ -763,3 +763,616 @@ html[data-reduced-motion='true'] .opt {
   translate: none !important;
   transform: none !important;
 }
+
+/* ======================================================================
+   Juice wave 2: evidence and verdict feel. Modes follow html[data-motion]:
+   full = themed motion, fade = opacity only (no transforms, no video),
+   still = nothing moves (the final state is the static style above).
+   ====================================================================== */
+
+/* E1: lock in. Correct: light sweep around the pick and a small verdict scale. Wrong: amber glitch, then the key pulses. */
+@keyframes e1-sweep {
+  from { background-position: -140% 0; }
+  to { background-position: 240% 0; }
+}
+@keyframes e1-scale {
+  50% { transform: scale(1.04); }
+}
+@keyframes e1-glitch {
+  0%, 100% { text-shadow: none; }
+  30% { text-shadow: 2px 0 rgba(255, 60, 90, 0.7), -2px 0 rgba(60, 220, 255, 0.7); }
+  65% { text-shadow: -2px 0 rgba(255, 60, 90, 0.6), 2px 0 rgba(60, 220, 255, 0.6); }
+}
+@keyframes e1-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(55, 232, 180, 0); }
+  25%, 75% { box-shadow: 0 0 0 3px rgba(55, 232, 180, 0.55); }
+  50% { box-shadow: 0 0 0 0 rgba(55, 232, 180, 0); }
+}
+@keyframes fx-fade {
+  from { opacity: 0.35; }
+}
+.options > .opt.key,
+.options > .opt.wrong {
+  position: relative;
+}
+html[data-motion='full'] .options[data-verdict='ok'] > .opt.key::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid transparent;
+  background: linear-gradient(100deg, transparent 35%, rgba(120, 255, 230, 0.9) 50%, transparent 65%) 0 0 / 60% 100% no-repeat border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) exclude, linear-gradient(#000 0 0);
+  mask-clip: padding-box, border-box;
+  animation: e1-sweep 0.55s var(--ease-out) both;
+}
+html[data-motion='full'] .verdict.ok .verdict-word {
+  display: inline-block;
+  animation: e1-scale 0.5s var(--ease-out) both;
+}
+html[data-motion='full'] .options[data-verdict='bad'] > .opt.wrong .opt-text {
+  animation: e1-glitch 0.18s steps(3, end) both;
+}
+html[data-motion='full'] .options[data-verdict='bad'] > .opt.key {
+  animation: e1-pulse 0.6s var(--ease-out) 0.18s 2 both;
+}
+html[data-motion='fade'] .options[data-verdict] > .opt.key,
+html[data-motion='fade'] .options[data-verdict] > .opt.wrong,
+html[data-motion='fade'] .verdict {
+  animation: fx-fade 0.25s linear both;
+}
+
+/* E2: key word scan highlight and the flying "+N" chip. */
+@keyframes e2-scan {
+  from { background-position: -120% 0; }
+  to { background-position: 220% 0; }
+}
+@keyframes e2-tick {
+  50% { transform: scale(1.3); }
+}
+html[data-motion='full'] .word.tagged {
+  background-image: linear-gradient(100deg, transparent 30%, rgba(120, 255, 230, 0.45) 50%, transparent 70%);
+  background-size: 60% 100%;
+  background-repeat: no-repeat;
+  animation: e2-scan 0.4s var(--ease-out) both;
+}
+html[data-motion='full'] .chip-r.lit > span[aria-hidden='true'] {
+  display: inline-block;
+  animation: e2-tick 0.3s var(--ease-out) both;
+}
+.fly-chip {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  padding: 1px 6px;
+  font-size: 0.78rem;
+  color: #04121a;
+  background: var(--amber);
+  border-radius: 8px;
+  transform: translate(-50%, 0);
+}
+
+/* E3: eliminate laser. */
+@keyframes e3-laser {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.opt.struck {
+  position: relative;
+}
+html[data-motion='full'] .opt.struck::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--cyan);
+  box-shadow: 0 0 4px var(--cyan);
+  transform-origin: left center;
+  pointer-events: none;
+  animation: e3-laser 0.25s var(--ease-out) both;
+}
+html[data-motion='full'] .opt.struck .opt-text,
+html[data-motion='fade'] .opt.struck .opt-text {
+  transition: opacity 0.25s var(--ease-out);
+}
+html[data-motion='fade'] .opt.struck {
+  animation: fx-fade 0.25s linear both;
+}
+
+/* E4: diagram and specimen scan in. A top down mask reveal plus a one frame cyan edge. */
+@keyframes e4-reveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes e4-edge {
+  0% { top: 0; opacity: 1; }
+  92% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.visual-panel > .scan-in {
+  display: none;
+}
+html[data-motion='full'] .visual-panel > .scan-in {
+  display: block;
+}
+html[data-motion='full'] .visual-panel.kind-scene > svg {
+  animation: e4-reveal 0.4s var(--ease-out) both;
+}
+html[data-motion='full'] .visual-panel > .scan-in {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+  pointer-events: none;
+  animation: e4-edge 0.4s linear both;
+}
+html[data-motion='fade'] .visual-panel.kind-scene > svg {
+  animation: fx-fade 0.3s linear both;
+}
+
+/* D4: intel tick cue every five, and the stage-up banner sweep after the 640 ms roll. */
+@keyframes d4-tick {
+  from { filter: brightness(1.8); }
+}
+@keyframes d4-sweep {
+  0% { left: -30%; opacity: 0.9; }
+  100% { left: 100%; opacity: 0; }
+}
+html[data-motion='full'] .rd-tick {
+  display: inline-block;
+  animation: d4-tick 0.12s linear both;
+}
+.bar-sweep {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 30%;
+  left: -30%;
+  background: linear-gradient(100deg, transparent, rgba(255, 181, 71, 0.55), transparent);
+  pointer-events: none;
+  opacity: 0;
+  animation: d4-sweep 0.45s var(--ease-out) 1.1s both;
+}
+
+/* D2: the seal sting sits behind the verdict block, screen blended. Open verdicts shift to amber. */
+@keyframes d2-poster {
+  from { opacity: 0; }
+}
+@keyframes d2-video {
+  from { opacity: 0; }
+}
+.rd-hero {
+  position: relative;
+  isolation: isolate;
+}
+.seal-sting {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 160%;
+  aspect-ratio: 1;
+  max-width: 70%;
+  translate: 0 -50%;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  overflow: hidden;
+}
+.seal-sting[data-open='yes'] {
+  filter: sepia(1) hue-rotate(-12deg) saturate(2.4);
+}
+.seal-sting img,
+.seal-sting video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.seal-sting .seal-video[data-live='no'] {
+  opacity: 0;
+}
+.seal-sting .seal-video[data-live='yes'] {
+  animation: d2-video 0.2s linear both;
+}
+html[data-motion='fade'] .seal-poster {
+  animation: d2-poster 0.4s linear both;
+}
+
+/* D3: recap cascade, 60 ms stagger, ticks draw in. */
+@keyframes d3-in {
+  from { opacity: 0; translate: 0 6px; }
+}
+@keyframes d3-tick {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+html[data-motion='full'] .debrief-list > .debrief-item {
+  animation: d3-in 0.2s var(--ease-out) calc(var(--i, 0) * 60ms) backwards;
+}
+html[data-motion='full'] .debrief-item .verdict-chip > span[aria-hidden='true'],
+html[data-motion='full'] .debrief-item .why-letter > span[aria-hidden='true'] {
+  display: inline-block;
+  animation: d3-tick 0.2s var(--ease-out) calc(var(--i, 0) * 60ms + 120ms) backwards;
+}
+html[data-motion='fade'] .debrief-list > .debrief-item {
+  animation: fx-fade 0.3s linear both;
+}
+
+/* ======================================================================
+   Juice wave 4: case 03-1 briefing and labs. Modes come from html[data-motion]:
+   full = themed motion, fade = opacity or color only, still = final state at once.
+   ====================================================================== */
+
+/* B1: incoming transmission monitor. The clip is on pure black, so it blends with screen. */
+@keyframes w4-feed-video {
+  from { opacity: 0; }
+}
+@keyframes w4-fade {
+  from { opacity: 0; }
+}
+.briefing-feed {
+  position: relative;
+  align-self: flex-start;
+  width: min(100%, 220px);
+  aspect-ratio: 960 / 549;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(62, 230, 255, 0.4);
+  border-radius: 4px;
+  flex: none;
+}
+.briefing-feed img,
+.briefing-feed video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+}
+.briefing-feed .feed-video[data-live='no'] {
+  opacity: 0;
+}
+.briefing-feed .feed-video[data-live='yes'] {
+  animation: w4-feed-video 0.25s linear both;
+}
+.briefing-feed .feed-tag {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  text-shadow: 0 0 6px rgba(255, 181, 71, 0.6);
+}
+html[data-motion='fade'] .briefing-feed .feed-poster {
+  animation: w4-fade 0.4s linear both;
+}
+@media (max-height: 520px) {
+  .briefing-feed {
+    width: 130px;
+  }
+}
+
+/* B2: the dispatch hook types in word by word over 600 ms; the longest word glitches amber. */
+@keyframes w4-type {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes w4-glitch {
+  0% { color: var(--amber); text-shadow: 2px 0 rgba(255, 181, 71, 0.7), -2px 0 rgba(62, 230, 255, 0.6); translate: 1px 0; }
+  25% { translate: -2px 0; }
+  50% { color: var(--amber); translate: 2px 0; }
+  75% { translate: -1px 0; }
+  100% { color: inherit; text-shadow: none; translate: 0 0; }
+}
+html[data-motion='full'] .dispatch-hook .hook-w {
+  animation: w4-type 0.01s steps(1, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards;
+}
+html[data-motion='full'] .dispatch-hook .hook-glitch {
+  display: inline-block;
+  animation:
+    w4-type 0.01s steps(1, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards,
+    w4-glitch 0.45s steps(5, end) calc(var(--wi) * 600ms / var(--wn, 1)) backwards;
+}
+html[data-motion='fade'] .dispatch-hook {
+  animation: w4-fade 0.4s linear both;
+}
+
+/* L1: Lab A organ lock. Correct: a cyan ring pulses out of the row. Wrong: amber flash and a 2 px panel shake. */
+@keyframes w4-pulse-ring {
+  from { opacity: 0.9; scale: 0.9; }
+  to { opacity: 0; scale: 1.18 1.7; }
+}
+@keyframes w4-amber-flash {
+  0% { background-color: rgba(255, 181, 71, 0.5); }
+  100% { background-color: transparent; }
+}
+@keyframes w4-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -2px 0; }
+  40% { translate: 2px 0; }
+  60% { translate: -2px 0; }
+  80% { translate: 2px 0; }
+}
+.organ-btn,
+.match-btn {
+  position: relative;
+}
+.organ-btn[data-react='ok'],
+.match-btn[data-react='ok'] {
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px rgba(62, 230, 255, 0.55);
+}
+.organ-btn[data-react='bad'],
+.match-btn[data-react='bad'] {
+  border-color: var(--amber);
+  box-shadow: 0 0 12px rgba(255, 181, 71, 0.5);
+}
+html[data-motion='full'] .organ-btn[data-react='ok']::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--cyan);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: w4-pulse-ring 0.45s var(--ease-out) both;
+}
+html[data-motion='full'] .organ-btn[data-react='bad']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: w4-amber-flash 0.45s var(--ease-out) both;
+}
+html[data-motion='full'] .side-panel[data-react='bad'] {
+  animation: w4-shake 0.45s linear;
+}
+
+/* L2: Lab B. A wrong match fizzles amber and breaks apart; a right one flares cyan (the arc itself is in 3D). */
+@keyframes w4-fizz {
+  0% { translate: 0 0; opacity: 1; }
+  25% { translate: -2px 0; opacity: 0.6; }
+  50% { translate: 2px 0; opacity: 1; }
+  75% { translate: -1px 0; opacity: 0.7; }
+  100% { translate: 0 0; opacity: 1; }
+}
+@keyframes w4-flare {
+  from { box-shadow: 0 0 22px rgba(62, 230, 255, 0.9); }
+}
+html[data-motion='full'] .match-btn[data-react='bad'] {
+  animation: w4-fizz 0.5s steps(8, end);
+}
+html[data-motion='full'] .match-btn[data-react='ok'] {
+  animation: w4-flare 0.5s var(--ease-out);
+}
+
+/* L3: Lab C. The chip flies in JS (flyChip, 400 ms); the bin count bumps when it lands. */
+@keyframes w4-bump {
+  0% { scale: 1; }
+  50% { scale: 1.45; }
+  100% { scale: 1; }
+}
+.group-grid .btn {
+  position: relative;
+}
+.bin-n {
+  position: absolute;
+  right: 3px;
+  top: 1px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--cyan);
+}
+html[data-motion='full'] .bin-n {
+  animation: w4-bump 0.25s var(--ease-out) 0.4s backwards;
+}
+
+/* L4: "vitals stable". The ECG sweeps across the card, then flatlines into a check (700 ms). */
+@keyframes w4-ecg {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes w4-vitals-in {
+  from { opacity: 0; }
+}
+.job-card,
+.contrast {
+  position: relative;
+}
+.vitals-stable {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  pointer-events: none;
+  color: var(--cyan);
+  z-index: 1;
+}
+.vitals-stable svg {
+  flex: 1;
+  height: 22px;
+  min-width: 0;
+  overflow: visible;
+}
+.vitals-stable path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+.vitals-word {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+html[data-motion='full'] .vitals-stable .ecg-line {
+  animation: w4-ecg 0.5s linear backwards;
+}
+html[data-motion='full'] .vitals-stable .ecg-check {
+  animation: w4-ecg 0.2s var(--ease-out) 0.5s backwards;
+}
+html[data-motion='full'] .vitals-stable .vitals-word {
+  animation: w4-vitals-in 0.2s linear 0.5s backwards;
+}
+html[data-motion='fade'] .vitals-stable {
+  animation: w4-vitals-in 0.4s linear both;
+}
+@media (max-width: 520px) {
+  .vitals-word {
+    display: none;
+  }
+}
+
+/* ---------- Juice wave 3: launch and warp streak inside the veil fill ---------- */
+.warp-streak {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.warp-streak img,
+.warp-streak video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.warp-streak video {
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-out);
+}
+.warp-streak video.live {
+  opacity: 1;
+}
+
+/* ---------- Juice wave 3: holo agent badge (M2) and codename decode (M1) ---------- */
+.agent-head {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.agent-foil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+html[data-motion='full'] .agent-foil {
+  transition:
+    transform 0.6s var(--ease-out),
+    opacity 0.4s var(--ease-out);
+  transform: scale(1.12);
+}
+html[data-motion='full'] .agent-head:hover .agent-foil,
+html[data-motion='full'] .agent-head:focus-within .agent-foil {
+  opacity: 0.3;
+  animation: foil-shimmer 2.4s var(--ease-out) infinite alternate;
+}
+@keyframes foil-shimmer {
+  from { transform: scale(1.12) translate3d(-4%, -2%, 0); }
+  to { transform: scale(1.12) translate3d(4%, 2%, 0); }
+}
+/* Low tier: the decode is a plain fade. Still: the final text is already there. */
+html[data-motion='fade'] .codename[data-decode='fade'] {
+  animation: modal-fade 0.6s var(--ease-out) backwards;
+}
+
+/* ---------- Juice wave 3: start shift charge ring (T3) ---------- */
+html[data-motion='full'] .title-screen [data-testid='start-shift'][data-pressed='yes'] {
+  animation: charge-ring 0.25s var(--ease-out) both;
+}
+html[data-motion='fade'] .title-screen [data-testid='start-shift'][data-pressed='yes'] {
+  animation: modal-fade 0.25s var(--ease-out) both;
+}
+@keyframes charge-ring {
+  from { box-shadow: 0 0 0 0 rgba(62, 230, 255, 0.85), inset 0 0 0 0 rgba(62, 230, 255, 0.5); }
+  to { box-shadow: 0 0 0 14px rgba(62, 230, 255, 0), inset 0 0 22px 2px rgba(62, 230, 255, 0.35); }
+}
+
+/* ---------- Juice wave 3: modal bracket snap (M3), 250 ms ---------- */
+.modal.panel { position: relative; }
+html[data-motion='full'] .modal.panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --b: var(--cyan);
+  --bl: 16px;
+  background:
+    linear-gradient(var(--b), var(--b)) top left / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) top left / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) top right / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) top right / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom left / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom left / 2px var(--bl) no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom right / var(--bl) 2px no-repeat,
+    linear-gradient(var(--b), var(--b)) bottom right / 2px var(--bl) no-repeat;
+  animation: bracket-snap 0.25s var(--ease-out) both;
+}
+html[data-motion='full'] .modal.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(62, 230, 255, 0.35) 50%, transparent) 0 0 / 100% 18% no-repeat;
+  animation: bracket-wipe 0.25s var(--ease-out) both;
+}
+@keyframes bracket-snap {
+  from { inset: -12px; opacity: 0; }
+  60% { opacity: 1; }
+  to { inset: 0; opacity: 0.001; }
+}
+@keyframes bracket-wipe {
+  from { background-position: 0 -20%; opacity: 1; }
+  to { background-position: 0 120%; opacity: 0; }
+}
+
+/* ---------- Juice wave 3: review due frost puff (H2), 3 s cycle ---------- */
+html[data-motion='full'] .case-btn.cyan[data-due='yes'] {
+  animation: due-breathe 3s ease-in-out infinite;
+}
+html[data-motion='full'] .case-btn.cyan[data-due='yes']::before {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(200, 245, 255, 0.9) 0 1.5px, transparent 2px) 20% 80% / 9px 9px,
+    radial-gradient(circle, rgba(62, 230, 255, 0.8) 0 1px, transparent 1.6px) 70% 60% / 7px 7px;
+  animation: frost-puff 3s ease-out infinite;
+}
+@keyframes due-breathe {
+  0%, 100% { box-shadow: 0 0 10px rgba(62, 230, 255, 0.3); }
+  50% { box-shadow: 0 0 24px rgba(62, 230, 255, 0.7); }
+}
+@keyframes frost-puff {
+  from { transform: translate3d(0, 6px, 0); opacity: 0.9; }
+  to { transform: translate3d(0, -26px, 0); opacity: 0; }
+}

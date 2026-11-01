@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, type CSSProperties } from 'react'
 import { content } from '../../content/schema'
 import { STILL } from '../../lib/flags'
 import { useSession } from '../../state/session'
@@ -130,7 +130,7 @@ export default function Debrief() {
             const a = answers.find((x) => x.itemId === it.id)
             if (!a) return null
             return (
-              <article key={it.id} className={`panel debrief-item ${a.correct ? 'ok' : 'bad'}`} data-testid={`debrief-item-${n}`}>
+              <article key={it.id} className={`panel debrief-item ${a.correct ? 'ok' : 'bad'}`} data-testid={`debrief-item-${n}`} style={{ '--i': Math.min(n, 9) } as CSSProperties}>
                 <header>
                   <span className="label">
                     ITEM {n + 1} <span className="muted">{it.benchmark}</span>

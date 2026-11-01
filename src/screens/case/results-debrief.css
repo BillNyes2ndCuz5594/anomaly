@@ -492,3 +492,35 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
     max-height: none;
   }
 }
+
+/* D1: stamp ink bleed. The ink texture is a luminance mask (white shows). It always applies, so the still
+   stamp is the final stamp. Full mode bleeds the ink in over 500 ms and shakes the slot 2 px for 300 ms. */
+@keyframes rd-bleed {
+  from {
+    -webkit-mask-size: 240% 240%;
+    mask-size: 240% 240%;
+    opacity: 0.3;
+  }
+  to {
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: 1;
+  }
+}
+@keyframes rd-shake {
+  20% { translate: 2px 0; }
+  40% { translate: -2px 1px; }
+  60% { translate: 1px -1px; }
+  80% { translate: -1px 0; }
+}
+.rd-screen .stamp {
+  -webkit-mask: url('../../assets/textures/stamp-ink.webp') center / 100% 100% no-repeat;
+  mask: url('../../assets/textures/stamp-ink.webp') center / 100% 100% no-repeat;
+  mask-mode: luminance;
+}
+html[data-motion='full'] .rd-screen .stamp {
+  animation: rd-bleed 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html[data-motion='full'] .rd-screen .rd-stamp-slot {
+  animation: rd-shake 0.3s linear 0.12s both;
+}
