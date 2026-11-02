@@ -125,6 +125,10 @@ const CHROME_ARGS = [
 const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || 300000
 // PROOF_SKIP_MODELS_SHOT=1 skips only the specimen-models screenshot (four 3D canvases), which a software GPU cannot capture.
 const SKIP_MODELS_SHOT = process.env.PROOF_SKIP_MODELS_SHOT === '1'
+// The tall art-check shots make the ambient backdrop render ~80 frames at 1366x13927 with bloom. A real GPU
+// shrugs; swiftshader queues them and the next full reload waits 5 to 7 minutes for the drain. PROOF_NAV_TIMEOUT_MS
+// raises the navigation timeout (default 60000) for such machines.
+const NAV_TIMEOUT_MS = Number(process.env.PROOF_NAV_TIMEOUT_MS) || 60000
 
 mkdirSync(OUT, { recursive: true })
 for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f)) rmSync(join(OUT, f))
@@ -821,6 +825,7 @@ try {
     if (w === 1366) await page.click('[data-testid="setting-show-fps"]')
 
     page.setDefaultTimeout(60000)
+    page.setDefaultNavigationTimeout(NAV_TIMEOUT_MS)
     const code1 = await playCase(page, w)
     const code2 = await playCold(page, w)
     check(`the code grows after the cold case (${w})`, code2.length > code1.length, `${code1.length} to ${code2.length} chars`)
