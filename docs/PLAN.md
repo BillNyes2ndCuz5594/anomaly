@@ -9,3 +9,8 @@ Each stage is one coding-agent session. Each ends with build + test + proof gree
 - S5 Polish: camera moves, particles, transitions, typography, perf tuning.
 
 - S4 as built: visual polish and accessibility pass (outline logo, hub drone, screen transitions, specimen models, scene diagrams, case closed burst, draw call merging, live regions, contrast tests, proof realism with `?tier=high`, per backend fps).
+
+- S6 Case files: many cases, one engine (content packs, generic Field Lab with sort, match and order, hub from content, report code v2). Spec: docs/tasks/S6-case-files.md.
+- S7 Content: a case for every assessed benchmark (nine packs, 122 items, 42 diagrams), all behind the teacher review checklist. Spec: docs/tasks/S7-content.md. Research: docs/research/ssa-grade5-benchmarks.md.
+- S8 and later: docs/ROADMAP.md (adaptive evidence, a second case per unit, new lab mechanics, weekly dispatch, mock SSA, teacher loop, content waves).
+

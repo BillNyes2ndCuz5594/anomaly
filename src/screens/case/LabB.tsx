@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { content } from '../../content/schema'
+import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
 import { PAIR_TINTS } from '../../three/scenes/case/pairTints'
 import { useBlip } from '../../ui/useBlip'
@@ -18,7 +18,7 @@ interface Say {
 }
 
 export default function LabB() {
-  const lab = content.case.labs.structureMatch
+  const lab = VITALS_LABS.structureMatch
   const next = useSession((s) => s.next)
   const [armed, setArmed] = useState<string | null>(null)
   const [matched, setMatched] = useState<string[]>([])

@@ -23,6 +23,12 @@ import uranusUrl from '../../assets/diagrams/uranus.webp'
 import venusUrl from '../../assets/diagrams/venus.webp'
 import { AMBER, BELT, COMET, INNER_OUTER, PLATE, SOLAR, cometSun, sceneLabelSpecs } from './diagramLabels'
 import { baseScale, labelSize, layoutLabels, viewBoxFor, type PlacedLabel } from './diagramText'
+import { EARTH_DIAGRAMS } from './diagrams/earth'
+import { LIFE_DIAGRAMS } from './diagrams/life'
+import { NATURE_DIAGRAMS } from './diagrams/nature'
+import { Cloud, Stars, Sun, Vapor } from './diagrams/parts'
+import { PHYSICAL_DIAGRAMS } from './diagrams/physical'
+import { SPACE_DIAGRAMS } from './diagrams/space'
 
 const CY = '#3ee6ff'
 const AM = AMBER
@@ -40,19 +46,6 @@ function Labels({ placed }: { placed: PlacedLabel[] }) {
           ))}
         </text>
       ))}
-    </g>
-  )
-}
-
-function Sun({ x, y, r = 18 }: { x: number; y: number; r?: number }) {
-  const rays = Array.from({ length: 12 }, (_, i) => (i / 12) * Math.PI * 2)
-  return (
-    <g>
-      <circle cx={x} cy={y} r={r * 2.6} fill="url(#sd-glow)" />
-      {rays.map((a, i) => (
-        <line key={i} x1={x + Math.cos(a) * (r + 4)} y1={y + Math.sin(a) * (r + 4)} x2={x + Math.cos(a) * (r + (i % 2 ? 9 : 13))} y2={y + Math.sin(a) * (r + (i % 2 ? 9 : 13))} stroke={AM} strokeWidth="2.5" strokeLinecap="round" />
-      ))}
-      <circle cx={x} cy={y} r={r} fill="url(#sd-sun)" />
     </g>
   )
 }
@@ -92,39 +85,6 @@ function Waves({ x, y, w, rows = 3 }: { x: number; y: number; w: number; rows?: 
     paths.push(<path key={r} d={d} fill="none" stroke="#7fe3ff" strokeWidth="2" strokeLinecap="round" opacity={0.95 - r * 0.2} />)
   }
   return <g>{paths}</g>
-}
-
-/** Wavy rising lines with an arrowhead on top. `h` is the rise in px. */
-function Vapor({ x, y, n = 3, gap = 26, h = 70, color = '#d4f4ff' }: { x: number; y: number; n?: number; gap?: number; h?: number; color?: string }) {
-  return (
-    <g fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.92">
-      {Array.from({ length: n }, (_, i) => {
-        const px = x + i * gap
-        const top = y - h - (i % 2) * 8
-        const half = (y - top) / 2
-        return (
-          <g key={i}>
-            <path d={`M ${px} ${y} q 8 ${-half / 2} 0 ${-half} t 0 ${-half}`} />
-            <path d={`M ${px - 5} ${top + 8} L ${px} ${top - 2} L ${px + 5} ${top + 8}`} />
-          </g>
-        )
-      })}
-    </g>
-  )
-}
-
-function Cloud({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <g fill="#dff1ff">
-        <ellipse cx="0" cy="8" rx="48" ry="16" />
-        <circle cx="-20" cy="-2" r="18" />
-        <circle cx="8" cy="-11" r="23" />
-        <circle cx="32" cy="2" r="16" />
-      </g>
-      <ellipse cx="2" cy="16" rx="42" ry="7" fill="#9fc3e6" opacity="0.55" />
-    </g>
-  )
 }
 
 const PHOTO: Record<string, string> = { '#b9b0a6': mercuryUrl, '#e8c47a': venusUrl, '#3f90d8': earthUrl, '#d9663f': marsUrl, '#d8b07a': jupiterUrl, '#8ad0e6': uranusUrl, '#3b5fd0': neptuneUrl }
@@ -575,14 +535,11 @@ function PlantPots({ labels }: { labels: Labels }) {
   )
 }
 
-const STARS = Array.from({ length: 70 }, (_, i) => {
-  const a = Math.sin(i * 57.3) * 4375.85
-  const b = Math.sin(i * 21.7) * 9137.31
-  return { x: (a - Math.floor(a)) * 640 - 120, y: (b - Math.floor(b)) * 360 - 70, r: 0.5 + ((i * 7) % 5) * 0.18 }
-})
-const SPACE = new Set(['solar-system', 'inner-outer-planets', 'comet-orbit', 'asteroid-belt'])
+const SPACE = new Set(['solar-system', 'inner-outer-planets', 'comet-orbit', 'asteroid-belt', 'galaxy-spiral', 'star-brightness-distance', 'earth-day-night', 'moon-month', 'sun-earth-moon', 'climate-zones'])
 
-export const SCENE_IDS = ['water-cycle', 'ocean-evaporation', 'solar-system', 'inner-outer-planets', 'comet-orbit', 'asteroid-belt', 'plant-pots'] as const
+/** The S7 diagrams (docs/tasks/S7-content.md section 4), drawn in diagrams/<category>.tsx. Every id is in SCENE_IDS (sceneIds.ts). */
+const S7_DIAGRAMS = { ...NATURE_DIAGRAMS, ...SPACE_DIAGRAMS, ...EARTH_DIAGRAMS, ...PHYSICAL_DIAGRAMS, ...LIFE_DIAGRAMS }
+
 
 export default function SceneDiagram({ id, labels }: { id: string; labels: string[] }) {
   const svg = useRef<SVGSVGElement>(null)
@@ -592,6 +549,8 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
   const autoTier = useRuntime((s) => s.autoTier)
   const art = resolveTier(quality, autoTier) !== 'low'
   // Measure the panel so the viewBox matches its aspect and labels get their real rendered size.
+  // The first measure can land while the item grid is still settling (fonts, the step glide), so the
+  // next two frames read again before the ResizeObserver takes over.
   useLayoutEffect(() => {
     const el = svg.current
     if (!el) return
@@ -600,10 +559,16 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
       setBox((b) => (Math.abs(b.w - r.width) < 0.5 && Math.abs(b.h - r.height) < 0.5 ? b : { w: r.width, h: r.height }))
     }
     read()
-    if (typeof ResizeObserver === 'undefined') return
-    const ro = new ResizeObserver(read)
-    ro.observe(el)
-    return () => ro.disconnect()
+    let raf = requestAnimationFrame(() => {
+      read()
+      raf = requestAnimationFrame(read)
+    })
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(read)
+    ro?.observe(el)
+    return () => {
+      cancelAnimationFrame(raf)
+      ro?.disconnect()
+    }
   }, [])
   const vb = useMemo(() => viewBoxFor(box.w, box.h), [box])
   const size = labelSize(baseScale(box.w, box.h), TEXT_SCALE[textSize])
@@ -631,8 +596,10 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
     case 'plant-pots':
       body = art ? <PlantPotsArt labels={labels} /> : <PlantPots labels={labels} />
       break
-    default:
-      body = null
+    default: {
+      const Body = S7_DIAGRAMS[id]
+      body = Body ? <Body labels={labels} art={art} /> : null
+    }
   }
   const { x, y, w, h } = vb
   const k = 14
@@ -695,7 +662,7 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
         </filter>
       </defs>
       <rect x={x - 2} y={y - 2} width={w + 4} height={h + 4} fill="url(#sd-sky)" />
-      {SPACE.has(id) ? STARS.map((st, i) => <circle key={i} cx={st.x} cy={st.y} r={st.r} fill="#cfe9ff" opacity="0.55" />) : null}
+      {SPACE.has(id) ? <Stars /> : null}
       {body}
       <g fill="none" stroke={CY} strokeOpacity="0.5" strokeWidth="1.5">
         <path d={`M${x + 2} ${y + k} V${y + 2} H${x + k}`} />

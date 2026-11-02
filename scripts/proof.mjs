@@ -2,6 +2,8 @@
 // title, first run, hub, settings, case 03-1 (briefing, labs, RKEA items, debrief, results with report code),
 // cold case RESIDUE, resume with code, Teacher HQ (sample class and a real decoded code),
 // then fps under 4x CPU throttle on the hub and lab A, initial load size, and a summary.
+// S6: when PACK_ORDER lists a case pack, each viewport also walks the first one (hub marker, briefing, the generic
+// Field Lab through the HUD buttons, evidence, debrief, results). With no pack listed the walk is skipped with a note.
 // Output goes to /workspace/anomaly-proof/. Exit code is non-zero on any console error, page error or failed check.
 // Usage: npm run build && node scripts/proof.mjs
 import puppeteer from 'puppeteer-core'
@@ -11,11 +13,16 @@ import { join } from 'node:path'
 import { gzipSync, inflateSync } from 'node:zlib'
 import { createServer } from 'node:net'
 import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
+import { loadContent, loadPacks } from './lib/content.mjs'
+import { walkPack } from './lib/caseWalk.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
 const ROOT = new URL('..', import.meta.url).pathname
-const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
+/** S6: the packs PACK_ORDER lists, and the merged content (base plus packs). `case` stays VITALS; the cold case can draw pack items. */
+const PACKS = loadPacks()
+const MERGED = loadContent()
+const CONTENT = MERGED
 
 function unfilterPng(filter, row, prev, bpp) {
   if (filter === 0) return
@@ -114,6 +121,14 @@ const CHROME_ARGS = [
   '--disable-dev-shm-usage',
   '--renderer-process-limit=2',
 ]
+// PROOF_SOFT_GPU=1 is for a machine without a GPU (a cloud container on swiftshader). Three shots are skipped
+// there and every check still runs: the specimen-models shot (four live canvases never compose a frame) and the
+// two tall art-check shots (a 13927 px window makes the GPU process drop the WebGPU instance; the app recovers,
+// but three's pending error scopes reject and the next reload waits minutes for the frame queue to drain).
+// Timeouts are raised to match. PROOF_PROTOCOL_TIMEOUT_MS still overrides the CDP timeout on its own.
+const SOFT_GPU = process.env.PROOF_SOFT_GPU === '1'
+const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || (SOFT_GPU ? 900000 : 300000)
+const NAV_TIMEOUT_MS = SOFT_GPU ? 900000 : 60000
 
 mkdirSync(OUT, { recursive: true })
 for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f)) rmSync(join(OUT, f))
@@ -209,6 +224,8 @@ async function waitFrames(page, n = 3) {
 
 /** Screenshots are numbered in flow order: NN-name-WIDTH.png. */
 const ORDER = ['title', 'firstrun', 'hub', 'settings', 'briefing', 'lab-a', 'lab-b', 'lab-c', 'item-rkea', 'item-result', 'debrief', 'results-with-code', 'cold-intro', 'cold-item', 'teacher-sample', 'teacher-decoded', 'visuals-scenes', 'visuals-models', 'debrief-burst', 'results-burst', 'visuals-scenes-xl', 'cold-item-xl', 's17-motion-veil', 's17-motion-panels', 's17-motion-hub', 's17-motion-stamp', 's19-strip-route', 's19-strip-step', 's19-strip-modal', 's19-strip-item', 's19-strip-results', 's20-strip-title-hub', 's20-strip-hub-case', 's20-strip-results']
+// S6 shots are appended, so every existing screenshot keeps its number. They exist only when a pack is listed.
+if (PACKS.length) ORDER.push('pack-briefing', 'pack-lab', 'pack-results')
 /** Pauses every light-burst animation at its midpoint so the screenshot catches the particles. */
 async function freezeBursts(page) {
   return page.evaluate(() => {
@@ -228,6 +245,10 @@ async function freezeBursts(page) {
 const sceneStats = {}
 /** The art check grid scrolls inside the screen, so grow the viewport to the content for the shot, then restore it. */
 async function shotTall(page, name, w, vp) {
+  if (SOFT_GPU) {
+    console.log(`SKIP  ${name} tall screenshot (${w}): PROOF_SOFT_GPU`)
+    return
+  }
   const need = await page.evaluate(() => {
     const g = document.querySelector('.visuals-grid')
     return g ? Math.ceil(g.scrollHeight + g.getBoundingClientRect().top + 24) : 0
@@ -739,7 +760,7 @@ let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 300000, args: CHROME_ARGS })
+  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
   writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
@@ -822,6 +843,7 @@ try {
     if (w === 1366) await page.click('[data-testid="setting-show-fps"]')
 
     page.setDefaultTimeout(60000)
+    page.setDefaultNavigationTimeout(NAV_TIMEOUT_MS)
     const code1 = await playCase(page, w)
     const code2 = await playCold(page, w)
     check(`the code grows after the cold case (${w})`, code2.length > code1.length, `${code1.length} to ${code2.length} chars`)
@@ -895,8 +917,12 @@ try {
     await shotTall(page, 'visuals-scenes', w, vp)
     await page.evaluate(() => (location.hash = '#/visuals/models'))
     await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
-    await sleep(9000)
-    await shot(page, 'visuals-models', w)
+    if (SOFT_GPU) {
+      console.log(`SKIP  visuals-models screenshot (${w}): PROOF_SOFT_GPU`)
+    } else {
+      await sleep(9000)
+      await shot(page, 'visuals-models', w)
+    }
 
     // Diagram labels: Normal, then Extra large text. Art check page and the cold item in the real player.
     await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
@@ -1023,6 +1049,14 @@ try {
     await sleep(300)
     await shot(tp, 'teacher-decoded', w, { fullPage: true })
     await tp.close()
+
+    // S6: the first case pack, through the generic Field Lab.
+    if (PACKS.length) {
+      const walk = await walkPack(page, PACKS[0], MERGED, { check, label: `${w}`, shot: (name) => shot(page, name, w) })
+      check(`pack walk ran every step (${w})`, walk.steps.length === 6, walk.steps.join(', '))
+    } else if (w === VIEWPORTS[0].width) {
+      console.log('note: no case pack is listed in PACK_ORDER yet, so the generic lab walk is skipped')
+    }
     await page.close()
   }
 
@@ -1298,6 +1332,18 @@ try {
   }
   check('Low tier draws fewer calls than High (no post, shadow or extra particles) on hub', pins.low.hub.calls < pins.high.hub.calls, `${pins.low.hub.calls} vs ${pins.high.hub.calls}`)
   check('Low tier draws fewer calls than High on lab A', pins.low.labA.calls < pins.high.labA.calls, `${pins.low.labA.calls} vs ${pins.high.labA.calls}`)
+  if (PACKS.length) {
+    const goPackLab = async (page, search) => {
+      await page.goto(BASE + search + `#/case/${PACKS[0].case.id}`, { waitUntil: 'load' })
+      await page.waitForSelector('[data-testid="briefing"]', { timeout: 120000 })
+      await sleep(1500)
+      await page.click('[data-testid="briefing-continue"]')
+      await page.waitForSelector('[data-testid="lab-generic"]', { timeout: 120000 })
+    }
+    for (const tier of ['low', 'medium']) pins[tier].packLab = await readScene(`?tier=${tier}`, goPackLab)
+    check('generic lab draws under 70 calls on Medium', pins.medium.packLab.tier === 'medium' && pins.medium.packLab.calls < 70, `${pins.medium.packLab.calls}`)
+    check('Low tier draws fewer calls than Medium on the generic lab', pins.low.packLab.calls < pins.medium.packLab.calls, `${pins.low.packLab.calls} vs ${pins.medium.packLab.calls}`)
+  }
 
   {
     // Scene churn: hub, settings, hub, settings ... geometry and texture counts must plateau (dispose on unmount).
@@ -1492,8 +1538,10 @@ try {
     watch(p1, 'motion-low')
     await p1.setViewport({ ...vp, deviceScaleFactor: 1 })
     // Earlier sections leave reduced motion on in the saved settings, which forces still; clear it so Low can show fade.
+    // Written from Teacher HQ (same origin, no game store). Written from the game page, the goto below is a hash-only
+    // navigation: the already booted app keeps the settings it read before the write and stays on still.
     await p1.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
-    await p1.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await p1.goto(BASE + 'teacher.html', { waitUntil: 'load' })
     await p1.evaluate((s) => {
       let out = s
       try {
@@ -1553,7 +1601,8 @@ try {
   const failed = checks.filter((c) => !c.ok)
   const MOTION_1920_ONLY = 12 // s17-motion-*, s19-strip-* and s20-strip-* shots exist at 1920 only
   const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
-  check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
+  const skipped = SOFT_GPU ? 3 * VIEWPORTS.length : 0 // visuals-scenes, visuals-models and visuals-scenes-xl per size
+  check(`all ${expected - skipped} screenshots written`, shots.length === expected - skipped && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
   console.log(`console errors / page errors: ${errors.length}`)

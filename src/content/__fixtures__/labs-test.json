@@ -1,0 +1,78 @@
+{
+ "match": {
+  "kind": "match",
+  "intro": "Match each change to what happens to the water.",
+  "left": [
+   {
+    "id": "melting",
+    "name": "Melting",
+    "card": "Ice on a warm plate."
+   },
+   {
+    "id": "freezing",
+    "name": "Freezing",
+    "card": "Water in a freezer."
+   },
+   {
+    "id": "evaporation",
+    "name": "Evaporation",
+    "card": "A puddle on a sunny day."
+   }
+  ],
+  "right": [
+   {
+    "id": "to-gas",
+    "name": "Liquid to gas"
+   },
+   {
+    "id": "to-liquid",
+    "name": "Solid to liquid"
+   },
+   {
+    "id": "to-solid",
+    "name": "Liquid to solid"
+   }
+  ],
+  "pairs": [
+   {
+    "left": "melting",
+    "right": "to-liquid",
+    "why": "Melting turns a solid into a liquid."
+   },
+   {
+    "left": "freezing",
+    "right": "to-solid",
+    "why": "Freezing turns a liquid into a solid."
+   },
+   {
+    "left": "evaporation",
+    "right": "to-gas",
+    "why": "Evaporation turns a liquid into a gas."
+   }
+  ]
+ },
+ "order": {
+  "kind": "order",
+  "intro": "Water in a puddle can end up as rain again.",
+  "prompt": "Put the steps in order.",
+  "steps": [
+   {
+    "id": "heat",
+    "name": "The sun heats the puddle"
+   },
+   {
+    "id": "evaporate",
+    "name": "Water evaporates"
+   },
+   {
+    "id": "condense",
+    "name": "Vapor condenses into a cloud"
+   },
+   {
+    "id": "rain",
+    "name": "Rain falls"
+   }
+  ],
+  "why": "Heat comes first, then evaporation, then condensation, then precipitation."
+ }
+}

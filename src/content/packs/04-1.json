@@ -1,0 +1,586 @@
+{
+  "case": {
+    "id": "04-1",
+    "codename": "SOLVENT",
+    "unit": "U04 Matter",
+    "unitLabel": "Unit 4: Matter",
+    "category": "physical",
+    "benchmarks": ["SC.5.P.8.1", "SC.5.P.8.3", "SC.5.P.9.1"],
+    "evidencePlan": [
+      { "benchmark": "SC.5.P.8.1", "count": 2 },
+      { "benchmark": "SC.5.P.8.3", "count": 2 },
+      { "benchmark": "SC.5.P.9.1", "count": 1 }
+    ],
+    "marker": { "lon": -81.38, "lat": 28.54 },
+    "dispatchHook": "Orlando warehouse spill. Everything mixed, nothing labeled.",
+    "briefing": [
+      "Agent, a supply truck tipped over outside a warehouse in Orlando.",
+      "Sand, iron filings, beads and salt all landed in the same bins, and the cleanup crew wants to use a broom.",
+      "Match each mixture to the way that separates it, then check what heat does to the rest.",
+      "Brooms are not on the list."
+    ],
+    "lab": {
+      "kind": "match",
+      "intro": "Each bin holds a mixture of solids. Match it to the way that separates it, using one property of its parts.",
+      "left": [
+        { "id": "iron-sand", "name": "Iron filings and sand", "card": "Gray metal bits mixed into beach sand" },
+        { "id": "gravel-sand", "name": "Gravel and sand", "card": "Small rocks mixed with fine grains" },
+        { "id": "red-blue", "name": "Red and blue beads", "card": "Same size, same shape, two colors" },
+        { "id": "marble-cube", "name": "Marbles and wooden cubes", "card": "Same size, one round, one with flat sides" },
+        { "id": "salt-sand", "name": "Salt and sand", "card": "Tiny white grains mixed with tiny tan grains" }
+      ],
+      "right": [
+        { "id": "magnet", "name": "Hold a magnet over it", "card": "Pulls on anything made of iron" },
+        { "id": "screen", "name": "Shake it through a screen", "card": "Small pieces fall through the holes" },
+        { "id": "by-color", "name": "Pick them out by color", "card": "Sort by what you see" },
+        { "id": "tilt", "name": "Tilt the tray", "card": "Round things roll, flat sides stay put" },
+        { "id": "water-filter", "name": "Add water, then pour through a filter", "card": "One part dissolves and flows through" }
+      ],
+      "pairs": [
+        { "left": "iron-sand", "right": "magnet", "why": "Iron is attracted to a magnet and sand is not, so the magnet lifts the iron out." },
+        { "left": "gravel-sand", "right": "screen", "why": "The screen holes are bigger than the sand and smaller than the gravel, so particle size splits them." },
+        { "left": "red-blue", "right": "by-color", "why": "The beads match in size and shape, so color is the only property that tells them apart." },
+        { "left": "marble-cube", "right": "tilt", "why": "Round marbles roll down a slope while cubes with flat sides stay put, so shape splits them." },
+        { "left": "salt-sand", "right": "water-filter", "why": "Salt dissolves in water and passes through the filter, but sand does not dissolve and stays behind." }
+      ]
+    },
+    "debriefClosed": "Case closed. Every bin is sorted, and the broom stays in the closet.",
+    "debriefOpen": "Case stays open for now. The bins come back as a cold case soon, and you will sort them faster then."
+  },
+  "items": [
+    {
+      "id": "P8.1-01",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.3.P.8.2",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Kai found a conch shell at Cocoa Beach. He wants to find the mass of the shell in grams. Which tool should he use?",
+      "options": ["thermometer", "graduated cylinder", "balance", "ruler"],
+      "key": 2,
+      "why": [
+        "Decoy: a thermometer measures temperature, not mass.",
+        "Decoy: a graduated cylinder measures the volume of a liquid, not mass.",
+        "Correct: a balance measures mass, and it can show the mass in grams.",
+        "Decoy: a ruler measures length, which tells how long the shell is, not its mass."
+      ],
+      "keyWords": ["mass of the shell", "grams"],
+      "visual": { "kind": "scene", "id": "lab-tools", "labels": ["ruler", "balance", "thermometer", "graduated cylinder", "hand lens"] },
+      "alt": "Five lab tools on a bench, left to right: a ruler, a balance, a thermometer, a graduated cylinder and a hand lens.",
+      "tisCheck": "Measuring mass with a balance in metric units (grams); naming the tool only, no computation.",
+      "misconceptions": "Any measuring tool seen as a mass tool; length confused with mass; graduated cylinder used for solids."
+    },
+    {
+      "id": "P8.1-02",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.5.P.8.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Leo pours 200 mL of water from a tall, thin glass into a wide bowl. The water changes shape to fit the bowl. What happens to the volume of the water?",
+      "options": [
+        "It gets larger, because the bowl is wider.",
+        "It stays the same, 200 mL.",
+        "It gets smaller, because the water is not as tall.",
+        "It can no longer be measured, because it spread out."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: a wider container changes the shape of the water, not the amount of water.",
+        "Correct: a liquid takes the shape of its container, but its volume stays the same unless water is added or taken away.",
+        "Decoy: the water is shorter in the bowl because it is spread wider, but none of it was lost.",
+        "Decoy: the water could be poured back into a graduated cylinder, and it would still measure 200 mL."
+      ],
+      "keyWords": ["200 mL", "changes shape", "volume of the water"],
+      "visual": {
+        "kind": "table",
+        "title": "Leo's Water",
+        "columns": ["Container", "Shape of the water", "Volume (mL)"],
+        "rows": [["Tall glass", "tall and thin", "200"], ["Wide bowl", "wide and flat", "?"]]
+      },
+      "alt": "A table showing 200 mL of water in a tall glass with a tall, thin shape, and the same water in a wide bowl with a wide, flat shape and an unknown volume.",
+      "tisCheck": "Properties of liquids (shape vs volume) in metric units; no computation.",
+      "misconceptions": "A change in shape mistaken for a change in volume; taller looks like more."
+    },
+    {
+      "id": "P8.1-03",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.5.P.8.1",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent moves three mystery samples into new, larger containers. She records what happens to the shape and the volume of each one. Which list matches the samples to solid, liquid and gas?",
+      "options": [
+        "P is a solid, Q is a liquid, R is a gas.",
+        "P is a liquid, Q is a solid, R is a gas.",
+        "P is a solid, Q is a gas, R is a liquid.",
+        "P is a gas, Q is a liquid, R is a solid."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: a solid keeps its shape and volume, a liquid takes the container's shape but keeps its volume, and a gas spreads out to fill the whole container.",
+        "Decoy: P kept its own shape, and a liquid does not keep its own shape, so P cannot be the liquid.",
+        "Decoy: Q kept its volume and R spread out to fill the container, so the liquid and the gas are switched.",
+        "Decoy: a gas never keeps its own shape, so P cannot be the gas."
+      ],
+      "keyWords": ["shape and the volume", "solid, liquid and gas"],
+      "visual": {
+        "kind": "table",
+        "title": "Mystery Samples",
+        "columns": ["Sample", "Shape in the new container", "Volume in the new container"],
+        "rows": [
+          ["P", "keeps its own shape", "stays the same"],
+          ["Q", "takes the shape of the container", "stays the same"],
+          ["R", "takes the shape of the container", "spreads out to fill all of it"]
+        ]
+      },
+      "alt": "A table of three samples: P keeps its shape and volume, Q takes the container's shape but keeps its volume, and R spreads out to fill the whole container.",
+      "tisCheck": "Comparing basic properties (shape, volume) of solids, liquids and gases; no particle models.",
+      "misconceptions": "Liquids thought to keep their shape; gases thought to have a fixed volume like liquids."
+    },
+    {
+      "id": "P8.1-04",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.3.P.8.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Agents used a thermometer to measure the water in four cups. Which list orders the cups from coldest to warmest?",
+      "options": [
+        "Cup 3, Cup 1, Cup 4, Cup 2",
+        "Cup 1, Cup 2, Cup 3, Cup 4",
+        "Cup 4, Cup 2, Cup 1, Cup 3",
+        "Cup 2, Cup 4, Cup 1, Cup 3"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: this list goes from warmest to coldest, the opposite of the question.",
+        "Decoy: this list follows the cup numbers, not the temperatures.",
+        "Decoy: Cup 4 at 22°C (72°F) is warmer than Cup 2 at 5°C (41°F), so Cup 4 cannot come first.",
+        "Correct: Cup 2 is 5°C (41°F), Cup 4 is 22°C (72°F), Cup 1 is 37°C (99°F) and Cup 3 is 60°C (140°F)."
+      ],
+      "keyWords": ["thermometer", "coldest to warmest"],
+      "visual": {
+        "kind": "table",
+        "title": "Water Temperatures",
+        "columns": ["Cup", "Temperature"],
+        "rows": [["1", "37°C (99°F)"], ["2", "5°C (41°F)"], ["3", "60°C (140°F)"], ["4", "22°C (72°F)"]]
+      },
+      "alt": "A table of four cups of water: Cup 1 at 37°C (99°F), Cup 2 at 5°C (41°F), Cup 3 at 60°C (140°F) and Cup 4 at 22°C (72°F).",
+      "tisCheck": "Measuring and comparing temperatures of liquids in degrees Celsius with Fahrenheit equivalents; ordering only, no computation.",
+      "misconceptions": "Coldest and warmest reversed; cups ordered by label instead of by measurement."
+    },
+    {
+      "id": "P8.1-05",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.4.P.8.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "An agent sorted six objects into two groups by one property. Which property did she use?",
+      "options": ["attraction to a magnet", "color", "texture", "mass"],
+      "key": 0,
+      "why": [
+        "Correct: the iron and steel objects in Group 1 are attracted to a magnet, and nothing in Group 2 is.",
+        "Decoy: the aluminum foil ball is shiny and gray like the steel objects, but it is in Group 2, so color did not decide the groups.",
+        "Decoy: each group mixes smooth and rough objects, so texture did not decide the groups.",
+        "Decoy: each group mixes light and heavier objects, such as a paper clip with a nail, so mass did not decide the groups."
+      ],
+      "keyWords": ["six objects", "two groups", "one property"],
+      "visual": {
+        "kind": "table",
+        "title": "Sorted Objects",
+        "columns": ["Group 1", "Group 2"],
+        "rows": [["iron nail", "aluminum foil ball"], ["steel paper clip", "wooden block"], ["steel washer", "plastic spoon"]]
+      },
+      "alt": "A table with two groups: Group 1 lists an iron nail, a steel paper clip and a steel washer, and Group 2 lists an aluminum foil ball, a wooden block and a plastic spoon.",
+      "tisCheck": "Comparing objects by physical properties including attraction to magnets (SC.4.P.8.1); no metal properties beyond magnetism.",
+      "misconceptions": "Every shiny metal thought to be attracted to a magnet; groups sorted by looks instead of a test."
+    },
+    {
+      "id": "P8.1-06",
+      "benchmark": "SC.5.P.8.1",
+      "testedAs": "SC.5.P.8.1",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "An agent finds the mass of a flat basketball on a balance. Then she pumps air into it and finds the mass again. What do her results show?",
+      "options": [
+        "Pumping air makes the rubber of the ball heavier.",
+        "Air has mass.",
+        "Air has no mass, so the balance made a mistake.",
+        "Only solids and liquids have mass."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: the rubber is the same rubber, so the extra mass came from the air inside.",
+        "Correct: the mass went up when only air was added, so the air inside the ball has mass.",
+        "Decoy: the balance showed a change when air was added, and nothing in the data points to a mistake.",
+        "Decoy: air is a gas, and the data shows that a gas has mass too."
+      ],
+      "keyWords": ["mass of a flat basketball", "pumps air into it", "mass again"],
+      "visual": {
+        "kind": "table",
+        "title": "Basketball on a Balance",
+        "columns": ["Ball", "Mass (g)"],
+        "rows": [["Flat", "600"], ["Pumped full of air", "605"]]
+      },
+      "alt": "A table showing the flat basketball at 600 grams and the same ball pumped full of air at 605 grams.",
+      "tisCheck": "Comparing the mass of matter, including a gas, with a balance in grams; comparing two values, no computation.",
+      "misconceptions": "Gases such as air thought to have no mass; extra mass credited to the container."
+    },
+    {
+      "id": "P8.3-01",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.3",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "A tray holds a mixture of sand, pebbles and iron filings. Which tool will pull out only the iron filings?",
+      "options": ["a sieve", "a magnet", "a hand lens", "filter paper"],
+      "key": 1,
+      "why": [
+        "Decoy: a sieve sorts by size, and tiny iron filings would fall through with the sand.",
+        "Correct: iron is attracted to a magnet and sand and pebbles are not, so the magnet lifts out only the iron filings.",
+        "Decoy: a hand lens makes the pieces look bigger, but it does not separate them.",
+        "Decoy: filter paper holds back solids from a liquid, and this mixture has no liquid."
+      ],
+      "keyWords": ["iron filings", "pull out only"],
+      "visual": { "kind": "scene", "id": "mixture-separation", "labels": ["mixture", "", ""] },
+      "alt": "A tray of mixed sand, pebbles and iron filings, with a bar held above it and a sieve beside it.",
+      "tisCheck": "Separating a mixture of solids by magnetic attraction; iron named as the attracted material.",
+      "misconceptions": "A sieve used for every mixture; looking closely with a hand lens mistaken for separating."
+    },
+    {
+      "id": "P8.3-02",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.3",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Jada has a mixture of marbles, dried peas and sand. She shakes it over a screen. The sand and the peas fall through the holes, and the marbles stay on top. Which property did the screen use to separate the marbles?",
+      "options": ["shape", "color", "magnetic attraction", "particle size"],
+      "key": 3,
+      "why": [
+        "Decoy: marbles and peas are both round, so shape cannot be what split them.",
+        "Decoy: a screen cannot sort by color, because it only lets through pieces that fit its holes.",
+        "Decoy: marbles, peas and sand are not attracted to a magnet, and the screen is not a magnet.",
+        "Correct: the marbles are too big to fit through the holes, while the smaller peas and sand fall through."
+      ],
+      "keyWords": ["screen", "fall through the holes", "stay on top"],
+      "visual": {
+        "kind": "table",
+        "title": "Jada's Screen Test",
+        "columns": ["Part of the mixture", "Where it ended up"],
+        "rows": [["Marbles", "on top of the screen"], ["Dried peas", "through the holes"], ["Sand", "through the holes"]]
+      },
+      "alt": "A table showing the marbles stayed on top of the screen while the dried peas and the sand fell through the holes.",
+      "tisCheck": "Separating a mixture of solids by particle size; properties limited to size, shape, color and magnetic attraction.",
+      "misconceptions": "Round shape credited for the sorting; heavy pieces thought to stay on top."
+    },
+    {
+      "id": "P8.3-03",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.2",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Two glasses hold the same amount of water. One glass is at 60°C (140°F), and the other is at 5°C (41°F). Ana adds one spoonful of sugar to each glass and does not stir. In which glass will the sugar most likely dissolve faster?",
+      "options": [
+        "The warm glass, because warmer water makes sugar dissolve faster.",
+        "The cold glass, because colder water makes sugar dissolve faster.",
+        "Both glasses at the same speed, because they hold the same amount of water.",
+        "The warm glass, because the heat melts the sugar into a liquid."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: sugar dissolves faster in warmer water than in colder water.",
+        "Decoy: cold water slows dissolving, so the sugar in the cold glass takes longer.",
+        "Decoy: the amount of water is the same, but the temperature is different, and temperature changes how fast sugar dissolves.",
+        "Decoy: the sugar dissolves into the water, and dissolving is not melting, since 60°C (140°F) is far too cool to melt sugar."
+      ],
+      "keyWords": ["60°C (140°F)", "5°C (41°F)", "dissolve faster"],
+      "visual": { "kind": "scene", "id": "dissolving-temperature", "labels": ["60°C (140°F)", "5°C (41°F)", "sugar"] },
+      "alt": "Two glasses of water, one steaming at 60°C (140°F) and one with ice at 5°C (41°F), with a spoonful of sugar held over each.",
+      "tisCheck": "Conditions that speed dissolving limited to temperature here; dissolving kept separate from melting.",
+      "misconceptions": "Dissolving confused with melting; cold water thought to dissolve sugar as fast as warm water."
+    },
+    {
+      "id": "P8.3-04",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.2",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent put the same amount of sugar into four cups of water at the same temperature. She changed the form of the sugar and whether she stirred. Which conclusion is supported by her data?",
+      "options": [
+        "Sugar cubes dissolve faster than loose grains.",
+        "Stirring makes sugar dissolve faster, but grain size does not matter.",
+        "Stirring and breaking sugar into small grains both make it dissolve faster.",
+        "Sugar dissolves faster in warm water than in cold water."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: the cubes took longer than the loose grains every time, so this is backward.",
+        "Decoy: the loose grains dissolved faster than the cubes even without stirring, so grain size does matter.",
+        "Correct: stirring cut the time for both forms, and the loose grains, with more surface touching the water, dissolved faster than the cubes.",
+        "Decoy: every cup was at the same temperature, so this data cannot show anything about warm and cold water."
+      ],
+      "keyWords": ["same temperature", "form of the sugar", "stirred", "supported by her data"],
+      "visual": {
+        "kind": "table",
+        "title": "Time to Dissolve",
+        "columns": ["Cup", "Sugar", "Stirred?", "Time to dissolve (seconds)"],
+        "rows": [
+          ["1", "one cube", "no", "300"],
+          ["2", "one cube", "yes", "120"],
+          ["3", "loose grains", "no", "90"],
+          ["4", "loose grains", "yes", "30"]
+        ]
+      },
+      "alt": "A table of four cups: a cube not stirred took 300 seconds, a cube stirred took 120 seconds, loose grains not stirred took 90 seconds and loose grains stirred took 30 seconds.",
+      "tisCheck": "Factors that speed dissolving limited to stirring and surface area (grain size), with temperature held the same; comparing values only.",
+      "misconceptions": "Only one factor seen at a time; a conclusion drawn about a variable (temperature) that was not tested."
+    },
+    {
+      "id": "P8.3-05",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.3",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "Marco spilled a jar of round beads and star-shaped beads. All the beads are blue plastic and about the same size. Which property can he use to separate them?",
+      "options": ["color", "magnetic attraction", "shape", "particle size"],
+      "key": 2,
+      "why": [
+        "Decoy: all the beads are blue, so color cannot tell them apart.",
+        "Decoy: plastic beads are not attracted to a magnet.",
+        "Correct: the beads differ only in shape, so Marco can sort the round ones from the star-shaped ones.",
+        "Decoy: the beads are about the same size, so a screen would not split them."
+      ],
+      "keyWords": ["round beads", "star-shaped beads", "same size"],
+      "visual": {
+        "kind": "table",
+        "title": "Marco's Beads",
+        "columns": ["Bead", "Color", "Material", "Size", "Shape"],
+        "rows": [["Bead 1", "blue", "plastic", "1 cm", "round"], ["Bead 2", "blue", "plastic", "1 cm", "star"]]
+      },
+      "alt": "A table comparing two kinds of beads: both are blue plastic and 1 cm across, but one is round and one is star-shaped.",
+      "tisCheck": "Separating a mixture of solids by shape; properties limited to size, shape, color and magnetic attraction.",
+      "misconceptions": "Color or a magnet tried first out of habit; size and shape treated as the same property."
+    },
+    {
+      "id": "P8.3-06",
+      "benchmark": "SC.5.P.8.3",
+      "testedAs": "SC.5.P.8.2",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "An agent stirs sand, salt and pepper into three cups of water. After stirring, she cannot see the salt at all, and the water looks clear. Which statement about the salt is true?",
+      "options": [
+        "The salt dissolved and is still in the water.",
+        "The salt melted into a liquid.",
+        "The salt is gone from the cup.",
+        "The salt changed into a new material, like burning paper."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the salt broke into pieces too small to see, and if the water evaporated, the salt would be left behind.",
+        "Decoy: dissolving is not melting, because the salt mixed into the water without being heated into a liquid.",
+        "Decoy: the salt is too small to see, but it is still in the cup.",
+        "Decoy: dissolving salt is a physical change, so no new material forms."
+      ],
+      "keyWords": ["cannot see the salt", "statement about the salt"],
+      "visual": {
+        "kind": "table",
+        "title": "Stirred Into Water",
+        "columns": ["Material", "What the agent sees after stirring"],
+        "rows": [["Sand", "grains settle on the bottom"], ["Salt", "cannot be seen, water looks clear"], ["Pepper", "flakes float on top"]]
+      },
+      "alt": "A table showing that sand settles on the bottom, salt cannot be seen and the water looks clear, and pepper flakes float on top.",
+      "tisCheck": "Materials that dissolve in water and those that do not (SC.5.P.8.2); dissolving kept separate from melting.",
+      "misconceptions": "Dissolved means gone; dissolving confused with melting or with a chemical change."
+    },
+    {
+      "id": "P9.1-01",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.3.P.9.1",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "An ice cube sits on a plate in a kitchen at 24°C (75°F). After 20 minutes, the plate holds a small puddle of water. Which change happened to the ice?",
+      "options": ["freezing", "condensation", "burning", "melting"],
+      "key": 3,
+      "why": [
+        "Decoy: freezing turns a liquid into a solid, the opposite of what happened.",
+        "Decoy: condensation turns water vapor into liquid water, and the ice was never a gas.",
+        "Decoy: burning makes new materials like smoke and ash, and the puddle is still water.",
+        "Correct: the warm kitchen heated the solid ice until it changed into liquid water."
+      ],
+      "keyWords": ["24°C (75°F)", "small puddle of water"],
+      "visual": { "kind": "scene", "id": "physical-chemical-change", "labels": ["ice cube", ""] },
+      "alt": "An ice cube on a plate with water around it, next to a lit candle.",
+      "tisCheck": "A change of state (melting) caused by heating, named with familiar terms (SC.3.P.9.1).",
+      "misconceptions": "Freezing and melting reversed; any change of water called condensation."
+    },
+    {
+      "id": "P9.1-02",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.4.P.9.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "The picture shows an ice cube melting on a plate and a candle burning. How are the two changes different?",
+      "options": [
+        "The ice changes into a new material, but the candle wax does not.",
+        "The burning wax changes into new materials, but the melted ice is still water.",
+        "Both changes make new materials.",
+        "Neither change makes a new material."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: this is backward, because melted ice is still water while burning wax makes new materials.",
+        "Correct: burning wax makes new materials such as smoke and gases, but melted ice is the same material in a new state.",
+        "Decoy: melting changes only the state of the water, so it does not make a new material.",
+        "Decoy: burning makes smoke and gases that were not there before, so it does make new materials."
+      ],
+      "keyWords": ["ice cube melting", "candle burning", "different"],
+      "visual": { "kind": "scene", "id": "physical-chemical-change", "labels": ["melting ice", "burning candle"] },
+      "alt": "An ice cube melting into a puddle on a plate next to a candle burning with a flame.",
+      "tisCheck": "Physical change (melting) compared with chemical change (burning), grade 4 examples; no chemical formulas.",
+      "misconceptions": "Any big-looking change seen as a new material; burning seen as just melting."
+    },
+    {
+      "id": "P9.1-03",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.5.P.9.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Agents put slices of the same bread in three places. They checked each slice every day for mold. Which statement is supported by the data?",
+      "options": [
+        "Bread decays faster at warmer temperatures.",
+        "Bread decays faster at colder temperatures.",
+        "Temperature does not change how fast bread decays.",
+        "Bread in a refrigerator never decays."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: mold appeared soonest in the warm garage and latest in the cold refrigerator, so warmth sped up the decay.",
+        "Decoy: the coldest place, the refrigerator, took the longest, so this is backward.",
+        "Decoy: the days until mold changed a lot from place to place, so temperature did make a difference.",
+        "Decoy: the bread in the refrigerator did grow mold, just later, after 14 days."
+      ],
+      "keyWords": ["same bread", "three places", "supported by the data"],
+      "visual": {
+        "kind": "table",
+        "title": "Bread Mold Check",
+        "columns": ["Place", "Temperature", "Days until mold appeared"],
+        "rows": [
+          ["Refrigerator", "4°C (39°F)", "14"],
+          ["Kitchen counter", "24°C (75°F)", "5"],
+          ["Warm garage", "32°C (90°F)", "3"]
+        ]
+      },
+      "alt": "A table of bread mold: 14 days in a refrigerator at 4°C (39°F), 5 days on a kitchen counter at 24°C (75°F) and 3 days in a warm garage at 32°C (90°F).",
+      "tisCheck": "A chemical change (decaying, a grade 4 example) affected by temperature; comparing values only, no living things named as the cause.",
+      "misconceptions": "Cold thought to stop decay completely; temperature thought to matter only for melting."
+    },
+    {
+      "id": "P9.1-04",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.5.P.9.1",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent dropped the same size ice cube into cups with the same amount of water at three temperatures. She timed how long each cube took to melt. Which is the best prediction for an ice cube in water at 50°C (122°F)?",
+      "options": ["about 6 minutes", "about 12 minutes", "less than 3 minutes", "more than 12 minutes"],
+      "key": 2,
+      "why": [
+        "Decoy: 6 minutes matches the 25°C (77°F) water, and 50°C (122°F) water is much warmer.",
+        "Decoy: 12 minutes matches the coldest water, not the warmest.",
+        "Correct: each warmer cup melted the ice faster, so water warmer than 40°C (104°F) should take less than 3 minutes.",
+        "Decoy: this reverses the pattern, because warmer water melted the ice faster, not slower."
+      ],
+      "keyWords": ["same size ice cube", "timed", "50°C (122°F)"],
+      "visual": {
+        "kind": "table",
+        "title": "Ice Cube Melt Times",
+        "columns": ["Water temperature", "Time to melt (minutes)"],
+        "rows": [["10°C (50°F)", "12"], ["25°C (77°F)", "6"], ["40°C (104°F)", "3"]]
+      },
+      "alt": "A table of melt times: 12 minutes in 10°C (50°F) water, 6 minutes in 25°C (77°F) water and 3 minutes in 40°C (104°F) water.",
+      "tisCheck": "A physical change (melting) affected by temperature; a prediction from a pattern, no computation.",
+      "misconceptions": "Warmer water thought to slow melting; a prediction made by copying a value from the table."
+    },
+    {
+      "id": "P9.1-05",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.3.P.9.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "On a 33°C (91°F) afternoon, an agent sets a glass of iced lemonade on a porch table. Ten minutes later, drops of water cover the outside of the glass. Where did the drops come from?",
+      "options": [
+        "The lemonade soaked through tiny holes in the glass.",
+        "Water vapor in the air cooled on the cold glass and turned into liquid.",
+        "The melting ice moved through the glass to the outside.",
+        "The cold glass gave off water vapor that turned into drops."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: glass does not have holes that lemonade can soak through.",
+        "Correct: water vapor in the warm air touched the cold glass, cooled and condensed into liquid drops.",
+        "Decoy: the melting ice stays inside the glass and cannot pass through it.",
+        "Decoy: the cold glass does not give off water vapor, because the water came from the air around it."
+      ],
+      "keyWords": ["33°C (91°F)", "outside of the glass", "drops of water"],
+      "visual": {
+        "kind": "table",
+        "title": "Glass on the Porch",
+        "columns": ["Time", "Outside of the glass"],
+        "rows": [["2:00 p.m.", "dry"], ["2:10 p.m.", "covered in drops of water"]]
+      },
+      "alt": "A table showing the outside of the glass was dry at 2:00 p.m. and covered in drops of water at 2:10 p.m.",
+      "tisCheck": "Condensation as a change of state caused by cooling, with familiar terms (SC.3.P.9.1).",
+      "misconceptions": "Condensation drops thought to leak from inside the glass; the direction of the change reversed."
+    },
+    {
+      "id": "P9.1-06",
+      "benchmark": "SC.5.P.9.1",
+      "testedAs": "SC.4.P.9.1",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "Pancake batter is a runny liquid. On a hot griddle, it turns into a soft, solid pancake. When the pancake cools, it does not turn back into batter. What kind of change happened?",
+      "options": [
+        "melting, because the batter gets hot",
+        "freezing, because the batter turns solid",
+        "a physical change, because only the shape changes",
+        "a chemical change, because a new material forms"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: melting turns a solid into a liquid, but the batter went from a liquid to a solid.",
+        "Decoy: freezing happens when a liquid is cooled, but the batter turned solid while it was heated.",
+        "Decoy: more than the shape changed, because the pancake cannot turn back into batter.",
+        "Correct: cooking made a new material, the pancake, that cannot turn back into batter."
+      ],
+      "keyWords": ["hot griddle", "does not turn back into batter", "kind of change"],
+      "visual": {
+        "kind": "table",
+        "title": "Pancake Check",
+        "columns": ["Property", "Before cooking", "After cooking"],
+        "rows": [["State", "runny liquid", "soft solid"], ["Color", "pale yellow", "golden brown"]]
+      },
+      "alt": "A table comparing pancake batter before cooking, a pale yellow runny liquid, with the pancake after cooking, a golden brown soft solid.",
+      "tisCheck": "Cooking as a chemical change, a grade 4 example, with heat as the cause; no chemical formulas.",
+      "misconceptions": "Any liquid to solid change called freezing; cooking seen as melting."
+    }
+  ],
+  "codex": [
+    { "id": "lab:04-1:iron-sand", "title": "Magnetic attraction", "line": "A magnet pulls on iron and steel, so it can lift them out of a mixture." },
+    { "id": "lab:04-1:gravel-sand", "title": "Particle size", "line": "A screen lets pieces smaller than its holes fall through and keeps the bigger ones." },
+    { "id": "lab:04-1:salt-sand", "title": "Dissolving", "line": "Dissolved salt breaks into pieces too small to see, but it is still in the water. Dissolving is not melting." }
+  ]
+}

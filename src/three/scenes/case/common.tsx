@@ -135,11 +135,11 @@ export function FitRig({
 const STEP_CLIP: Partial<Record<string, LoopClip>> = { briefing: 'swamp', 'lab-a': 'cells', 'lab-b': 'canopy', 'lab-c': 'water', debrief: 'debrief', results: 'debrief' }
 
 /** Shared lab environment: deck, grid, console ring, fog, dust. */
-export function LabEnvironment({ children, ring = true, floorY = 0 }: { children?: ReactNode; ring?: boolean; floorY?: number }) {
+export function LabEnvironment({ children, ring = true, floorY = 0, clip: clipOverride }: { children?: ReactNode; ring?: boolean; floorY?: number; clip?: LoopClip }) {
   const tier = useTier()
   const step = useSession((s) => s.step)
   const kind = useSession((s) => s.kind)
-  const clip = kind === 'cold' ? 'frost' : STEP_CLIP[step]
+  const clip = kind === 'cold' ? 'frost' : (clipOverride ?? STEP_CLIP[step])
   return (
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.017]} />

@@ -1,0 +1,1040 @@
+{
+  "case": {
+    "id": "00-1",
+    "codename": "PROTOCOL",
+    "unit": "U00 Nature of Science",
+    "unitLabel": "Unit 0: Nature of Science",
+    "category": "nature",
+    "benchmarks": [
+      "SC.5.N.1.1",
+      "SC.5.N.2.1",
+      "SC.5.N.2.2"
+    ],
+    "evidencePlan": [
+      {
+        "benchmark": "SC.5.N.1.1",
+        "count": 2
+      },
+      {
+        "benchmark": "SC.5.N.2.1",
+        "count": 2
+      },
+      {
+        "benchmark": "SC.5.N.2.2",
+        "count": 1
+      }
+    ],
+    "marker": {
+      "lon": -82.46,
+      "lat": 27.95
+    },
+    "dispatchHook": "Science fair notes in Tampa came in mixed. Facts, feelings and guesses in one pile.",
+    "briefing": [
+      "Agent, a science fair in Tampa filed every student note in one pile.",
+      "Observations, opinions and predictions are mixed together, and the judges cannot tell which is which.",
+      "Sort the notes, then check the experiments behind them.",
+      "A conclusion is only as good as its evidence, so read the data before you trust anyone."
+    ],
+    "lab": {
+      "kind": "sort",
+      "intro": "Every card is a note from the science fair. Put each one in the bin that says what kind of statement it is.",
+      "bins": [
+        {
+          "id": "observation",
+          "name": "Observation",
+          "hint": "An observation is something seen, heard, measured or counted that others can check."
+        },
+        {
+          "id": "opinion",
+          "name": "Opinion",
+          "hint": "An opinion tells what someone feels or believes, and others may disagree."
+        },
+        {
+          "id": "prediction",
+          "name": "Prediction",
+          "hint": "A prediction says what someone expects to happen next, based on what they know."
+        }
+      ],
+      "cards": [
+        {
+          "id": "plant-height",
+          "name": "The bean plant is 12 cm tall.",
+          "card": [
+            "Written right after using a ruler."
+          ],
+          "bin": "observation",
+          "why": "A ruler reading is something anyone can measure and check, so it is an observation."
+        },
+        {
+          "id": "ice-time",
+          "name": "The ice cube melted in 9 minutes.",
+          "card": [
+            "Timed with a stopwatch on a sunny table."
+          ],
+          "bin": "observation",
+          "why": "A stopwatch time can be checked by anyone watching, so it is an observation."
+        },
+        {
+          "id": "clip-count",
+          "name": "The magnet picked up 14 paper clips.",
+          "card": [
+            "Counted one clip at a time."
+          ],
+          "bin": "observation",
+          "why": "A count is something others can repeat and check, so it is an observation."
+        },
+        {
+          "id": "coolest-project",
+          "name": "The volcano project is the coolest one here.",
+          "card": [
+            "Written by a visitor walking past."
+          ],
+          "bin": "opinion",
+          "why": "Coolest is a feeling, and other visitors could disagree, so it is an opinion."
+        },
+        {
+          "id": "better-poster",
+          "name": "The blue team's poster looks better than ours.",
+          "card": [
+            "Written on a sticky note by a student."
+          ],
+          "bin": "opinion",
+          "why": "Looks better is a personal judgment that cannot be measured, so it is an opinion."
+        },
+        {
+          "id": "boring-rocks",
+          "name": "Rocks are boring to study.",
+          "card": [
+            "Written at the rock table."
+          ],
+          "bin": "opinion",
+          "why": "Boring is how one person feels, and a geologist would disagree, so it is an opinion."
+        },
+        {
+          "id": "ramp-next",
+          "name": "The car will roll farther when we raise the ramp.",
+          "card": [
+            "Written before the next trial.",
+            "The last three trials rolled farther each time."
+          ],
+          "bin": "prediction",
+          "why": "It tells what should happen next, based on the earlier trials, so it is a prediction."
+        },
+        {
+          "id": "sunny-plant",
+          "name": "The plant on the sunny sill will be taller by Friday.",
+          "card": [
+            "Written on Monday."
+          ],
+          "bin": "prediction",
+          "why": "It says what the student expects to see in the future, so it is a prediction."
+        }
+      ]
+    },
+    "debriefClosed": "Case closed. The fair notes are filed by kind, and every conclusion points back to its data.",
+    "debriefOpen": "Case stays open for now. The notes come back as a cold case soon, and you will sort them faster then."
+  },
+  "items": [
+    {
+      "id": "N1.1-01",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.1",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Kai wants to find out if sunlight changes how tall bean plants grow. He puts one pot on a sunny windowsill and one pot in a shady closet. Both pots get the same soil, the same kind of seed, and 50 mL of water each day. Which condition does Kai keep the same for both plants?",
+      "options": [
+        "the amount of water each day",
+        "the amount of sunlight",
+        "where each pot is placed",
+        "how tall each plant grows"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: both pots get 50 mL of water each day, so the water is kept the same.",
+        "Decoy: sunlight is the condition Kai changes on purpose, since one pot is in sun and one is in shade.",
+        "Decoy: the pots sit in different places, a sunny sill and a shady closet, so the place is not kept the same.",
+        "Decoy: plant height is the result Kai measures, and it may come out different for each plant."
+      ],
+      "keyWords": [
+        "keep the same",
+        "50 mL of water each day"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "fair-test-plants",
+        "labels": [
+          "Sunny sill",
+          "Shady closet",
+          ""
+        ]
+      },
+      "alt": "Two matching pots of bean plants, one on a sunny windowsill and one in a shady closet, with a watering can beside each.",
+      "tisCheck": "Conditions kept the same in a fair test, named in plain words; no dependent vs independent variable terms, no procedure design, no math.",
+      "misconceptions": "The changed condition confused with the one kept the same; the measured result treated as a condition; place and sunlight not linked."
+    },
+    {
+      "id": "N1.1-02",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.1",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Rosa set the same size ice cube in four places at her school in Orlando. She timed how long each cube took to melt. Which conclusion is best supported by Rosa's data?",
+      "options": [
+        "Ice cubes melt faster in the shade than in the sun.",
+        "Ice cubes melt faster where the air is warmer.",
+        "All of the ice cubes melted in about the same time.",
+        "Larger ice cubes take longer to melt than smaller ones."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: this is backward, since the cube on the sunny sidewalk melted first, in 8 minutes.",
+        "Correct: the warmer the place, the shorter the melting time, from 8 minutes on the sidewalk to more than 120 in the refrigerator.",
+        "Decoy: the times go from 8 minutes to more than 120 minutes, so they are not about the same.",
+        "Decoy: Rosa used the same size cube every time, so her data says nothing about size."
+      ],
+      "keyWords": [
+        "same size ice cube",
+        "best supported",
+        "Rosa's data"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Ice Cube Melting Times",
+        "columns": [
+          "Place",
+          "Air temperature",
+          "Time to melt (minutes)"
+        ],
+        "rows": [
+          [
+            "Sunny sidewalk",
+            "34°C (93°F)",
+            "8"
+          ],
+          [
+            "Shady bench",
+            "29°C (84°F)",
+            "14"
+          ],
+          [
+            "Classroom",
+            "22°C (72°F)",
+            "30"
+          ],
+          [
+            "Refrigerator",
+            "4°C (39°F)",
+            "more than 120"
+          ]
+        ]
+      },
+      "alt": "A table of four places with air temperatures from 34°C (93°F) down to 4°C (39°F) and melting times from 8 minutes to more than 120 minutes.",
+      "tisCheck": "Interpreting data in a table by comparing values; no computation; the conclusion is chosen, not written.",
+      "misconceptions": "Reading a trend backward; ignoring how far apart the data are; choosing a claim about a condition that was never changed."
+    },
+    {
+      "id": "N1.1-03",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.4",
+      "category": "nature",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "A class in Fort Pierce tests whether moving air helps wet paper towels dry faster. Towel 1 dries with a fan on high. Towel 2 dries with a fan on low. Both towels are the same size and get the same amount of water. Which setup should the class add as a control group?",
+      "options": [
+        "a dry paper towel with the fan on high",
+        "a wet paper towel with two fans on high",
+        "a wet paper towel with no fan blowing on it",
+        "a wet cloth towel with the fan on low"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: a towel that starts dry cannot show how long drying takes.",
+        "Decoy: two fans add more of the thing being tested, so this is not a control group.",
+        "Correct: a wet towel with no fan shows what happens without moving air, so the class has something to compare to.",
+        "Decoy: a cloth towel adds a second difference, so the test would no longer be fair."
+      ],
+      "keyWords": [
+        "moving air",
+        "control group",
+        "same amount of water"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Paper Towel Drying Setup",
+        "columns": [
+          "Towel",
+          "Fan",
+          "Water added"
+        ],
+        "rows": [
+          [
+            "1",
+            "High",
+            "10 mL"
+          ],
+          [
+            "2",
+            "Low",
+            "10 mL"
+          ],
+          [
+            "Control",
+            "?",
+            "10 mL"
+          ]
+        ]
+      },
+      "alt": "A table of the setup: towel 1 with the fan on high, towel 2 with the fan on low, and a control towel with its fan setting shown as a question mark, each with 10 mL of water.",
+      "tisCheck": "Control group in an experiment (SC.5.N.1.4); the student chooses a control, does not design a procedure; no math.",
+      "misconceptions": "Control group seen as a group that gets more of the treatment; changing two things at once; a starting condition that cannot show a result."
+    },
+    {
+      "id": "N1.1-04",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.1",
+      "category": "nature",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "After an afternoon storm, Mia pours the water from her rain gauge into a container to measure it. She wants to know the volume of water in milliliters. Which tool should she use?",
+      "options": [
+        "balance",
+        "thermometer",
+        "ruler",
+        "graduated cylinder"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: a balance measures mass, not volume.",
+        "Decoy: a thermometer measures temperature, not how much water there is.",
+        "Decoy: a ruler measures length, so it cannot give the volume in milliliters.",
+        "Correct: a graduated cylinder measures the volume of a liquid in milliliters."
+      ],
+      "keyWords": [
+        "volume of water",
+        "in milliliters"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "lab-tools",
+        "labels": [
+          "Ruler",
+          "Balance",
+          "Thermometer",
+          "Graduated cylinder",
+          "Hand lens"
+        ]
+      },
+      "alt": "Five lab tools on a bench: a ruler, a balance, a thermometer, a graduated cylinder, and a hand lens.",
+      "tisCheck": "Choosing a tool to collect data, metric units only; no procedure design, no computation.",
+      "misconceptions": "Any tool with marks measures volume; mass and volume confused."
+    },
+    {
+      "id": "N1.1-05",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.1",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Diego rolled a toy car down a ramp set at three heights. He measured how far the car rolled each time. Next he will raise the ramp to 40 cm. Which prediction is best supported by his data?",
+      "options": [
+        "The car will roll more than 150 cm.",
+        "The car will roll less than 50 cm.",
+        "The car will roll exactly 150 cm again.",
+        "The car will not roll at all."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: each time the ramp went higher the car rolled farther, so a 40 cm ramp should send it past 150 cm.",
+        "Decoy: this goes against the pattern, since higher ramps gave longer distances.",
+        "Decoy: the distance changed every time the height changed, so it is unlikely to stay the same.",
+        "Decoy: a higher ramp gives the car a faster start, so it will still roll."
+      ],
+      "keyWords": [
+        "40 cm",
+        "prediction",
+        "best supported"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Ramp Height and Distance",
+        "columns": [
+          "Ramp height (cm)",
+          "Distance rolled (cm)"
+        ],
+        "rows": [
+          [
+            "10",
+            "50"
+          ],
+          [
+            "20",
+            "100"
+          ],
+          [
+            "30",
+            "150"
+          ]
+        ]
+      },
+      "alt": "A table showing ramp heights of 10, 20, and 30 cm with distances of 50, 100, and 150 cm.",
+      "tisCheck": "Prediction from a clear trend in a table; options use more or less than, so no computation is needed.",
+      "misconceptions": "Predictions seen as guesses not tied to data; expecting a result to repeat when the condition changes."
+    },
+    {
+      "id": "N1.1-06",
+      "benchmark": "SC.5.N.1.1",
+      "testedAs": "SC.5.N.1.1",
+      "category": "nature",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "Dev tested which brand of paper towel soaks up more water. He dipped Brand A in 50 mL of water for 5 seconds. He dipped Brand B in 100 mL of water for 20 seconds. Brand B soaked up more water. Why can Dev not conclude that Brand B soaks up more water?",
+      "options": [
+        "He did not test enough brands of paper towel.",
+        "He changed the amount of water and the time, not just the brand.",
+        "Brand B is the more popular brand.",
+        "He should have used juice instead of water."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: testing two brands is fine; the problem is how the test was set up.",
+        "Correct: Brand B got more water and more time, so Dev cannot tell if the brand made the difference.",
+        "Decoy: how popular a brand is has nothing to do with how much water it soaks up.",
+        "Decoy: changing the liquid would not fix the test, since the other conditions would still be different."
+      ],
+      "keyWords": [
+        "50 mL of water for 5 seconds",
+        "100 mL of water for 20 seconds",
+        "conclude"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Dev's Paper Towel Test",
+        "columns": [
+          "Brand",
+          "Water in cup (mL)",
+          "Time in water (seconds)",
+          "Water soaked up (mL)"
+        ],
+        "rows": [
+          [
+            "A",
+            "50",
+            "5",
+            "20"
+          ],
+          [
+            "B",
+            "100",
+            "20",
+            "45"
+          ]
+        ]
+      },
+      "alt": "A table of Dev's test: Brand A in 50 mL for 5 seconds soaked up 20 mL, and Brand B in 100 mL for 20 seconds soaked up 45 mL.",
+      "tisCheck": "Evaluating a procedure for fairness (a past focus); the student does not design a new procedure; no math.",
+      "misconceptions": "Any result from a test seen as valid; popularity treated as evidence; missing that two conditions changed."
+    },
+    {
+      "id": "N2.1-01",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.5.N.1.6",
+      "category": "nature",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "A ranger at Blue Spring State Park writes notes about the manatees. Which note is an observation?",
+      "options": [
+        "Manatees are the cutest animals in the park.",
+        "There were 23 manatees in the spring at 8 a.m.",
+        "The manatees seem happy to be in the warm water.",
+        "Manatees are more interesting than alligators."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: cutest is a feeling, and another person could disagree.",
+        "Correct: a count at a set time is something anyone can check, so it is an observation.",
+        "Decoy: no one can see a manatee's feelings, so happy is a guess, not an observation.",
+        "Decoy: more interesting is an opinion, not something that can be measured."
+      ],
+      "keyWords": [
+        "writes notes",
+        "observation"
+      ],
+      "visual": {
+        "kind": "specimen",
+        "ids": [
+          "manatee"
+        ],
+        "captions": [
+          "Manatee"
+        ]
+      },
+      "alt": "A gray manatee floating in clear spring water.",
+      "tisCheck": "Observation vs opinion (SC.5.N.1.6); uses the word observation, not verified observation; animal common name only.",
+      "misconceptions": "Guesses about animal feelings treated as observations; strong opinions treated as facts."
+    },
+    {
+      "id": "N2.1-02",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.5.N.2.1",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Nia says sand holds more water than potting soil. Omar says potting soil holds more. Which is the best way for them to settle the question?",
+      "options": [
+        "Ask the class to vote on who is right.",
+        "Agree with whoever sounds more sure.",
+        "Pour the same amount of water through the same amount of each and measure what drips out.",
+        "Pick the soil that looks darker, because dark soil must hold more water."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: a vote shows what people think, not what the soil does.",
+        "Decoy: sounding sure is not evidence.",
+        "Correct: a fair test gives measurements both students can check, and an explanation must be linked to evidence.",
+        "Decoy: color is a guess about the soil, not a test of how much water it holds."
+      ],
+      "keyWords": [
+        "best way",
+        "settle the question"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Two Claims",
+        "columns": [
+          "Student",
+          "Claim"
+        ],
+        "rows": [
+          [
+            "Nia",
+            "Sand holds more water."
+          ],
+          [
+            "Omar",
+            "Potting soil holds more water."
+          ]
+        ]
+      },
+      "alt": "A table of two claims: Nia says sand holds more water, and Omar says potting soil holds more water.",
+      "tisCheck": "Explanations must be linked to evidence; uses the word evidence, not empirical; no steps of a fixed method.",
+      "misconceptions": "Agreement, confidence or looks treated as proof."
+    },
+    {
+      "id": "N2.1-03",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.4.N.1.7",
+      "category": "nature",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "Ella thinks seeds need light to sprout. She plants 10 radish seeds in a dark box and 10 on a sunny shelf. Both groups get the same soil and water. After 5 days, she counts the seeds that sprouted. Which explanation is supported by her evidence?",
+      "options": [
+        "Radish seeds need light to sprout.",
+        "The seeds in the dark box sprouted because they got more water.",
+        "Ella's idea is right because she thought of it before the test.",
+        "Radish seeds can sprout without light."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: this was Ella's idea, but 9 seeds sprouted in the dark, so the evidence does not support it.",
+        "Decoy: both groups got the same water, so water does not explain the result.",
+        "Decoy: an idea is not right just because someone had it first, since it must match the evidence.",
+        "Correct: 9 of the 10 seeds in the dark box sprouted, so the evidence shows light was not needed."
+      ],
+      "keyWords": [
+        "need light to sprout",
+        "supported by her evidence"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Radish Seeds After 5 Days",
+        "columns": [
+          "Place",
+          "Seeds planted",
+          "Seeds sprouted"
+        ],
+        "rows": [
+          [
+            "Dark box",
+            "10",
+            "9"
+          ],
+          [
+            "Sunny shelf",
+            "10",
+            "9"
+          ]
+        ]
+      },
+      "alt": "A table showing that 9 of 10 seeds sprouted in the dark box and 9 of 10 sprouted on the sunny shelf.",
+      "tisCheck": "Explanation linked to evidence (SC.4.N.1.7); the student's starting thought is called an idea and is not named or judged as a formal claim; no computation.",
+      "misconceptions": "Holding on to a first idea when the data disagree; seeds assumed to need light to sprout."
+    },
+    {
+      "id": "N2.1-04",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.3.N.1.7",
+      "category": "nature",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Luis thinks the water in a pond near Lakeland is getting warmer each week this spring. Which would be the best evidence for his idea?",
+      "options": [
+        "thermometer readings taken at noon every Monday that go up each week",
+        "a neighbor who says the pond feels warmer",
+        "a poster that says Florida springs are warm",
+        "Luis's feeling that the fish like the warm water"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: thermometer readings are measurements that anyone can check, so they are evidence.",
+        "Decoy: how the water feels to one person is not a measurement.",
+        "Decoy: a poster about springs says nothing about this pond this spring.",
+        "Decoy: a feeling about fish is a guess, not evidence about the water."
+      ],
+      "keyWords": [
+        "getting warmer each week",
+        "best evidence"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "lab-tools",
+        "labels": [
+          "",
+          "",
+          "Thermometer",
+          "",
+          ""
+        ]
+      },
+      "alt": "Five lab tools on a bench with the thermometer labeled.",
+      "tisCheck": "Evidence as observations and measurements (SC.3.N.1.7); uses the word evidence, not empirical evidence.",
+      "misconceptions": "Personal feelings and general statements treated as evidence."
+    },
+    {
+      "id": "N2.1-05",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.5.N.1.6",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Omar looks at a rock through a hand lens and writes four notes. Which note could another student check with the same hand lens?",
+      "options": [
+        "This rock is the most beautiful one in the box.",
+        "This rock is probably very old and special.",
+        "The rock has tiny shiny flakes in it.",
+        "Rocks with shiny flakes are the best kind."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: most beautiful is an opinion, and others could disagree.",
+        "Decoy: old and special are guesses that a hand lens cannot check.",
+        "Correct: anyone who looks can see the shiny flakes, so this note is an observation.",
+        "Decoy: best kind is an opinion, not something you can see."
+      ],
+      "keyWords": [
+        "hand lens",
+        "another student check"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "lab-tools",
+        "labels": [
+          "",
+          "",
+          "",
+          "",
+          "Hand lens"
+        ]
+      },
+      "alt": "Five lab tools on a bench with the hand lens labeled.",
+      "tisCheck": "Observation vs personal opinion or interpretation (SC.5.N.1.6); no mineral is named or identified.",
+      "misconceptions": "Opinions and guesses written as if they were observations."
+    },
+    {
+      "id": "N2.1-06",
+      "benchmark": "SC.5.N.2.1",
+      "testedAs": "SC.4.N.1.7",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Two scientists study a beach near Daytona. Scientist A measured the beach width every two months and says the beach is losing sand. Scientist B looked at the beach once from her window and says it is not changing. Which statement best explains why Scientist A's explanation is stronger?",
+      "options": [
+        "Scientist A has worked at the beach for more years.",
+        "Scientist A gave her explanation first.",
+        "More people agree with Scientist A.",
+        "Scientist A's explanation is linked to measurements taken over time."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: years on the job do not make an explanation right, but evidence does.",
+        "Decoy: the first explanation is not always the right one.",
+        "Decoy: how many people agree is not evidence.",
+        "Correct: the widths shrink from 40 m to 31 m, so Scientist A's explanation is backed by evidence."
+      ],
+      "keyWords": [
+        "measured the beach width",
+        "looked at the beach once",
+        "stronger"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Beach Width Measurements",
+        "columns": [
+          "Month",
+          "Width of beach (m)"
+        ],
+        "rows": [
+          [
+            "January",
+            "40"
+          ],
+          [
+            "March",
+            "38"
+          ],
+          [
+            "May",
+            "35"
+          ],
+          [
+            "July",
+            "31"
+          ]
+        ]
+      },
+      "alt": "A table of beach widths: 40 m in January, 38 m in March, 35 m in May, and 31 m in July.",
+      "tisCheck": "Explanations based on evidence (SC.4.N.1.7); comparing values only, no computation; the beach change is context and erosion is not assessed.",
+      "misconceptions": "Experience, order or popularity treated as evidence."
+    },
+    {
+      "id": "N2.2-01",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.5.N.1.3",
+      "category": "nature",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Lena drops a paper helicopter from a height of 2 m and times its fall. She does three trials. Why is it better to do several trials than just one?",
+      "options": [
+        "More trials make the helicopter fall faster.",
+        "Scientists repeat trials only when they want a different answer.",
+        "One trial could have a mistake, and more trials show if the result stays about the same.",
+        "Repeating a trial is needed only when an experiment takes a long time."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: repeating a trial does not change how the helicopter falls.",
+        "Decoy: trials are repeated to check a result, not to change it.",
+        "Correct: three close times like 2.2, 2.3, and 2.2 seconds show the result can be trusted.",
+        "Decoy: short and long experiments both need repeated trials."
+      ],
+      "keyWords": [
+        "three trials",
+        "several trials",
+        "just one"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Paper Helicopter Fall Times",
+        "columns": [
+          "Trial",
+          "Time to fall (seconds)"
+        ],
+        "rows": [
+          [
+            "1",
+            "2.2"
+          ],
+          [
+            "2",
+            "2.3"
+          ],
+          [
+            "3",
+            "2.2"
+          ]
+        ]
+      },
+      "alt": "A table of three trials with fall times of 2.2, 2.3, and 2.2 seconds.",
+      "tisCheck": "Need for repeated trials (SC.5.N.1.3); limits for SC.5.N.2.2 are UNVERIFIED, so the plainest version is used; no averaging.",
+      "misconceptions": "Repeating trials seen as changing the outcome or as only for long experiments."
+    },
+    {
+      "id": "N2.2-02",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.5.N.1.3",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Sam rolled a marble down the same ramp four times. Trial 3 is very different from the other trials. What should Sam do next?",
+      "options": [
+        "Report only trial 3 because it is the most interesting.",
+        "Raise the ramp before the next trial.",
+        "Stop the investigation because the data are wrong.",
+        "Look for a mistake in trial 3 and run more trials with the same setup."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: one odd result should be checked, not reported alone.",
+        "Decoy: changing the ramp height would start a new test instead of checking this one.",
+        "Decoy: three of the four trials agree, so the investigation can go on.",
+        "Correct: checking what went wrong and repeating the trial shows if 40 cm was a mistake."
+      ],
+      "keyWords": [
+        "same ramp four times",
+        "very different",
+        "do next"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Marble Roll Distances",
+        "columns": [
+          "Trial",
+          "Distance rolled (cm)"
+        ],
+        "rows": [
+          [
+            "1",
+            "85"
+          ],
+          [
+            "2",
+            "88"
+          ],
+          [
+            "3",
+            "40"
+          ],
+          [
+            "4",
+            "86"
+          ]
+        ]
+      },
+      "alt": "A table of marble distances: 85, 88, 40, and 86 cm.",
+      "tisCheck": "Repeated trials and checking results (SC.5.N.1.3); plainest version because SC.5.N.2.2 limits are UNVERIFIED; no averaging.",
+      "misconceptions": "An odd result seen as the most important one; changing conditions to fix the data."
+    },
+    {
+      "id": "N2.2-03",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.4.N.1.2",
+      "category": "nature",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "Two groups measured the same cup of ice water at the same time. Group 1 waited 1 minute before reading the thermometer. Group 2 read the thermometer after 3 seconds. Which is the most likely reason the readings are different?",
+      "options": [
+        "Group 2 read the thermometer before it had time to change.",
+        "The water got warmer between the two readings.",
+        "Group 1's thermometer must be broken.",
+        "Ice water has a different temperature for every group."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: a thermometer needs time to settle, so a reading after 3 seconds still shows the warmer room.",
+        "Decoy: both groups measured at the same time, so the water did not change between readings.",
+        "Decoy: nothing shows the thermometer is broken, and 2°C (36°F) makes sense for ice water.",
+        "Decoy: the same water has one temperature, so the difference comes from how it was measured."
+      ],
+      "keyWords": [
+        "same cup of ice water",
+        "at the same time",
+        "readings are different"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Ice Water Temperature",
+        "columns": [
+          "Group",
+          "Wait before reading",
+          "Reading"
+        ],
+        "rows": [
+          [
+            "1",
+            "1 minute",
+            "2°C (36°F)"
+          ],
+          [
+            "2",
+            "3 seconds",
+            "20°C (68°F)"
+          ]
+        ]
+      },
+      "alt": "A table: Group 1 waited 1 minute and read 2°C (36°F); Group 2 waited 3 seconds and read 20°C (68°F).",
+      "tisCheck": "Comparing results across groups and looking for reasons for the differences (SC.4.N.1.2); no computation.",
+      "misconceptions": "Different results blamed on broken tools or on the thing measured instead of on the method."
+    },
+    {
+      "id": "N2.2-04",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.5.N.2.2",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A class in Sarasota found that bean seeds sprouted faster at 25°C (77°F) than at 15°C (59°F). A class in Naples wants to repeat the investigation to check the results. What must the Sarasota class share?",
+      "options": [
+        "only their final answer",
+        "their exact steps, materials, and conditions",
+        "the name of the student who had the idea",
+        "how much they liked the project"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: an answer alone does not let anyone repeat the test.",
+        "Correct: other scientists need the same steps and conditions to see if they get the same results.",
+        "Decoy: who had the idea does not help anyone repeat the investigation.",
+        "Decoy: feelings about a project are not part of the evidence."
+      ],
+      "keyWords": [
+        "repeat the investigation",
+        "check the results"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "plant-pots",
+        "labels": [
+          "25°C (77°F)",
+          "15°C (59°F)"
+        ]
+      },
+      "alt": "Two groups of bean seedlings in matching pots, one labeled 25°C (77°F) and one labeled 15°C (59°F).",
+      "tisCheck": "Replication by others (SC.5.N.2.2, limits UNVERIFIED, plainest version); no procedure design.",
+      "misconceptions": "Results alone seen as enough; credit or feelings seen as part of the evidence."
+    },
+    {
+      "id": "N2.2-05",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.4.N.1.5",
+      "category": "nature",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Three groups tested how many paper clips a magnet could hold. Groups 1 and 2 used the same bar magnet. Group 3 used a small round magnet. Which statement best explains why Group 3's result is so different?",
+      "options": [
+        "Group 3 used a different magnet than the other groups.",
+        "Group 3 must have counted wrong.",
+        "Magnets always get weaker after one use.",
+        "Paper clips are not pulled by magnets."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: results can be compared only when groups use the same materials, and Group 3 used a different magnet.",
+        "Decoy: nothing in the data shows a counting mistake, but the magnet was clearly different.",
+        "Decoy: a magnet does not lose its pull after one use.",
+        "Decoy: every group held some paper clips, so magnets do pull them."
+      ],
+      "keyWords": [
+        "same bar magnet",
+        "small round magnet",
+        "so different"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Paper Clips Held",
+        "columns": [
+          "Group",
+          "Magnet used",
+          "Paper clips held"
+        ],
+        "rows": [
+          [
+            "1",
+            "Bar magnet",
+            "12"
+          ],
+          [
+            "2",
+            "Bar magnet",
+            "13"
+          ],
+          [
+            "3",
+            "Small round magnet",
+            "4"
+          ]
+        ]
+      },
+      "alt": "A table: Group 1 used a bar magnet and held 12 clips, Group 2 used a bar magnet and held 13, and Group 3 used a small round magnet and held 4.",
+      "tisCheck": "Comparing the methods and results of classmates (SC.4.N.1.5); no computation; magnet strength is context, not assessed.",
+      "misconceptions": "Different results blamed on mistakes instead of on different methods."
+    },
+    {
+      "id": "N2.2-06",
+      "benchmark": "SC.5.N.2.2",
+      "testedAs": "SC.5.N.2.2",
+      "category": "nature",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "A scientist reports that a new plant food makes tomato plants grow much taller. Three other labs follow her steps exactly. Their plants with plant food grow about the same as their plants without it. What should scientists conclude?",
+      "options": [
+        "The plant food works, because the first scientist tested it first.",
+        "The claim is not supported yet, because other labs could not get the same results.",
+        "The other three labs must have made mistakes.",
+        "Every result is equally true, so no more testing is needed."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: being first does not make a result true if others cannot repeat it.",
+        "Correct: evidence must be repeatable by others, and three labs did not get the same result.",
+        "Decoy: three labs that agree with each other give strong evidence, not a mistake.",
+        "Decoy: when results disagree, scientists test more to find out why."
+      ],
+      "keyWords": [
+        "follow her steps exactly",
+        "conclude"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Tomato Plant Height After 4 Weeks (cm)",
+        "columns": [
+          "Lab",
+          "With plant food",
+          "Without plant food"
+        ],
+        "rows": [
+          [
+            "First lab",
+            "60",
+            "30"
+          ],
+          [
+            "Lab 2",
+            "31",
+            "30"
+          ],
+          [
+            "Lab 3",
+            "29",
+            "30"
+          ],
+          [
+            "Lab 4",
+            "30",
+            "31"
+          ]
+        ]
+      },
+      "alt": "A table of tomato heights: the first lab shows 60 cm with plant food and 30 cm without, while labs 2, 3, and 4 show about 30 cm either way.",
+      "tisCheck": "Replication of evidence by others (SC.5.N.2.2, limits UNVERIFIED, plainest version); comparing values only, no averaging.",
+      "misconceptions": "The first result treated as final; disagreement treated as someone else's mistake."
+    }
+  ],
+  "codex": [
+    {
+      "id": "lab:00-1:plant-height",
+      "title": "Observation",
+      "line": "An observation is something you see, hear, measure or count that other people can check."
+    },
+    {
+      "id": "lab:00-1:coolest-project",
+      "title": "Opinion",
+      "line": "An opinion is what someone feels or believes, and it cannot be checked with a measurement."
+    },
+    {
+      "id": "lab:00-1:ramp-next",
+      "title": "Prediction",
+      "line": "A prediction says what you expect to happen next, based on data you already have."
+    }
+  ]
+}

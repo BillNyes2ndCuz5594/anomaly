@@ -1,11 +1,14 @@
 import { lazy, Suspense } from 'react'
-import { content } from '../content/schema'
+import { content } from '../content'
 import { navigate } from '../lib/router'
 import ItemVisual from './case/ItemVisual'
+import SceneDiagram from './case/SceneDiagram'
+import { SCENE_SAMPLES } from './case/diagrams/samples'
+import { SCENE_IDS } from './case/sceneIds'
 import type { Visual } from '../content/schema'
 
-// QA page (#/visuals and #/visuals/models): every scene diagram the items use, and the specimen
-// models that are easiest to get wrong. Used by the proof run for screenshots. Not linked from the UI.
+// QA page (#/visuals and #/visuals/models): every scene diagram the items use, then every other scene id
+// with sample labels (so all of SCENE_IDS is on the page), and the specimen models that are easiest to get wrong. Used by the proof run for screenshots. Not linked from the UI.
 const MiniCanvas = lazy(() => import('../three/ItemVisualCanvas'))
 const JuiceGallery = lazy(() => import('./JuiceGallery'))
 
@@ -39,6 +42,8 @@ export default function VisualsScreen({ view }: { view: 'scenes' | 'models' | 'j
     seen.add(key)
     return true
   })
+  const used = new Set(scenes.map((it) => (it.visual.kind === 'scene' ? it.visual.id : '')))
+  const rest = SCENE_IDS.filter((id) => !used.has(id))
   return (
     <div className="screen visuals-screen" data-testid="visuals">
       <div className="topbar">
@@ -67,6 +72,14 @@ export default function VisualsScreen({ view }: { view: 'scenes' | 'models' | 'j
               <span className="mono tiny muted">
                 {it.id} {it.visual.kind === 'scene' ? it.visual.id : ''}
               </span>
+            </div>
+          ))}
+          {rest.map((id) => (
+            <div key={id} className="visuals-cell">
+              <figure className="panel brackets visual-panel kind-scene" role="img" aria-label={`${id} diagram`} data-kind="scene">
+                <SceneDiagram id={id} labels={SCENE_SAMPLES[id] ?? []} />
+              </figure>
+              <span className="mono tiny muted">sample {id}</span>
             </div>
           ))}
         </div>

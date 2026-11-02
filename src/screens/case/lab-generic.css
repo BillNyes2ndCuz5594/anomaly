@@ -1,0 +1,166 @@
+/* Generic Field Lab (sort, match, order). Shared case rules stay in index.css. */
+
+[data-testid='lab-generic'] .btn,
+[data-testid='lab-generic'] .chip,
+[data-testid='lab-generic'] .spec-card,
+[data-testid='lab-generic'] .spec-card li,
+[data-testid='lab-generic'] .job-text,
+[data-testid='lab-generic'] .verdict,
+[data-testid='lab-generic'] .verdict p {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+[data-testid='lab-generic'] .intro {
+  font-size: 0.875rem;
+}
+
+[data-testid='lab-generic'] .spec-card {
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+[data-testid='lab-generic'] .spec-card li {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+[data-testid='lab-generic'] .lab-targets .section-title {
+  margin-bottom: 6px;
+}
+
+[data-testid='lab-generic'] .target-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+[data-testid='lab-generic'] .target-grid.n3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+[data-testid='lab-generic'][data-kind='order'] .target-grid,
+[data-testid='lab-generic'][data-kind='match'] .target-grid {
+  grid-template-columns: 1fr;
+}
+
+[data-testid='lab-generic'] .btn.target {
+  position: relative;
+  min-height: 44px;
+  min-width: 44px;
+  width: 100%;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  text-align: left;
+  white-space: normal;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+[data-testid='lab-generic'] .target-grid.n3 .btn.target {
+  align-items: center;
+  text-align: center;
+}
+
+[data-testid='lab-generic'] .target-sub {
+  font-size: 0.75rem;
+  color: #c5d4ea;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+[data-testid='lab-generic'] .btn.target .bin-n {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+}
+
+[data-testid='lab-generic'] .btn.target:disabled {
+  opacity: 0.8;
+}
+
+[data-testid='lab-generic'] .btn.is-hot:not(:disabled),
+[data-testid='lab-generic'] .btn:focus-visible:not(:disabled):not(.primary),
+[data-testid='lab-generic'] .btn:active:not(:disabled):not(.primary),
+[data-testid='lab-generic'] .btn[data-pressed='true']:not(:disabled):not(.primary),
+[data-testid='lab-generic'] .chip:focus-visible,
+[data-testid='lab-generic'] .chip[data-pressed='true'] {
+  border-color: var(--cyan);
+  background: rgba(62, 230, 255, 0.2);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.28);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-testid='lab-generic'] .btn:hover:not(:disabled):not(.primary),
+  [data-testid='lab-generic'] button.chip:hover:not(.now):not(:disabled) {
+    border-color: var(--cyan);
+    background: rgba(62, 230, 255, 0.14);
+  }
+}
+
+[data-testid='lab-generic'] .btn.on {
+  opacity: 1;
+  color: var(--text);
+  background: rgba(255, 181, 71, 0.24);
+  border-color: var(--amber);
+  box-shadow: inset 0 -3px 0 var(--amber);
+}
+
+[data-testid='lab-generic'] .chip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+[data-testid='lab-generic'] .chip:disabled {
+  opacity: 1;
+}
+
+[data-testid='lab-generic'] .chip.now {
+  box-shadow: inset 0 -3px 0 var(--amber);
+}
+
+[data-testid='lab-generic'] .chip.done {
+  box-shadow: inset 3px 0 0 #2fe3b0;
+}
+
+[data-testid='lab-generic'] .slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+[data-testid='lab-generic'] .chip.slot:not(.done) .chip-name {
+  color: #9db2d1;
+}
+
+[data-testid='lab-generic'] .job-card .btn.primary {
+  min-height: 44px;
+  min-width: 44px;
+  white-space: nowrap;
+}
+
+[data-testid='lab-generic'] .btn.primary:active:not(:disabled),
+[data-testid='lab-generic'] .btn.primary[data-pressed='true']:not(:disabled) {
+  background: #8adcea;
+  box-shadow: inset 0 2px 0 rgba(4, 40, 48, 0.35);
+}
+
+@media (max-width: 600px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
+  [data-testid='lab-generic'] .target-grid.n3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  [data-testid='lab-generic'] .btn.target {
+    font-size: 0.8125rem;
+    padding: 4px 6px;
+  }
+}

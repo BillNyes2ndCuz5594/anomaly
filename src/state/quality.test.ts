@@ -3,6 +3,7 @@ import {
   AUTO_MAX_TIER,
   autoStartTier,
   dprForTier,
+  clampDprToTexture,
   initialAutoState,
   isPostTier,
   resolveTier,
@@ -75,6 +76,15 @@ describe('auto tier logic', () => {
 })
 
 describe('tiers', () => {
+  it('keeps the drawing buffer inside the texture limit', () => {
+    expect(clampDprToTexture(1.75, 1920, 1080)).toBe(1.75)
+    expect(clampDprToTexture(1, 1366, 13927)).toBeCloseTo(8192 / 13927, 6)
+    expect(1366 * clampDprToTexture(1, 1366, 13927)).toBeLessThanOrEqual(8192)
+    expect(13927 * clampDprToTexture(1, 1366, 13927)).toBeLessThanOrEqual(8192)
+    expect(clampDprToTexture(2, 8192, 600)).toBe(1)
+    expect(clampDprToTexture(2, 0, 0)).toBe(2)
+  })
+
   it('caps dpr per tier', () => {
     expect(dprForTier('low', 2)).toBeLessThanOrEqual(1)
     expect(dprForTier('medium', 3)).toBe(1.25)

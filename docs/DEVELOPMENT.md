@@ -1,5 +1,15 @@
 # Development log
 
+## Cases for every benchmark (S6 and S7)
+
+- The engine reads any number of case packs (`src/content/packs/<id>.json`, listed in `PACK_ORDER`), plays one generic Field Lab (sort, match, order) with a lazy 3D scene, lists every case on the hub with New / Open / Closed and grouped mastery, and encodes report code v2 (128 benchmarks, 512 items; v1 still decodes).
+- Nine packs, 128 items, cover all 23 assessed benchmarks behind a teacher review gate (`docs/CONTENT_REVIEW.md`, `node scripts/review-sheet.mjs`). 42 new scene diagrams; 49 in all on the art check page.
+- `SceneDiagram` re-reads its box after layout and the proof waits for a settled viewBox, which closed the old "cold item diagram at Extra large text" failure.
+- A window taller than 8192 px made the WebGPU backdrop request a swapchain bigger than `maxTextureDimension2D` and log an error every frame. `TextureLimitGuard` inside the Stage canvas lowers the dpr just enough (`clampDprToTexture`). A first version tracked the window size from outside the canvas and re-rendered Stage on resize; the phone walk then read the briefing fit 0.294 over the frame with the model visibly inside, so the guard reads R3F's own size instead.
+- `PROOF_SOFT_GPU=1` runs the proof on a machine without a GPU: it skips the specimen-models shot and the two tall art-check shots (that window size makes the software GPU process drop the WebGPU instance) and raises the timeouts; every check still runs.
+
+Gates on this branch (merged with main at #57): `npm test` 409/409 in 48 files, `npm run build`, `tsc` and `npm run lint` with 0 errors. `AN_TAG=full8 PROOF_SOFT_GPU=1 node scripts/proof.mjs` on the cloud container (swiftshader) passed 337/339 checks and 73 screenshots with 0 console or page errors; every diagram-label check passed at Normal, Large and Extra large text at 1366 and 1920 (70 svgs, 194 labels, no overlap, min 14 px). The two misses are load-timing checks the software GPU cannot answer ("evidence glide still shows a painted 3D panel (5/5)", the fifth item's two-specimen scan still loading mid-glide, and "geometry and texture counts plateau across scene churn", which passed the run before); they and the three skipped shots want a run on a machine with a GPU. `node scripts/mobile.mjs s23-portrait` reported 32 screens, 0 errors and 0 problems. `scripts/smoke-cases.mjs` on the real 00-1 pack: 38/38, 0 console errors.
+
 ## Step handoff
 
 - A case step change now reads as a hologram handoff on the full tier. A cyan scan band with a soft glow trail and a faint scanline texture crosses the whole view in the travel direction (forward is left to right, back is right to left) over 480 ms. It is a pointer-events none child of the handoff overlay, which is a sibling of the 3D layer, so no opacity, filter, or transform is ever animated on an ancestor of the WebGL canvas.

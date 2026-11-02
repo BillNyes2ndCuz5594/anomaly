@@ -2,6 +2,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   autoStartTier,
+  clampDprToTexture,
   dprForTier,
   DPR_STEPS,
   initialAdaptiveState,
@@ -176,6 +177,22 @@ export interface StageProps {
   verticalInsets?: boolean
 }
 
+/**
+ * Keeps the drawing buffer inside the texture limit from inside the canvas: R3F's own size times the wanted dpr, lowered
+ * only when a side would pass MAX_TEXTURE_DIM (a 13927 px tall proof window did, and the renderer then logged an error
+ * every frame). Reads the live dpr too, so a tier change that re-applies the full value is clamped again.
+ */
+function TextureLimitGuard({ wanted }: { wanted: number }) {
+  const size = useThree((s) => s.size)
+  const live = useThree((s) => s.viewport.dpr)
+  const setDpr = useThree((s) => s.setDpr)
+  useEffect(() => {
+    const safe = clampDprToTexture(wanted, size.width, size.height)
+    if (Math.abs(live - safe) > 1e-6) setDpr(safe)
+  }, [wanted, live, size.width, size.height, setDpr])
+  return null
+}
+
 /** True while the tab is hidden: the canvas stops rendering completely instead of relying on throttled rAF. */
 function useDocumentHidden(): boolean {
   const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
@@ -248,6 +265,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       aria-hidden="true"
       style={{ position: 'absolute', inset: 0 }}
     >
+      <TextureLimitGuard wanted={dpr} />
       <color attach="background" args={['#070c17']} />
       <Runtime />
       <ViewOffset insets={insets} />

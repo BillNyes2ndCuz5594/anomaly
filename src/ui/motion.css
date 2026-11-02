@@ -1423,7 +1423,7 @@ html[data-motion='still'] .toggle-box::after { transition: none !important; }
 .tier-badge {
   margin-left: var(--sp-2);
   padding: 1px 8px;
-  font-size: 0.7rem;
+  font-size: 0.75rem; /* 12px: the phone floor */
   letter-spacing: 0.08em;
   color: var(--cyan);
   border: 1px solid color-mix(in srgb, var(--cyan) 60%, transparent);

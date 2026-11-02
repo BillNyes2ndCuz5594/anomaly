@@ -1,0 +1,928 @@
+{
+  "case": {
+    "id": "01-1",
+    "codename": "ORBIT",
+    "unit": "U01 Space",
+    "unitLabel": "Unit 1: Space",
+    "category": "earth",
+    "benchmarks": [
+      "SC.5.E.5.1",
+      "SC.5.E.5.3",
+      "SC.4.E.5.4"
+    ],
+    "evidencePlan": [
+      {
+        "benchmark": "SC.5.E.5.1",
+        "count": 1
+      },
+      {
+        "benchmark": "SC.5.E.5.3",
+        "count": 2
+      },
+      {
+        "benchmark": "SC.4.E.5.4",
+        "count": 2
+      }
+    ],
+    "marker": {
+      "lon": -80.6,
+      "lat": 28.39
+    },
+    "dispatchHook": "Tracking glitch at the Cape. Stars, moons and comets filed in the wrong groups.",
+    "briefing": [
+      "Agent, the tracking room at Cape Canaveral lost its object catalog overnight.",
+      "The Sun is filed as a planet, two moons are listed as comets, and a launch is waiting on the fix.",
+      "Sort the objects back into their groups, then check what the sky is really doing.",
+      "The launch window will not move, so work carefully."
+    ],
+    "lab": {
+      "kind": "sort",
+      "intro": "The catalog lost its groups. Read each object card and send it to the group it belongs in.",
+      "bins": [
+        {
+          "id": "star",
+          "name": "Star",
+          "hint": "A star is a huge ball of hot gases that gives off its own light."
+        },
+        {
+          "id": "planet",
+          "name": "Planet",
+          "hint": "A planet is a large, round object that travels around the Sun."
+        },
+        {
+          "id": "moon",
+          "name": "Moon",
+          "hint": "A moon travels around a planet."
+        },
+        {
+          "id": "small-body",
+          "name": "Small body",
+          "hint": "Asteroids and comets are small objects that travel around the Sun."
+        }
+      ],
+      "cards": [
+        {
+          "id": "sun",
+          "name": "The Sun",
+          "card": [
+            "Huge ball of hot gases",
+            "Gives off its own light and heat",
+            "Sits at the center of the solar system"
+          ],
+          "bin": "star",
+          "why": "The Sun makes its own light from hot gases, so it is a star."
+        },
+        {
+          "id": "sirius",
+          "name": "Sirius",
+          "card": [
+            "Gives off its own light",
+            "Looks like a tiny point because it is so far away"
+          ],
+          "bin": "star",
+          "why": "Sirius makes its own light and only looks small because it is very far away, so it is a star."
+        },
+        {
+          "id": "earth",
+          "name": "Earth",
+          "card": [
+            "Large and round",
+            "Travels around the Sun once a year",
+            "Has liquid water on its surface"
+          ],
+          "bin": "planet",
+          "why": "Earth is a large, round object that travels around the Sun, so it is a planet."
+        },
+        {
+          "id": "jupiter",
+          "name": "Jupiter",
+          "card": [
+            "Giant ball of gas with bands of clouds",
+            "Travels around the Sun beyond the asteroid belt"
+          ],
+          "bin": "planet",
+          "why": "Jupiter is a giant object that travels around the Sun, so it is a planet."
+        },
+        {
+          "id": "titan",
+          "name": "Titan",
+          "card": [
+            "Travels around Saturn",
+            "Has a thick, hazy sky"
+          ],
+          "bin": "moon",
+          "why": "Titan travels around the planet Saturn, so it is a moon."
+        },
+        {
+          "id": "phobos",
+          "name": "Phobos",
+          "card": [
+            "Travels around Mars",
+            "Small, lumpy and rocky"
+          ],
+          "bin": "moon",
+          "why": "Phobos travels around the planet Mars, so it is a moon."
+        },
+        {
+          "id": "vesta",
+          "name": "Vesta",
+          "card": [
+            "Rocky chunk in the belt between Mars and Jupiter",
+            "Travels around the Sun"
+          ],
+          "bin": "small-body",
+          "why": "Vesta is a rocky chunk in the belt between Mars and Jupiter, so it is an asteroid, a small body."
+        },
+        {
+          "id": "halley",
+          "name": "Halley's Comet",
+          "card": [
+            "Made of ice, dust and rock",
+            "Grows a glowing tail near the Sun"
+          ],
+          "bin": "small-body",
+          "why": "Halley's Comet is an icy object that grows a tail near the Sun, so it is a comet, a small body."
+        }
+      ]
+    },
+    "debriefClosed": "Case closed. The catalog is sorted, and the launch is back on the board.",
+    "debriefOpen": "Case stays open for now. The sky comes back as a cold case soon, and it will still be there."
+  },
+  "items": [
+    {
+      "id": "E5.1-01",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.5.E.5.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "A science museum on the Space Coast shows a model of a galaxy. A small arrow on the model marks where our Sun is. Which list best describes what a galaxy is made of?",
+      "options": [
+        "one star and the planets that travel around it",
+        "only planets and their moons",
+        "clouds of water vapor and rain",
+        "gas, dust, and many stars"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: one star with its planets is a solar system, which is only a tiny part of a galaxy.",
+        "Decoy: a galaxy is mostly stars, gas, and dust, not just planets and moons.",
+        "Decoy: water vapor and rain belong to Earth's weather, not to a galaxy.",
+        "Correct: a galaxy is a huge group of gas, dust, and many stars, and our Sun is one of those stars."
+      ],
+      "keyWords": [
+        "model of a galaxy",
+        "made of"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "galaxy-spiral",
+        "labels": [
+          "Galaxy",
+          "Our Sun"
+        ]
+      },
+      "alt": "A spiral galaxy seen at an angle, with a small arrow marking our Sun's place.",
+      "tisCheck": "Conceptual galaxy only; the galaxy's name is not assessed; objects orbiting stars are not assessed; no star counts or distances.",
+      "misconceptions": "A galaxy confused with the solar system; a galaxy thought to be only planets."
+    },
+    {
+      "id": "E5.1-02",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.3.E.5.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "From Earth, the Sun looks much larger and brighter than any other star. Which statement best explains why?",
+      "options": [
+        "The Sun is the closest star to Earth.",
+        "The Sun is the largest star in the galaxy.",
+        "The Sun is the only star that gives off light.",
+        "The other stars give off light only at night."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the Sun looks large and bright because it is much closer to Earth than any other star.",
+        "Decoy: many stars are larger than the Sun, but they are so far away that they look tiny.",
+        "Decoy: every star gives off its own light.",
+        "Decoy: stars shine all the time, but in the day the Sun's light hides them."
+      ],
+      "keyWords": [
+        "larger and brighter",
+        "any other star"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "star-brightness-distance",
+        "labels": [
+          "Near star",
+          "Far star",
+          "Earth"
+        ]
+      },
+      "alt": "Two stars drawn the same size, one near Earth and bright, one far away and faint, with a small Earth.",
+      "tisCheck": "Star appearance in relation to distance only; no numeric distances; the Sun's effects on Earth are not assessed.",
+      "misconceptions": "The Sun believed to be the biggest star; other stars thought not to make light or to shine only at night."
+    },
+    {
+      "id": "E5.1-03",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.5.E.5.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Star A and Star B give off the same amount of light. Seen from Earth, Star B looks much dimmer than Star A. Which is the best explanation?",
+      "options": [
+        "Star B is a planet, not a star.",
+        "Star B is much farther from Earth than Star A.",
+        "Star B has stopped giving off light.",
+        "Star B is made of rock instead of gas."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: both are stars that give off light, and planets do not make their own light.",
+        "Correct: a star that is farther away looks dimmer, even when it gives off the same amount of light.",
+        "Decoy: a star that gave off no light could not be seen at all.",
+        "Decoy: stars are made of hot gases, not rock."
+      ],
+      "keyWords": [
+        "same amount of light",
+        "much dimmer"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "star-brightness-distance",
+        "labels": [
+          "Star A",
+          "Star B",
+          "Earth"
+        ]
+      },
+      "alt": "Two stars drawn the same size: Star A near Earth and bright, Star B far away and faint, with a small Earth.",
+      "tisCheck": "Star brightness in relation to distance; stars made of gases with no chemical makeup; no numbers.",
+      "misconceptions": "Dim stars thought to be dying, small, or planets."
+    },
+    {
+      "id": "E5.1-04",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.5.E.5.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "A poster at a Space Coast museum shows three things in space: Earth, our solar system, and our galaxy. Which list goes from smallest to largest?",
+      "options": [
+        "galaxy, solar system, Earth",
+        "solar system, Earth, galaxy",
+        "Earth, solar system, galaxy",
+        "Earth, galaxy, solar system"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: this list goes from largest to smallest.",
+        "Decoy: Earth is one planet inside the solar system, so the solar system cannot be smaller than Earth.",
+        "Correct: Earth is part of the solar system, and the solar system is a tiny part of the galaxy.",
+        "Decoy: the galaxy holds many stars, and our whole solar system is only one small part of it."
+      ],
+      "keyWords": [
+        "smallest to largest",
+        "our galaxy"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "galaxy-spiral",
+        "labels": [
+          "Our galaxy",
+          "Our Sun"
+        ]
+      },
+      "alt": "A spiral galaxy seen at an angle, with a small arrow marking where our Sun is.",
+      "tisCheck": "Conceptual galaxy only (a galaxy holds many stars, our Sun among them); no numbers; the galaxy name is not assessed.",
+      "misconceptions": "The solar system and the galaxy treated as the same size or swapped."
+    },
+    {
+      "id": "E5.1-05",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.3.E.5.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "A student points to a star in the night sky and asks what it is made of. Which answer is correct?",
+      "options": [
+        "ice and rock",
+        "hot gases",
+        "liquid water",
+        "solid metal"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: ice and rock make up comets and asteroids, not stars.",
+        "Correct: a star is a huge ball of hot gases that gives off its own light.",
+        "Decoy: liquid water could not last on something as hot as a star.",
+        "Decoy: a star is not a solid object."
+      ],
+      "keyWords": [
+        "star in the night sky",
+        "made of"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "star-brightness-distance",
+        "labels": [
+          "Near star",
+          "Far star",
+          ""
+        ]
+      },
+      "alt": "Two stars drawn the same size, one near and bright, one far away and faint.",
+      "tisCheck": "Stars are made of gases; no chemical makeup is named.",
+      "misconceptions": "Stars pictured as rocky or icy objects like planets or comets."
+    },
+    {
+      "id": "E5.1-06",
+      "benchmark": "SC.5.E.5.1",
+      "testedAs": "SC.3.E.5.2",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "At noon, the sky over Tampa is bright and no stars can be seen. At night, many stars appear. Which statement best explains why stars cannot be seen during the day?",
+      "options": [
+        "Stars stop giving off light during the day.",
+        "Stars move to the other side of the galaxy during the day.",
+        "Clouds always cover the stars during the day.",
+        "Stars still shine, but the Sun's light makes the sky too bright to see them."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: stars give off light all the time, day and night.",
+        "Decoy: stars do not travel across the galaxy each day, so they are still there at noon.",
+        "Decoy: many days have clear skies, and the stars are still hidden.",
+        "Correct: the Sun is the closest star, and its bright light hides the dimmer stars that are much farther away."
+      ],
+      "keyWords": [
+        "At noon",
+        "cannot be seen during the day"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "earth-day-night",
+        "labels": [
+          "Sun",
+          "Day side",
+          "Night side"
+        ]
+      },
+      "alt": "Earth with a lit half facing the Sun at the left and a dark half facing away, with an arrow showing Earth spinning.",
+      "tisCheck": "Stars give off visible light; brightness in relation to distance; no numbers; the Sun's effects on Earth are not assessed.",
+      "misconceptions": "Stars thought to shine only at night or to go away during the day."
+    },
+    {
+      "id": "E5.3-01",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.3",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Leo builds a model of the inner planets for a Space Coast museum. He needs to place Earth in the model. Counting out from the Sun, which planet is Earth?",
+      "options": [
+        "the first planet",
+        "the second planet",
+        "the third planet",
+        "the fourth planet"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: the first planet from the Sun is Mercury.",
+        "Decoy: the second planet from the Sun is Venus.",
+        "Correct: Earth is the third planet from the Sun, after Mercury and Venus.",
+        "Decoy: the fourth planet from the Sun is Mars."
+      ],
+      "keyWords": [
+        "inner planets",
+        "Counting out from the Sun"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "solar-system",
+        "labels": [
+          "Sun",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      "alt": "The Sun at the left with four inner planets in a row, none of them labeled.",
+      "tisCheck": "Earth's position in the solar system; no distances, no interactions between objects.",
+      "misconceptions": "Earth assumed to be the first planet or the one in the middle."
+    },
+    {
+      "id": "E5.3-02",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "The table describes two planets in our solar system. Which statement is most likely true?",
+      "options": [
+        "Planet A is an outer planet, and Planet B is an inner planet.",
+        "Both planets are inner planets.",
+        "Planet B is a star because it is so large.",
+        "Planet A is an inner planet, and Planet B is an outer planet."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: this is backward, since the outer planets are the large gas planets with rings.",
+        "Decoy: inner planets are rocky and have no rings, so Planet B cannot be one.",
+        "Decoy: a planet does not become a star by being large, because stars give off their own light.",
+        "Correct: small and rocky fits the inner planets, and large, gassy, and ringed fits the outer planets."
+      ],
+      "keyWords": [
+        "two planets",
+        "most likely true"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Two Planets",
+        "columns": [
+          "Planet",
+          "Made mostly of",
+          "Size compared to Earth",
+          "Rings"
+        ],
+        "rows": [
+          [
+            "A",
+            "Rock",
+            "Smaller",
+            "No"
+          ],
+          [
+            "B",
+            "Gas",
+            "Much larger",
+            "Yes"
+          ]
+        ]
+      },
+      "alt": "A table: Planet A is rocky, smaller than Earth, with no rings; Planet B is made of gas, much larger than Earth, with rings.",
+      "tisCheck": "Inner vs outer planet characteristics (SC.5.E.5.2); no numbers, no interactions between objects.",
+      "misconceptions": "Inner and outer planets reversed; large objects assumed to be stars."
+    },
+    {
+      "id": "E5.3-03",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A tracking room at Cape Canaveral logs four objects in our solar system. Which object is a moon?",
+      "options": [
+        "Object 1",
+        "Object 2",
+        "Object 3",
+        "Object 4"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: a moon travels around a planet, and Object 1 travels around Mars.",
+        "Decoy: Object 2 travels around the Sun and is made mostly of gas, so it is a planet.",
+        "Decoy: Object 3 sits at the center and gives off its own light, so it is the Sun, a star.",
+        "Decoy: Object 4 grows a tail near the Sun, so it is a comet."
+      ],
+      "keyWords": [
+        "four objects",
+        "moon"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Tracked Objects",
+        "columns": [
+          "Object",
+          "Travels around",
+          "Notes"
+        ],
+        "rows": [
+          [
+            "1",
+            "Mars",
+            "Small and rocky, no light of its own"
+          ],
+          [
+            "2",
+            "The Sun",
+            "Huge, made mostly of gas"
+          ],
+          [
+            "3",
+            "Stays at the center",
+            "Hot gases, gives off its own light"
+          ],
+          [
+            "4",
+            "The Sun",
+            "Ice and dust, grows a tail near the Sun"
+          ]
+        ]
+      },
+      "alt": "A table of four objects: one travels around Mars, one is a huge gas object that travels around the Sun, one stays at the center and gives off light, and one grows a tail near the Sun.",
+      "tisCheck": "Telling the Sun, a planet, a moon and a comet apart by their characteristics; no gravity or other interactions assessed.",
+      "misconceptions": "Any object near a planet or the Sun called a planet; comets and moons confused."
+    },
+    {
+      "id": "E5.3-04",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.3",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "Scientists track two small objects. Object 1 is made of rock and metal and travels in a belt between Mars and Jupiter. Object 2 is made of ice, dust, and rock and forms a glowing tail near the Sun. Which statement names both objects correctly?",
+      "options": [
+        "Object 1 is a comet, and Object 2 is an asteroid.",
+        "Object 1 is an asteroid, and Object 2 is a comet.",
+        "Both objects are moons because they are small.",
+        "Both objects are planets because they travel around the Sun."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: this swaps them, since comets are icy with tails and asteroids are rock and metal.",
+        "Correct: asteroids are rock and metal in the belt between Mars and Jupiter, and comets are icy and form tails near the Sun.",
+        "Decoy: a moon travels around a planet, and being small does not make an object a moon.",
+        "Decoy: many objects travel around the Sun, but these small ones are not planets."
+      ],
+      "keyWords": [
+        "rock and metal",
+        "ice, dust, and rock",
+        "glowing tail"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "asteroid-belt",
+        "labels": [
+          "Where Object 1 travels"
+        ]
+      },
+      "alt": "The Sun at the left with a band of small rocky objects in a belt farther out.",
+      "tisCheck": "Asteroid vs comet characteristics; no interactions between objects, no numbers.",
+      "misconceptions": "Asteroids and comets swapped; small objects called moons; anything that travels around the Sun called a planet."
+    },
+    {
+      "id": "E5.3-05",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "A student lists ways the Sun is different from the planets. Which statement is correct?",
+      "options": [
+        "The Sun gives off its own light, and the planets do not.",
+        "The Sun travels around Earth once a day.",
+        "The Sun is a planet made of rock.",
+        "The Sun is smaller than Jupiter."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the Sun is a star that makes its own light, and the planets only reflect sunlight.",
+        "Decoy: the Sun only seems to move across the sky each day because Earth spins.",
+        "Decoy: the Sun is a star made of hot gases, not a rocky planet.",
+        "Decoy: the Sun is much larger than Jupiter, the largest planet."
+      ],
+      "keyWords": [
+        "different from the planets",
+        "correct"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "solar-system",
+        "labels": [
+          "Sun",
+          "Mercury",
+          "Venus",
+          "Earth",
+          "Mars"
+        ]
+      },
+      "alt": "The Sun at the left with Mercury, Venus, Earth, and Mars in a row.",
+      "tisCheck": "Sun vs planet characteristics; the Sun's effects on Earth are not assessed; no numbers.",
+      "misconceptions": "The Sun moving around Earth; the Sun treated as a planet; Jupiter thought to be bigger than the Sun."
+    },
+    {
+      "id": "E5.3-06",
+      "benchmark": "SC.5.E.5.3",
+      "testedAs": "SC.5.E.5.2",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "A space probe launched from Florida will fly past one of the outer planets. Which planet could it be?",
+      "options": [
+        "Mars",
+        "Venus",
+        "Neptune",
+        "Mercury"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: Mars is the last of the inner planets, just before the asteroid belt.",
+        "Decoy: Venus is an inner planet close to the Sun.",
+        "Correct: Neptune is an outer planet, far beyond the asteroid belt.",
+        "Decoy: Mercury is the inner planet closest to the Sun."
+      ],
+      "keyWords": [
+        "outer planets",
+        "Which planet"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "inner-outer-planets",
+        "labels": [
+          "Sun",
+          "Inner planets",
+          "Outer planets"
+        ]
+      },
+      "alt": "The Sun at the left, the four small inner planets near it, and the four large outer planets farther out.",
+      "tisCheck": "Inner vs outer planets by position (SC.5.E.5.2); no distances or numbers.",
+      "misconceptions": "Mars thought to be far out; the order of the planets unclear."
+    },
+    {
+      "id": "E5.4-01",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.4",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "In Miami, the Sun rises in the morning and sets in the evening. Which motion causes day and night on Earth?",
+      "options": [
+        "the Sun traveling around Earth",
+        "Earth spinning on its axis",
+        "Earth traveling around the Sun",
+        "the Moon blocking the Sun each night"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: the Sun only seems to move because Earth spins.",
+        "Correct: as Earth spins, Miami turns toward the Sun for day and away from it for night.",
+        "Decoy: one trip around the Sun takes a year, not a day.",
+        "Decoy: the Moon does not block the Sun every night."
+      ],
+      "keyWords": [
+        "rises in the morning",
+        "causes day and night"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "earth-day-night",
+        "labels": [
+          "Sun",
+          "Day side",
+          "Night side"
+        ]
+      },
+      "alt": "Earth with a lit half facing the Sun at the left and a dark half facing away, with an arrow showing Earth spinning.",
+      "tisCheck": "Day and night from rotation; apparent motion only; no seasons, no tilt.",
+      "misconceptions": "The Sun traveling around Earth; rotation and revolution mixed up."
+    },
+    {
+      "id": "E5.4-02",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Kim records where the Sun is in the sky at three times on one day. Why does the Sun seem to move across the sky?",
+      "options": [
+        "The Sun travels around Earth once each day.",
+        "Earth travels around the Sun once each day.",
+        "Earth spins, so the Sun appears to move from east to west.",
+        "Wind pushes the Sun across the sky."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: the Sun does not travel around Earth; it only appears to move.",
+        "Decoy: Earth takes a whole year, not a day, to travel around the Sun.",
+        "Correct: as Earth spins, the Sun appears to rise in the east and set in the west.",
+        "Decoy: wind is moving air on Earth, and it cannot move the Sun."
+      ],
+      "keyWords": [
+        "three times on one day",
+        "seem to move"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Where the Sun Appears",
+        "columns": [
+          "Time",
+          "Place in the sky"
+        ],
+        "rows": [
+          [
+            "9 a.m.",
+            "Low in the east"
+          ],
+          [
+            "Noon",
+            "High in the sky"
+          ],
+          [
+            "3 p.m.",
+            "Lower in the west"
+          ]
+        ]
+      },
+      "alt": "A table: at 9 a.m. the Sun is low in the east, at noon it is high in the sky, and at 3 p.m. it is lower in the west.",
+      "tisCheck": "Apparent movement of the Sun from Earth's rotation; no seasons, no directness of sunlight.",
+      "misconceptions": "Apparent motion taken as real motion of the Sun; a day confused with a year."
+    },
+    {
+      "id": "E5.4-03",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Jay draws the Moon's shape every few nights. The lit part grows until the Moon looks like a whole circle. Then it shrinks until he cannot see the Moon at all. About how long does it take before the pattern starts again?",
+      "options": [
+        "about one day",
+        "about one week",
+        "about one year",
+        "about one month"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: one day is how long Earth takes to spin once.",
+        "Decoy: in one week the Moon goes through only part of its changes.",
+        "Decoy: one year is how long Earth takes to travel around the Sun.",
+        "Correct: the Moon's shape goes through its whole pattern in about one month."
+      ],
+      "keyWords": [
+        "Moon's shape",
+        "pattern starts again"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "moon-month",
+        "labels": [
+          "First drawing",
+          "",
+          "Last drawing"
+        ]
+      },
+      "alt": "Eight small Moon shapes in a row, growing from dark to a whole lit circle and shrinking back.",
+      "tisCheck": "The Moon's observable shape over about a month; no causes of the changes and no names for the shapes.",
+      "misconceptions": "The Moon's pattern confused with a day, a week or a year."
+    },
+    {
+      "id": "E5.4-04",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "In winter, Ava sees a star pattern called Orion in the evening sky over Gainesville. In summer, she looks at the same time of night and cannot find it. Which statement best explains this?",
+      "options": [
+        "Earth travels around the Sun, so the night sky shows different stars in different seasons.",
+        "The stars in Orion stop shining in the summer.",
+        "Earth spins faster in the summer, so Orion goes by too quickly.",
+        "Clouds always hide Orion in the summer."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: as Earth moves around the Sun, the night side of Earth faces different stars, so star patterns change with the seasons.",
+        "Decoy: the stars in Orion shine all year long.",
+        "Decoy: Earth spins at the same speed all year.",
+        "Decoy: Florida has many clear summer nights, and Orion still is not seen."
+      ],
+      "keyWords": [
+        "star pattern",
+        "same time of night",
+        "cannot find it"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Orion at 9 p.m.",
+        "columns": [
+          "Season",
+          "What Ava sees"
+        ],
+        "rows": [
+          [
+            "Winter",
+            "Orion high in the sky"
+          ],
+          [
+            "Summer",
+            "Orion not seen"
+          ]
+        ]
+      },
+      "alt": "A table: in winter at 9 p.m., Orion is high in the sky; in summer at 9 p.m., Orion is not seen.",
+      "tisCheck": "Star patterns change with the seasons; the formal word for a named star group is not used; no causes of seasons, no tilt.",
+      "misconceptions": "Stars turning off; Earth spinning at different speeds; weather blamed for a pattern that is not there."
+    },
+    {
+      "id": "E5.4-05",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.3",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Earth and the Moon are always moving. Which of these takes about one year?",
+      "options": [
+        "Earth spinning once on its axis",
+        "the Moon traveling once around Earth",
+        "the Sun rising and setting once",
+        "Earth traveling once around the Sun"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: one spin of Earth takes about one day.",
+        "Decoy: the Moon travels around Earth in about one month.",
+        "Decoy: the Sun rises and sets once each day because Earth spins.",
+        "Correct: Earth takes about one year to travel once around the Sun."
+      ],
+      "keyWords": [
+        "always moving",
+        "about one year"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "sun-earth-moon",
+        "labels": [
+          "Sun",
+          "Earth",
+          "Moon"
+        ]
+      },
+      "alt": "The Sun, Earth on its path around the Sun, and the Moon on its smaller path around Earth, with arrows.",
+      "tisCheck": "Earth's rotation and revolution and the Moon's revolution; no causes of seasons or of the Moon's shapes.",
+      "misconceptions": "Rotation and revolution confused; the Moon's month mixed up with a year."
+    },
+    {
+      "id": "E5.4-06",
+      "benchmark": "SC.4.E.5.4",
+      "testedAs": "SC.4.E.5.4",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "At 8 p.m., a camper at a Florida state park sees a bright star low in the eastern sky. At midnight, the same star is high in the sky. Which statement best explains why the star seemed to move?",
+      "options": [
+        "The star traveled across the galaxy in four hours.",
+        "Earth traveled halfway around the Sun in four hours.",
+        "Earth spun during those four hours, so the star appeared to move.",
+        "The Moon pulled the star higher in the sky."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: a star does not move far enough in one night to cross our sky, so the motion comes from Earth.",
+        "Decoy: a trip around the Sun takes a year, so Earth moves only a tiny part of the way in four hours.",
+        "Correct: stars appear to rise in the east and cross the sky because Earth spins, just like the Sun does.",
+        "Decoy: the Moon does not move the stars."
+      ],
+      "keyWords": [
+        "same star",
+        "seemed to move"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "One Star Through the Night",
+        "columns": [
+          "Time",
+          "Where the star appears"
+        ],
+        "rows": [
+          [
+            "8 p.m.",
+            "Low in the east"
+          ],
+          [
+            "10 p.m.",
+            "Partway up the sky"
+          ],
+          [
+            "Midnight",
+            "High in the sky"
+          ]
+        ]
+      },
+      "alt": "A table: at 8 p.m. the star is low in the east, at 10 p.m. it is partway up the sky, and at midnight it is high in the sky.",
+      "tisCheck": "Apparent movement of stars from Earth's rotation; no numeric distances; the formal word for a named star group is not used.",
+      "misconceptions": "Stars moving on their own; rotation and revolution confused."
+    }
+  ],
+  "codex": [
+    {
+      "id": "lab:01-1:sirius",
+      "title": "Sirius",
+      "line": "Sirius gives off more light than our Sun, but it looks like a tiny point because it is so far away."
+    },
+    {
+      "id": "lab:01-1:phobos",
+      "title": "Phobos",
+      "line": "Phobos is a small, lumpy moon that travels around Mars."
+    },
+    {
+      "id": "lab:01-1:halley",
+      "title": "Halley's Comet",
+      "line": "Halley's Comet comes near the Sun about once every 76 years, and its ice makes a glowing tail."
+    }
+  ]
+}

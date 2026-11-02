@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { content } from '../content/schema'
+import { caseById, content } from '../content'
 import { navigate } from '../lib/router'
 import { stepsFor, useSession } from '../state/session'
 import { carryDelta, carryForget } from '../ui/carry'
@@ -11,6 +11,7 @@ import ItemPlayer from './case/ItemPlayer'
 import LabA from './case/LabA'
 import LabB from './case/LabB'
 import LabC from './case/LabC'
+import LabGeneric from './case/LabGeneric'
 import Results from './case/Results'
 
 function Placeholder({ label, text }: { label: string; text: string }) {
@@ -39,13 +40,14 @@ const CARRY: readonly [string, number][] = [
 function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
   const caseId = useSession((s) => s.caseId)
   const step = useSession((s) => s.step)
+  const caseDef = useSession((s) => s.caseDef)
   const start = useSession((s) => s.start)
   const motion = useMotionMode()
   const hostRef = useRef<HTMLDivElement>(null)
   const [seen, setSeen] = useState(step)
   const [dir, setDir] = useState<'forward' | 'back'>('forward')
   if (step !== seen) {
-    const steps = stepsFor(kind)
+    const steps = stepsFor(kind, caseDef)
     setDir(stepDirection(steps.findIndex((s) => s.id === seen), steps.findIndex((s) => s.id === step)))
     setSeen(step)
   }
@@ -90,6 +92,8 @@ function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getStat
       return <LabB />
     case 'lab-c':
       return <LabC />
+    case 'lab':
+      return <LabGeneric />
     case 'items':
       return <ItemPlayer />
     case 'debrief':
@@ -104,6 +108,6 @@ export default function CaseScreen({ kind, id }: { kind: 'case' | 'cold'; id: st
     if (id !== content.coldCase.id) return <Placeholder label={`COLD CASE ${id.toUpperCase()}`} text="No such case on file." />
     return <CaseFlow id={id} kind="cold" />
   }
-  if (id !== content.case.id) return <Placeholder label={`CASE ${id.toUpperCase()}`} text="No such case on file." />
+  if (!caseById(id)) return <Placeholder label={`CASE ${id.toUpperCase()}`} text="No such case on file." />
   return <CaseFlow id={id} kind="case" />
 }

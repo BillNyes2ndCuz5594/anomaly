@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type CSSProperties } from 'react'
-import { content } from '../../content/schema'
+import { content } from '../../content'
 import { STILL } from '../../lib/flags'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
@@ -8,6 +8,7 @@ import { countUpElement } from '../../ui/countUp'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { debriefLine, fitStampFont, verdictPhrase } from './resultsDebrief'
 import { CaseTop } from './ui'
+import { useCaseDef } from './useCaseDef'
 import './results-debrief.css'
 
 const LETTERS = ['A', 'B', 'C', 'D']
@@ -73,8 +74,9 @@ export default function Debrief() {
   const answers = useSession((s) => s.answers)
   const go = useSession((s) => s.go)
   const kind = useSession((s) => s.kind)
-  const caseId = useSession((s) => s.caseId) ?? content.case.id
-  const def = kind === 'cold' ? content.coldCase : content.case
+  const caseDef = useCaseDef()
+  const caseId = useSession((s) => s.caseId) ?? caseDef.id
+  const def = kind === 'cold' ? content.coldCase : caseDef
   const setCaseStatus = useGame((s) => s.setCaseStatus)
   const reduced = useGame((s) => s.settings.reducedMotion)
   const motion = useMotionMode()

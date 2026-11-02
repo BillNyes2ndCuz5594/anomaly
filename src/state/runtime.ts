@@ -9,8 +9,8 @@ interface RuntimeState {
   dprStep: number
   fps: number
   /** Hub marker highlighted by keyboard focus or hover on its HTML mirror. */
-  focusedMarker: 'case' | 'cold' | null
-  setFocusedMarker: (m: 'case' | 'cold' | null) => void
+  focusedMarker: string | null
+  setFocusedMarker: (m: string | null) => void
   /** Transient cold case events. Not persisted. `n` counts events, so a scene can tell a new one from an old one. */
   coreFx: { ok: boolean; n: number } | null
   /** Lock in on a cold evidence item: the residue core reacts (right or wrong). */

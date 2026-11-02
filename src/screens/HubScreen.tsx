@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { codexById } from '../content/schema'
+import { codexById, content } from '../content'
+import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
-import { HUB_BENCHMARKS, MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
+import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
+import { caseStatus, hubBenchmarkGroups } from './hubList'
 import { clearCodenameDecode, peekCodenameDecode } from '../ui/decode'
 import { useDecode } from '../ui/useDecode'
 import { useMotionMode } from '../ui/useMotionMode'
@@ -33,6 +35,7 @@ function CaseButton({
   testId,
   className,
   due,
+  status,
   to,
   code,
   sub,
@@ -42,6 +45,7 @@ function CaseButton({
   testId: string
   className: string
   due?: 'yes' | 'no'
+  status?: string
   to: string
   code: string
   sub: ReactNode
@@ -56,6 +60,7 @@ function CaseButton({
       data-testid={testId}
       data-pressed={pressed ? 'yes' : 'no'}
       data-due={due}
+      data-status={status}
       onClick={() => navigate(to)}
       onFocus={() => setFocused(id)}
       onBlur={() => setFocused(null)}
@@ -73,12 +78,24 @@ function CaseButton({
   )
 }
 
+const LABEL_OF = new Map(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
+const labelOf = (id: string) => LABEL_OF.get(id) ?? id
+
+/** Phones start with the mastery groups closed so the sheet stays short; desktops start with them open. */
+function phoneLike(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
+  return window.matchMedia('(max-width: 600px), (max-height: 500px)').matches
+}
+
 export default function HubScreen() {
   const profile = useGame((s) => s.profile)
   const mastery = useGame((s) => s.mastery)
   const codex = useGame((s) => s.codex)
   const progress = useGame((s) => s.progress)
+  const cases = useGame((s) => s.cases)
   const due = useReviewDue()
+  const [openGroups, setOpenGroups] = useState<Partial<Record<Category, boolean>>>({})
+  const [startOpen] = useState(() => !phoneLike())
   const mode = useMotionMode()
   const codenameRef = useRef<HTMLHeadingElement>(null)
   const [decode] = useState(peekCodenameDecode)
@@ -87,14 +104,8 @@ export default function HubScreen() {
   }, [decode])
   useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
-  // The four starter benchmarks, plus any other benchmark the agent has answered.
-  const labelOf = new Map(CATALOG_BENCHMARKS.map((b) => [b.id, b.label]))
-  const shownBenchmarks = [
-    ...HUB_BENCHMARKS,
-    ...Object.keys(progress)
-      .filter((id) => !HUB_BENCHMARKS.some((b) => b.id === id))
-      .map((id) => ({ id, label: labelOf.get(id) ?? id })),
-  ]
+  // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
+  const groups = hubBenchmarkGroups(content.cases, Object.keys(progress), labelOf)
 
   return (
     <div className="screen hub-screen" data-testid="hub">
@@ -130,14 +141,28 @@ export default function HubScreen() {
             Dispatch
           </h3>
           <div className="case-list">
-            <CaseButton
-              id="case"
-              testId="case-marker-03-1"
-              className="case-btn amber"
-              to="/case/03-1"
-              code="CASE 03-1 VITALS"
-              sub="Unit 3: Living Things"
-            />
+            {content.cases.map((c) => {
+              const st = caseStatus(cases[c.id])
+              return (
+                <CaseButton
+                  key={c.id}
+                  id={c.id}
+                  testId={`case-marker-${c.id}`}
+                  className="case-btn amber"
+                  status={st.word.toLowerCase()}
+                  to={`/case/${c.id}`}
+                  code={`CASE ${c.id} ${c.codename}`}
+                  sub={
+                    <>
+                      {c.unitLabel}
+                      <span className={`case-status ${st.word.toLowerCase()}`} data-testid={`case-status-${c.id}`}>
+                        <span aria-hidden="true">{st.word === 'Closed' ? '\u2714' : st.word === 'Open' ? '\u25CB' : '\u2605'}</span> {st.text}
+                      </span>
+                    </>
+                  }
+                />
+              )
+            })}
             <CaseButton
               id="cold"
               testId="cold-marker"
@@ -165,21 +190,45 @@ export default function HubScreen() {
           <h3 id="mastery-h" className="section-title">
             Benchmark mastery
           </h3>
-          <ul className="mastery-list" data-testid="mastery-list">
-            {shownBenchmarks.map((b) => {
-              const stage = mastery[b.id] ?? 'unseen'
+          <div className="mastery-groups" data-testid="mastery-list">
+            {groups.map((g) => {
+              const seen = g.benchmarks.filter((b) => (mastery[b.id] ?? 'unseen') !== 'unseen').length
               return (
-                <li key={b.id}>
-                  <span className="mono bench-id">{b.id}</span>
-                  <span className="bench-label">{b.label}</span>
-                  <span className="bench-stage">
-                    <Pips stage={stage} />
-                    <span>{MASTERY_LABEL[stage]}</span>
-                  </span>
-                </li>
+                <details
+                  key={g.category}
+                  className="mastery-group"
+                  data-testid={`mastery-group-${g.category}`}
+                  open={openGroups[g.category] ?? startOpen}
+                  onToggle={(e) => {
+                    const open = (e.currentTarget as HTMLDetailsElement).open
+                    setOpenGroups((s) => (s[g.category] === open ? s : { ...s, [g.category]: open }))
+                  }}
+                >
+                  <summary>
+                    <span className="mastery-group-name">{g.label}</span>
+                    <span className="muted mastery-group-count">
+                      {seen} of {g.benchmarks.length} started
+                    </span>
+                  </summary>
+                  <ul className="mastery-list">
+                    {g.benchmarks.map((b) => {
+                      const stage = mastery[b.id] ?? 'unseen'
+                      return (
+                        <li key={b.id}>
+                          <span className="mono bench-id">{b.id}</span>
+                          <span className="bench-label">{b.label}</span>
+                          <span className="bench-stage">
+                            <Pips stage={stage} />
+                            <span>{MASTERY_LABEL[stage]}</span>
+                          </span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </details>
               )
             })}
-          </ul>
+          </div>
         </section>
 
       </aside>

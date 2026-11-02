@@ -1,0 +1,603 @@
+{
+  "case": {
+    "id": "05-1",
+    "codename": "CURRENT",
+    "unit": "U05 Energy",
+    "unitLabel": "Unit 5: Energy",
+    "category": "physical",
+    "benchmarks": ["SC.5.P.10.1", "SC.5.P.10.2", "SC.5.P.10.4"],
+    "evidencePlan": [
+      { "benchmark": "SC.5.P.10.1", "count": 2 },
+      { "benchmark": "SC.5.P.10.2", "count": 1 },
+      { "benchmark": "SC.5.P.10.4", "count": 2 }
+    ],
+    "marker": { "lon": -81.66, "lat": 30.33 },
+    "dispatchHook": "Jacksonville riverfront. Power going places it should not.",
+    "briefing": [
+      "Agent, the devices along the Jacksonville riverfront started buzzing, glowing and warming up all at once.",
+      "The repair crew cannot tell which device turns electrical energy into what.",
+      "Match each device to the energy change it makes, then sort out light, heat, sound and motion in the evidence.",
+      "The crew already tried turning everything off and on again."
+    ],
+    "lab": {
+      "kind": "match",
+      "intro": "Each device takes in one form of energy and gives out another. Match the device to the main energy change it makes.",
+      "left": [
+        { "id": "lamp", "name": "Desk lamp", "card": "Plugged in, glows bright and feels warm up close" },
+        { "id": "fan", "name": "Electric fan", "card": "Plugged in, its blades turn" },
+        { "id": "speaker", "name": "Speaker", "card": "Plugged in, its cone shakes back and forth" },
+        { "id": "kettle", "name": "Electric kettle", "card": "Plugged in, the water inside gets hot" },
+        { "id": "solar", "name": "Solar panel", "card": "Sits in sunlight, a wire runs from it to a light" }
+      ],
+      "right": [
+        { "id": "to-light-heat", "name": "Electrical to light and heat" },
+        { "id": "to-motion", "name": "Electrical to motion" },
+        { "id": "to-sound", "name": "Electrical to sound" },
+        { "id": "to-heat", "name": "Electrical to heat" },
+        { "id": "light-to-electrical", "name": "Light to electrical" }
+      ],
+      "pairs": [
+        { "left": "lamp", "right": "to-light-heat", "why": "A lamp changes electrical energy into light, and the bulb gives off heat too." },
+        { "left": "fan", "right": "to-motion", "why": "A fan's motor changes electrical energy into the motion of the blades." },
+        { "left": "speaker", "right": "to-sound", "why": "A speaker changes electrical energy into vibrations that make sound." },
+        { "left": "kettle", "right": "to-heat", "why": "A kettle changes electrical energy into heat that warms the water." },
+        { "left": "solar", "right": "light-to-electrical", "why": "A solar panel changes light from the Sun into electrical energy." }
+      ]
+    },
+    "debriefClosed": "Case closed. The riverfront is lit, quiet and only as warm as it should be.",
+    "debriefOpen": "Case stays open for now. The wiring comes back as a cold case soon, and you will trace it faster then."
+  },
+  "items": [
+    {
+      "id": "P10.1-01",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.3.P.10.1",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "The picture shows six objects that use, store or give off energy. Which object stores chemical energy?",
+      "options": ["the lamp", "the speaker", "the battery", "the rolling ball"],
+      "key": 2,
+      "why": [
+        "Decoy: a lamp gives off light and heat while it is on, but it does not store chemical energy.",
+        "Decoy: a speaker gives off sound energy.",
+        "Correct: a battery stores chemical energy that can change into electrical energy.",
+        "Decoy: a rolling ball has mechanical energy, the energy of motion."
+      ],
+      "keyWords": ["six objects", "stores chemical energy"],
+      "visual": { "kind": "scene", "id": "energy-forms", "labels": ["lamp", "flame", "speaker", "plug", "battery", "rolling ball"] },
+      "alt": "Six small pictures: a lamp, a flame, a speaker, a plug, a battery and a rolling ball.",
+      "tisCheck": "Basic forms of energy limited to light, heat, sound, electrical, chemical and mechanical.",
+      "misconceptions": "Batteries thought to hold electricity itself; anything that glows or makes noise seen as storing energy."
+    },
+    {
+      "id": "P10.1-02",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.3.P.10.4",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "An agent shines a flashlight at a mirror, and the beam bounces off. Part of the light then goes into a glass of water and bends. Which words name what happens to the light at the mirror and at the water?",
+      "options": [
+        "mirror: reflected; water: refracted",
+        "mirror: refracted; water: reflected",
+        "mirror: absorbed; water: reflected",
+        "mirror: reflected; water: absorbed"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: light that bounces off a surface is reflected, and light that bends as it passes into water is refracted.",
+        "Decoy: the two words are switched, because bouncing is reflection and bending is refraction.",
+        "Decoy: the light bounced off the mirror instead of soaking in, and at the water it bent instead of bouncing.",
+        "Decoy: the mirror part is right, but light that bends as it enters water is refracted, not absorbed."
+      ],
+      "keyWords": ["bounces off", "bends", "at the mirror and at the water"],
+      "visual": { "kind": "scene", "id": "light-path", "labels": ["flashlight", "mirror", "water"] },
+      "alt": "A flashlight beam hits a mirror and bounces off, and part of the light goes into a glass of water and bends.",
+      "tisCheck": "Light travels in a straight line until it is reflected, refracted or absorbed (SC.3.P.10.3, SC.3.P.10.4).",
+      "misconceptions": "Reflection and refraction swapped; any change in light called absorption."
+    },
+    {
+      "id": "P10.1-03",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.4.P.10.3",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent taps four metal bars on a xylophone with the same force. The table shows each bar's length, how fast it vibrates and the pitch of its sound. Which statement is supported by the data?",
+      "options": [
+        "Longer bars vibrate faster and make a higher pitch.",
+        "Shorter bars vibrate faster and make a higher pitch.",
+        "Hitting a bar harder makes a higher pitch.",
+        "All four bars make the same pitch, because they are all metal."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: the longest bar vibrated slowest and made the lowest pitch, so this is backward.",
+        "Correct: as the bars get shorter they vibrate faster, and faster vibrations make a higher pitch.",
+        "Decoy: every bar was tapped with the same force, so the data says nothing about hitting harder, which changes loudness.",
+        "Decoy: the table shows four different pitches, from lowest to highest."
+      ],
+      "keyWords": ["same force", "how fast it vibrates", "pitch"],
+      "visual": {
+        "kind": "table",
+        "title": "Xylophone Bars",
+        "columns": ["Bar", "Length (cm)", "How fast it vibrates", "Pitch"],
+        "rows": [
+          ["1", "20", "slowest", "lowest"],
+          ["2", "16", "slow", "low"],
+          ["3", "12", "fast", "high"],
+          ["4", "8", "fastest", "highest"]
+        ]
+      },
+      "alt": "A table of four xylophone bars: the 20 cm bar vibrates slowest with the lowest pitch, and each shorter bar vibrates faster with a higher pitch, up to the 8 cm bar.",
+      "tisCheck": "Vibrating objects make sound, and pitch depends on how fast they vibrate (SC.4.P.10.3); comparing rows, no computation, no wave terms.",
+      "misconceptions": "Pitch confused with loudness; bigger objects thought to make higher sounds."
+    },
+    {
+      "id": "P10.1-04",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.3.P.11.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Agents checked three things that give off light. They held a hand near each one without touching it. Which statement is supported by what they found?",
+      "options": [
+        "Things that give off light never give off heat.",
+        "Only the Sun can give off light and heat at the same time.",
+        "Light and heat are the same form of energy.",
+        "Things that give off light often give off heat too."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: all three light sources felt warm, so this is the opposite of the data.",
+        "Decoy: none of the three things is the Sun, and all of them gave off light and heat.",
+        "Decoy: light and heat are two different forms of energy, even when one object gives off both.",
+        "Correct: the campfire, the candle flame and the glowing toaster wires all gave off light and also felt warm."
+      ],
+      "keyWords": ["give off light", "held a hand near"],
+      "visual": {
+        "kind": "table",
+        "title": "Light and Heat Check",
+        "columns": ["Object", "Gives off light?", "Hand feels warm nearby?"],
+        "rows": [["Campfire", "yes", "yes"], ["Candle flame", "yes", "yes"], ["Glowing toaster wires", "yes", "yes"]]
+      },
+      "alt": "A table showing that a campfire, a candle flame and glowing toaster wires each give off light and each feel warm nearby.",
+      "tisCheck": "Things that give off light often also give off heat (SC.3.P.11.1); observation without touching.",
+      "misconceptions": "Light and heat seen as one thing; only the Sun thought to give off both."
+    },
+    {
+      "id": "P10.1-05",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.3.P.11.2",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "On a 12°C (54°F) morning at the bus stop, an agent rubs her hands together quickly. After 20 seconds, her hands feel warmer. What made the heat?",
+      "options": [
+        "the sound her hands make",
+        "cold air trapped between her hands",
+        "her hands rubbing against each other",
+        "electrical energy stored in her hands"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: rubbing hands makes a little sound, but sound is not what warms them.",
+        "Decoy: cold air cannot make her hands warmer.",
+        "Correct: rubbing two surfaces together makes heat.",
+        "Decoy: her hands do not store electrical energy for warming, and the rubbing made the heat."
+      ],
+      "keyWords": ["rubs her hands together", "feel warmer"],
+      "visual": {
+        "kind": "table",
+        "title": "Hand Check",
+        "columns": ["When", "How her hands feel"],
+        "rows": [["Before rubbing", "cool"], ["After 20 seconds of rubbing", "warm"]]
+      },
+      "alt": "A table showing the agent's hands feel cool before rubbing and warm after 20 seconds of rubbing.",
+      "tisCheck": "Heat produced by rubbing (SC.3.P.11.2); no computation.",
+      "misconceptions": "Warmth credited to sound or to stored energy instead of rubbing."
+    },
+    {
+      "id": "P10.1-06",
+      "benchmark": "SC.5.P.10.1",
+      "testedAs": "SC.3.P.10.4",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Two agents lay a white shirt and a black shirt in the same sunny spot. The shirts are the same size and fabric. After 30 minutes, the black shirt is much warmer. Why is the black shirt warmer?",
+      "options": [
+        "It reflects more of the light that hits it.",
+        "It makes its own heat.",
+        "It bends the light, the way water does.",
+        "It absorbs more of the light that hits it."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: the white shirt reflects more light, which is why it stays cooler.",
+        "Decoy: a shirt cannot make its own heat, and the energy came from sunlight.",
+        "Decoy: bending light is refraction, and light does not pass through a shirt the way it passes into water.",
+        "Correct: dark colors absorb more light, and the absorbed light warms the shirt."
+      ],
+      "keyWords": ["same sunny spot", "black shirt is much warmer"],
+      "visual": {
+        "kind": "table",
+        "title": "Shirts in the Sun",
+        "columns": ["Shirt", "Temperature after 30 minutes"],
+        "rows": [["White", "30°C (86°F)"], ["Black", "38°C (100°F)"]]
+      },
+      "alt": "A table showing the white shirt at 30°C (86°F) and the black shirt at 38°C (100°F) after 30 minutes in the sun.",
+      "tisCheck": "Light can be absorbed and reflected (SC.3.P.10.4); sunlight is called light only.",
+      "misconceptions": "Dark colors thought to make their own heat; absorbing and reflecting swapped."
+    },
+    {
+      "id": "P10.2-01",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.3.P.10.2",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "An agent puts a stick of butter in a pan on a hot stove. In a few minutes, the solid butter turns into a liquid. What caused this change?",
+      "options": ["heat energy from the stove", "sound energy from the kitchen", "cold air in the room", "the shape of the pan"],
+      "key": 0,
+      "why": [
+        "Correct: heat energy from the stove caused the change, turning the solid butter into a liquid.",
+        "Decoy: kitchen sounds do not melt butter.",
+        "Decoy: cold air would keep the butter solid, not melt it.",
+        "Decoy: the shape of the pan holds the butter but does not give it energy."
+      ],
+      "keyWords": ["hot stove", "solid butter turns into a liquid", "caused this change"],
+      "visual": {
+        "kind": "table",
+        "title": "Butter in the Pan",
+        "columns": ["Time", "Butter"],
+        "rows": [["0 minutes", "solid stick"], ["2 minutes", "soft, edges melting"], ["4 minutes", "liquid"]]
+      },
+      "alt": "A table showing the butter as a solid stick at 0 minutes, soft with melting edges at 2 minutes and liquid at 4 minutes.",
+      "tisCheck": "Energy has the ability to create change (SC.3.P.10.2), with heat as the form; no particle models.",
+      "misconceptions": "Changes seen as happening on their own, without energy."
+    },
+    {
+      "id": "P10.2-02",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.4.P.10.4",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Agents watched a sailboat with no motor on the St. Johns River. They wrote down the wind and what the boat did. What does their log show about moving air?",
+      "options": [
+        "The boat moves fastest when the air is calm.",
+        "The boat makes the wind when it moves.",
+        "Moving air has no effect on the boat.",
+        "Moving air has energy that can move the boat."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: the boat sat still when the air was calm.",
+        "Decoy: the boat has no motor and sat still until the wind blew, so the wind moved the boat.",
+        "Decoy: the boat's motion changed every time the wind changed.",
+        "Correct: the stronger the wind, the faster the boat moved, so moving air has energy that can move things."
+      ],
+      "keyWords": ["no motor", "moving air"],
+      "visual": {
+        "kind": "table",
+        "title": "Sailboat Log",
+        "columns": ["Wind", "What the boat did"],
+        "rows": [["calm", "sat still"], ["light breeze", "moved slowly"], ["strong wind", "moved fast"]]
+      },
+      "alt": "A table showing the sailboat sat still in calm air, moved slowly in a light breeze and moved fast in a strong wind.",
+      "tisCheck": "Moving air as a source of energy that can move things (SC.4.P.10.4); no computation.",
+      "misconceptions": "Motion thought to cause the wind; moving air not seen as having energy."
+    },
+    {
+      "id": "P10.2-03",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.5.P.10.2",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent rolls the same marble down a ramp into an empty paper cup. A marble let go higher on the ramp is moving faster at the bottom. She measures how far the cup slides each time. Which statement explains her results?",
+      "options": [
+        "The cup moves farther when the marble has less energy of motion.",
+        "A marble with more energy of motion moves the cup farther.",
+        "The height of the ramp has no effect on the cup.",
+        "The cup moves because it makes its own energy."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: the slowest marble, from the lowest spot, moved the cup the least, so this is backward.",
+        "Correct: the faster marble had more energy of motion, and more energy caused a bigger change in the cup's motion.",
+        "Decoy: the cup slid a different distance for each starting spot, so the height did matter.",
+        "Decoy: the cup sat still until the marble hit it, so its energy came from the marble."
+      ],
+      "keyWords": ["same marble", "moving faster", "how far the cup slides"],
+      "visual": {
+        "kind": "table",
+        "title": "Marble and Cup",
+        "columns": ["Where the marble starts", "How far the cup slides (cm)"],
+        "rows": [["low on the ramp", "5"], ["middle of the ramp", "12"], ["top of the ramp", "20"]]
+      },
+      "alt": "A table showing the cup slid 5 cm when the marble started low on the ramp, 12 cm from the middle and 20 cm from the top.",
+      "tisCheck": "Energy causes motion (SC.5.P.10.2); mechanical energy described as energy of motion; comparing values only.",
+      "misconceptions": "Objects thought to move on their own energy; speed not linked to energy."
+    },
+    {
+      "id": "P10.2-04",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.5.P.10.2",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Agents listed four events. In three of them, energy makes something move. Which event shows energy causing a change in a material instead?",
+      "options": [
+        "Wind spins a pinwheel.",
+        "A wave lifts a surfboard.",
+        "Heat from the Sun dries a wet towel.",
+        "A kick sends a ball across the field."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: the pinwheel only moves, and it is still the same pinwheel.",
+        "Decoy: the surfboard only moves up and down.",
+        "Correct: heat from the Sun changes the water in the towel into water vapor, which is a change and not just a motion.",
+        "Decoy: the ball only moves to a new place."
+      ],
+      "keyWords": ["four events", "energy causing a change"],
+      "visual": {
+        "kind": "table",
+        "title": "Event Log",
+        "columns": ["Event", "What the agents saw"],
+        "rows": [
+          ["Pinwheel", "wind makes it spin"],
+          ["Surfboard", "a wave lifts it"],
+          ["Wet towel", "sunlight dries it"],
+          ["Ball", "a kick sends it across the field"]
+        ]
+      },
+      "alt": "A table of four events: wind spins a pinwheel, a wave lifts a surfboard, sunlight dries a wet towel and a kick sends a ball across the field.",
+      "tisCheck": "Energy can cause motion or create change (SC.5.P.10.2); the change shown is water drying, a change of state.",
+      "misconceptions": "Only motion counted as an effect of energy; drying not seen as a change caused by energy."
+    },
+    {
+      "id": "P10.2-05",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.4.P.10.4",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "An old mill at a Florida spring has a wooden water wheel. Agents recorded how fast the water flowed and how the wheel moved. Which statement is supported by the log?",
+      "options": [
+        "Moving water has energy that can turn the wheel.",
+        "The wheel turns fastest when the water stops.",
+        "The wheel makes the water flow.",
+        "The wheel would turn the same with no water."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the wheel turned faster when the water moved faster, so moving water has energy that can move things.",
+        "Decoy: the wheel did not turn at all when the water stopped.",
+        "Decoy: the wheel stopped when the water stopped, so the water moves the wheel, not the other way around.",
+        "Decoy: the wheel stood still when no water flowed, so it needs the moving water."
+      ],
+      "keyWords": ["water wheel", "how fast the water flowed", "supported by the log"],
+      "visual": {
+        "kind": "table",
+        "title": "Mill Wheel Log",
+        "columns": ["Water", "Wheel"],
+        "rows": [["flowing fast", "turns fast"], ["flowing slowly", "turns slowly"], ["stopped", "does not turn"]]
+      },
+      "alt": "A table showing the wheel turns fast when the water flows fast, turns slowly when the water flows slowly and does not turn when the water stops.",
+      "tisCheck": "Moving water as a source of energy that can move things (SC.4.P.10.4).",
+      "misconceptions": "The machine thought to move the water; the energy of moving water not recognized."
+    },
+    {
+      "id": "P10.2-06",
+      "benchmark": "SC.5.P.10.2",
+      "testedAs": "SC.4.P.10.4",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "Agents fly a kite at Jacksonville Beach. When the wind stops, the kite falls. When the wind blows again, the kite rises. What does this show?",
+      "options": [
+        "The kite makes its own energy.",
+        "The kite moves the air.",
+        "Moving air has energy that can move the kite.",
+        "Only moving water has energy."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: the kite fell when the wind stopped, so it does not make its own energy.",
+        "Decoy: the kite rose only after the wind blew, so the air moved the kite.",
+        "Correct: the kite rises when the wind blows, so moving air has energy that can move things.",
+        "Decoy: moving water has energy, and so does moving air."
+      ],
+      "keyWords": ["wind stops", "wind blows again", "kite rises"],
+      "visual": {
+        "kind": "table",
+        "title": "Kite Log",
+        "columns": ["Wind", "Kite"],
+        "rows": [["blowing", "rises"], ["stopped", "falls"], ["blowing again", "rises"]]
+      },
+      "alt": "A table showing the kite rises when the wind blows, falls when the wind stops and rises again when the wind blows again.",
+      "tisCheck": "Moving air as a source of energy that can move things (SC.4.P.10.4).",
+      "misconceptions": "Objects thought to move by their own energy; only water seen as an energy source."
+    },
+    {
+      "id": "P10.4-01",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.5.P.11.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "The picture shows two circuits with the same battery, wires and bulb. The bulb in Circuit 1 is dark. The bulb in Circuit 2 is lit. Why is only the bulb in Circuit 2 lit?",
+      "options": [
+        "Circuit 2 has a bigger battery.",
+        "Circuit 2 is a closed loop, so electricity can flow all the way around.",
+        "The open switch in Circuit 1 lets more electricity reach its bulb.",
+        "The bulb in Circuit 2 is closer to the battery."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: both circuits use the same battery.",
+        "Correct: the closed switch makes a complete loop, and electricity flows only through a closed loop.",
+        "Decoy: an open switch makes a gap in the loop, so no electricity reaches the bulb.",
+        "Decoy: the distance to the battery does not decide it, because a bulb lights only when the loop is complete."
+      ],
+      "keyWords": ["same battery, wires and bulb", "only the bulb in Circuit 2 lit"],
+      "visual": { "kind": "scene", "id": "circuit-open-closed", "labels": ["Circuit 1", "Circuit 2", "bulb"] },
+      "alt": "Two circuits with a battery, wires and a bulb: in Circuit 1 the switch is open and the bulb is dark, and in Circuit 2 the switch is closed and the bulb is lit.",
+      "tisCheck": "A closed loop is needed for electricity to flow (SC.5.P.11.1); one simple loop each, no other circuit types, no particle talk.",
+      "misconceptions": "A bigger battery or a shorter distance credited instead of a complete loop; an open switch thought to let more through."
+    },
+    {
+      "id": "P10.4-02",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.5.P.10.4",
+      "category": "physical",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "An agent plugs in a blender and presses the button. The blades spin fast. Which energy change does the blender make?",
+      "options": ["motion to electrical", "electrical to chemical", "sound to electrical", "electrical to motion"],
+      "key": 3,
+      "why": [
+        "Decoy: this is backward, because the blender takes in electrical energy and gives out motion.",
+        "Decoy: the blender does not store energy as chemical energy.",
+        "Decoy: the blender makes some sound, but sound is not where its energy comes from.",
+        "Correct: the blender changes electrical energy from the outlet into the motion of the spinning blades."
+      ],
+      "keyWords": ["plugs in a blender", "blades spin", "energy change"],
+      "visual": {
+        "kind": "table",
+        "title": "Blender Check",
+        "columns": ["What the agent does", "What happens"],
+        "rows": [["plugs in the blender", "nothing moves yet"], ["presses the button", "blades spin fast"]]
+      },
+      "alt": "A table showing nothing moves when the blender is plugged in, and the blades spin fast when the button is pressed.",
+      "tisCheck": "Electrical energy changed into motion, one conversion (SC.5.P.10.4); a non-living system.",
+      "misconceptions": "The direction of the energy change reversed."
+    },
+    {
+      "id": "P10.4-03",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.5.P.10.4",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "An agent turns on a flashlight that runs on batteries. The bulb glows. Which list shows the energy changes in order?",
+      "options": [
+        "chemical to electrical to light",
+        "light to electrical to chemical",
+        "electrical to chemical to sound",
+        "mechanical to light to electrical"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the battery's stored chemical energy becomes electrical energy in the wires, and the bulb changes it into light.",
+        "Decoy: these are the right forms in the wrong order, because the battery comes first and the light comes last.",
+        "Decoy: a flashlight makes light, not sound, and the energy starts as chemical energy in the battery.",
+        "Decoy: nothing in a flashlight starts with motion, and light is the last change, not the middle one."
+      ],
+      "keyWords": ["runs on batteries", "bulb glows", "in order"],
+      "visual": {
+        "kind": "table",
+        "title": "Flashlight Parts",
+        "columns": ["Part", "Job"],
+        "rows": [["Battery", "stores energy"], ["Wires and switch", "carry electricity when the switch is on"], ["Bulb", "glows"]]
+      },
+      "alt": "A table of flashlight parts: the battery stores energy, the wires and switch carry electricity when the switch is on, and the bulb glows.",
+      "tisCheck": "Two energy conversions in one item, the limit (SC.5.P.10.4); a non-living system, no particle talk.",
+      "misconceptions": "The order of the conversions reversed; batteries thought to hold electricity rather than chemical energy."
+    },
+    {
+      "id": "P10.4-04",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.5.P.11.2",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "An agent builds a circuit with a gap in it. She bridges the gap with a metal spoon, and the bulb lights. Then she bridges it with a plastic spoon, and the bulb stays dark. Which conclusion is supported?",
+      "options": [
+        "Plastic is a conductor, and metal is an insulator.",
+        "Both spoons are conductors, but the plastic spoon is too short.",
+        "Metal is a conductor, and plastic is an insulator.",
+        "The metal spoon stores electricity for the bulb."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: this is backward, because the bulb lit only with the metal spoon.",
+        "Decoy: the plastic spoon closed the gap too, but the bulb stayed dark, so plastic does not let electricity flow.",
+        "Correct: electricity flowed through the metal spoon and lit the bulb, but it did not flow through the plastic spoon.",
+        "Decoy: the spoon does not store electricity, it only lets electricity from the battery pass through."
+      ],
+      "keyWords": ["metal spoon", "plastic spoon", "bulb stays dark"],
+      "visual": { "kind": "scene", "id": "conductor-insulator", "labels": ["metal", "plastic"] },
+      "alt": "Two circuits with a gap: a metal spoon bridges one gap and its bulb is lit, and a plastic spoon bridges the other and its bulb is dark.",
+      "tisCheck": "Materials that conduct electricity and those that do not (SC.5.P.11.2); a single loop, no particle talk.",
+      "misconceptions": "Conductor and insulator swapped; conductors thought to store electricity."
+    },
+    {
+      "id": "P10.4-05",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.4.P.11.1",
+      "category": "physical",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "An agent puts a metal spoon in a mug of hot cocoa. She measures the cocoa and the spoon's handle at the start and again after two minutes. Which way did the heat move?",
+      "options": [
+        "from the spoon into the cocoa",
+        "from the cool air into the cocoa",
+        "nowhere, because the spoon made its own heat",
+        "from the cocoa into the spoon"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: heat flows from warmer to cooler, and the spoon started cooler than the cocoa.",
+        "Decoy: heat flows from the hot cocoa out to the cooler air, not into the cocoa.",
+        "Decoy: the spoon warmed only while it sat in the hot cocoa, so it did not make its own heat.",
+        "Correct: the cocoa cooled and the spoon warmed, because heat flows from a warmer object to a cooler one."
+      ],
+      "keyWords": ["metal spoon", "hot cocoa", "Which way did the heat move"],
+      "visual": {
+        "kind": "table",
+        "title": "Cocoa and Spoon",
+        "columns": ["Time", "Cocoa", "Spoon handle"],
+        "rows": [["Start", "70°C (158°F)", "24°C (75°F)"], ["After 2 minutes", "66°C (151°F)", "40°C (104°F)"]]
+      },
+      "alt": "A table showing the cocoa at 70°C (158°F) and the spoon handle at 24°C (75°F) at the start, then the cocoa at 66°C (151°F) and the handle at 40°C (104°F) after 2 minutes.",
+      "tisCheck": "Heat flows from hot to cold (SC.4.P.11.1); temperatures in °C with °F, comparing values only, no computation.",
+      "misconceptions": "Cold thought to flow into warm things; the direction of heat flow reversed; objects thought to make their own heat."
+    },
+    {
+      "id": "P10.4-06",
+      "benchmark": "SC.5.P.10.4",
+      "testedAs": "SC.5.P.10.3",
+      "category": "physical",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "An agent rubs two balloons on her hair and hangs them on strings side by side. The balloons push away from each other without touching. Then she holds one balloon near the wall, and it sticks. What makes the two balloons push apart?",
+      "options": [
+        "Both balloons are magnets, with the same poles facing.",
+        "Rubbing gave both balloons the same kind of static electricity, so they repel.",
+        "Air from the agent's breath pushes the balloons apart.",
+        "Gravity pulls each balloon away from the other."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: balloons are not magnets, and the push started after they were rubbed on hair.",
+        "Correct: objects with the same kind of static electricity repel each other without touching.",
+        "Decoy: the balloons hang on strings, and nothing is blowing on them.",
+        "Decoy: gravity pulls both balloons down toward the ground, not away from each other."
+      ],
+      "keyWords": ["rubs two balloons on her hair", "push away from each other", "without touching"],
+      "visual": { "kind": "scene", "id": "static-balloon", "labels": ["balloon", "hair", "wall"] },
+      "alt": "A balloon being rubbed on hair, then the same balloon stuck to a wall, with small plus and minus marks.",
+      "tisCheck": "Static electricity can attract or repel without contact (SC.5.P.10.3); framed as static electricity, no particle talk.",
+      "misconceptions": "Static electricity confused with magnetism; a push at a distance credited to air or gravity."
+    }
+  ],
+  "codex": [
+    { "id": "lab:05-1:lamp", "title": "Light and heat", "line": "Things that give off light, like a lamp or a campfire, usually give off heat too." },
+    { "id": "lab:05-1:speaker", "title": "Sound", "line": "Sound is made when something vibrates, moving quickly back and forth." },
+    { "id": "lab:05-1:solar", "title": "Solar panel", "line": "A solar panel changes light from the Sun into electrical energy." }
+  ]
+}

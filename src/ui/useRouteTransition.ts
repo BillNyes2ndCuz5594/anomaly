@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { STILL } from '../lib/flags'
 import { parseHash, useHash } from '../lib/router'
-import { stepsFor, type CaseKind, type CaseStep } from '../state/session'
+import { stepsFor, useSession, type CaseKind, type CaseStep } from '../state/session'
 import type { Tier } from '../state/quality'
 import { noteWarpFly } from '../three/flyPose'
 import { motionMode, RESULTS_MS, routeMs, stepDirection, veilDir, veilKind, type MotionMode, type VeilKind } from './motionMode'
@@ -93,7 +93,7 @@ export function useStepHandoff(step: CaseStep, kind: CaseKind, routeName: string
     prev.current = step
     const onCase = routeName === 'case' || routeName === 'cold'
     if (mode === 'still' || routePhase !== 'idle' || !onCase) return
-    const steps = stepsFor(kind)
+    const steps = stepsFor(kind, useSession.getState().caseDef)
     const a = steps.findIndex((s) => s.id === from)
     const b = steps.findIndex((s) => s.id === step)
     setDir(stepDirection(a, b))

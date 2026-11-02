@@ -1,0 +1,614 @@
+{
+ "case": {
+  "id": "07-2",
+  "codename": "HABITAT",
+  "unit": "U07 Adaptations and Food Chains",
+  "unitLabel": "Unit 7: Adaptations and Food Chains",
+  "category": "life",
+  "benchmarks": [
+   "SC.5.L.17.1",
+   "SC.4.L.17.3"
+  ],
+  "evidencePlan": [
+   {
+    "benchmark": "SC.5.L.17.1",
+    "count": 3
+   },
+   {
+    "benchmark": "SC.4.L.17.3",
+    "count": 2
+   }
+  ],
+  "marker": {
+   "lon": -80.8,
+   "lat": 25.3
+  },
+  "dispatchHook": "Everglades energy monitor says a heron feeds the sawgrass. Fix the arrows.",
+  "briefing": [
+   "Agent, the energy monitor at an Everglades field station has its arrows pointing backward.",
+   "According to the screen, a heron feeds the sawgrass and the Sun runs on frogs.",
+   "Rebuild the food chain, then check the adaptation files the same glitch touched.",
+   "The herons are fine. The monitor is not."
+  ],
+  "lab": {
+   "kind": "order",
+   "intro": "The energy log for one Everglades food chain came back shuffled. Put the links back in the order energy moves.",
+   "prompt": "Put the food chain in order, starting where the energy comes from.",
+   "steps": [
+    {
+     "id": "sun",
+     "name": "Sun",
+     "card": "Gives off the light that starts the chain"
+    },
+    {
+     "id": "sawgrass",
+     "name": "Sawgrass",
+     "card": "Uses sunlight to make its own food"
+    },
+    {
+     "id": "grasshopper",
+     "name": "Grasshopper",
+     "card": "Chews on sawgrass blades"
+    },
+    {
+     "id": "frog",
+     "name": "Frog",
+     "card": "Catches and eats grasshoppers"
+    },
+    {
+     "id": "heron",
+     "name": "Heron",
+     "card": "Wades in the marsh and eats frogs"
+    }
+   ],
+   "why": "Energy starts with the Sun, goes to sawgrass (the producer), and then moves to each consumer that eats the one before it."
+  },
+  "debriefClosed": "Case closed. Energy flows from the Sun again, at least on the monitor. Log it.",
+  "debriefOpen": "Case stays open for now. It comes back as a cold case soon, and the Everglades will still be there."
+ },
+ "items": [
+  {
+   "id": "L17.1-01",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.5.L.17.1",
+   "category": "life",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "An osprey dives into a Florida lake and grabs a fish with its feet. Then it tears the fish into small pieces to eat. Which beak shape best helps the osprey tear meat?",
+   "options": [
+    "short, cone-shaped beak",
+    "long, thin beak",
+    "flat, wide beak",
+    "sharp, hooked beak"
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: a short, cone-shaped beak is best for cracking hard seeds.",
+    "Decoy: a long, thin beak is best for spearing or probing, like a heron's.",
+    "Decoy: a flat, wide beak is best for scooping or straining food from water, like a duck's.",
+    "Correct: a sharp, hooked beak can grip and tear meat, so it fits a bird that eats fish."
+   ],
+   "keyWords": [
+    "tears the fish into small pieces",
+    "tear meat"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "beak-shapes",
+    "labels": [
+     "Long, thin beak",
+     "Hooked beak",
+     "Short, cone beak"
+    ]
+   },
+   "alt": "Three bird heads: one with a long, thin beak, one with a hooked beak, and one with a short, cone-shaped beak, each beside the food it takes.",
+   "tisCheck": "Physical adaptation (beak shape matched to food) for a Florida bird; SC.5.L.17.1 limits are UNVERIFIED, so the item stays with plain structure and function.",
+   "misconceptions": "Any strong beak works for any food; beak shape is unrelated to diet."
+  },
+  {
+   "id": "L17.1-02",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.5.L.17.1",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "A brown pelican and a barred owl both live in Florida. The pelican has webbed feet. The owl has sharp, curved claws. Which statement best explains why their feet are different?",
+   "options": [
+    "The pelican's feet became webbed because it swam a lot when it was young.",
+    "Each bird's feet fit how it lives: the pelican paddles on water, and the owl grabs its prey.",
+    "Both kinds of feet mainly help the birds stay warm on cold nights.",
+    "The pelican's feet help it grip branches, and the owl's claws help it swim."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: webbed feet are inherited, and swimming practice does not grow skin between the toes.",
+    "Correct: webbed feet push against water like paddles, and sharp claws hold prey, so each fits the bird's way of life.",
+    "Decoy: neither kind of foot is mainly for warmth, because each shape matches how the bird moves or feeds.",
+    "Decoy: the jobs are swapped, because webbing helps a bird swim and claws help it grip."
+   ],
+   "keyWords": [
+    "webbed feet",
+    "sharp, curved claws",
+    "why their feet are different"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "brown-pelican",
+     "barred-owl"
+    ],
+    "captions": [
+     "Brown pelican: webbed feet",
+     "Barred owl: sharp, curved claws"
+    ]
+   },
+   "alt": "A brown pelican and a barred owl shown side by side.",
+   "tisCheck": "Physical adaptations of Florida birds (feet matched to how they move and feed); SC.5.L.17.1 limits are UNVERIFIED, so no evolution or natural selection terms.",
+   "misconceptions": "Body parts change from use during one lifetime; adaptations are mainly about temperature; structure and job mixed up."
+  },
+  {
+   "id": "L17.1-03",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.4.L.17.1",
+   "category": "life",
+   "complexity": "high",
+   "pool": "case",
+   "stem": "Rangers at a Florida wildlife refuge counted American white pelicans on the same lake in different months. Their counts are in the table. Which explanation best fits the data?",
+   "options": [
+    "The pelicans migrate to Florida for its mild winters, then fly north to nest in summer.",
+    "The pelicans hibernate in the lake mud during the hot summer months.",
+    "The pelicans leave Florida in winter because the lake freezes over.",
+    "The pelicans all die each summer, and new ones hatch on the lake each winter."
+   ],
+   "key": 0,
+   "why": [
+    "Correct: the counts are high in the cool months and zero in July, which fits birds that spend winter in Florida and nest farther north.",
+    "Decoy: birds do not hibernate in mud, and the pelicans were not on the lake to be counted in July.",
+    "Decoy: this is backward, because the pelicans are on the lake in winter, and Florida lakes do not freeze over.",
+    "Decoy: young pelicans could not hatch and be full grown in a few months, so the same birds are returning."
+   ],
+   "keyWords": [
+    "different months",
+    "best fits the data"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "White Pelicans on the Lake",
+    "columns": [
+     "Month",
+     "Number of pelicans"
+    ],
+    "rows": [
+     [
+      "January",
+      "140"
+     ],
+     [
+      "April",
+      "20"
+     ],
+     [
+      "July",
+      "0"
+     ],
+     [
+      "October",
+      "60"
+     ],
+     [
+      "December",
+      "130"
+     ]
+    ]
+   },
+   "alt": "A table of pelican counts: January 140, April 20, July 0, October 60, December 130.",
+   "tisCheck": "Seasonal behavior in Florida compared with other regions (SC.4.L.17.1, also assessed with SC.5.L.17.1); counts are only compared, no computation.",
+   "misconceptions": "Birds hibernate; Florida winters are harsh; animals that disappear for a season have died."
+  },
+  {
+   "id": "L17.1-04",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.4.L.16.2",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "Flamingos live in parts of South Florida. The table compares adult flamingos that eat three different diets. Which trait is changed mostly by the flamingo's environment?",
+   "options": [
+    "its long legs, because they help it wade",
+    "its bent bill, because it uses the bill to strain food",
+    "its feather color, because it depends on the food it eats",
+    "all of its traits, because every trait comes from the environment"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: every adult in the table has long legs, so leg length is inherited and does not change with diet.",
+    "Decoy: every adult in the table has a bent bill, so bill shape is inherited.",
+    "Correct: feather color changes with the food each flamingo eats, so the environment affects it.",
+    "Decoy: legs and bills stay the same with every diet, so not every trait comes from the environment."
+   ],
+   "keyWords": [
+    "three different diets",
+    "changed mostly by the flamingo's environment"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Adult Flamingo Notes",
+    "columns": [
+     "Diet",
+     "Feather color",
+     "Legs",
+     "Bill"
+    ],
+    "rows": [
+     [
+      "Wild, eats shrimp and algae",
+      "Bright pink",
+      "Long",
+      "Bent"
+     ],
+     [
+      "Zoo food with no shrimp or algae",
+      "Pale, almost white",
+      "Long",
+      "Bent"
+     ],
+     [
+      "Zoo food with color from shrimp added",
+      "Pink",
+      "Long",
+      "Bent"
+     ]
+    ]
+   },
+   "alt": "A table comparing three adult flamingos on different diets: feather color changes, while long legs and a bent bill stay the same.",
+   "tisCheck": "Inherited traits vs traits affected by the environment (SC.4.L.16.2, also assessed with SC.5.L.17.1); no genes or DNA terms.",
+   "misconceptions": "Useful traits are caused by the environment; every trait is either all inherited or all environmental."
+  },
+  {
+   "id": "L17.1-05",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.4.L.16.3",
+   "category": "life",
+   "complexity": "low",
+   "pool": "cold",
+   "stem": "Each answer choice describes an animal behavior. Which behavior is learned and not inherited?",
+   "options": [
+    "A sea turtle hatchling crawls toward the ocean right after it hatches.",
+    "A garden spider spins a web the first time it tries.",
+    "A dog sits when its owner says the word sit.",
+    "A barred owl chick calls for food when a parent lands at the nest."
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: no one shows the hatchling the way, so this behavior is inherited.",
+    "Decoy: the spider builds a web without being taught, so this behavior is inherited.",
+    "Correct: a dog has to be taught to sit on command, so this behavior is learned.",
+    "Decoy: chicks call for food without being taught, so this behavior is inherited."
+   ],
+   "keyWords": [
+    "learned",
+    "not inherited"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "inherited-learned",
+    "labels": [
+     "Coat pattern",
+     "Trick"
+    ]
+   },
+   "alt": "A dog and her puppy with the same coat pattern, and the puppy learning to sit on command.",
+   "tisCheck": "Inherited vs learned behavior (SC.4.L.16.3, also assessed with SC.5.L.17.1); Florida animals and a pet, no genetics terms.",
+   "misconceptions": "Any skilled behavior must be learned; behaviors done by young animals are learned from parents."
+  },
+  {
+   "id": "L17.1-06",
+   "benchmark": "SC.5.L.17.1",
+   "testedAs": "SC.4.L.17.4",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "People drain half of a wetland near the Everglades and fill it with dirt to build a road. Herons that hunted fish and frogs on that side lose their feeding area. What will most likely happen to these herons?",
+   "options": [
+    "Many will move to other wetlands to find food, and fewer will live in this area.",
+    "They will grow shorter legs so they can live on the dry land.",
+    "Nothing will change, because birds can fly over the road.",
+    "They will hunt on the dry side, because fish are easier to catch there."
+   ],
+   "key": 0,
+   "why": [
+    "Correct: when people change a habitat, animals that lose their food must move or fewer of them survive there.",
+    "Decoy: a heron cannot change its body to fit a new environment during its life.",
+    "Decoy: flying over the road does not bring back the fish and frogs that lived in the drained wetland.",
+    "Decoy: fish and frogs need water, so they will not be on the dry side."
+   ],
+   "keyWords": [
+    "drain half of a wetland",
+    "lose their feeding area",
+    "most likely happen"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "environment-change",
+    "labels": [
+     "Wet side",
+     "Dry side"
+    ]
+   },
+   "alt": "A wetland half drained for a road, with wading birds on the wet side and a bulldozer on the dry side.",
+   "tisCheck": "How people change an environment and how animals respond (SC.4.L.17.4, also assessed with SC.5.L.17.1); no extinction data or computation.",
+   "misconceptions": "Animals change their bodies to fit a new place; flying animals are never affected by habitat loss."
+  },
+  {
+   "id": "L17.3-01",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.3",
+   "category": "life",
+   "complexity": "low",
+   "pool": "case",
+   "stem": "The diagram shows a food chain from the Everglades. What do the arrows in the food chain show?",
+   "options": [
+    "which living thing is bigger than the next one",
+    "the order in which the living things were born",
+    "the direction energy moves, from the food to the eater",
+    "which animal eats the living thing the arrow points to"
+   ],
+   "key": 2,
+   "why": [
+    "Decoy: size is not what the arrows show, since some eaters are smaller than their food.",
+    "Decoy: the arrows show energy moving, not when each living thing was born.",
+    "Correct: each arrow points from the food to the living thing that eats it, showing where the energy goes.",
+    "Decoy: this is backward, because the arrow points to the eater, not to the food."
+   ],
+   "keyWords": [
+    "food chain",
+    "arrows"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "food-chain-florida",
+    "labels": [
+     "Sun",
+     "Sawgrass",
+     "Grasshopper",
+     "Frog",
+     "Heron"
+    ]
+   },
+   "alt": "A food chain in a row with arrows: Sun, sawgrass, grasshopper, frog, heron.",
+   "tisCheck": "Energy flow shown by food chain arrows (SC.4.L.17.3); SC.4.L.17.3 limits are UNVERIFIED, so a single Florida chain with no energy amounts.",
+   "misconceptions": "Arrows point from the eater to what it eats; arrows show size or order of birth."
+  },
+  {
+   "id": "L17.3-02",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.2",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "The diagram shows part of a food web in the Indian River Lagoon. Which living thing in this web makes its own food using energy from sunlight?",
+   "options": [
+    "shrimp",
+    "sea grass",
+    "blue crab",
+    "brown pelican"
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: shrimp are small and low in the web, but they eat other living things, so they are consumers.",
+    "Correct: sea grass is a producer that uses energy from sunlight to make its own food.",
+    "Decoy: a blue crab eats other living things, so it is a consumer.",
+    "Decoy: a brown pelican eats fish, so it is a consumer at the top of this web."
+   ],
+   "keyWords": [
+    "food web",
+    "makes its own food",
+    "energy from sunlight"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "food-web-estuary",
+    "labels": [
+     "Sea grass and algae",
+     "Shrimp",
+     "Blue crab",
+     "Small fish",
+     "Bass",
+     "Brown pelican"
+    ]
+   },
+   "alt": "A food web in which sea grass and algae feed a shrimp, a crab, and a small fish, which feed a larger fish and a pelican.",
+   "tisCheck": "Producers make food from sunlight and consumers eat (SC.4.L.17.2, also assessed with SC.4.L.17.3); food web as a stimulus only.",
+   "misconceptions": "The smallest living thing is the producer; animals near the bottom of a web make food; water animals get energy straight from the Sun."
+  },
+  {
+   "id": "L17.3-03",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.3",
+   "category": "life",
+   "complexity": "high",
+   "pool": "case",
+   "stem": "In this lagoon food web, shrimp, crabs, and small fish eat sea grass and algae. Pelicans eat the small fish. Suppose a disease kills most of the sea grass. Which change will most likely happen?",
+   "options": [
+    "The pelicans will not be affected, because they do not eat sea grass.",
+    "The shrimp will start making their own food using sunlight.",
+    "There will be more small fish, because the sea grass is no longer in the way.",
+    "There will be fewer small fish, so the pelicans will have less food."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: pelicans eat fish that eat sea grass, so losing the sea grass reaches them too.",
+    "Decoy: animals cannot make their own food, even when their food runs short.",
+    "Decoy: small fish depend on sea grass for food, so losing it means fewer small fish, not more.",
+    "Correct: the small fish lose much of their food, so there are fewer of them, and the pelicans that eat them have less food."
+   ],
+   "keyWords": [
+    "kills most of the sea grass",
+    "most likely happen"
+   ],
+   "visual": {
+    "kind": "scene",
+    "id": "food-web-estuary",
+    "labels": [
+     "Sea grass and algae",
+     "Shrimp",
+     "Blue crab",
+     "Small fish",
+     "Bass",
+     "Brown pelican"
+    ]
+   },
+   "alt": "A food web in which sea grass and algae feed a shrimp, a crab, and a small fish, which feed a larger fish and a pelican.",
+   "tisCheck": "What happens along a food web when a producer is lost (SC.4.L.17.3); limits are UNVERIFIED, so changes are described in words with no numbers.",
+   "misconceptions": "Only animals that eat a plant directly are affected when it disappears; animals can switch to making food."
+  },
+  {
+   "id": "L17.3-04",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.3",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "case",
+   "stem": "In a Florida forest, a live oak uses sunlight to make food. White-tailed deer eat its leaves and acorns. A Florida panther hunts the deer. Which list shows the path of energy in order?",
+   "options": [
+    "Sun, live oak, deer, panther",
+    "panther, deer, live oak, Sun",
+    "Sun, deer, live oak, panther",
+    "live oak, Sun, deer, panther"
+   ],
+   "key": 0,
+   "why": [
+    "Correct: energy goes from the Sun to the live oak (the producer), then to the deer that eats it, then to the panther.",
+    "Decoy: this list runs backward, from the top consumer to the Sun.",
+    "Decoy: a deer cannot get energy straight from the Sun, so it must come after the live oak.",
+    "Decoy: the Sun is where the energy starts, so it comes before the live oak."
+   ],
+   "keyWords": [
+    "uses sunlight to make food",
+    "path of energy in order"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "florida-panther"
+    ],
+    "captions": [
+     "Florida panther: hunts deer"
+    ]
+   },
+   "alt": "A Florida panther, the hunter at the end of this food chain.",
+   "tisCheck": "Energy flows from the Sun through producers to consumers in a Florida food chain (SC.4.L.17.3); order only, no energy amounts.",
+   "misconceptions": "Food chains start with the biggest animal; animals get energy straight from the Sun; the producer comes before the Sun."
+  },
+  {
+   "id": "L17.3-05",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.2",
+   "category": "life",
+   "complexity": "moderate",
+   "pool": "cold",
+   "stem": "A manatee eats sea grass for many hours each day. The sea grass does not eat anything. How does the sea grass get the energy it needs to live and grow?",
+   "options": [
+    "It takes in food from the mud through its roots.",
+    "It catches tiny animals that float in the water.",
+    "It gets energy from the manatees that eat it.",
+    "It makes its own food using energy from sunlight."
+   ],
+   "key": 3,
+   "why": [
+    "Decoy: roots take in water and nutrients, but they do not take in food.",
+    "Decoy: sea grass is a plant, and it does not catch or eat animals.",
+    "Decoy: energy moves from the sea grass to the manatee, not the other way.",
+    "Correct: sea grass is a producer, so it makes its own food using energy from sunlight."
+   ],
+   "keyWords": [
+    "sea grass does not eat anything",
+    "energy it needs"
+   ],
+   "visual": {
+    "kind": "specimen",
+    "ids": [
+     "manatee"
+    ],
+    "captions": [
+     "Manatee: eats sea grass"
+    ]
+   },
+   "alt": "A manatee swimming in clear water.",
+   "tisCheck": "Plants make their own food from sunlight and animals cannot (SC.4.L.17.2, also assessed with SC.4.L.17.3); no photosynthesis vocabulary.",
+   "misconceptions": "Plants get food from soil or mud; energy flows from the eater back to the food."
+  },
+  {
+   "id": "L17.3-06",
+   "benchmark": "SC.4.L.17.3",
+   "testedAs": "SC.4.L.17.3",
+   "category": "life",
+   "complexity": "high",
+   "pool": "cold",
+   "stem": "A class made a table of what living things eat at a Florida pond. Suppose a disease killed most of the grasshoppers. What would most likely happen to the grass?",
+   "options": [
+    "There would be less grass, because grass gets its energy from grasshoppers.",
+    "There would be more grass, because fewer animals would be eating it.",
+    "The grass would start eating insects to replace the grasshoppers.",
+    "The grass would not change, because plants are not part of food chains."
+   ],
+   "key": 1,
+   "why": [
+    "Decoy: energy moves from the grass to the grasshoppers, not the other way.",
+    "Correct: with fewer grasshoppers eating it, more of the grass would be left to grow.",
+    "Decoy: grass is a producer that makes its own food, so it cannot eat insects.",
+    "Decoy: plants are the producers that start food chains, so they are part of them."
+   ],
+   "keyWords": [
+    "killed most of the grasshoppers",
+    "happen to the grass"
+   ],
+   "visual": {
+    "kind": "table",
+    "title": "Who Eats What at the Pond",
+    "columns": [
+     "Living thing",
+     "What it eats"
+    ],
+    "rows": [
+     [
+      "Grass",
+      "Nothing. It makes its own food using sunlight."
+     ],
+     [
+      "Grasshopper",
+      "Grass"
+     ],
+     [
+      "Green tree frog",
+      "Grasshoppers and other insects"
+     ],
+     [
+      "Largemouth bass",
+      "Frogs and small fish"
+     ]
+    ]
+   },
+   "alt": "A table: grass makes its own food, grasshoppers eat grass, green tree frogs eat grasshoppers and other insects, and largemouth bass eat frogs and small fish.",
+   "tisCheck": "Effect on a producer when a consumer that eats it disappears (SC.4.L.17.3); limits are UNVERIFIED, so changes are described in words with no numbers.",
+   "misconceptions": "Energy flows from consumers back to producers; plants are not part of food chains; producers can switch to eating."
+  }
+ ],
+ "codex": [
+  {
+   "id": "lab:07-2:sun",
+   "title": "The Sun",
+   "line": "Almost all the energy in a food chain starts as sunlight."
+  },
+  {
+   "id": "lab:07-2:sawgrass",
+   "title": "Sawgrass",
+   "line": "This Everglades producer has tiny sharp teeth along the edges of its blades."
+  },
+  {
+   "id": "lab:07-2:heron",
+   "title": "Heron",
+   "line": "Herons wade on long legs and catch fish and frogs with long, sharp beaks."
+  }
+ ]
+}
