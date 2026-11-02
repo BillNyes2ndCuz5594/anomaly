@@ -14,6 +14,8 @@ import { isChunkLoadError, noteGpuLoss, reloadForNewDeploy, setRuntimeForceWebGL
 import { useSession } from './state/session'
 import { useGame } from './state/store'
 import { Announcer } from './ui/announce'
+import CasePreview from './ui/CasePreview'
+import CodexNew from './ui/CodexNew'
 import FpsReadout from './ui/FpsReadout'
 import { countUpElement } from './ui/countUp'
 import { useApplySettings } from './ui/useApplySettings'
@@ -185,6 +187,8 @@ export default function App() {
           <div className="veil-line" />
         </div>
       </div>
+      {route.name === 'hub' ? <CasePreview /> : null}
+      {route.name === 'hub' ? <CodexNew /> : null}
       <FpsReadout />
       <Announcer />
     </div>
