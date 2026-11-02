@@ -1491,8 +1491,18 @@ try {
     const p1 = await browser.newPage()
     watch(p1, 'motion-low')
     await p1.setViewport({ ...vp, deviceScaleFactor: 1 })
+    // Earlier sections leave reduced motion on in the saved settings, which forces still; clear it so Low can show fade.
+    await p1.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
     await p1.goto(BASE + '?tier=low', { waitUntil: 'load' })
-    await p1.evaluate((s) => localStorage.setItem('anomaly.v1', s), store)
+    await p1.evaluate((s) => {
+      let out = s
+      try {
+        const st = JSON.parse(s)
+        if (st?.state?.settings) st.state.settings = { ...st.state.settings, reducedMotion: false }
+        out = JSON.stringify(st)
+      } catch {}
+      localStorage.setItem('anomaly.v1', out)
+    }, store)
     await goHub(p1, '?tier=low')
     const lowFade = await p1.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
     check('Low tier uses data-motion fade', lowFade, await p1.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`))
