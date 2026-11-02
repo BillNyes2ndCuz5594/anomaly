@@ -1538,8 +1538,10 @@ try {
     watch(p1, 'motion-low')
     await p1.setViewport({ ...vp, deviceScaleFactor: 1 })
     // Earlier sections leave reduced motion on in the saved settings, which forces still; clear it so Low can show fade.
+    // Written from Teacher HQ (same origin, no game store). Written from the game page, the goto below is a hash-only
+    // navigation: the already booted app keeps the settings it read before the write and stays on still.
     await p1.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
-    await p1.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await p1.goto(BASE + 'teacher.html', { waitUntil: 'load' })
     await p1.evaluate((s) => {
       let out = s
       try {
@@ -1599,7 +1601,8 @@ try {
   const failed = checks.filter((c) => !c.ok)
   const MOTION_1920_ONLY = 12 // s17-motion-*, s19-strip-* and s20-strip-* shots exist at 1920 only
   const expected = ORDER.length * VIEWPORTS.length - MOTION_1920_ONLY * (VIEWPORTS.length - 1) + 1 + 6 + 2 + 6 + 2 // 6 = s11-gameplay shots at 1920, 2 = s15-stage shots, 6 = s18-ui shots, 2 = s16 hub and plantanimal shots
-  check(`all ${expected} screenshots written`, shots.length === expected && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
+  const skipped = SOFT_GPU ? 3 * VIEWPORTS.length : 0 // visuals-scenes, visuals-models and visuals-scenes-xl per size
+  check(`all ${expected - skipped} screenshots written`, shots.length === expected - skipped && shots.every((s) => existsSync(join(OUT, s))), `${shots.length}`)
   const failed2 = checks.filter((c) => !c.ok)
   console.log(`${checks.length - failed2.length}/${checks.length} checks passed`)
   console.log(`console errors / page errors: ${errors.length}`)
