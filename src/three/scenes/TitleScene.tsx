@@ -35,7 +35,7 @@ const LOGO_H = 2.3
 /** Beveled outline letters, merged into one mesh: dark metal body, glowing bevel edges, a slow light sweep. */
 function LogoLetters({ reduced }: { reduced: boolean }) {
   const mode = useMotionMode()
-  const born = useRef(performance.now())
+  const born = useRef(0)
   // Spent once per mount: the scan reveal plays the first time the title shows in a page session.
   const [playReveal] = useState(() => takeReveal(mode))
   const fx = useMemo(() => ({ reveal: uniform(playReveal ? 0 : 1), glint: uniform(-10) }), [playReveal])
@@ -88,6 +88,7 @@ function LogoLetters({ reduced }: { reduced: boolean }) {
   }, [reduced, playReveal, fx])
 
   useFrame(() => {
+    if (!born.current) born.current = performance.now()
     const t = performance.now() - born.current
     fx.reveal.value = revealProgress(mode, t, playReveal)
     const g = glintProgress(mode, t, playReveal)
