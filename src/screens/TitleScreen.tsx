@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../lib/router'
 import { useGame } from '../state/store'
+import { armCodenameDecode } from '../ui/decode'
 import FirstRunModal from '../ui/FirstRunModal'
 import Presence from '../ui/Presence'
+import { useMotionMode } from '../ui/useMotionMode'
 import ResumeModal from '../ui/ResumeModal'
 import './title-hub.css'
 
@@ -26,9 +28,22 @@ export default function TitleScreen() {
   const startPress = usePressed()
   const resumePress = usePressed()
 
-  function start() {
+  const mode = useMotionMode()
+  const [charging, setCharging] = useState(false)
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  function go() {
+    setCharging(false)
     if (profile) navigate('/hub')
     else setModal('firstrun')
+  }
+  // The 250 ms charge ring finishes before the veil or modal opens (tap, click and keyboard alike). still opens at once.
+  function start() {
+    if (mode === 'still') return go()
+    if (charging) return
+    setCharging(true)
+    timer.current = window.setTimeout(go, 250)
   }
 
   return (
@@ -49,6 +64,7 @@ export default function TitleScreen() {
             className="btn primary big"
             data-testid="start-shift"
             data-pressed={startPress.pressed ? 'yes' : 'no'}
+            data-charging={charging ? 'yes' : 'no'}
             onClick={start}
             {...startPress.bind}
           >
@@ -77,6 +93,7 @@ export default function TitleScreen() {
           onCancel={() => setModal(null)}
           onConfirm={(n, code) => {
             createProfile(n, code)
+            armCodenameDecode()
             setModal(null)
             navigate('/hub')
           }}

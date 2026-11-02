@@ -1,14 +1,19 @@
-import { useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { codexById, content } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
+import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
 import { caseStatus, hubBenchmarkGroups } from './hubList'
+import { clearCodenameDecode, peekCodenameDecode } from '../ui/decode'
+import { useDecode } from '../ui/useDecode'
+import { useMotionMode } from '../ui/useMotionMode'
+import foilBadge from '../assets/textures/agent-badge-foil.webp?url'
 import './title-hub.css'
 
 export const HUB_PANEL_WIDTH = 360
@@ -34,6 +39,7 @@ function CaseButton({
   to,
   code,
   sub,
+  fx,
 }: {
   id: MarkerId
   testId: string
@@ -43,6 +49,7 @@ function CaseButton({
   to: string
   code: string
   sub: ReactNode
+  fx?: ReactNode
 }) {
   const setFocused = useRuntime((s) => s.setFocusedMarker)
   const pressed = useSyncExternalStore(subscribeMarkerPressed, () => markerPressed(id), () => false)
@@ -64,6 +71,7 @@ function CaseButton({
       onPointerCancel={() => setMarkerPressed(id, false)}
       onPointerLeave={() => setMarkerPressed(id, false)}
     >
+      {fx}
       <span className="case-code">{code}</span>
       <span className="case-sub">{sub}</span>
     </button>
@@ -88,6 +96,13 @@ export default function HubScreen() {
   const due = useReviewDue()
   const [openGroups, setOpenGroups] = useState<Partial<Record<Category, boolean>>>({})
   const [startOpen] = useState(() => !phoneLike())
+  const mode = useMotionMode()
+  const codenameRef = useRef<HTMLHeadingElement>(null)
+  const [decode] = useState(peekCodenameDecode)
+  useEffect(() => {
+    if (decode) clearCodenameDecode()
+  }, [decode])
+  useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
   // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
   const groups = hubBenchmarkGroups(content.cases, Object.keys(progress), labelOf)
@@ -108,8 +123,9 @@ export default function HubScreen() {
 
       <aside className="panel brackets hub-panel" aria-label="Agent panel" style={{ width: HUB_PANEL_WIDTH }}>
         <header className="agent-head">
+          <img className="agent-foil" src={foilBadge} alt="" aria-hidden="true" decoding="async" />
           <span className="label">Field agent</span>
-          <h2 className="codename" data-testid="codename">
+          <h2 className="codename" data-testid="codename" ref={codenameRef} data-decode={decode ? mode : undefined}>
             {profile.codename}
           </h2>
           <p className="agent-meta">
@@ -152,6 +168,7 @@ export default function HubScreen() {
               testId="cold-marker"
               className="case-btn cyan"
               due={due ? 'yes' : 'no'}
+              fx={due ? <ResidueAlert /> : undefined}
               to="/cold/cold-1"
               code="COLD CASE RESIDUE"
               sub={

@@ -64,6 +64,9 @@ export default function CaseScene({ cold = false }: { cold?: boolean }) {
           <LabGenericScene />
         </Suspense>
       )
+    case 'debrief':
+    case 'results':
+      return <AmbientScene clip="debrief" />
     default:
       return <AmbientScene />
   }

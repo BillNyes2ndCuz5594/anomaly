@@ -10,6 +10,7 @@ import type { Visual } from '../content/schema'
 // QA page (#/visuals and #/visuals/models): every scene diagram the items use, then every other scene id
 // with sample labels (so all of SCENE_IDS is on the page), and the specimen models that are easiest to get wrong. Used by the proof run for screenshots. Not linked from the UI.
 const MiniCanvas = lazy(() => import('../three/ItemVisualCanvas'))
+const JuiceGallery = lazy(() => import('./JuiceGallery'))
 
 const MODEL_SETS: { ids: string[]; title: string }[] = [
   { ids: ['american-alligator'], title: 'American alligator' },
@@ -32,7 +33,7 @@ const pickIds = (): { ids: string[]; title: string }[] | null => {
   return raw.split(',').filter(Boolean).slice(0, 4).map((id) => ({ ids: [id], title: id }))
 }
 
-export default function VisualsScreen({ view }: { view: 'scenes' | 'models' }) {
+export default function VisualsScreen({ view }: { view: 'scenes' | 'models' | 'juice' }) {
   const seen = new Set<string>()
   const scenes = content.items.filter((it) => {
     if (it.visual.kind !== 'scene') return false
@@ -49,12 +50,21 @@ export default function VisualsScreen({ view }: { view: 'scenes' | 'models' }) {
         <button type="button" className="btn small" onClick={() => navigate('/')}>
           Title
         </button>
-        <span className="mono label">ART CHECK // {view === 'scenes' ? 'SCENE DIAGRAMS' : 'SPECIMEN MODELS'}</span>
-        <button type="button" className="btn small" onClick={() => navigate(view === 'scenes' ? '/visuals/models' : '/visuals')}>
-          {view === 'scenes' ? 'Models' : 'Diagrams'}
-        </button>
+        <span className="mono label">ART CHECK // {view === 'scenes' ? 'SCENE DIAGRAMS' : view === 'models' ? 'SPECIMEN MODELS' : 'JUICE CLIPS'}</span>
+        <span className="visuals-tabs">
+          <button type="button" className="btn small" onClick={() => navigate(view === 'scenes' ? '/visuals/models' : '/visuals')}>
+            {view === 'scenes' ? 'Models' : 'Diagrams'}
+          </button>
+          <button type="button" className="btn small" data-testid="visuals-juice-tab" aria-pressed={view === 'juice'} onClick={() => navigate('/visuals/juice')}>
+            Juice
+          </button>
+        </span>
       </div>
-      {view === 'scenes' ? (
+      {view === 'juice' ? (
+        <Suspense fallback={<div className="visual-loading mono muted">Loading clips...</div>}>
+          <JuiceGallery />
+        </Suspense>
+      ) : view === 'scenes' ? (
         <div className="visuals-grid scenes" data-testid="visuals-scenes">
           {scenes.map((it) => (
             <div key={it.id} className="visuals-cell">

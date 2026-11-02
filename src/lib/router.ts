@@ -4,7 +4,7 @@ export type Route =
   | { name: 'title' }
   | { name: 'hub' }
   | { name: 'settings' }
-  | { name: 'visuals'; view: 'scenes' | 'models' }
+  | { name: 'visuals'; view: 'scenes' | 'models' | 'juice' }
   | { name: 'case'; id: string }
   | { name: 'cold'; id: string }
 
@@ -15,7 +15,7 @@ export function parseHash(hash: string): Route {
   if (parts[0] === 'hub' && parts.length === 1) return { name: 'hub' }
   if (parts[0] === 'settings' && parts.length === 1) return { name: 'settings' }
   // QA page for the art: every scene diagram, and the specimen models. Not linked from the UI.
-  if (parts[0] === 'visuals' && parts.length <= 2) return { name: 'visuals', view: parts[1] === 'models' ? 'models' : 'scenes' }
+  if (parts[0] === 'visuals' && parts.length <= 2) return { name: 'visuals', view: parts[1] === 'models' ? 'models' : parts[1] === 'juice' ? 'juice' : 'scenes' }
   if (parts[0] === 'case' && parts.length === 2 && /^[A-Za-z0-9-]+$/.test(parts[1])) {
     return { name: 'case', id: parts[1] }
   }

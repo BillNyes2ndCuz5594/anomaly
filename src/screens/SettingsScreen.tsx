@@ -1,5 +1,6 @@
 import { navigate } from '../lib/router'
-import { QUALITY_SETTINGS, type QualitySetting } from '../state/quality'
+import { QUALITY_SETTINGS, resolveTier, urlTier, type QualitySetting } from '../state/quality'
+import { useRuntime } from '../state/runtime'
 import {
   clampSoundVolume,
   LINE_SPACING_LABELS,
@@ -8,6 +9,7 @@ import {
   type TextSize,
 } from '../state/settings'
 import { useGame } from '../state/store'
+import { useBlip } from '../ui/useBlip'
 import './settings-sound.css'
 import './settings.css'
 
@@ -80,6 +82,10 @@ export default function SettingsScreen() {
   const settings = useGame((s) => s.settings)
   const set = useGame((s) => s.setSettings)
   const hasProfile = useGame((s) => s.profile !== null)
+  const autoTier = useRuntime((s) => s.autoTier)
+  const [tierBlip, fireTier] = useBlip<'flick'>(250)
+  const tier = resolveTier(settings.quality, autoTier)
+  const pinnedTier = urlTier()
 
   return (
     <div className="screen settings-screen" data-testid="settings">
@@ -134,14 +140,23 @@ export default function SettingsScreen() {
               <h2 className="settings-section-title">Display</h2>
               <div className="form">
                 <div className="field">
-                  <label htmlFor="quality">Graphics quality</label>
+                  <label htmlFor="quality">
+                    Graphics quality
+                    <span className="tier-badge mono" data-testid="tier-badge" data-blip={tierBlip ?? 'no'} data-tier={tier}>
+                      {tier.toUpperCase()}
+                      {pinnedTier ? ' (URL override)' : ''}
+                    </span>
+                  </label>
                   <select
                     id="quality"
                     className="input"
                     style={{ minHeight: '44px' }}
                     data-testid="setting-quality"
                     value={settings.quality}
-                    onChange={(e) => set({ quality: e.target.value as QualitySetting })}
+                    onChange={(e) => {
+                      set({ quality: e.target.value as QualitySetting })
+                      fireTier('flick')
+                    }}
                   >
                     {QUALITY_SETTINGS.map((q) => (
                       <option key={q} value={q}>
@@ -149,6 +164,11 @@ export default function SettingsScreen() {
                       </option>
                     ))}
                   </select>
+                  {pinnedTier ? (
+                    <span className="hint" data-testid="tier-override-note">
+                      The page address pins the tier to {pinnedTier.toUpperCase()}, so this setting is saved but not applied.
+                    </span>
+                  ) : null}
                   <span className="hint">Auto picks a tier from your frame rate. Lower it if the game feels slow.</span>
                 </div>
                 <Toggle

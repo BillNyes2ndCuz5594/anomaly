@@ -18,6 +18,7 @@ import FpsReadout from './ui/FpsReadout'
 import { countUpElement } from './ui/countUp'
 import { useApplySettings } from './ui/useApplySettings'
 import { useRouteTransition, useStepHandoff } from './ui/useRouteTransition'
+import WarpStreak, { WarpPreload } from './ui/WarpStreak'
 
 // The whole 3D layer (three, R3F, scenes) loads lazily so the first chunk stays small.
 const Stage = lazy(() => import('./three/Stage'))
@@ -163,7 +164,8 @@ export default function App() {
       </div>
       <div className="veil" data-phase={phase} data-kind={kind} data-dir={dir} aria-hidden="true">
         <div className="veil-stack">
-          <div className="veil-fill" />
+          {mode === 'full' ? <WarpPreload /> : null}
+          <div className="veil-fill">{mode === 'full' && phase !== 'idle' && (kind === 'launch' || kind === 'warp') ? <WarpStreak /> : null}</div>
           <div className="veil-glow" />
           <div className="veil-grid" />
           <div className="veil-scanlines" />

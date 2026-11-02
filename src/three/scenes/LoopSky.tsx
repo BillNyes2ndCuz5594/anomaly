@@ -2,9 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three/webgpu'
 import { abs, asin, atan, clamp, color, dot, float, mix, normalize, oneMinus, positionWorld, pow, saturate, smoothstep, texture, uniform, varying, vec2, vec3 } from 'three/tsl'
-import { resolveTier } from '../../state/quality'
-import { useRuntime } from '../../state/runtime'
-import { useGame } from '../../state/store'
+import { useMotionMode } from '../../ui/useMotionMode'
 import swampWebm from '../../assets/video/backdrop-swamp.webm?url'
 import swampMp4 from '../../assets/video/backdrop-swamp.mp4?url'
 import swampPoster from '../../assets/video/backdrop-swamp.webp?url'
@@ -20,6 +18,12 @@ import waterPoster from '../../assets/video/backdrop-water.webp?url'
 import frostWebm from '../../assets/video/backdrop-frost.webm?url'
 import frostMp4 from '../../assets/video/backdrop-frost.mp4?url'
 import frostPoster from '../../assets/video/backdrop-frost.webp?url'
+import debriefWebm from '../../assets/video/backdrop-debrief.webm?url'
+import debriefMp4 from '../../assets/video/backdrop-debrief.mp4?url'
+import debriefPoster from '../../assets/video/backdrop-debrief.webp?url'
+import titleWebm from '../../assets/video/backdrop-title.webm?url'
+import titleMp4 from '../../assets/video/backdrop-title.mp4?url'
+import titlePoster from '../../assets/video/backdrop-title.webp?url'
 
 // Ambient loops painted into the sky dome. Each clip is a 3.2 s seamless loop (start and end frames matched at
 // generation, then a 0.8 s crossfade at the seam), 960x540 (the dome window is soft, and 1280x720 decode slowed
@@ -29,14 +33,16 @@ import frostPoster from '../../assets/video/backdrop-frost.webp?url'
 // first frame of the loop, precached) shows first and the video crossfades in after its first decoded frame, so
 // there is no flash or black frame. Low tier and reduced motion get the poster only, with no video element.
 
-export type LoopClip = 'swamp' | 'cells' | 'canopy' | 'water' | 'frost'
+export type LoopClip = 'swamp' | 'cells' | 'canopy' | 'water' | 'frost' | 'title' | 'debrief'
 
-const CLIPS: Record<LoopClip, { webm: string; mp4: string; poster: string }> = {
+export const CLIPS: Record<LoopClip, { webm: string; mp4: string; poster: string }> = {
   swamp: { webm: swampWebm, mp4: swampMp4, poster: swampPoster },
   cells: { webm: cellsWebm, mp4: cellsMp4, poster: cellsPoster },
   canopy: { webm: canopyWebm, mp4: canopyMp4, poster: canopyPoster },
   water: { webm: waterWebm, mp4: waterMp4, poster: waterPoster },
   frost: { webm: frostWebm, mp4: frostMp4, poster: frostPoster },
+  title: { webm: titleWebm, mp4: titleMp4, poster: titlePoster },
+  debrief: { webm: debriefWebm, mp4: debriefMp4, poster: debriefPoster },
 }
 
 /** Elevation band (radians above the horizon) and azimuth width the clip covers on the dome. */
@@ -69,10 +75,8 @@ function makeVideo(src: { webm: string; mp4: string }): HTMLVideoElement {
 
 /** Navy sky dome with an ambient video loop blended into it. */
 export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: number }) {
-  const quality = useGame((s) => s.settings.quality)
-  const reduced = useGame((s) => s.settings.reducedMotion)
-  const autoTier = useRuntime((s) => s.autoTier)
-  const still = reduced || resolveTier(quality, autoTier) === 'low'
+  // fade (Low tier) and still (reduced motion, ?still=1) both get the poster only, with no video element.
+  const still = useMotionMode() !== 'full'
   const src = CLIPS[clip]
 
   const { mat, poster, video, vnode, u } = useMemo(() => {
