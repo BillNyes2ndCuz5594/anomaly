@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "node scripts/check-assets.mjs && vitest run",
     "proof": "node scripts/proof.mjs",
+    "proof:extra": "node scripts/proof-extra.mjs",
     "mobile": "node scripts/mobile.mjs",
     "icons": "node scripts/gen-icons.mjs"
   },
