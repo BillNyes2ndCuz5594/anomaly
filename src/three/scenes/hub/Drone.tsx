@@ -4,6 +4,9 @@ import * as THREE from 'three/webgpu'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { atan, attribute, color, cos, float, fract, length, mix, oneMinus, positionLocal, pow, sin, smoothstep, step, time, uniform, vec2, vertexColor } from 'three/tsl'
 import { STILL } from '../../../lib/flags'
+import { useGame } from '../../../state/store'
+import { useMotionMode } from '../../../ui/useMotionMode'
+import { claimFlourish, FLOURISH_DELAY_MS, FLOURISH_MS, glowAmount, rollAngle, type Flourish } from './paintFlourish'
 import { sceneCalm } from './markerMotion'
 import { useTier } from '../case/common'
 
@@ -308,6 +311,8 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     const metalMat = new THREE.MeshStandardNodeMaterial({ color: '#9aa9bd', roughness: 0.32, metalness: 0.65 })
 
     const blinkOn = uniform(1)
+    // Paint unlock pulse: 0 normally, up to 1 at the middle of the flourish. Multiplies the emissive lights.
+    const glow = uniform(0)
     const lightMat = new THREE.MeshBasicNodeMaterial()
     const w = attribute('blink', 'vec3')
     const steadyF = float(2.2).add(sin(time.mul(3.1)).mul(0.5))
@@ -317,7 +322,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     const f = fract(time.div(1.4))
     const strobeF = float(0.12).add(step(f, 0.05).add(step(0.11, f).mul(step(f, 0.16))).mul(6))
     const pattern = steadyF.mul(w.x).add(navF.mul(w.y)).add(strobeF.mul(w.z))
-    lightMat.colorNode = vertexColor().mul(mix(float(2.4), pattern, blinkOn))
+    lightMat.colorNode = vertexColor().mul(mix(float(2.4), pattern, blinkOn)).mul(glow.mul(3).add(1))
 
     const phase = uniform(0)
     const blurMat = new THREE.MeshBasicNodeMaterial()
@@ -338,7 +343,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     blurMat.depthWrite = false
     blurMat.side = THREE.DoubleSide
 
-    return { box, ductG, hullG, geos: [bake(shell), bake(composite), bake(metal), bake(lights), bake(blur)], mats: [shellMat, compMat, metalMat, lightMat, blurMat], phase, blinkOn }
+    return { box, ductG, hullG, geos: [bake(shell), bake(composite), bake(metal), bake(lights), bake(blur)], mats: [shellMat, compMat, metalMat, lightMat, blurMat], phase, blinkOn, glow }
   }, [])
 
   useEffect(
@@ -356,6 +361,16 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
   const shift = useRef(0)
   const probe = useMemo(() => new THREE.Vector3(), [])
   const calm = sceneCalm(reduced, STILL)
+  const mode = useMotionMode()
+  const paintCount = useGame((s) => s.paints.length)
+  // A newly unlocked paint plays one flourish. The start time is set once per unlock and read in the frame loop.
+  const flourish = useRef<{ kind: Flourish; at: number }>({ kind: 'none', at: 0 })
+  useEffect(() => {
+    const kind = claimFlourish(mode, paintCount)
+    if (kind !== 'none') flourish.current = { kind, at: performance.now() + FLOURISH_DELAY_MS }
+    // Only a change in the paint count starts one; switching the motion mode later must not replay it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paintCount])
   useFrame((state, dt) => {
     const t = state.clock.elapsedTime
     const g = root.current
@@ -365,6 +380,17 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
       g.rotation.y = 0.42 + (calm ? 0 : Math.sin(t * 0.35) * 0.12)
       g.rotation.z = calm ? 0 : Math.sin(t * 0.7) * 0.025
       g.rotation.x = -0.28 + (calm ? 0 : Math.sin(t * 0.55 + 1) * 0.025)
+      const fl = flourish.current
+      let glowNow = 0
+      if (fl.kind !== 'none') {
+        const p = (performance.now() - fl.at) / FLOURISH_MS
+        if (p >= 1) flourish.current = { kind: 'none', at: 0 }
+        else if (p >= 0) {
+          if (fl.kind === 'roll') g.rotation.z += rollAngle(p)
+          glowNow = glowAmount(p)
+        }
+      }
+      built.glow.value = glowNow
       // Keep the whole drone in frame: when the view is narrow (a phone held sideways, the scene centered beside a side
       // panel) slide it along x until its left-most point is inside the canvas, easing so it never pops.
       const left = (dx: number) => {
