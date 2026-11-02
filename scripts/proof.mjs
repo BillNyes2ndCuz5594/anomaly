@@ -123,6 +123,8 @@ const CHROME_ARGS = [
 ]
 // A software GPU can take minutes on one tall screenshot; PROOF_PROTOCOL_TIMEOUT_MS raises the CDP timeout for such machines.
 const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || 300000
+// PROOF_SKIP_MODELS_SHOT=1 skips only the specimen-models screenshot (four 3D canvases), which a software GPU cannot capture.
+const SKIP_MODELS_SHOT = process.env.PROOF_SKIP_MODELS_SHOT === '1'
 
 mkdirSync(OUT, { recursive: true })
 for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f)) rmSync(join(OUT, f))
@@ -892,8 +894,13 @@ try {
     await shotTall(page, 'visuals-scenes', w, vp)
     await page.evaluate(() => (location.hash = '#/visuals/models'))
     await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
-    await sleep(9000)
-    await shot(page, 'visuals-models', w)
+    if (SKIP_MODELS_SHOT) {
+      // Four live model canvases at once never compose a frame on a software GPU; the page is still checked above.
+      console.log(`SKIP  visuals-models screenshot (${w}): PROOF_SKIP_MODELS_SHOT is set`)
+    } else {
+      await sleep(9000)
+      await shot(page, 'visuals-models', w)
+    }
 
     // Diagram labels: Normal, then Extra large text. Art check page and the cold item in the real player.
     await page.goto(BASE + QS + '#/visuals', { waitUntil: 'load' })
