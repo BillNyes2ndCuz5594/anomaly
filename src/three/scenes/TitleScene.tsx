@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three/webgpu'
 import {
   abs,
@@ -11,12 +11,16 @@ import {
   positionGeometry,
   pow,
   smoothstep,
+  step,
   time,
+  uniform,
 } from 'three/tsl'
 import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
+import { useMotionMode } from '../../ui/useMotionMode'
+import { glintProgress, revealProgress, takeReveal } from './titleFx'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
@@ -30,6 +34,11 @@ const LOGO_H = 2.3
 
 /** Beveled outline letters, merged into one mesh: dark metal body, glowing bevel edges, a slow light sweep. */
 function LogoLetters({ reduced }: { reduced: boolean }) {
+  const mode = useMotionMode()
+  const born = useRef(performance.now())
+  // Spent once per mount: the scan reveal plays the first time the title shows in a page session.
+  const [playReveal] = useState(() => takeReveal(mode))
+  const fx = useMemo(() => ({ reveal: uniform(playReveal ? 0 : 1), glint: uniform(-10) }), [playReveal])
   const { geo, mat, width } = useMemo(() => {
     const { glyphs, width } = layoutLogo('ANOMALY')
     const parts = glyphs.map((g) => {
@@ -63,9 +72,28 @@ function LogoLetters({ reduced }: { reduced: boolean }) {
     const lift = smoothstep(float(-0.05), float(1.05), positionGeometry.y)
     const fill = float(0.04).add(lift.mul(0.34))
     const glow = bevel.mul(2.8).add(front.mul(fill)).add(band.mul(front.mul(0.85).add(bevel.mul(1.6))))
-    m.emissiveNode = color('#3ee6ff').mul(glow)
+    // Glint: a narrow slanted band that crosses the letters left to right (fx.glint is its x, -10 when off).
+    const slant = positionGeometry.x.add(positionGeometry.y.mul(0.35))
+    const glintBand = pow(oneMinus(smoothstep(float(0), float(0.28), abs(slant.sub(fx.glint)))), float(2))
+    const glintLit = glintBand.mul(front.mul(1.6).add(bevel.mul(3.2)))
+    m.emissiveNode = color('#3ee6ff').mul(glow).add(color('#d8fbff').mul(glintLit))
+    if (playReveal) {
+      // Scan reveal: horizontal scanlines open from the foot of each letter upward until the faces are whole.
+      const yy = positionGeometry.y
+      const open = fx.reveal.mul(1.7).sub(yy.mul(0.55))
+      m.opacityNode = step(fract(yy.mul(46)), open)
+      m.alphaTest = 0.5
+    }
     return { geo, mat: m, width }
-  }, [reduced])
+  }, [reduced, playReveal, fx])
+
+  useFrame(() => {
+    const t = performance.now() - born.current
+    fx.reveal.value = revealProgress(mode, t, playReveal)
+    const g = glintProgress(mode, t, playReveal)
+    const half = width / 2 + 0.6
+    fx.glint.value = g < 0 ? -10 : -half + g * 2 * half
+  })
 
   useEffect(
     () => () => {
