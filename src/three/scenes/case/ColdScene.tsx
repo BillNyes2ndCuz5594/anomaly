@@ -506,7 +506,7 @@ function ScanSample({ live = false }: { live?: boolean }) {
 }
 
 /**
- * The residue core, small, at the lower left of the stage for the cold Evidence step. The stage is already
+ * The residue core, small, at the left of the stage, raised so it clears the item picture panel for the cold Evidence step. The stage is already
  * inset by caseInset (0 on the items step), so the core is placed from the visible width at its depth.
  */
 export function EvidenceCore() {
@@ -514,7 +514,7 @@ export function EvidenceCore() {
   const halfW = Math.tan((20 * Math.PI) / 180) * 9 * aspect
   const x = -Math.min(halfW * 0.62, 6.2)
   return (
-    <group position={[x, -0.1, 3]} scale={0.5}>
+    <group position={[x, 1.4, 3]} scale={0.5}>
       <ScanSample live />
     </group>
   )

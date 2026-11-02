@@ -149,6 +149,20 @@ function checkSvg(name, r) {
 }
 
 function watch(page, label) {
+  // Flake hardening: a screenshot can fail under load (busy renderer, frame swap). Retry it a few times.
+  const shoot = page.screenshot.bind(page)
+  page.screenshot = async (...a) => {
+    let last
+    for (let i = 0; i < 3; i++) {
+      try {
+        return await shoot(...a)
+      } catch (e) {
+        last = e
+        await new Promise((r) => setTimeout(r, 600))
+      }
+    }
+    throw last
+  }
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(`[${label}] console.error: ${m.text()}`)
     else if (m.type() === 'warning') console.log(`  warn [${label}] ${m.text().slice(0, 160)}`)
@@ -1071,6 +1085,7 @@ try {
     const page = await browser.newPage()
     watch(page, 's18-ui')
     const vp1920 = { width: 1920, height: 1080, deviceScaleFactor: 1 }
+    page.setDefaultTimeout(90000) // the late s18 steps time out under load at the 30 s default
     await page.setViewport(vp1920)
     await page.goto(BASE + QS + '#/', { waitUntil: 'load' })
     await page.evaluate(() => localStorage.clear())
@@ -1469,6 +1484,58 @@ try {
 
   writeFileSync(`${OUT}/fps.json`, JSON.stringify({ throttle: 4, viewport: vp, hub: hubFps, labA: labFps, backends: fpsByBackend, drawCalls: { screenshotScenesAtHigh: sceneStats, byTier: pins }, transfer }, null, 2))
 
+  // ---------- motion modes and no-WebGL fallback (juice batch 2026-11-01) ----------
+  console.log('\n== motion modes and fallback ==')
+  {
+    const store = lastStore
+    const p1 = await browser.newPage()
+    watch(p1, 'motion-low')
+    await p1.setViewport({ ...vp, deviceScaleFactor: 1 })
+    // Earlier sections leave reduced motion on in the saved settings, which forces still; clear it so Low can show fade.
+    await p1.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
+    await p1.goto(BASE + '?tier=low', { waitUntil: 'load' })
+    await p1.evaluate((s) => {
+      let out = s
+      try {
+        const st = JSON.parse(s)
+        if (st?.state?.settings) st.state.settings = { ...st.state.settings, reducedMotion: false }
+        out = JSON.stringify(st)
+      } catch {}
+      localStorage.setItem('anomaly.v1', out)
+    }, store)
+    await goHub(p1, '?tier=low')
+    const lowFade = await p1.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
+    check('Low tier uses data-motion fade', lowFade, await p1.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`))
+    check('Low tier mounts no <video> on the hub', (await p1.$$('video')).length === 0)
+    await p1.close()
+    const p2 = await browser.newPage()
+    watch(p2, 'motion-still')
+    await p2.setViewport({ ...vp, deviceScaleFactor: 1 })
+    await p2.goto(BASE + '?still=1', { waitUntil: 'load' })
+    await p2.evaluate((s) => localStorage.setItem('anomaly.v1', s), store)
+    await goHub(p2, '?still=1')
+    check('?still=1 uses data-motion still and mounts no <video> on the hub', (await p2.evaluate(() => document.documentElement.dataset.motion)) === 'still' && (await p2.$$('video')).length === 0)
+    await p2.close()
+  }
+  {
+    // No WebGL at all: the 2D cover (.stage-fallback with stage-fallback.webp) must render instead of a blank stage.
+    const nb = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 120000, args: ['--no-sandbox', '--disable-gpu', '--disable-webgl', '--disable-3d-apis', '--disable-dev-shm-usage'] })
+    try {
+      const p = await nb.newPage()
+      p.on('pageerror', () => {})
+      await p.setViewport({ ...vp, deviceScaleFactor: 1 })
+      await p.goto(BASE, { waitUntil: 'load' })
+      await p.waitForFunction(() => /stage-fallback/.test(getComputedStyle(document.querySelector('.stage-fallback') ?? document.body).backgroundImage), { timeout: 60000, polling: 500 }).catch(() => {})
+      const fb = await p.evaluate(() => {
+        const e = document.querySelector('.stage-fallback')
+        return e ? getComputedStyle(e).backgroundImage : `no .stage-fallback; canvas=${!!document.querySelector('canvas')}`
+      })
+      check('with WebGL disabled, .stage-fallback renders with the stage-fallback cover', /stage-fallback/.test(fb), fb.slice(0, 80))
+    } finally {
+      await nb.close()
+    }
+  }
+
   // ---------- test counts and summary ----------
   console.log('\n== unit tests ==')
   const jsonOut = `/tmp/anomaly-vitest${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}.json`
@@ -1518,6 +1585,12 @@ try {
 } catch (e) {
   console.error('proof crashed:', e)
   exitCode = 1
+  // Always print a summary, even after a crash.
+  const bad = checks.filter((c) => !c.ok)
+  console.log('\n== summary (after crash) ==')
+  console.log(`${checks.length - bad.length}/${checks.length} checks passed before the crash`)
+  console.log(`console errors / page errors: ${errors.length}`)
+  for (const x of errors) console.log('  ' + x)
 } finally {
   await browser?.close()
   preview.kill()

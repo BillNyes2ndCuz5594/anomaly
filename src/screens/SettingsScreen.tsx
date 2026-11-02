@@ -1,5 +1,5 @@
 import { navigate } from '../lib/router'
-import { QUALITY_SETTINGS, resolveTier, type QualitySetting } from '../state/quality'
+import { QUALITY_SETTINGS, resolveTier, urlTier, type QualitySetting } from '../state/quality'
 import { useRuntime } from '../state/runtime'
 import {
   clampSoundVolume,
@@ -85,6 +85,7 @@ export default function SettingsScreen() {
   const autoTier = useRuntime((s) => s.autoTier)
   const [tierBlip, fireTier] = useBlip<'flick'>(250)
   const tier = resolveTier(settings.quality, autoTier)
+  const pinnedTier = urlTier()
 
   return (
     <div className="screen settings-screen" data-testid="settings">
@@ -143,6 +144,7 @@ export default function SettingsScreen() {
                     Graphics quality
                     <span className="tier-badge mono" data-testid="tier-badge" data-blip={tierBlip ?? 'no'} data-tier={tier}>
                       {tier.toUpperCase()}
+                      {pinnedTier ? ' (URL override)' : ''}
                     </span>
                   </label>
                   <select
@@ -162,6 +164,11 @@ export default function SettingsScreen() {
                       </option>
                     ))}
                   </select>
+                  {pinnedTier ? (
+                    <span className="hint" data-testid="tier-override-note">
+                      The page address pins the tier to {pinnedTier.toUpperCase()}, so this setting is saved but not applied.
+                    </span>
+                  ) : null}
                   <span className="hint">Auto picks a tier from your frame rate. Lower it if the game feels slow.</span>
                 </div>
                 <Toggle

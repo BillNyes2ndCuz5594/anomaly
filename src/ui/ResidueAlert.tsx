@@ -7,6 +7,9 @@ import alertPoster from '../assets/video/residue-alert.webp?url'
 /** The clip and its poster, shared with the QA gallery. */
 export const ALERT_CLIP = { webm: alertWebm, mp4: alertMp4, poster: alertPoster }
 
+/** Clip length in ms, used for the unmount safety timeout. */
+const CLIP_MS = 3040
+
 /**
  * H3: the residue canister flickers and cracks amber inside the cold case card when a review is due. The clip sits
  * on pure black, so it composites with mix-blend-mode: screen. It plays once per mount (one hub visit), then the
@@ -33,11 +36,16 @@ export default function ResidueAlert({ forceMode }: { forceMode?: 'full' | 'fade
       else frame()
     }
     v.addEventListener('playing', onPlaying)
+    // Safety net: if 'ended' never fires, drop the video after the full clip (3.04 s) plus 500 ms.
+    const safety = window.setTimeout(() => {
+      if (!dead) setDone(true)
+    }, CLIP_MS + 500)
     v.play().catch(() => {
       // Autoplay refused: the poster stays as the fallback.
     })
     return () => {
       dead = true
+      window.clearTimeout(safety)
       v.removeEventListener('playing', onPlaying)
       v.pause()
     }

@@ -433,7 +433,7 @@ export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: 
 
   return (
     <div ref={wrap} style={{ position: 'absolute', inset: 0 }}>
-      <Canvas key={gen} gl={gl as never} dpr={dpr} camera={camera} frameloop={running ? 'always' : 'never'} aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
+      <Canvas key={gen} shadows={{ enabled: false, type: THREE.PCFShadowMap }} gl={gl as never} dpr={dpr} camera={camera} frameloop={running ? 'always' : 'never'} aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
         <ResumeClock running={running} />
         <StageSize />
         <StageBackdrop />

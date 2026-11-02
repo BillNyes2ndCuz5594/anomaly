@@ -46,6 +46,25 @@ html[data-motion='fade'] .rd-screen .stamp {
   animation: rd-ink 0.18s linear both;
 }
 
+/* Low tier ink bleed: a soft ink halo that only fades out (opacity, no transform, no shake). */
+html[data-motion='fade'] .rd-screen .stamp::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, currentColor 38%, transparent), transparent 72%);
+  pointer-events: none;
+  animation: rd-bleed 600ms var(--ease-out) 0.18s both;
+}
+
+@keyframes rd-bleed {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 html[data-motion='still'] .rd-screen .stamp,
 html[data-reduced-motion='true'] .rd-screen .stamp {
   animation: none !important;
