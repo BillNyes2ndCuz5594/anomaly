@@ -1,0 +1,50 @@
+/* Hub case card preview. A small floating crop beside the card. It never takes the pointer or shifts layout. */
+.case-preview {
+  position: fixed;
+  z-index: 30;
+  width: 168px;
+  height: 94px;
+  overflow: hidden;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--c, #3ee6ff) 70%, transparent);
+  background: #050b14;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(4, 10, 20, 0.8);
+  animation: case-preview-in 260ms var(--ease-out, ease-out) backwards;
+}
+
+.case-preview[data-clip='cells'] {
+  --c: #ffb547;
+}
+
+.case-preview[data-clip='frost'] {
+  --c: #3ee6ff;
+}
+
+.case-preview img,
+.case-preview video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.case-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.18) 2px 3px);
+  mix-blend-mode: multiply;
+}
+
+@keyframes case-preview-in {
+  from {
+    opacity: 0;
+  }
+}
+
+html[data-motion='still'] .case-preview {
+  animation: none;
+}
