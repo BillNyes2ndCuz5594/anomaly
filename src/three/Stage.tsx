@@ -2,6 +2,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   autoStartTier,
+  clampDprToTexture,
   dprForTier,
   DPR_STEPS,
   initialAdaptiveState,
@@ -177,6 +178,18 @@ export interface StageProps {
 }
 
 /** True while the tab is hidden: the canvas stops rendering completely instead of relying on throttled rAF. */
+/** The viewport's longer side, tracked across resizes, so the drawing buffer can stay inside the texture limit. */
+function useViewportSize(): { width: number; height: number } {
+  const read = () => ({ width: window.innerWidth, height: window.innerHeight })
+  const [size, setSize] = useState(read)
+  useEffect(() => {
+    const on = () => setSize(read())
+    window.addEventListener('resize', on)
+    return () => window.removeEventListener('resize', on)
+  }, [])
+  return size
+}
+
 function useDocumentHidden(): boolean {
   const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
   useEffect(() => {
@@ -196,7 +209,8 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   const dprStep = useRuntime((s) => s.dprStep)
   // Adaptive resolution only applies while Auto is in charge; a pinned tier always renders at its full cap.
   const dprScale = isAutoActive(quality) ? DPR_STEPS[Math.min(dprStep, DPR_STEPS.length - 1)] : 1
-  const dpr = dprForTier(tier, window.devicePixelRatio, dprScale)
+  const viewport = useViewportSize()
+  const dpr = clampDprToTexture(dprForTier(tier, window.devicePixelRatio, dprScale), viewport.width, viewport.height)
   const hidden = useDocumentHidden()
   // Hero scans download in the background as soon as the 3D stage is up, so items show them without a visible swap.
   useEffect(() => {

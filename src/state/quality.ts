@@ -43,6 +43,20 @@ export function dprForTier(tier: Tier, devicePixelRatio: number, scale = 1): num
   return Math.max(0.5, Math.min(devicePixelRatio || 1, cap) * scale)
 }
 
+/**
+ * Largest texture side the stage will ever ask for. WebGPU's default maxTextureDimension2D and every WebGL2
+ * device in the field allow 8192; a viewport taller than that (a tall proof screenshot, a stacked multi-monitor
+ * window) would otherwise make the swapchain and depth textures invalid and the renderer log an error every frame.
+ */
+export const MAX_TEXTURE_DIM = 8192
+
+/** The dpr lowered just enough that width x dpr and height x dpr both stay within the texture limit. */
+export function clampDprToTexture(dpr: number, width: number, height: number, max = MAX_TEXTURE_DIM): number {
+  const side = Math.max(width, height)
+  if (!(side > 0) || side * dpr <= max) return dpr
+  return Math.max(0.1, max / side)
+}
+
 /** Resolution multipliers Auto walks through before it gives up a whole tier. Index 0 is full resolution. */
 export const DPR_STEPS: readonly number[] = [1, 0.8, 0.65]
 /** Sustained slow frames before Auto lowers resolution one step (a tier drop after the last step). */

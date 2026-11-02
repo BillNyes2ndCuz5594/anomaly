@@ -121,14 +121,14 @@ const CHROME_ARGS = [
   '--disable-dev-shm-usage',
   '--renderer-process-limit=2',
 ]
-// A software GPU can take minutes on one tall screenshot; PROOF_PROTOCOL_TIMEOUT_MS raises the CDP timeout for such machines.
-const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || 300000
-// PROOF_SKIP_MODELS_SHOT=1 skips only the specimen-models screenshot (four 3D canvases), which a software GPU cannot capture.
-const SKIP_MODELS_SHOT = process.env.PROOF_SKIP_MODELS_SHOT === '1'
-// The tall art-check shots make the ambient backdrop render ~80 frames at 1366x13927 with bloom. A real GPU
-// shrugs; swiftshader queues them and the next full reload waits 5 to 7 minutes for the drain. PROOF_NAV_TIMEOUT_MS
-// raises the navigation timeout (default 60000) for such machines.
-const NAV_TIMEOUT_MS = Number(process.env.PROOF_NAV_TIMEOUT_MS) || 60000
+// PROOF_SOFT_GPU=1 is for a machine without a GPU (a cloud container on swiftshader). Three shots are skipped
+// there and every check still runs: the specimen-models shot (four live canvases never compose a frame) and the
+// two tall art-check shots (a 13927 px window makes the GPU process drop the WebGPU instance; the app recovers,
+// but three's pending error scopes reject and the next reload waits minutes for the frame queue to drain).
+// Timeouts are raised to match. PROOF_PROTOCOL_TIMEOUT_MS still overrides the CDP timeout on its own.
+const SOFT_GPU = process.env.PROOF_SOFT_GPU === '1'
+const PROTOCOL_TIMEOUT_MS = Number(process.env.PROOF_PROTOCOL_TIMEOUT_MS) || (SOFT_GPU ? 900000 : 300000)
+const NAV_TIMEOUT_MS = SOFT_GPU ? 900000 : 60000
 
 mkdirSync(OUT, { recursive: true })
 for (const f of readdirSync(OUT)) if (/\.(png|json)$/.test(f)) rmSync(join(OUT, f))
@@ -245,6 +245,10 @@ async function freezeBursts(page) {
 const sceneStats = {}
 /** The art check grid scrolls inside the screen, so grow the viewport to the content for the shot, then restore it. */
 async function shotTall(page, name, w, vp) {
+  if (SOFT_GPU) {
+    console.log(`SKIP  ${name} tall screenshot (${w}): PROOF_SOFT_GPU`)
+    return
+  }
   const need = await page.evaluate(() => {
     const g = document.querySelector('.visuals-grid')
     return g ? Math.ceil(g.scrollHeight + g.getBoundingClientRect().top + 24) : 0
@@ -913,9 +917,8 @@ try {
     await shotTall(page, 'visuals-scenes', w, vp)
     await page.evaluate(() => (location.hash = '#/visuals/models'))
     await page.waitForSelector('[data-testid="visuals-models"] canvas', { timeout: 60000 })
-    if (SKIP_MODELS_SHOT) {
-      // Four live model canvases at once never compose a frame on a software GPU; the page is still checked above.
-      console.log(`SKIP  visuals-models screenshot (${w}): PROOF_SKIP_MODELS_SHOT is set`)
+    if (SOFT_GPU) {
+      console.log(`SKIP  visuals-models screenshot (${w}): PROOF_SOFT_GPU`)
     } else {
       await sleep(9000)
       await shot(page, 'visuals-models', w)
