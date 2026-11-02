@@ -1,0 +1,70 @@
+/* Codex NEW tags. Set by CodexNew through data attributes; the hub markup is not edited. */
+.codex-list li[data-codex-new='yes'] {
+  position: relative;
+  overflow: hidden;
+}
+
+.codex-list li[data-codex-new='yes']::after {
+  content: 'NEW';
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1px 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  color: #04121c;
+  background: var(--amber, #ffb547);
+  pointer-events: none;
+  animation: codex-new-tag 320ms var(--ease-out, ease-out) backwards;
+}
+
+/* One scan sweep across a new row, only in full motion. */
+.codex-list li[data-codex-new='yes']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(62, 230, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: codex-new-sweep 600ms var(--ease-out, ease-out) 120ms 1 both;
+  display: none;
+}
+
+html[data-motion='full'] .codex-list li[data-codex-new='yes']::before {
+  display: block;
+}
+
+.codex-panel summary[data-codex-new-count]::after {
+  content: 'NEW ' attr(data-codex-new-count);
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #04121c;
+  background: var(--amber, #ffb547);
+  animation: codex-new-tag 320ms var(--ease-out, ease-out) backwards;
+}
+
+@keyframes codex-new-tag {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes codex-new-sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* still: the tag only, no animation at all. */
+html[data-motion='still'] .codex-list li[data-codex-new='yes']::after,
+html[data-motion='still'] .codex-panel summary[data-codex-new-count]::after {
+  animation: none;
+}
