@@ -7,9 +7,9 @@ review of any new content. Stages are ordered by payoff for students, not by eff
 
 ## Where we stand after S7
 
-- 10 cases (one per unit, two for Earth and two for Life), 23 assessed benchmarks all covered, 157 items
-  (35 original plus 122 new), 4 lab mechanics (VITALS's three bespoke labs plus sort, match, order), 49 scene
-  diagrams, 13 specimen scans, a cold case drawing from a 46-item spaced-review pool.
+- 10 cases (one per unit, two for Earth and two for Life), 23 assessed benchmarks all covered, 163 items
+  (35 original plus 128 new), 6 lab mechanics (VITALS's three bespoke labs plus sort, match, order), 49 scene
+  diagrams, 12 specimen scans, a cold case drawing from a 54-item spaced-review pool.
 - Not yet used by the game: the `complexity` field on every item. The pickers ignore it, so every student gets
   the same mix. That is the first lever below.
 
