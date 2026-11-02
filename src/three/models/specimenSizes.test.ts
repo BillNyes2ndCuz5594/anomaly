@@ -62,7 +62,7 @@ describe('specimen sizes', () => {
       const anchor = ratios.indexOf(1)
       ids.forEach((_, i) => expect(drawn[i] / drawn[anchor], ids.join()).toBeCloseTo(ratios[i], 4))
     }
-  })
+  }, 20000) // every content pair builds its shapes; a loaded CI runner has passed the 5 s default
 
   it('fits every pair tallest specimen inside the canvas margin', () => {
     // Same margin and elevation rule as the evidence canvas. 1.7 to 1.85 is the wide panel where a tall scan used to touch the top.

@@ -177,19 +177,23 @@ export interface StageProps {
   verticalInsets?: boolean
 }
 
-/** True while the tab is hidden: the canvas stops rendering completely instead of relying on throttled rAF. */
-/** The viewport's longer side, tracked across resizes, so the drawing buffer can stay inside the texture limit. */
-function useViewportSize(): { width: number; height: number } {
-  const read = () => ({ width: window.innerWidth, height: window.innerHeight })
-  const [size, setSize] = useState(read)
+/**
+ * Keeps the drawing buffer inside the texture limit from inside the canvas: R3F's own size times the wanted dpr, lowered
+ * only when a side would pass MAX_TEXTURE_DIM (a 13927 px tall proof window did, and the renderer then logged an error
+ * every frame). Reads the live dpr too, so a tier change that re-applies the full value is clamped again.
+ */
+function TextureLimitGuard({ wanted }: { wanted: number }) {
+  const size = useThree((s) => s.size)
+  const live = useThree((s) => s.viewport.dpr)
+  const setDpr = useThree((s) => s.setDpr)
   useEffect(() => {
-    const on = () => setSize(read())
-    window.addEventListener('resize', on)
-    return () => window.removeEventListener('resize', on)
-  }, [])
-  return size
+    const safe = clampDprToTexture(wanted, size.width, size.height)
+    if (Math.abs(live - safe) > 1e-6) setDpr(safe)
+  }, [wanted, live, size.width, size.height, setDpr])
+  return null
 }
 
+/** True while the tab is hidden: the canvas stops rendering completely instead of relying on throttled rAF. */
 function useDocumentHidden(): boolean {
   const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
   useEffect(() => {
@@ -209,8 +213,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   const dprStep = useRuntime((s) => s.dprStep)
   // Adaptive resolution only applies while Auto is in charge; a pinned tier always renders at its full cap.
   const dprScale = isAutoActive(quality) ? DPR_STEPS[Math.min(dprStep, DPR_STEPS.length - 1)] : 1
-  const viewport = useViewportSize()
-  const dpr = clampDprToTexture(dprForTier(tier, window.devicePixelRatio, dprScale), viewport.width, viewport.height)
+  const dpr = dprForTier(tier, window.devicePixelRatio, dprScale)
   const hidden = useDocumentHidden()
   // Hero scans download in the background as soon as the 3D stage is up, so items show them without a visible swap.
   useEffect(() => {
@@ -262,6 +265,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       aria-hidden="true"
       style={{ position: 'absolute', inset: 0 }}
     >
+      <TextureLimitGuard wanted={dpr} />
       <color attach="background" args={['#070c17']} />
       <Runtime />
       <ViewOffset insets={insets} />
