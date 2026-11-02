@@ -3,6 +3,7 @@
 //   b) Every step runs through a hardened runner: a detached frame, "Target closed" or a page crash relaunches the
 //      browser once and retries that step from a fresh page.
 //   c) The summary always prints and the exit code is non-zero on any failed check, console error or page error.
+// Also checks that Low tier shows data-motion fade once saved reduced motion is off and the page reloads.
 // Also checks the hub case preview: no <video> while nothing is hovered, and none at all in still or Low tier.
 // Usage: npm run build && node scripts/proof-extra.mjs   (or: npm run proof:extra)
 // Case 03-1 is played from the content file, the same way scripts/proof.mjs does it.
@@ -207,6 +208,28 @@ const STEPS = [
         return { present: !!s, poster: !!s?.querySelector('img.seal-poster'), mode: s?.getAttribute('data-mode') }
       })
       check('results (?still=1): SealSting shows its poster only', seal.present && seal.poster && seal.mode === 'still', JSON.stringify(seal))
+      await page.close()
+    },
+  ],
+  [
+    'low tier fade',
+    async () => {
+      // Saved settings are read once at load, so a hash-only goto after editing storage keeps the old value.
+      // Turn reduced motion off in storage, then reload for real before reading data-motion.
+      const page = await profilePage('?tier=low', 'low-fade')
+      await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
+      await page.evaluate(() => {
+        const raw = localStorage.getItem('anomaly.v1')
+        if (!raw) return
+        const st = JSON.parse(raw)
+        if (st?.state?.settings) st.state.settings = { ...st.state.settings, reducedMotion: false }
+        localStorage.setItem('anomaly.v1', JSON.stringify(st))
+      })
+      await page.reload({ waitUntil: 'load' })
+      await page.waitForSelector('[data-testid="hub"]')
+      const fade = await page.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
+      const mode = await page.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`)
+      check('Low tier (reduced motion off, after reload) uses data-motion fade', fade, mode)
       await page.close()
     },
   ],
