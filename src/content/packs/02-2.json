@@ -32,12 +32,12 @@
     "briefing": [
       "Agent, a road crew near Tallahassee logged eight changes to the rock along a creek bank.",
       "Their report calls every one of them erosion, and the engineers do not believe it.",
-      "Sort what broke the rock from what carried it away, then check the minerals and resources in the file.",
+      "Sort what broke the rock from what carried it away. Then check the minerals and resources in the file.",
       "Rock changes slowly, so there is time to read each card."
     ],
     "lab": {
       "kind": "sort",
-      "intro": "Each card is a change the crew saw. Decide if the rock was broken into pieces or if pieces were carried away.",
+      "intro": "Each card is a change the crew saw. Decide if something broke the rock or carried pieces away.",
       "bins": [
         {
           "id": "weathering",

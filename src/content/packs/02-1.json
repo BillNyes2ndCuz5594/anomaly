@@ -25,8 +25,8 @@
     },
     "dispatchHook": "Weather station scramble in Miami. Rain is falling before the clouds form.",
     "briefing": [
-      "Agent, a weather station on the roof of a Miami school sent a forecast with its steps out of order.",
-      "It says rain falls before clouds form, and today's afternoon thunderstorm is marked as a mystery.",
+      "Agent, a Miami weather station sent a forecast with its steps out of order.",
+      "It says rain falls before clouds form, and calls today's afternoon storm a mystery.",
       "Put the water cycle back in order, then read the instruments yourself.",
       "The instruments still work; it is the order that broke."
     ],

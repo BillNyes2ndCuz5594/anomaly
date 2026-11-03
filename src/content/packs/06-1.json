@@ -10,7 +10,7 @@
     "marker": { "lon": -82.64, "lat": 27.77 },
     "dispatchHook": "St. Petersburg pier. Things moving, nobody admits pushing.",
     "briefing": [
-      "Agent, the St. Petersburg pier logged a cart that rolled away, a bike that would not stop and a coconut nobody saw fall.",
+      "Agent, reports came in from the St. Petersburg pier. A cart rolled away, a bike did not stop, and a coconut fell.",
       "Every report blames the same thing: something pushed it.",
       "Sort each event by the force behind it, then read the speed logs.",
       "A ghost is not on the list of forces. Check anyway."
@@ -21,7 +21,7 @@
       "bins": [
         { "id": "push-pull", "name": "Push or pull", "hint": "Something touches the object and moves it away or toward itself." },
         { "id": "gravity", "name": "Gravity", "hint": "Earth pulls objects down toward the ground without touching them." },
-        { "id": "friction", "name": "Friction", "hint": "Two surfaces rub together and resist the motion." },
+        { "id": "friction", "name": "Friction", "hint": "Two surfaces rub together and slow the motion." },
         { "id": "magnetic", "name": "Magnetic force", "hint": "A magnet pulls on iron or steel, or pushes or pulls another magnet, without touching." }
       ],
       "cards": [

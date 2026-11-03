@@ -31,7 +31,7 @@
     "dispatchHook": "Tracking glitch at the Cape. Stars, moons and comets filed in the wrong groups.",
     "briefing": [
       "Agent, the tracking room at Cape Canaveral lost its object catalog overnight.",
-      "The Sun is filed as a planet, two moons are listed as comets, and a launch is waiting on the fix.",
+      "The files list the Sun as a planet and two moons as comets. A launch is waiting on the fix.",
       "Sort the objects back into their groups, then check what the sky is really doing.",
       "The launch window will not move, so work carefully."
     ],
