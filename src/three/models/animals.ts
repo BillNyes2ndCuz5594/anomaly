@@ -330,7 +330,7 @@ export function sharkModel(b: Builder): void {
   b.limb(spine, radii, {}, { paint: mottle(coat, 0.06, 1.2, 4), radial: 32, seg: 11, cap: 8 })
   for (const k of mirrorZ) {
     // underslung mouth line, nostril and five gill slits
-    b.limb([[2.55, -0.17, k * 0.0], [2.2, -0.2, k * 0.2], [1.8, -0.17, k * 0.31]], 0.016, { c: '#26303a' }, { radial: 6, seg: 5, cap: 2 })
+    b.limb([[2.55, -0.17, 0], [2.2, -0.2, k * 0.2], [1.8, -0.17, k * 0.31]], 0.016, { c: '#26303a' }, { radial: 6, seg: 5, cap: 2 })
     for (let i = 0; i < 5; i++) b.limb([[1.1 - i * 0.1, 0.22, k * (0.4 - i * 0.004)], [1.09 - i * 0.1, 0.02, k * 0.47], [1.1 - i * 0.1, -0.2, k * 0.42]], 0.013, { c: '#3a444e' }, { radial: 6, seg: 3, cap: 1 })
     eye(b, [2.05, 0.1, k * 0.27], 0.05, [0.3, 0.2, k], '#d6dadc', false, '#07090b')
     // broad pectoral fin, swept back and down

@@ -2,7 +2,7 @@
 // Usage: node scripts/s12-shot.mjs --vp=780x360x2,1920x1080x1 --ids=L142-02,L315-03 [--tier=high] [--out=/tmp/s12]
 import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
-import { freePort, launch, profilePage, startPreview, toCaseStep, waitRendered } from './lib/drive.mjs'
+import { freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
 
 const args = process.argv.slice(2)
 const opt = (k, d) => (args.find((a) => a.startsWith(`--${k}=`)) ?? `--${k}=${d}`).split('=')[1]
