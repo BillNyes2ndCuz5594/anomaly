@@ -24,9 +24,8 @@ import graphiteUrl from '../../assets/specimens/graphite.glb?url'
 import graniteUrl from '../../assets/specimens/granite.glb?url'
 import limestoneUrl from '../../assets/specimens/limestone.glb?url'
 import gneissUrl from '../../assets/specimens/gneiss.glb?url'
-import { specimenGeo } from './creatures'
 import { meanProjectedArea, outlinePoints } from '../fit'
-import { DISPLAY_YAW, specimenArea } from './specimenBox'
+import { DISPLAY_YAW, specimenArea, specimenSize } from './specimenBox'
 
 export { SPECIMEN_POSTERS } from './specimenPosters'
 
@@ -105,7 +104,7 @@ const HERO_SLACK = 1.4
 export function normalizeHero(
   geo: THREE.BufferGeometry,
   yaw: number,
-  target: [number, number, number],
+  target: readonly [number, number, number],
   tilt = 0,
   area = 0,
   slack = HERO_SLACK,
@@ -168,7 +167,7 @@ export function loadHero(id: string): Promise<HeroSpecimen | null> {
           map.colorSpace = THREE.SRGBColorSpace
           map.anisotropy = 4
         }
-        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id), def.slack), map, rough: def.rough, metalness: def.metalness }
+        const hero = { geo: normalizeHero(geo, def.yaw, specimenSize(id), def.tilt, specimenArea(id), def.slack), map, rough: def.rough, metalness: def.metalness }
         ready.set(id, hero)
         for (const fn of listeners) fn()
         return hero

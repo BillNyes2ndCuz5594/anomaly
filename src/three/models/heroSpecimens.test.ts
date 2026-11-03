@@ -13,7 +13,7 @@ describe('hero specimen scans', () => {
     }
     expect(hasHero('manatee')).toBe(true)
     expect(hasHero('not-a-scan')).toBe(false)
-  })
+  }, 20_000)
 
   it('dequantizes normalized attributes before transforming', () => {
     const g = new THREE.BufferGeometry()

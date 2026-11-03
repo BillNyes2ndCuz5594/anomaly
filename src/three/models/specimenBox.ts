@@ -1,6 +1,7 @@
 import { specimenGeo } from './creatures'
 import { pairRatios, MIN_PAIR_RATIO, MIN_ROW_RATIO } from './specimenSizes'
 import { meanProjectedArea, outlinePoints, ringPoints, scalePoints, sweepPoints, translatePoints, type Box, type V3 } from '../fit'
+import { SPECIMEN_SHAPES } from './specimenShapes'
 
 /** The yaw specimens rest at, and how far they sway around it, in the item panels and Lab C. */
 export const DISPLAY_YAW = -0.55
@@ -40,24 +41,30 @@ function shapeOf(id: string): Shape {
 }
 
 /** Mean silhouette area of the procedural model at scale 1 over the displayed yaw range (hero scans match it). */
-export const specimenArea = (id: string): number => shapeOf(id).area
+export const specimenArea = (id: string): number => SPECIMEN_SHAPES[id]?.area ?? shapeOf(id).area
+
+export function specimenSize(id: string): readonly [number, number, number] {
+  return SPECIMEN_SHAPES[id]?.size ?? specimenGeo(id).size
+}
 
 /** Longest horizontal size of the procedural model at scale 1. */
-export const shapeReach = (id: string): number => shapeOf(id).reach
+export function shapeReach(id: string): number {
+  const shape = SPECIMEN_SHAPES[id]
+  if (shape) return Math.max(shape.size[0], shape.size[2])
+  return shapeOf(id).reach
+}
 
 /**
  * Scale that gives a specimen the same projected silhouette area as every other one at `fit` (area, not the largest
  * dimension, so wide flat animals are not left small and long thin ones are not left huge).
  */
 export function specimenScale(id: string, fit: number): number {
-  const s = shapeOf(id)
-  return Math.min(Math.sqrt((AREA_REF * fit * fit) / s.area), (fit * MAX_REACH) / s.reach)
+  return Math.min(Math.sqrt((AREA_REF * fit * fit) / specimenArea(id)), (fit * MAX_REACH) / shapeReach(id))
 }
 
 /** Radius of the pedestal ring that suits a specimen: it follows the animal's footprint instead of one size for all. */
 export function specimenRing(id: string, fit: number): number {
-  const s = shapeOf(id)
-  const r = 0.5 * s.reach * specimenScale(id, fit)
+  const r = 0.5 * shapeReach(id) * specimenScale(id, fit)
   return Math.min(fit * 0.74, Math.max(fit * 0.46, r * 0.82))
 }
 

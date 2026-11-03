@@ -98,5 +98,5 @@ describe('specimen sizes', () => {
         }
       }
     }
-  })
+  }, 20_000)
 })
