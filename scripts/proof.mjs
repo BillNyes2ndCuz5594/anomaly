@@ -5,20 +5,27 @@
 // S6: when PACK_ORDER lists a case pack, each viewport also walks the first one (hub marker, briefing, the generic
 // Field Lab through the HUD buttons, evidence, debrief, results). With no pack listed the walk is skipped with a note.
 // Output goes to /workspace/anomaly-proof/. Exit code is non-zero on any console error, page error or failed check.
+// Env CHROME_PATH (or PROOF_CHROME) overrides the Chrome executable path.
+// Env PROOF_REAL_GPU=1 drops swiftshader flags so Chrome uses the host GPU.
 // Usage: npm run build && node scripts/proof.mjs
 import puppeteer from 'puppeteer-core'
 import { spawn, spawnSync } from 'node:child_process'
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { gzipSync, inflateSync } from 'node:zlib'
 import { createServer } from 'node:net'
+import { fileURLToPath } from 'node:url'
 import { finishItems, fitReport, profilePage, svgReport, setTextSize, toCaseStep } from './lib/drive.mjs'
 import { loadContent, loadPacks } from './lib/content.mjs'
 import { walkPack } from './lib/caseWalk.mjs'
+import { chromePath, CHROME_ARGS } from './lib/platform.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const OUT = process.env.PROOF_OUT || '/workspace/anomaly-proof'
-const ROOT = new URL('..', import.meta.url).pathname
+const OUT = process.env.PROOF_OUT || (process.platform === 'linux' ? '/workspace/anomaly-proof' : join(tmpdir(), 'anomaly-proof'))
+// Transition strips are also copied here (the cloud box artifact folder on Linux, under OUT elsewhere).
+const ARTIFACTS = process.env.PROOF_ARTIFACTS || (process.platform === 'linux' ? '/opt/cursor/artifacts' : join(OUT, 'artifacts'))
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /** S6: the packs PACK_ORDER lists, and the merged content (base plus packs). `case` stays VITALS; the cold case can draw pack items. */
 const PACKS = loadPacks()
 const MERGED = loadContent()
@@ -108,18 +115,6 @@ const QS = '?tier=high&still=1'
 const VIEWPORTS = [
   { width: 1366, height: 768 },
   { width: 1920, height: 1080 },
-]
-const CHROME_ARGS = [
-  '--no-sandbox',
-  '--use-angle=swiftshader',
-  '--enable-unsafe-swiftshader',
-  '--ignore-gpu-blocklist',
-  '--enable-unsafe-webgpu',
-  // Without these two, headless Chrome destroys the WebGPU device on the first presented frame.
-  '--enable-features=Vulkan',
-  '--use-vulkan=swiftshader',
-  '--disable-dev-shm-usage',
-  '--renderer-process-limit=2',
 ]
 // PROOF_SOFT_GPU=1 is for a machine without a GPU (a cloud container on swiftshader). Three shots are skipped
 // there and every check still runs: the specimen-models shot (four live canvases never compose a frame) and the
@@ -439,8 +434,8 @@ async function motionShots(page, name, w) {
     await write(plan.file)
     const stripFile = `${String(ORDER.indexOf(plan.file) + 1).padStart(2, '0')}-${plan.file}-${w}.png`
     try {
-      mkdirSync('/opt/cursor/artifacts/transitions', { recursive: true })
-      copyFileSync(`${OUT}/${stripFile}`, `/opt/cursor/artifacts/transitions/${plan.file}.png`)
+      mkdirSync(join(ARTIFACTS, 'transitions'), { recursive: true })
+      copyFileSync(join(OUT, stripFile), join(ARTIFACTS, 'transitions', `${plan.file}.png`))
     } catch {
       // Artifact dir is optional. The proof file is the source of truth.
     }
@@ -757,20 +752,20 @@ async function playCold(page, w) {
 // WebGL pages and its renderer was killed mid s18 ("Target closed"), so close it and launch a clean one.
 async function relaunchBrowser() {
   try { await browser?.close() } catch {}
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
-  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
+  browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
+  writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-chrome.pid`), String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 }
 
 const preview = await startPreview()
-writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(preview.pid))
+writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-preview.pid`), String(preview.pid))
 let browser
 let exitCode = 0
 let lastStore = null
 let lastCode = ''
 try {
-  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
-  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
+  browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
+  writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-chrome.pid`), String(browser.process()?.pid ?? ''))
   await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
 
   for (const vp of VIEWPORTS) {
@@ -980,7 +975,7 @@ try {
     const urls = []
     tp.on('request', (r) => urls.push(r.url()))
     const cdp = await browser.target().createCDPSession()
-    const dl = `/tmp/anomaly-proof-dl${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-${w}`
+    const dl = resolve(join(tmpdir(), `anomaly-proof-dl${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-${w}`))
     rmSync(dl, { recursive: true, force: true })
     mkdirSync(dl, { recursive: true })
     await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dl })
@@ -1586,7 +1581,7 @@ try {
   }
   {
     // No WebGL at all: the 2D cover (.stage-fallback with stage-fallback.webp) must render instead of a blank stage.
-    const nb = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: 120000, args: ['--no-sandbox', '--disable-gpu', '--disable-webgl', '--disable-3d-apis', '--disable-dev-shm-usage'] })
+    const nb = await puppeteer.launch({ executablePath: chromePath(), headless: true, protocolTimeout: 120000, args: ['--no-sandbox', '--disable-gpu', '--disable-webgl', '--disable-3d-apis', '--disable-dev-shm-usage'] })
     try {
       const p = await nb.newPage()
       p.on('pageerror', () => {})
@@ -1605,9 +1600,9 @@ try {
 
   // ---------- test counts and summary ----------
   console.log('\n== unit tests ==')
-  const jsonOut = `/tmp/anomaly-vitest${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}.json`
+  const jsonOut = join(tmpdir(), `anomaly-vitest${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}.json`)
   rmSync(jsonOut, { force: true })
-  spawnSync('npx', ['vitest', 'run', '--reporter=json', `--outputFile=${jsonOut}`], { cwd: ROOT, stdio: 'ignore' })
+  spawnSync(process.execPath, [join(ROOT, 'node_modules/vitest/vitest.mjs'), 'run', '--reporter=json', `--outputFile=${jsonOut}`], { cwd: ROOT, stdio: 'ignore' })
   let tests = { total: 0, passed: 0, failed: 0, files: 0 }
   if (existsSync(jsonOut)) {
     const j = JSON.parse(readFileSync(jsonOut, 'utf8'))

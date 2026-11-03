@@ -4,24 +4,18 @@ import puppeteer from 'puppeteer-core'
 import { spawn } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
 import { loadContent } from './content.mjs'
+import { chromePath, CHROME_ARGS } from './platform.mjs'
 
-export const ROOT = new URL('../..', import.meta.url).pathname
+export const ROOT = fileURLToPath(new URL('../..', import.meta.url))
 /** Merged content: `case` is VITALS, `items` holds the base items plus every listed pack (the cold case can draw any). */
 export const CONTENT = loadContent()
 
-export const CHROME_ARGS = [
-  '--no-sandbox',
-  '--use-angle=swiftshader',
-  '--enable-unsafe-swiftshader',
-  '--ignore-gpu-blocklist',
-  '--enable-unsafe-webgpu',
-  '--enable-features=Vulkan',
-  '--use-vulkan=swiftshader',
-  '--disable-dev-shm-usage',
-  '--renderer-process-limit=2',
-]
+export { CHROME_ARGS }
 
 export const freePort = () =>
   new Promise((resolve) => {
@@ -35,7 +29,7 @@ export const freePort = () =>
 export async function startPreview(port) {
   const base = `http://localhost:${port}/`
   const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
-  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(proc.pid))
+  writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-preview.pid`), String(proc.pid))
   let log = ''
   proc.stdout.on('data', (d) => (log += d))
   proc.stderr.on('data', (d) => (log += d))
@@ -52,8 +46,8 @@ export async function startPreview(port) {
 }
 
 export async function launch() {
-  const browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: CHROME_ARGS })
-  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
+  const browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, args: CHROME_ARGS })
+  writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-chrome.pid`), String(browser.process()?.pid ?? ''))
   return browser
 }
 
