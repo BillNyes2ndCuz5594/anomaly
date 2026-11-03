@@ -194,6 +194,8 @@ function StageSize() {
   const setSize = useThree((s) => s.setSize)
   const gl = useThree((s) => s.gl)
   useFrame(() => {
+    // Proof hook: mark the first rendered 3D frame so the evidence glide check need not guess a fixed wait.
+    if (document.documentElement.dataset.canvasReady !== '1') document.documentElement.dataset.canvasReady = '1'
     const stage = gl.domElement.closest('.visual-3d')
     if (!(stage instanceof HTMLElement)) return
     const w = Math.round(stage.clientWidth)
@@ -430,6 +432,12 @@ export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: 
   const onScreen = useOnScreen(wrap)
   const hidden = useDocumentHidden()
   const running = shouldRender(onScreen, hidden)
+
+  useEffect(() => {
+    return () => {
+      delete document.documentElement.dataset.canvasReady
+    }
+  }, [])
 
   return (
     <div ref={wrap} style={{ position: 'absolute', inset: 0 }}>
