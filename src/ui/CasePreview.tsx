@@ -6,6 +6,9 @@ import cellsPoster from '../assets/video/backdrop-cells.webp?url'
 import frostWebm from '../assets/video/backdrop-frost.webm?url'
 import frostMp4 from '../assets/video/backdrop-frost.mp4?url'
 import frostPoster from '../assets/video/backdrop-frost.webp?url'
+import creekWebm from '../assets/video/backdrop-creek.webm?url'
+import creekMp4 from '../assets/video/backdrop-creek.mp4?url'
+import creekPoster from '../assets/video/backdrop-creek.webp?url'
 import { activeTarget, isPreviewTarget, mediaKind, placePreview, PREVIEW_TARGETS, type PreviewClip, type PreviewState, type PreviewTarget } from './casePreview'
 import type { MotionMode } from './motionMode'
 import { useMotionMode } from './useMotionMode'
@@ -13,6 +16,7 @@ import './casePreview.css'
 
 const CLIP_MEDIA: Record<PreviewClip, { webm: string; mp4: string; poster: string }> = {
   cells: { webm: cellsWebm, mp4: cellsMp4, poster: cellsPoster },
+  creek: { webm: creekWebm, mp4: creekMp4, poster: creekPoster },
   frost: { webm: frostWebm, mp4: frostMp4, poster: frostPoster },
 }
 

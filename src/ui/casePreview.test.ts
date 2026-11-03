@@ -12,7 +12,7 @@ describe('case preview media by motion mode', () => {
   })
 
   it('mounts a video in full and never in fade or still', () => {
-    for (const clip of ['cells', 'frost'] as const) {
+    for (const clip of ['cells', 'frost', 'creek'] as const) {
       expect(renderToStaticMarkup(createElement(PreviewMedia, { clip, mode: 'full' }))).toContain('<video')
       for (const mode of ['fade', 'still'] as const) {
         const html = renderToStaticMarkup(createElement(PreviewMedia, { clip, mode }))
@@ -25,10 +25,12 @@ describe('case preview media by motion mode', () => {
 })
 
 describe('case preview targets', () => {
-  it('maps the two hub cards to their loops', () => {
+  it('maps the hub cards to their loops', () => {
     expect(PREVIEW_TARGETS['case-marker-03-1']).toBe('cells')
+    expect(PREVIEW_TARGETS['case-marker-02-2']).toBe('creek')
     expect(PREVIEW_TARGETS['cold-marker']).toBe('frost')
     expect(isPreviewTarget('cold-marker')).toBe(true)
+    expect(isPreviewTarget('case-marker-02-2')).toBe(true)
     expect(isPreviewTarget('open-settings')).toBe(false)
     expect(isPreviewTarget('toString')).toBe(false)
     expect(isPreviewTarget(undefined)).toBe(false)

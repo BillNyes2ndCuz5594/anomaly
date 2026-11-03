@@ -1,5 +1,11 @@
 // Earth and weather diagrams (S7 section 4): weathering and erosion, streak test, rock types,
 // Florida resources, weather instruments, climate zones, cloud types, a cold front over Florida.
+import mineralStreakPlate from '../../../assets/diagrams/mineral-streak.webp'
+import rockTypesPlate from '../../../assets/diagrams/rock-types.webp'
+import weatheringErosionPlate from '../../../assets/diagrams/weathering-erosion.webp'
+import resourceQuarryPlate from '../../../assets/diagrams/resource-quarry.webp'
+import resourceSolarPlate from '../../../assets/diagrams/resource-solar.webp'
+import resourceSpringPlate from '../../../assets/diagrams/resource-spring.webp'
 import { AM, BLUE, CY, GREEN, INK, ORANGE, PALE, PURPLE, SKY, STEEL, VERM, blob, type Diagram } from './kit'
 import { Arrow, Cloud, Ground, HandLens, Sun, Thermometer } from './parts'
 
@@ -343,4 +349,14 @@ export const EARTH_DIAGRAMS: Record<string, Diagram> = {
   'climate-zones': ClimateZones,
   'cloud-types': CloudTypes,
   'florida-fronts': FloridaFronts,
+}
+
+// oxlint-disable-next-line react/only-export-components -- bedrock diagram plate images for S7 and Unit 4
+export const BEDROCK_PLATES: Record<string, string> = {
+  'mineral-streak': mineralStreakPlate,
+  'rock-types': rockTypesPlate,
+  'weathering-erosion': weatheringErosionPlate,
+  'resource-quarry': resourceQuarryPlate,
+  'resource-solar': resourceSolarPlate,
+  'resource-spring': resourceSpringPlate,
 }

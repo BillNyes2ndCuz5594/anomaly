@@ -16,6 +16,23 @@ export const SPECIMEN_LENGTH_M: Record<string, number> = {
   'american-alligator': 3.0,
   grasshopper: 0.06,
   'garden-spider': 0.07,
+  quartz: 0.1,
+  pyrite: 0.08,
+  feldspar: 0.12,
+  mica: 0.09,
+  calcite: 0.11,
+  talc: 0.08,
+  graphite: 0.09,
+  granite: 0.16,
+  limestone: 0.15,
+  gneiss: 0.14,
+}
+
+export type SpecimenGroup = 'animal' | 'plant' | 'mineral' | 'rock'
+
+export const GROUP_SCALE_NOTE: Partial<Record<SpecimenGroup, string>> = {
+  mineral: 'Hand specimen, scale varies',
+  rock: 'Hand specimen, scale varies',
 }
 
 /** The smallest a specimen is drawn next to the largest one in its panel, as a fraction of that one's length. */

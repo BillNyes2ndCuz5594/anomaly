@@ -2,8 +2,8 @@
   "case": {
     "id": "02-2",
     "codename": "BEDROCK",
-    "unit": "U02 Weather",
-    "unitLabel": "Unit 2: Weather (Earth Structures)",
+    "unit": "U04 Earth's Processes and Resources",
+    "unitLabel": "Unit 4: Earth's Processes and Resources",
     "category": "earth",
     "benchmarks": [
       "SC.4.E.6.2",
