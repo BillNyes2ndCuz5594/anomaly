@@ -2,10 +2,11 @@
   "case": {
     "id": "02-2",
     "codename": "BEDROCK",
-    "unit": "U02 Weather",
-    "unitLabel": "Unit 2: Weather (Earth Structures)",
+    "unit": "U04 Earth's Processes and Resources",
+    "unitLabel": "Unit 4: Earth's Processes and Resources",
     "category": "earth",
     "benchmarks": [
+      "SC.4.E.6.1",
       "SC.4.E.6.2",
       "SC.4.E.6.4"
     ],
@@ -132,6 +133,504 @@
     "debriefOpen": "Case stays open for now. The rock comes back as a cold case soon, and it will not have moved much."
   },
   "items": [
+    {
+      "id": "E6.1-01",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Deep underground, melted rock cools slowly and turns solid to form granite. Which rock type is granite?",
+      "options": [
+        "igneous rock",
+        "sedimentary rock",
+        "metamorphic rock",
+        "fossil rock"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: igneous rock forms when melted rock cools and hardens.",
+        "Decoy: sedimentary rock forms from pressed and cemented layers of sediment.",
+        "Decoy: metamorphic rock forms when existing rock is changed by heat and pressure.",
+        "Decoy: fossil rock is not one of the three main categories of rocks."
+      ],
+      "keyWords": [
+        "Deep underground",
+        "melted rock cools",
+        "form granite"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Granite",
+          "Cooled melted rock",
+          ""
+        ]
+      },
+      "alt": "A diagram showing rock types, highlighting granite formed from cooled melted rock.",
+      "tisCheck": "Three rock categories by formation (SC.4.E.6.1); granite as igneous; no rock cycle.",
+      "misconceptions": "Igneous confused with metamorphic; inventing new rock categories."
+    },
+    {
+      "id": "E6.1-02",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "At Castillo de San Marcos in St. Augustine, the fort walls are made of coquina. Coquina contains broken shells pressed together in layers. Which kind of rock is coquina?",
+      "options": [
+        "igneous rock",
+        "sedimentary rock",
+        "metamorphic rock",
+        "volcanic rock"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: igneous rock forms from cooled melted rock, not from pressed shell pieces.",
+        "Correct: sedimentary rock forms when layers of sediment like shells and sand are pressed together.",
+        "Decoy: metamorphic rock forms when heat and pressure change older rock.",
+        "Decoy: volcanic rock is another term for igneous rock formed from lava."
+      ],
+      "keyWords": [
+        "Castillo de San Marcos",
+        "broken shells pressed together",
+        "Which kind of rock"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Coquina",
+          "Shell layers",
+          ""
+        ]
+      },
+      "alt": "A diagram showing coquina formed from pressed layers of broken shells.",
+      "tisCheck": "Coquina as sedimentary rock; Florida history context (Castillo de San Marcos); no rock cycle.",
+      "misconceptions": "Rocks with shells thought to be metamorphic or volcanic."
+    },
+    {
+      "id": "E6.1-03",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Deep inside Earth, high heat and pressure squeeze granite until its mineral grains line up in wavy bands to form gneiss. Which type of rock is gneiss?",
+      "options": [
+        "igneous rock",
+        "sedimentary rock",
+        "metamorphic rock",
+        "limestone rock"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: igneous rock forms from melted rock that cools and hardens.",
+        "Decoy: sedimentary rock forms from layers of sediment pressed together.",
+        "Correct: metamorphic rock forms when existing rock is changed by heat and pressure.",
+        "Decoy: limestone is a sedimentary rock formed from pieces of shells and skeletons."
+      ],
+      "keyWords": [
+        "heat and pressure",
+        "wavy bands",
+        "form gneiss"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Gneiss",
+          "Heat and pressure",
+          ""
+        ]
+      },
+      "alt": "A diagram showing gneiss formed by heat and pressure with mineral bands.",
+      "tisCheck": "Gneiss as metamorphic rock; formation by heat and pressure; no rock cycle.",
+      "misconceptions": "Wavy bands confused with sedimentary layers."
+    },
+    {
+      "id": "E6.1-04",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Lava erupts from a volcano and cools very quickly on Earth's surface to form black, glassy obsidian. How does obsidian form?",
+      "options": [
+        "From layers of dead sea plants pressed together.",
+        "From great heat and pressure changing limestone.",
+        "From sand grains cemented together over time.",
+        "From melted rock that cools and turns solid."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: pressed plant material forms coal, which is sedimentary.",
+        "Decoy: heat and pressure changing limestone creates marble, a metamorphic rock.",
+        "Decoy: cemented sand grains form sandstone, a sedimentary rock.",
+        "Correct: obsidian is an igneous rock formed when melted rock cools quickly."
+      ],
+      "keyWords": [
+        "Lava erupts",
+        "cools very quickly",
+        "glassy obsidian"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Obsidian",
+          "Quickly cooled lava",
+          ""
+        ]
+      },
+      "alt": "A diagram showing obsidian rock formed from quickly cooling lava.",
+      "tisCheck": "Obsidian as an igneous rock formed from cooling lava; no rock cycle.",
+      "misconceptions": "Glassy rocks thought to be man-made; cooling confused with heating."
+    },
+    {
+      "id": "E6.1-05",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Much of Florida sits on a thick layer of limestone. Long ago, tiny sea organisms died and settled to the ocean bottom, forming layers that hardened into rock. Which statement best classifies Florida limestone?",
+      "options": [
+        "It is sedimentary because it formed from layers of shell and skeleton pieces.",
+        "It is igneous because it formed from molten magma deep underground.",
+        "It is metamorphic because it was melted completely into hot lava.",
+        "It is a mineral because it is made of only one chemical substance."
+      ],
+      "key": 0,
+      "why": [
+        "Correct: limestone is sedimentary because it forms from layers of bits of sea life pressed together.",
+        "Decoy: igneous rocks form from melted rock, not from sea organism remains.",
+        "Decoy: complete melting forms magma, which cools into igneous rock.",
+        "Decoy: limestone is a rock made of minerals, not a single mineral."
+      ],
+      "keyWords": [
+        "layer of limestone",
+        "tiny sea organisms",
+        "Which statement best classifies"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Limestone",
+          "Ocean layers",
+          ""
+        ]
+      },
+      "alt": "A diagram showing layers of ocean sediment hardening into Florida limestone.",
+      "tisCheck": "Limestone classification in Florida context; sedimentary formation; no rock cycle.",
+      "misconceptions": "Limestone thought to be igneous; confusion between rocks and minerals."
+    },
+    {
+      "id": "E6.1-06",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A geologist studies a rock sample that contains fossil imprints of ancient fern leaves. In which group of rocks are fossils usually found?",
+      "options": [
+        "igneous rocks",
+        "sedimentary rocks",
+        "metamorphic rocks",
+        "volcanic rocks"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: the extreme heat of melted rock destroys living things and their imprints.",
+        "Correct: fossils are preserved when layers of sediment cover dead organisms and harden into rock.",
+        "Decoy: intense heat and pressure crush or destroy fossils in metamorphic rocks.",
+        "Decoy: volcanic rocks are igneous and form from hot lava that destroys fossils."
+      ],
+      "keyWords": [
+        "fossil imprints",
+        "ancient fern leaves",
+        "usually found"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Fossil rock",
+          "Sediment layers",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a rock with fossil fern imprints formed in sedimentary layers.",
+      "tisCheck": "Fossils found in sedimentary rock; content limit: no rock cycle.",
+      "misconceptions": "Belief that fossils survive molten lava or intense heat."
+    },
+    {
+      "id": "E6.1-07",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "case",
+      "stem": "A science class compares three rock samples. Sample X cooled from magma inside Earth. Sample Y formed from layers of river sand. Sample Z changed under high temperature and squeezing. Which row correctly matches each sample to its rock category?",
+      "options": [
+        "Sample X is sedimentary, Sample Y is igneous, and Sample Z is metamorphic.",
+        "Sample X is metamorphic, Sample Y is sedimentary, and Sample Z is igneous.",
+        "Sample X is igneous, Sample Y is sedimentary, and Sample Z is metamorphic.",
+        "Sample X is igneous, Sample Y is metamorphic, and Sample Z is sedimentary."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: Sample X cooled from magma, which makes it igneous, not sedimentary.",
+        "Decoy: Sample X cooled from magma, so it cannot be metamorphic.",
+        "Correct: magma cooling forms igneous, river layers form sedimentary, and heat with squeezing forms metamorphic.",
+        "Decoy: Sample Y formed from sand layers, which makes it sedimentary, not metamorphic."
+      ],
+      "keyWords": [
+        "cooled from magma",
+        "layers of river sand",
+        "temperature and squeezing"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Rock Formation Comparison",
+        "columns": [
+          "Sample",
+          "How It Formed"
+        ],
+        "rows": [
+          [
+            "Sample X",
+            "Cooled from magma"
+          ],
+          [
+            "Sample Y",
+            "Pressed sand layers"
+          ],
+          [
+            "Sample Z",
+            "Heat and squeezing"
+          ]
+        ]
+      },
+      "alt": "A table showing three rock samples and their formation processes.",
+      "tisCheck": "Matching three rock categories to formation processes; no rock cycle.",
+      "misconceptions": "Swapping sedimentary and metamorphic formation; confusing magma with heat."
+    },
+    {
+      "id": "E6.1-08",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Students observe a sample of granite with visible grains of quartz, feldspar, and mica. The teacher explains that granite is an igneous rock. What condition was necessary for this rock to form?",
+      "options": [
+        "Layers of clay were dried by the Sun.",
+        "Shell pieces were pressed together in seawater.",
+        "Solid rock was bent without melting.",
+        "Melted rock cooled and turned into solid rock."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: drying clay forms mudstone, which is a sedimentary process.",
+        "Decoy: pressing shell pieces forms sedimentary rocks like coquina or limestone.",
+        "Decoy: bending without melting describes metamorphic rock formation.",
+        "Correct: all igneous rocks, including granite, form when melted rock cools and hardens."
+      ],
+      "keyWords": [
+        "visible grains",
+        "granite is an igneous rock",
+        "What condition was necessary"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Granite",
+          "Cooled underground",
+          ""
+        ]
+      },
+      "alt": "A diagram showing granite with mineral grains formed from cooling magma.",
+      "tisCheck": "Granite formed from cooled melted rock; mineral composition mentioned only descriptively.",
+      "misconceptions": "Sunlight drying rocks confused with igneous cooling."
+    },
+    {
+      "id": "E6.1-09",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "cold",
+      "stem": "Scientists group rocks into three main categories based on how they formed. What are the three main categories of rocks?",
+      "options": [
+        "igneous, sedimentary, and metamorphic",
+        "hard, soft, and rough",
+        "minerals, crystals, and fossils",
+        "coarse, medium, and fine"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: the three major groups of rocks classified by formation are igneous, sedimentary, and metamorphic.",
+        "Decoy: hard, soft, and rough describe texture and hardness, not rock formation groups.",
+        "Decoy: minerals and fossils are materials found in rocks, not the three rock classes.",
+        "Decoy: grain sizes describe texture rather than the three main rock categories."
+      ],
+      "keyWords": [
+        "group rocks into three",
+        "based on how they formed",
+        "three main categories"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Igneous",
+          "Sedimentary",
+          "Metamorphic"
+        ]
+      },
+      "alt": "A diagram showing the three main categories of rocks: igneous, sedimentary, and metamorphic.",
+      "tisCheck": "Three rock categories by formation (SC.4.E.6.1); no rock cycle.",
+      "misconceptions": "Grouping rocks by texture or physical feel instead of formation."
+    },
+    {
+      "id": "E6.1-10",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "A hiker finds a rock near a Florida spring that shows distinct, parallel layers of pressed sand and silt. Which statement explains why this rock is sedimentary?",
+      "options": [
+        "It cooled quickly from boiling red lava.",
+        "It formed when pieces of sediment piled up and cemented together.",
+        "It melted completely deep under Earth's crust.",
+        "It changed shape only from hot underground steam."
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: cooling lava forms igneous rock, not layered sedimentary rock.",
+        "Correct: sedimentary rocks form when sediments collect in layers and become cemented together.",
+        "Decoy: completely melting rock produces magma that hardens into igneous rock.",
+        "Decoy: steam and heat changes produce metamorphic rocks."
+      ],
+      "keyWords": [
+        "Florida spring",
+        "parallel layers of pressed sand",
+        "rock is sedimentary"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Spring rock",
+          "Sand layers",
+          ""
+        ]
+      },
+      "alt": "A diagram showing layers of sediment hardening into rock near a Florida spring.",
+      "tisCheck": "Sedimentary formation in Florida spring setting; no rock cycle.",
+      "misconceptions": "Sedimentary layers confused with lava flows."
+    },
+    {
+      "id": "E6.1-11",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "During mountain building, buried shale rock is subjected to intense heat and pressure until its texture changes completely into slate. Which category does slate belong to?",
+      "options": [
+        "igneous rock",
+        "sedimentary rock",
+        "metamorphic rock",
+        "fossil rock"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: igneous rock forms from melted rock that cools and solidifies.",
+        "Decoy: shale was sedimentary, but heat and pressure turned it into a new category.",
+        "Correct: rock changed by high heat and pressure without completely melting is metamorphic.",
+        "Decoy: fossil rock is not an official scientific rock category."
+      ],
+      "keyWords": [
+        "buried shale rock",
+        "intense heat and pressure",
+        "slate belong to"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Slate",
+          "Changed by pressure",
+          ""
+        ]
+      },
+      "alt": "A diagram showing rock changed by heat and pressure into metamorphic slate.",
+      "tisCheck": "Metamorphic formation by heat and pressure; no rock cycle.",
+      "misconceptions": "Believing rock changed by heat must have melted into igneous rock."
+    },
+    {
+      "id": "E6.1-12",
+      "benchmark": "SC.4.E.6.1",
+      "testedAs": "SC.4.E.6.1",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "A student creates a table to sort four rock descriptions into rock categories. Which entry in the table represents an igneous rock?",
+      "options": [
+        "Description 1: layers of crushed clam shells cemented into stone.",
+        "Description 2: limestone changed by hot magma nearby into marble.",
+        "Description 3: mud deposits pressed flat over thousands of years.",
+        "Description 4: magma that cooled slowly inside Earth to form coarse crystals."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: crushed shells cemented together form sedimentary rock.",
+        "Decoy: limestone changed by heat into marble is metamorphic rock.",
+        "Decoy: pressed mud deposits form shale, which is sedimentary rock.",
+        "Correct: magma cooling inside Earth forms intrusive igneous rock such as granite."
+      ],
+      "keyWords": [
+        "four rock descriptions",
+        "table represents an igneous rock",
+        "rock categories"
+      ],
+      "visual": {
+        "kind": "table",
+        "title": "Rock Sorting Table",
+        "columns": [
+          "Entry",
+          "Formation Description"
+        ],
+        "rows": [
+          [
+            "Description 1",
+            "Pressed shell pieces"
+          ],
+          [
+            "Description 2",
+            "Changed by heat"
+          ],
+          [
+            "Description 3",
+            "Pressed mud layers"
+          ],
+          [
+            "Description 4",
+            "Cooled underground magma"
+          ]
+        ]
+      },
+      "alt": "A table describing four rock formation methods.",
+      "tisCheck": "Sorting rock descriptions by category; igneous defined by cooling magma; no rock cycle.",
+      "misconceptions": "Metamorphic rock formed near magma confused with igneous rock."
+    },
     {
       "id": "E6.2-01",
       "benchmark": "SC.4.E.6.2",
@@ -374,6 +873,240 @@
       "alt": "Five lab tools on a bench with the hand lens labeled.",
       "tisCheck": "The role of minerals in forming rocks; no mineral makeup of any named rock; no mineral identified.",
       "misconceptions": "Rocks and minerals reversed or treated as the same thing."
+    },
+    {
+      "id": "E6.2-07",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "A student tests a mineral sample and finds that a human fingernail easily scratches its surface. The mineral feels very soft and greasy. Which mineral is the softest common mineral?",
+      "options": [
+        "talc",
+        "quartz",
+        "feldspar",
+        "pyrite"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: talc is the softest common mineral and can easily be scratched by a fingernail.",
+        "Decoy: quartz is much harder than a fingernail and cannot be scratched by it.",
+        "Decoy: feldspar is a hard mineral that scratches glass and cannot be scratched by a fingernail.",
+        "Decoy: pyrite is a metallic mineral that is much harder than a fingernail."
+      ],
+      "keyWords": [
+        "fingernail easily scratches",
+        "feels very soft",
+        "Which mineral is the softest"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Talc sample",
+          "Fingernail scratch",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a fingernail scratching a soft sample of talc.",
+      "tisCheck": "Talc as softest mineral, scratched by fingernail; allowed minerals only; no hardness scale.",
+      "misconceptions": "All minerals assumed to be equally hard or harder than a fingernail."
+    },
+    {
+      "id": "E6.2-08",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Most white sand on Florida Gulf beaches is made of tiny, clear grains of quartz. When a scientist rubs a quartz grain against a glass plate, the quartz scratches the glass. What property of quartz does this test demonstrate?",
+      "options": [
+        "luster",
+        "hardness",
+        "streak",
+        "cleavage"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: luster describes the way light bounces off a mineral surface.",
+        "Correct: scratching another object tests how resistant the mineral is to being scratched, which is hardness.",
+        "Decoy: streak is tested by rubbing a mineral on an unglazed tile to see the color of its powder.",
+        "Decoy: cleavage describes how a mineral splits along flat planes."
+      ],
+      "keyWords": [
+        "Florida Gulf beaches",
+        "clear grains of quartz",
+        "scratches the glass"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Quartz grain",
+          "Glass plate",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a quartz grain scratching a glass plate.",
+      "tisCheck": "Quartz hardness tested against glass; Florida beach sand context; allowed minerals only; no hardness scale.",
+      "misconceptions": "Scratch test confused with streak test or luster."
+    },
+    {
+      "id": "E6.2-09",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Elena places a drop of vinegar on a mineral sample, and small bubbles of gas quickly fizz on the surface. A copper penny also scratches this mineral. Which mineral fizzes when acid touches it?",
+      "options": [
+        "quartz",
+        "feldspar",
+        "calcite",
+        "pyrite"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: quartz does not fizz in vinegar and cannot be scratched by a penny.",
+        "Decoy: feldspar does not react to vinegar and is harder than a copper penny.",
+        "Correct: calcite reacts with weak acid like vinegar to fizz, and can be scratched by a copper penny.",
+        "Decoy: pyrite is an iron mineral with metallic luster that does not fizz in vinegar."
+      ],
+      "keyWords": [
+        "drop of vinegar",
+        "fizz on the surface",
+        "copper penny also scratches"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Calcite",
+          "Vinegar drop",
+          ""
+        ]
+      },
+      "alt": "A diagram showing calcite fizzing when a drop of vinegar is placed on it.",
+      "tisCheck": "Calcite properties: scratched by penny, fizzes in acid/vinegar; allowed minerals only.",
+      "misconceptions": "Assuming all minerals react to vinegar; confusing calcite with quartz."
+    },
+    {
+      "id": "E6.2-10",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "A student gently uses a fingernail to pull at the edge of a shiny mineral sample. Thin, flexible sheets easily peel off in flat layers. Which mineral is known for peeling into thin sheets?",
+      "options": [
+        "pyrite",
+        "talc",
+        "quartz",
+        "mica"
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: pyrite breaks into chunky cubes or uneven pieces, not flexible sheets.",
+        "Decoy: talc is very soft, but it does not separate into thin flat sheets.",
+        "Decoy: quartz breaks with curved, glass-like fractures rather than sheets.",
+        "Correct: mica splits perfectly in one direction into very thin, flat sheets."
+      ],
+      "keyWords": [
+        "edge of a shiny mineral",
+        "Thin, flexible sheets",
+        "peeling into thin sheets"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "rock-types",
+        "labels": [
+          "Mica sample",
+          "Thin sheets",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a sample of mica peeling into thin, flexible layers.",
+      "tisCheck": "Mica cleavage property (peels into thin sheets); allowed minerals only; no numbers.",
+      "misconceptions": "Confusing peeling sheets with scratching or breaking."
+    },
+    {
+      "id": "E6.2-11",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "A mineral rubs onto paper leaving a dark grey mark, and it feels slippery between two fingers. Scientists use this mineral in pencil lead. Which mineral has a dark grey streak and feels slippery?",
+      "options": [
+        "graphite",
+        "calcite",
+        "quartz",
+        "feldspar"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: graphite leaves a grey or black streak, feels slippery, and is used in pencils.",
+        "Decoy: calcite leaves a white streak and does not feel slippery.",
+        "Decoy: quartz leaves a white streak or scratches the plate, and is not slippery.",
+        "Decoy: feldspar leaves a white streak and is much harder than graphite."
+      ],
+      "keyWords": [
+        "dark grey mark",
+        "feels slippery between",
+        "pencil lead"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Graphite",
+          "Grey streak",
+          ""
+        ]
+      },
+      "alt": "A diagram showing graphite leaving a grey mark on paper.",
+      "tisCheck": "Graphite streak and feel; allowed minerals only; Grade 5 reading level.",
+      "misconceptions": "Thinking pencil lead contains actual toxic metal lead rather than graphite."
+    },
+    {
+      "id": "E6.2-12",
+      "benchmark": "SC.4.E.6.2",
+      "testedAs": "SC.4.E.6.2",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Marcus finds a mineral with a bright shine like polished metal. When he rubs it on a white streak plate, it leaves a greenish black line of powder. Which two properties did Marcus observe?",
+      "options": [
+        "hardness and cleavage",
+        "metallic luster and streak",
+        "cleavage and mass",
+        "streak and transparency"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: he did not scratch the mineral or split it along flat planes.",
+        "Correct: the shiny metallic surface is metallic luster, and the powdered line is streak.",
+        "Decoy: neither cleavage nor weight was tested in this investigation.",
+        "Decoy: looking through the mineral was not part of the test."
+      ],
+      "keyWords": [
+        "bright shine like polished metal",
+        "white streak plate",
+        "greenish black line"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "mineral-streak",
+        "labels": [
+          "Pyrite",
+          "Streak plate",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a metallic mineral leaving a greenish black streak.",
+      "tisCheck": "Pyrite properties: metallic luster and greenish black streak; allowed minerals only.",
+      "misconceptions": "Confusing luster with streak or hardness."
     },
     {
       "id": "E6.4-01",
@@ -621,6 +1354,240 @@
       "alt": "A cliff with a crack, a tree root splitting the rock, and a stream carrying pebbles downhill.",
       "tisCheck": "Weathering by ice, then erosion by gravity and water, in one story; no landforms assessed.",
       "misconceptions": "The order of weathering and erosion reversed; one word used for both."
+    },
+    {
+      "id": "E6.4-07",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "During a strong hurricane along the Florida coast, large ocean waves pull tons of sand away from the beach and deposit it offshore. What is the process of moving sand to a new location called?",
+      "options": [
+        "erosion",
+        "weathering",
+        "cementation",
+        "melting"
+      ],
+      "key": 0,
+      "why": [
+        "Correct: erosion is the movement of rock, sand, or soil from one place to another by water or wind.",
+        "Decoy: weathering is the breaking down of rock into smaller bits, not the carrying away of sand.",
+        "Decoy: cementation is the gluing together of sediment particles to form rock.",
+        "Decoy: melting turns solid rock into hot liquid magma."
+      ],
+      "keyWords": [
+        "Florida coast",
+        "pull tons of sand away",
+        "process of moving sand"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Beach waves",
+          "Moving sand",
+          ""
+        ]
+      },
+      "alt": "A diagram showing ocean waves carrying sand away from a Florida beach.",
+      "tisCheck": "Erosion as moving sediment; Florida beach erosion context; no banned terms.",
+      "misconceptions": "Confusing weathering (breaking) with erosion (moving)."
+    },
+    {
+      "id": "E6.4-08",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "Underground water slowly dissolves Florida limestone over many years, carving an empty cavity under the ground. When the ground above can no longer hold its own weight, it caves in to form a sinkhole. Which process broke down the underground limestone?",
+      "options": [
+        "erosion",
+        "weathering",
+        "deposition",
+        "volcanism"
+      ],
+      "key": 1,
+      "why": [
+        "Decoy: erosion carries dissolved or broken pieces away, but the chemical breaking down of the rock itself is weathering.",
+        "Correct: water dissolving rock breaks down the rock material in place, which is weathering.",
+        "Decoy: deposition is the dropping or settling of moved sediment in a new location.",
+        "Decoy: Florida has no active volcanoes or volcanic processes."
+      ],
+      "keyWords": [
+        "slowly dissolves Florida limestone",
+        "carving an empty cavity",
+        "form a sinkhole"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Limestone cavity",
+          "Sinkhole",
+          ""
+        ]
+      },
+      "alt": "A diagram showing underground limestone dissolving to form a sinkhole.",
+      "tisCheck": "Weathering by water dissolving limestone in a Florida sinkhole context.",
+      "misconceptions": "Thinking sinkholes are formed by volcanic activity or pure erosion."
+    },
+    {
+      "id": "E6.4-09",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "low",
+      "pool": "case",
+      "stem": "Water seeps into a small crack in a boulder during winter. When the water freezes into ice, it expands and pushes outward, splitting the boulder into two pieces. Why did the rock break?",
+      "options": [
+        "Moving wind carried the boulder down a hill.",
+        "Gravity pulled the boulder into a river.",
+        "Freezing water took up more space and pushed the rock apart.",
+        "Plant roots dissolved the rock into liquid."
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: wind moving a boulder would be erosion, not ice breaking the rock.",
+        "Decoy: gravity moving rock is mass wasting or erosion, not ice wedging.",
+        "Correct: when liquid water freezes into solid ice, it expands with great force and breaks the rock.",
+        "Decoy: plant roots pry rocks apart physically rather than dissolving them to liquid."
+      ],
+      "keyWords": [
+        "Water seeps into",
+        "freezes into ice",
+        "splitting the boulder"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Frozen water",
+          "Expanding crack",
+          ""
+        ]
+      },
+      "alt": "A diagram showing ice expanding in a rock crack and splitting the boulder.",
+      "tisCheck": "Physical weathering by freezing water; breaking without moving.",
+      "misconceptions": "Thinking water shrinks when it freezes."
+    },
+    {
+      "id": "E6.4-10",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "case",
+      "stem": "A scientist compares changes to rock and soil around a Florida river basin. Which event is an example of weathering rather than erosion?",
+      "options": [
+        "Mud sliding down a river bank into rushing water.",
+        "River water sweeping pebbles downstream to the ocean.",
+        "Wind blowing loose dirt across a cleared farm field.",
+        "Tree roots cracking a sidewalk into small pieces."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: mud sliding into water is erosion because gravity moves the soil.",
+        "Decoy: moving pebbles downstream is erosion because the pebbles change location.",
+        "Decoy: wind carrying dirt away to another area is erosion.",
+        "Correct: roots splitting a sidewalk breaks the solid material apart where it sits, which is weathering."
+      ],
+      "keyWords": [
+        "Florida river basin",
+        "weathering rather than erosion",
+        "changes to rock"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Tree root",
+          "Cracked sidewalk",
+          ""
+        ]
+      },
+      "alt": "A diagram showing tree roots splitting a concrete sidewalk.",
+      "tisCheck": "Distinguishing weathering (breaking in place) from erosion (moving).",
+      "misconceptions": "Thinking plant roots move rock to new places rather than breaking it."
+    },
+    {
+      "id": "E6.4-11",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "high",
+      "pool": "cold",
+      "stem": "A class studies resources found in Florida and sorts them into renewable resources and nonrenewable resources. Which natural resource found in Florida is nonrenewable?",
+      "options": [
+        "fresh water from springs",
+        "solar energy from sunlight",
+        "phosphate rock mined from the ground",
+        "wind blowing across coastal waters"
+      ],
+      "key": 2,
+      "why": [
+        "Decoy: spring water is replenished naturally by rainfall in the water cycle.",
+        "Decoy: sunlight is a renewable resource that cannot be used up.",
+        "Correct: phosphate is a mineral resource formed millions of years ago that cannot be replaced once mined.",
+        "Decoy: wind is a renewable resource driven continuously by solar energy and atmosphere."
+      ],
+      "keyWords": [
+        "resources found in Florida",
+        "nonrenewable resources",
+        "natural resource"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "florida-resources",
+        "labels": [
+          "Phosphate",
+          "Florida mine",
+          ""
+        ]
+      },
+      "alt": "A diagram showing a Florida phosphate mining operation.",
+      "tisCheck": "Florida nonrenewable resources (phosphate); allowed Florida resources list only.",
+      "misconceptions": "Confusing mined mineral resources with renewable natural cycles."
+    },
+    {
+      "id": "E6.4-12",
+      "benchmark": "SC.4.E.6.4",
+      "testedAs": "SC.4.E.6.4",
+      "category": "earth",
+      "complexity": "moderate",
+      "pool": "cold",
+      "stem": "Strong winds along a barrier island pick up loose sand grains and bounce them across the shore to build tall sand dunes. Which statement correctly identifies what the wind is doing?",
+      "options": [
+        "The wind is weathering the dunes by freezing sand grains.",
+        "The wind is changing the sand grains into metamorphic rock.",
+        "The wind is dissolving the sand into seawater.",
+        "The wind is causing erosion by moving sand from one place to another."
+      ],
+      "key": 3,
+      "why": [
+        "Decoy: wind blowing sand is not freezing it into smaller bits.",
+        "Decoy: wind does not apply high heat or deep pressure to form metamorphic rock.",
+        "Decoy: sand does not dissolve into seawater.",
+        "Correct: wind picking up sand and carrying it to a new spot is an example of erosion."
+      ],
+      "keyWords": [
+        "barrier island",
+        "build tall sand dunes",
+        "what the wind is doing"
+      ],
+      "visual": {
+        "kind": "scene",
+        "id": "weathering-erosion",
+        "labels": [
+          "Sand dune",
+          "Blowing wind",
+          ""
+        ]
+      },
+      "alt": "A diagram showing wind carrying sand grains across a beach to form dunes.",
+      "tisCheck": "Wind erosion forming dunes in Florida barrier island context.",
+      "misconceptions": "Confusing wind erosion with chemical weathering."
     }
   ],
   "codex": [

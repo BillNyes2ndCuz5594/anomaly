@@ -61,4 +61,34 @@ Each content lane listed the three items it was least sure about. Review these f
 - **L16.4-03** (CANOPY): lady beetle "stays still on a leaf while its body changes"; the dragonfly decoy and the local name "palmetto bug" are worth a look.
 - **L17.3-02, L17.3-03** (HABITAT): the food-web-estuary labels were realigned to the drawn slots (Sea grass and algae, Shrimp, Blue crab, Small fish, Bass, Brown pelican); the PM checked every other guessed slot order against the drawings (plant-parts, weathering-erosion, mineral-streak, florida-resources, weather-instruments, cloud-types, light-path) and they match.
 - **SC.5.N.2.2 items and SC.4.E.6.4 items**: their limits are UNVERIFIED in the research document; written in the plainest form, said so in tisCheck.
-- **02-2 unitLabel** is "Unit 2: Weather (Earth Structures)"; rename to match the real unit order.
+- **02-2 unitLabel** was "Unit 2: Weather (Earth Structures)"; renamed to "Unit 4: Earth's Processes and Resources" (unit "U04 Earth's Processes and Resources").
+
+## Pending teacher review (Unit 4 BEDROCK, Gemini build)
+
+The following 24 items were added for Unit 4 (BEDROCK) and are pending teacher review:
+
+- **E6.1-01** (SC.4.E.6.1, case): granite formed underground from cooled melted rock (igneous).
+- **E6.1-02** (SC.4.E.6.1, case): coquina at Castillo de San Marcos from pressed shell layers (sedimentary).
+- **E6.1-03** (SC.4.E.6.1, case): gneiss formed when heat and pressure squeeze granite (metamorphic).
+- **E6.1-04** (SC.4.E.6.1, case): obsidian formed from quickly cooling volcanic lava (igneous).
+- **E6.1-05** (SC.4.E.6.1, case): Florida limestone formed from ocean shell and skeleton layers (sedimentary).
+- **E6.1-06** (SC.4.E.6.1, case): fossil fern imprints found in sedimentary rock layers.
+- **E6.1-07** (SC.4.E.6.1, case): table matching Samples X, Y, and Z to igneous, sedimentary, and metamorphic categories.
+- **E6.1-08** (SC.4.E.6.1, case): granite conditions requiring melted rock to cool and turn solid.
+- **E6.1-09** (SC.4.E.6.1, cold): three main rock categories classified by formation (igneous, sedimentary, metamorphic).
+- **E6.1-10** (SC.4.E.6.1, cold): rock near Florida spring showing sedimentary layers of pressed sand.
+- **E6.1-11** (SC.4.E.6.1, cold): shale changed by intense heat and pressure into slate (metamorphic).
+- **E6.1-12** (SC.4.E.6.1, cold): sorting table identifying igneous rock formed from slowly cooling magma.
+- **E6.2-07** (SC.4.E.6.2, case): talc as softest mineral, easily scratched by a fingernail.
+- **E6.2-08** (SC.4.E.6.2, case): quartz grains in Florida beach sand scratching glass (hardness test).
+- **E6.2-09** (SC.4.E.6.2, case): calcite scratched by a penny and fizzing in vinegar.
+- **E6.2-10** (SC.4.E.6.2, case): mica cleavage property peeling into thin, flexible sheets.
+- **E6.2-11** (SC.4.E.6.2, cold): graphite dark grey streak, slippery feel, and use in pencil lead.
+- **E6.2-12** (SC.4.E.6.2, cold): pyrite metallic luster and greenish black streak.
+- **E6.4-07** (SC.4.E.6.4, case): hurricane waves pulling sand away from Florida beach as erosion.
+- **E6.4-08** (SC.4.E.6.4, case): underground water dissolving limestone to form a Florida sinkhole (weathering).
+- **E6.4-09** (SC.4.E.6.4, case): freezing water expanding in rock crack to break a boulder (physical weathering).
+- **E6.4-10** (SC.4.E.6.4, case): tree roots cracking a sidewalk as weathering in place rather than erosion.
+- **E6.4-11** (SC.4.E.6.4, cold): Florida phosphate rock as a nonrenewable mined natural resource.
+- **E6.4-12** (SC.4.E.6.4, cold): winds moving beach sand to build dunes on a barrier island (erosion).
+
