@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { PreviewMedia } from './CasePreview'
-import { activeTarget, isPreviewTarget, mediaKind, placePreview, PREVIEW_H, PREVIEW_TARGETS, PREVIEW_W } from './casePreview'
+import { activeTarget, isPreviewTarget, mediaKind, placePreview, PREVIEW_H, PREVIEW_TARGETS, PREVIEW_W } from './casePreviewData'
 
 describe('case preview media by motion mode', () => {
   it('only full motion plays a video', () => {

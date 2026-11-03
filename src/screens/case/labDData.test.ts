@@ -9,7 +9,7 @@ import {
   ROCK_LIST,
   ROCK_TYPES,
   ROCKS,
-} from './labD'
+} from './labDData'
 
 describe('labD pure logic and facts', () => {
   it('defines all 7 benchmark minerals', () => {

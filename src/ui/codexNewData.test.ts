@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CODEX_SEEN_KEY, diffNew, loadSeen, markAllSeen } from './codexNew'
+import { CODEX_SEEN_KEY, diffNew, loadSeen, markAllSeen } from './codexNewData'
 
 function mem(raw?: string) {
   const m = new Map<string, string>()
