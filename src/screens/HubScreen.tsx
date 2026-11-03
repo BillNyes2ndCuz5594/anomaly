@@ -6,7 +6,6 @@ import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
-import { prefetchCaseHeroes } from '../three/models/heroSpecimens'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
@@ -66,7 +65,7 @@ function CaseButton({
       onClick={() => {
         if (resolveTier(useGame.getState().settings.quality, useRuntime.getState().autoTier) !== 'low') {
           const def = caseById(id)
-          if (def) void prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))
+          if (def) void import('../three/models/heroSpecimens').then((m) => m.prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))).catch(() => {})
         }
         navigate(to)
       }}

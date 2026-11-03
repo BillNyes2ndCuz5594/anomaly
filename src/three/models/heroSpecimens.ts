@@ -24,20 +24,11 @@ import graphiteUrl from '../../assets/specimens/graphite.glb?url'
 import graniteUrl from '../../assets/specimens/granite.glb?url'
 import limestoneUrl from '../../assets/specimens/limestone.glb?url'
 import gneissUrl from '../../assets/specimens/gneiss.glb?url'
-
-import quartzPoster from '../../assets/specimens/quartz.webp'
-import pyritePoster from '../../assets/specimens/pyrite.webp'
-import feldsparPoster from '../../assets/specimens/feldspar.webp'
-import micaPoster from '../../assets/specimens/mica.webp'
-import calcitePoster from '../../assets/specimens/calcite.webp'
-import talcPoster from '../../assets/specimens/talc.webp'
-import graphitePoster from '../../assets/specimens/graphite.webp'
-import granitePoster from '../../assets/specimens/granite.webp'
-import limestonePoster from '../../assets/specimens/limestone.webp'
-import gneissPoster from '../../assets/specimens/gneiss.webp'
-import { specimenGeo, type SpecimenId } from './creatures'
+import { specimenGeo } from './creatures'
 import { meanProjectedArea, outlinePoints } from '../fit'
 import { DISPLAY_YAW, specimenArea } from './specimenBox'
+
+export { SPECIMEN_POSTERS } from './specimenPosters'
 
 // Hero specimens: textured scan-style models made with fal.ai (Hunyuan3D v3 from a reference photo), decimated to
 // about 18k triangles with a 1024 px WebP color map and meshopt compression (about 160 to 410 KB each). They replace the
@@ -80,19 +71,6 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   granite: { url: graniteUrl, yaw: 0, rough: 0.75 },
   limestone: { url: limestoneUrl, yaw: 0, rough: 0.8 },
   gneiss: { url: gneissUrl, yaw: 0, rough: 0.75 },
-}
-
-export const SPECIMEN_POSTERS: Partial<Record<SpecimenId, string>> = {
-  quartz: quartzPoster,
-  pyrite: pyritePoster,
-  feldspar: feldsparPoster,
-  mica: micaPoster,
-  calcite: calcitePoster,
-  talc: talcPoster,
-  graphite: graphitePoster,
-  granite: granitePoster,
-  limestone: limestonePoster,
-  gneiss: gneissPoster,
 }
 
 export interface HeroSpecimen {
