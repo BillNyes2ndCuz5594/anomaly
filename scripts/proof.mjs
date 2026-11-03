@@ -753,6 +753,15 @@ async function playCold(page, w) {
   return code2
 }
 
+// Late sections each get a fresh Chrome. After the viewport loop the single long-lived browser has run dozens of
+// WebGL pages and its renderer was killed mid s18 ("Target closed"), so close it and launch a clean one.
+async function relaunchBrowser() {
+  try { await browser?.close() } catch {}
+  browser = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: true, protocolTimeout: PROTOCOL_TIMEOUT_MS, args: CHROME_ARGS })
+  writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-chrome.pid`, String(browser.process()?.pid ?? ''))
+  await browser.defaultBrowserContext().overridePermissions(BASE.slice(0, -1), ['clipboard-read', 'clipboard-write', 'clipboard-sanitized-write'])
+}
+
 const preview = await startPreview()
 writeFileSync(`/tmp/an${(process.env.AN_TAG ? '-' + process.env.AN_TAG : '')}-preview.pid`, String(preview.pid))
 let browser
@@ -1113,6 +1122,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // S18: HUD typography and layout shots (s18-ui-*): title, hub, briefing, results at 1920, title and hub at 2560x1440.
   // Also asserts the type floor on those screens: body text at least 16 px, every label at least 12 px, no horizontal overflow.
   {
@@ -1186,6 +1196,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // S16: the plant and animal item (hologram skeleton and cabbage palm on lit plinths) in the real item player.
   {
     const page = await profilePage(browser, BASE, `${QS}&qaitems=L142-03`, VIEWPORTS.find((v) => v.width === 1920), errors)
@@ -1212,6 +1223,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // Evidence glide: a real 3D item swap must keep a painted panel. Five passes, the check that flaked on SwiftShader.
   for (let pass = 1; pass <= 5; pass++) {
     console.log(`\n== evidence glide ${pass}/5 ==`)
@@ -1257,6 +1269,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // ---------- fps under 4x CPU throttle, hub and lab A, per backend (Auto tier, no ?tier pin) ----------
   const vp = VIEWPORTS[0]
   const BACKENDS = { webgpu: '', webgl2: '?backend=webgl2' }
@@ -1309,6 +1322,7 @@ try {
   const hubFps = fpsByBackend.webgpu.hub
   const labFps = fpsByBackend.webgpu.labA
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // ---------- draw calls per scene, tier pins, Low tier really drops the extras, no leaks on unmount ----------
   console.log('\n== draw calls and tier pins ==')
   async function readScene(search, goTo, settleMs = 2500) {
@@ -1373,6 +1387,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // ---------- accessibility: settings apply everywhere, keyboard reach, visible focus, live regions ----------
   console.log('\n== accessibility ==')
   {
@@ -1495,6 +1510,7 @@ try {
     await page.close()
   }
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // ---------- initial load transfer (title page, clean context, cache off) ----------
   console.log('\n== initial load size ==')
   const ctx = await browser.createBrowserContext()
@@ -1531,6 +1547,7 @@ try {
 
   writeFileSync(`${OUT}/fps.json`, JSON.stringify({ throttle: 4, viewport: vp, hub: hubFps, labA: labFps, backends: fpsByBackend, drawCalls: { screenshotScenesAtHigh: sceneStats, byTier: pins }, transfer }, null, 2))
 
+  await relaunchBrowser() // fresh Chrome per late section: one long-lived browser hit "Target closed" in s18 under SwiftShader
   // ---------- motion modes and no-WebGL fallback (juice batch 2026-11-01) ----------
   console.log('\n== motion modes and fallback ==')
   {
