@@ -63,6 +63,7 @@ function LABELS(id) {
     'SC.4.L.16.4': 'Life cycles',
     'SC.5.L.17.1': 'Adaptations and environments',
     'SC.4.L.17.3': 'Energy through food chains',
+    'SC.4.E.6.1': 'Three categories of rocks',
   }
   return m[id] ?? id
 }
