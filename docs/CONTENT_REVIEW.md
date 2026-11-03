@@ -63,32 +63,41 @@ Each content lane listed the three items it was least sure about. Review these f
 - **SC.5.N.2.2 items and SC.4.E.6.4 items**: their limits are UNVERIFIED in the research document; written in the plainest form, said so in tisCheck.
 - **02-2 unitLabel** was "Unit 2: Weather (Earth Structures)"; renamed to "Unit 4: Earth's Processes and Resources" (unit "U04 Earth's Processes and Resources").
 
-## Pending teacher review (Unit 4 BEDROCK, Gemini build)
+## Unit 4 BEDROCK items, reviewed-by-bot (2026-11-03)
 
-The following 24 items were added for Unit 4 (BEDROCK) and are pending teacher review:
+The 24 items from PR #62 were checked against the CPALMS wording of SC.4.E.6.1, SC.4.E.6.2, SC.4.E.6.3 and SC.4.E.6.4 and the repo content limits, then fixed for facts, distractors, diagram labels and grade 5 reading level.
 
-- **E6.1-01** (SC.4.E.6.1, case): granite formed underground from cooled melted rock (igneous).
-- **E6.1-02** (SC.4.E.6.1, case): coquina at Castillo de San Marcos from pressed shell layers (sedimentary).
-- **E6.1-03** (SC.4.E.6.1, case): gneiss formed when heat and pressure squeeze granite (metamorphic).
-- **E6.1-04** (SC.4.E.6.1, case): obsidian formed from quickly cooling volcanic lava (igneous).
-- **E6.1-05** (SC.4.E.6.1, case): Florida limestone formed from ocean shell and skeleton layers (sedimentary).
-- **E6.1-06** (SC.4.E.6.1, case): fossil fern imprints found in sedimentary rock layers.
-- **E6.1-07** (SC.4.E.6.1, case): table matching Samples X, Y, and Z to igneous, sedimentary, and metamorphic categories.
-- **E6.1-08** (SC.4.E.6.1, case): granite conditions requiring melted rock to cool and turn solid.
-- **E6.1-09** (SC.4.E.6.1, cold): three main rock categories classified by formation (igneous, sedimentary, metamorphic).
-- **E6.1-10** (SC.4.E.6.1, cold): rock near Florida spring showing sedimentary layers of pressed sand.
-- **E6.1-11** (SC.4.E.6.1, cold): shale changed by intense heat and pressure into slate (metamorphic).
-- **E6.1-12** (SC.4.E.6.1, cold): sorting table identifying igneous rock formed from slowly cooling magma.
-- **E6.2-07** (SC.4.E.6.2, case): talc as softest mineral, easily scratched by a fingernail.
-- **E6.2-08** (SC.4.E.6.2, case): quartz grains in Florida beach sand scratching glass (hardness test).
-- **E6.2-09** (SC.4.E.6.2, case): calcite scratched by a penny and fizzing in vinegar.
-- **E6.2-10** (SC.4.E.6.2, case): mica cleavage property peeling into thin, flexible sheets.
-- **E6.2-11** (SC.4.E.6.2, cold): graphite dark grey streak, slippery feel, and use in pencil lead.
-- **E6.2-12** (SC.4.E.6.2, cold): pyrite metallic luster and greenish black streak.
-- **E6.4-07** (SC.4.E.6.4, case): hurricane waves pulling sand away from Florida beach as erosion.
-- **E6.4-08** (SC.4.E.6.4, case): underground water dissolving limestone to form a Florida sinkhole (weathering).
-- **E6.4-09** (SC.4.E.6.4, case): freezing water expanding in rock crack to break a boulder (physical weathering).
-- **E6.4-10** (SC.4.E.6.4, case): tree roots cracking a sidewalk as weathering in place rather than erosion.
-- **E6.4-11** (SC.4.E.6.4, cold): Florida phosphate rock as a nonrenewable mined natural resource.
-- **E6.4-12** (SC.4.E.6.4, cold): winds moving beach sand to build dunes on a barrier island (erosion).
+- **E6.1-01** (SC.4.E.6.1, case): reviewed-by-bot. diagram label moved to the glassy (igneous) sample; alt text matches the picture.
+- **E6.1-02** (SC.4.E.6.1, case): reviewed-by-bot. diagram label moved to the layered sample; alt text matches.
+- **E6.1-03** (SC.4.E.6.1, case): reviewed-by-bot. stem says "solid rock" instead of naming granite, so no rock cycle; label on the banded sample.
+- **E6.1-04** (SC.4.E.6.1, case): reviewed-by-bot. stem no longer gives away the answer; "lava" and "magma" replaced with "melted rock" in options and feedback.
+- **E6.1-05** (SC.4.E.6.1, case): reviewed-by-bot. two distractors made clearly wrong; "magma" replaced with "melted rock".
+- **E6.1-06** (SC.4.E.6.1, case): reviewed-by-bot. diagram label on the layered sample; no wording change.
+- **E6.1-07** (SC.4.E.6.1, case): reviewed-by-bot. "magma" and "squeezing" replaced with "melted rock" and "heat and pressure"; table rows match.
+- **E6.1-08** (SC.4.E.6.1, case): reviewed-by-bot. stem no longer lists mineral makeup of granite (SSA limit); asks how the rock formed.
+- **E6.1-09** (SC.4.E.6.1, cold): reviewed-by-bot. feedback uses "categories"; diagram labels describe the samples instead of giving the answer.
+- **E6.1-10** (SC.4.E.6.1, cold): reviewed-by-bot. simpler wording ("flat layers", "shell bits"); feedback fixed ("heat and pressure", not "steam").
+- **E6.1-11** (SC.4.E.6.1, cold): reviewed-by-bot. stem no longer names shale as the starting rock, so no rock cycle; feedback simplified.
+- **E6.1-12** (SC.4.E.6.1, cold): reviewed-by-bot. descriptions use "melted rock" and "heat and pressure"; marble/limestone change removed (rock cycle).
+- **E6.2-07** (SC.4.E.6.2, case): reviewed-by-bot. rewritten to ask what a fingernail scratch test shows (talc is softest of four), not to name a mineral from its properties (SSA limit).
+- **E6.2-08** (SC.4.E.6.2, case): reviewed-by-bot. wording simplified ("show"); feedback and labels tidied. No Mohs numbers.
+- **E6.2-09** (SC.4.E.6.2, case): reviewed-by-bot. rewritten: which note about calcite describes hardness. Vinegar fizz removed (chemical test, outside 6.2).
+- **E6.2-10** (SC.4.E.6.2, case): reviewed-by-bot. rewritten: which property (cleavage) mica shows, instead of naming the mineral.
+- **E6.2-11** (SC.4.E.6.2, cold): reviewed-by-bot. rewritten: which property (streak color) the tile test shows.
+- **E6.2-12** (SC.4.E.6.2, cold): reviewed-by-bot. stem names pyrite and says "rough white tile"; asks for luster and streak.
+- **E6.4-07** (SC.4.E.6.4, case): reviewed-by-bot. "pull ... deposit it offshore" simplified to "carry ... to a new place"; label on the stream slot.
+- **E6.4-08** (SC.4.E.6.4, case): reviewed-by-bot. was chemical weathering (water dissolving limestone), outside SC.4.E.6.4 (physical only). Rewritten as erosion by gravity on a Florida sinkhole slope, with weathering and erosion reasons as options.
+- **E6.4-09** (SC.4.E.6.4, case): reviewed-by-bot. options now name weathering or erosion with a reason; key is physical weathering by ice.
+- **E6.4-10** (SC.4.E.6.4, case): reviewed-by-bot. key changed from a sidewalk (not rock) to roots cracking a limestone ledge.
+- **E6.4-11** (SC.4.E.6.3, cold): reviewed-by-bot. retagged testedAs SC.4.E.6.3 (benchmark stays SC.4.E.6.4, which also assesses 6.3, same as E6.4-04); feedback simplified; four resource labels match the Florida map slots.
+- **E6.4-12** (SC.4.E.6.4, cold): reviewed-by-bot. weak distractors ("freezing sand", "dissolving") replaced with a real weathering vs erosion mix-up.
 
+### Benchmark labels
+
+SC.4.E.6.1 "Three categories of rocks" and SC.4.E.6.2 "Minerals and rocks" match CPALMS (6.1 is the three rock categories, 6.2 is mineral properties and their role in forming rocks). They are not swapped. No change.
+
+### Needs a teacher's judgment
+
+- **E6.4-08**: rewritten from a dissolving sinkhole to soil sliding down a sinkhole slope. Confirm the sinkhole setting is fine without teaching dissolving.
+- **E6.4-12**: the weathering-erosion diagram shows a cliff, a root and a stream, not dunes. Confirm the picture still helps, or drop the visual.
+- **E6.2-07**: still tells students talc is the softest of the four minerals tested. Confirm this does not cross the "no identifying a specific mineral" limit.
