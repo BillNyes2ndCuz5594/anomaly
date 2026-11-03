@@ -74,7 +74,13 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
     if (STILL) gr.rotation.y = STILL_YAW
     else if (sway > 0) gr.rotation.y = yaw + (reduced ? 0 : Math.sin(t * 0.55) * sway)
     else if (spin && !reduced) gr.rotation.y += dt * 0.55
-    else if (!spin) gr.rotation.y = yaw
+    else if (!spin) {
+      if (reduced || born.current === t) gr.rotation.y = yaw
+      else {
+        const diff = Math.atan2(Math.sin(yaw - gr.rotation.y), Math.cos(yaw - gr.rotation.y))
+        gr.rotation.y += diff * (1 - Math.exp(-dt * 8))
+      }
+    }
     let s = k
     if (pop && !reduced) {
       const a = Math.min(1, (t - born.current) / 0.55)

@@ -23,7 +23,15 @@ export function flyChip(text: string, from: Element | null, to: Element | null, 
     const b = to.getBoundingClientRect()
     const dx = b.left + b.width / 2 - (a.left + a.width / 2)
     const dy = b.top + b.height / 2 - a.top
-    anim = el.animate([{ opacity: 0, transform: 'translate(-50%, 0)' }, { opacity: 1, offset: 0.15 }, { opacity: 1, transform: `translate(calc(-50% + ${dx}px), ${dy}px)` }], { duration: ms, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' })
+    anim = el.animate(
+      [
+        { opacity: 0, transform: 'translate(-50%, 0) scale(1)' },
+        { opacity: 1, offset: 0.15 },
+        { opacity: 1, transform: `translate(calc(-50% + ${dx}px), ${dy}px) scale(1.06)`, offset: 0.8 },
+        { opacity: 0, transform: `translate(calc(-50% + ${dx}px), ${dy}px) scale(0.85)` },
+      ],
+      { duration: ms, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'forwards' },
+    )
   }
   anim.onfinish = done
   anim.oncancel = done
