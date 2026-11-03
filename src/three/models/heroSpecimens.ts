@@ -1,5 +1,4 @@
 import type { CaseDef, Item } from '../../content/schema'
-import { MINERAL_LIST, ROCK_LIST } from '../../screens/case/labDData'
 import * as THREE from 'three/webgpu'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
@@ -259,6 +258,5 @@ export function prefetchCaseHeroes(caseDef: CaseDef | null, items: readonly Item
   const ids = items.flatMap((item) => item.visual.kind === 'specimen' ? item.visual.ids : [])
   ids.push(...(caseDef?.labs?.specimenSort.specimens.map((s) => s.id) ?? []))
   if (caseDef?.lab.kind === 'vitals') ids.unshift('manatee')
-  if (caseDef?.id === '04-1') ids.push(...MINERAL_LIST, ...ROCK_LIST)
   return prefetchHeroes(ids)
 }
