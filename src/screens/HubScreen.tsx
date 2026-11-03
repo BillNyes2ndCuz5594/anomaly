@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { codexById, content } from '../content'
+import { caseById, codexById, content } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
+import { resolveTier } from '../state/quality'
+import { prefetchCaseHeroes } from '../three/models/heroSpecimens'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
@@ -61,7 +63,13 @@ function CaseButton({
       data-pressed={pressed ? 'yes' : 'no'}
       data-due={due}
       data-status={status}
-      onClick={() => navigate(to)}
+      onClick={() => {
+        if (resolveTier(useGame.getState().settings.quality, useRuntime.getState().autoTier) !== 'low') {
+          const def = caseById(id)
+          if (def) void prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))
+        }
+        navigate(to)
+      }}
       onFocus={() => setFocused(id)}
       onBlur={() => setFocused(null)}
       onMouseEnter={() => setFocused(id)}
