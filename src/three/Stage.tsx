@@ -19,8 +19,9 @@ import { PCFShadowMap } from 'three/webgpu'
 import type * as THREE from 'three/webgpu'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
+import { useSession } from '../state/session'
 import PostFX from './PostFX'
-import { preloadHeroes } from './models/heroSpecimens'
+import { idlePrefetchHeroes, prefetchCaseHeroes } from './models/heroSpecimens'
 import { createRenderer } from './renderer'
 import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
 import { InsetsContext, NO_INSETS, type Insets } from './insets'
@@ -171,6 +172,7 @@ const SHADOWS = { enabled: false, type: PCFShadowMap }
 
 export interface StageProps {
   children: ReactNode
+  prefetch?: boolean
   /** Pixels reserved on the right for HUD panels when none is found in the DOM yet. */
   rightInset?: number
   /** Also measure the top bar and bottom dock (case steps), so models fit between them. */
@@ -205,7 +207,7 @@ function useDocumentHidden(): boolean {
 }
 
 /** Persistent R3F canvas running on WebGPURenderer (WebGL2 fallback). */
-export default function Stage({ children, rightInset = 0, verticalInsets = false }: StageProps) {
+export default function Stage({ children, rightInset = 0, verticalInsets = false, prefetch = false }: StageProps) {
   const insets = useHudInsets(rightInset, verticalInsets)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
@@ -215,10 +217,22 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   const dprScale = isAutoActive(quality) ? DPR_STEPS[Math.min(dprStep, DPR_STEPS.length - 1)] : 1
   const dpr = dprForTier(tier, window.devicePixelRatio, dprScale)
   const hidden = useDocumentHidden()
-  // Hero scans download in the background as soon as the 3D stage is up, so items show them without a visible swap.
   useEffect(() => {
-    if (tier !== 'low') void preloadHeroes()
-  }, [tier])
+    if (!prefetch || tier === 'low') return
+    const selected = () => {
+      const { caseDef, items } = useSession.getState()
+      void prefetchCaseHeroes(caseDef, items)
+    }
+    selected()
+    const unsubscribe = useSession.subscribe((state, previous) => {
+      if (state.items !== previous.items) selected()
+    })
+    const cancelIdle = idlePrefetchHeroes()
+    return () => {
+      unsubscribe()
+      cancelIdle()
+    }
+  }, [prefetch, tier])
 
   const initialTier = useRef<Tier>(resolveTier(quality, autoTier))
   // Bumped when the GPU context is lost: the canvas remounts with a fresh renderer instead of staying blank.

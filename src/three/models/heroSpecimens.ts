@@ -1,3 +1,4 @@
+import type { CaseDef, Item } from '../../content/schema'
 import * as THREE from 'three/webgpu'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
@@ -218,9 +219,44 @@ export function toFloat(src: THREE.BufferGeometry): THREE.BufferGeometry {
   return geo
 }
 
-/** Starts every hero download (called once the 3D stage mounts, so items show the scan without a swap). */
-export function preloadHeroes(): Promise<unknown> {
-  const all = Promise.all(Object.keys(HERO_SPECIMENS).map(loadHero))
+/** Fetch selected specimens now, sharing the same cache as mounted visuals. */
+export function prefetchHeroes(ids: readonly string[]): Promise<unknown> {
+  const all = Promise.all([...new Set(ids)].map(loadHero))
   if (typeof window !== 'undefined') (window as unknown as { __heroes?: Promise<unknown> }).__heroes = all
   return all
+}
+
+/** One download per idle turn. Cleanup prevents further work after a route or tier change. */
+export function idlePrefetchHeroes(): () => void {
+  let cancelled = false
+  let cancelScheduled = () => {}
+  const ids = Object.keys(HERO_SPECIMENS)
+  const schedule = () => {
+    if (cancelled || ids.length === 0) return
+    const run = () => {
+      if (cancelled) return
+      const id = ids.shift()!
+      void prefetchHeroes([id]).then(schedule)
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      const handle = window.requestIdleCallback(run)
+      cancelScheduled = () => window.cancelIdleCallback(handle)
+    } else {
+      const handle = window.setTimeout(run, 500)
+      cancelScheduled = () => window.clearTimeout(handle)
+    }
+  }
+  schedule()
+  return () => {
+    cancelled = true
+    cancelScheduled()
+  }
+}
+
+/** Include lab specimens as well as evidence, so briefing time can hide downloads. */
+export function prefetchCaseHeroes(caseDef: CaseDef | null, items: readonly Item[]): Promise<unknown> {
+  const ids = items.flatMap((item) => item.visual.kind === 'specimen' ? item.visual.ids : [])
+  ids.push(...(caseDef?.labs?.specimenSort.specimens.map((s) => s.id) ?? []))
+  if (caseDef?.lab.kind === 'vitals') ids.unshift('manatee')
+  return prefetchHeroes(ids)
 }

@@ -144,7 +144,7 @@ export default function App() {
       <div className={ready ? 'stage-layer ready' : 'stage-layer'}>
         <StageBoundary>
           <Suspense fallback={null}>
-            <Stage verticalInsets={route.name === 'case' || route.name === 'cold'} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
+            <Stage prefetch={route.name !== 'title'} verticalInsets={route.name === 'case' || route.name === 'cold'} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
               <Suspense fallback={null}>
                 <SceneFor key={route.name} route={route} />
               </Suspense>
