@@ -1297,10 +1297,13 @@ try {
   }
   const goHub = async (page, search) => {
     await page.goto(BASE + search + '#/hub', { waitUntil: 'load' })
+    // A hash-only goto keeps the old document, so reload to hydrate the store that was just seeded.
+    await page.reload({ waitUntil: 'load' })
     await page.waitForSelector('[data-testid="hub"]', { timeout: 120000 })
   }
   const goLabA = async (page, search) => {
     await page.goto(BASE + search + '#/case/03-1', { waitUntil: 'load' })
+    await page.reload({ waitUntil: 'load' })
     await page.waitForSelector('[data-testid="briefing"]', { timeout: 120000 })
     await sleep(1500)
     await page.click('[data-testid="briefing-continue"]')
