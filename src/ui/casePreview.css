@@ -18,6 +18,10 @@
   --c: #ffb547;
 }
 
+.case-preview[data-clip='creek'] {
+  --c: #3ee6ff;
+}
+
 .case-preview[data-clip='frost'] {
   --c: #3ee6ff;
 }

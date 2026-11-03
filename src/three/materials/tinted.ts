@@ -99,7 +99,7 @@ export interface SpecimenMaterialOpts {
  */
 export function litSpecimen(opts: SpecimenMaterialOpts = {}): THREE.MeshStandardNodeMaterial {
   const look = opts.look ?? DEFAULT_LOOK
-  const m = new THREE.MeshStandardNodeMaterial({ vertexColors: true, roughness: look.rough, metalness: 0.02 })
+  const m = new THREE.MeshStandardNodeMaterial({ vertexColors: true, roughness: look.rough, metalness: look.metalness ?? 0.02 })
   const facing = abs(dot(normalView, positionViewDirection))
   const rim = pow(saturate(float(1).sub(facing)), float(3))
   const sky = saturate(normalWorld.y.mul(0.5).add(0.5))
@@ -209,8 +209,8 @@ export function depthOnlyMaterial(): THREE.MeshBasicNodeMaterial {
  * Lit material for the textured hero scans: the scan's color map with the same soft down-facing occlusion, cool sky
  * fill and cyan rim as litSpecimen, so scans and procedural specimens sit in one lighting world.
  */
-export function litHero(map: THREE.Texture | null, rough = 0.7): THREE.MeshStandardNodeMaterial {
-  const m = new THREE.MeshStandardNodeMaterial({ roughness: rough, metalness: 0 })
+export function litHero(map: THREE.Texture | null, rough = 0.7, metalness = 0): THREE.MeshStandardNodeMaterial {
+  const m = new THREE.MeshStandardNodeMaterial({ roughness: rough, metalness })
   const facing = abs(dot(normalView, positionViewDirection))
   const rim = pow(saturate(float(1).sub(facing)), float(3))
   const sky = saturate(normalWorld.y.mul(0.5).add(0.5))

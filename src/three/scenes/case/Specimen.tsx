@@ -43,7 +43,7 @@ export default function Specimen({ id, fit = 3, spin = false, reduced = false, m
   const geo = hero ? hero.geo : g.geo
   // Low tier: fewer segments and no detail map, so it stays lighter than High.
   const mat = useMemo(
-    () => (mode === 'lit' ? (hero ? litHero(hero.map, hero.rough) : litSpecimen({ look: SPECIMEN_LOOK[id], detail: !low })) : tintedHolo('#3ee6ff', 0.9, false)),
+    () => (mode === 'lit' ? (hero ? litHero(hero.map, hero.rough, hero.metalness) : litSpecimen({ look: SPECIMEN_LOOK[id], detail: !low })) : tintedHolo('#3ee6ff', 0.9, false)),
     [mode, id, low, hero],
   )
   const depthMat = useMemo(() => (mode === 'holo' ? depthOnlyMaterial() : null), [mode])
