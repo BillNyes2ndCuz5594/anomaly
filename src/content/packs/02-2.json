@@ -12,12 +12,16 @@
     ],
     "evidencePlan": [
       {
-        "benchmark": "SC.4.E.6.2",
+        "benchmark": "SC.4.E.6.1",
         "count": 2
       },
       {
+        "benchmark": "SC.4.E.6.2",
+        "count": 1
+      },
+      {
         "benchmark": "SC.4.E.6.4",
-        "count": 3
+        "count": 2
       }
     ],
     "marker": {
