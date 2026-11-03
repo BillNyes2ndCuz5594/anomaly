@@ -1,4 +1,4 @@
-// Proof extras (ledger #28). Small and self-contained, so it does not depend on scripts/proof.mjs or scripts/lib.
+// Proof extras (ledger #28). Small and self-contained.
 //   a) Results with ?still=1: data-motion is still and no <video> is mounted (SealSting poster only).
 //   b) Every step runs through a hardened runner: a detached frame, "Target closed" or a page crash relaunches the
 //      browser once and retries that step from a fresh page.
@@ -10,32 +10,25 @@
 //   - Lab keyboard path (Tab to specimen card, Enter, test, identify) keyboard-only.
 //   - List view fallback renders all 10 specimens.
 //   - 390x844 phone viewport pass over hub, briefing, and LabD with no overflow and tap targets >= 44px.
-//   - LabD screenshots on High, Low, and phone saved to /tmp/anomaly-proof/bedrock-{high,low,phone}.png.
+//   - LabD screenshots on High, Low, and phone saved to <tmpdir>/anomaly-proof/bedrock-{high,low,phone}.png.
 //   - Zero console errors across High, Low, ?still=1, and reduced motion.
 // Usage: npm run build && node scripts/proof-extra.mjs   (or: npm run proof:extra)
 import puppeteer from 'puppeteer-core'
 import { spawn } from 'node:child_process'
 import { mkdirSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:net'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
+import { chromePath, CHROME_ARGS } from './lib/platform.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const CONTENT = JSON.parse(readFileSync(new URL('../src/content/anomaly-content.json', import.meta.url), 'utf8'))
-const CHROME = process.env.PROOF_CHROME || '/usr/bin/google-chrome'
-const CHROME_ARGS = [
-  '--no-sandbox',
-  '--use-angle=swiftshader',
-  '--enable-unsafe-swiftshader',
-  '--ignore-gpu-blocklist',
-  '--enable-unsafe-webgpu',
-  '--enable-features=Vulkan',
-  '--use-vulkan=swiftshader',
-  '--disable-dev-shm-usage',
-  '--renderer-process-limit=2',
-]
+const CHROME = chromePath()
 const VP = { width: 1366, height: 768 }
 const PHONE_VP = { width: 390, height: 844 }
-const SHOT_DIR = '/tmp/anomaly-proof'
+const SHOT_DIR = join(tmpdir(), 'anomaly-proof')
 mkdirSync(SHOT_DIR, { recursive: true })
 
 const TRANSIENT = /detached|Target closed|Session closed|Page crashed|Protocol error|Execution context was destroyed|Connection closed|Navigating frame was detached/i
@@ -380,8 +373,8 @@ const STEPS = [
       )
 
       // Save screenshot of LabD on High tier
-      await page.screenshot({ path: `${SHOT_DIR}/bedrock-high.png` })
-      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-high.png', true)
+      await page.screenshot({ path: join(SHOT_DIR, 'bedrock-high.png') })
+      check(`BEDROCK LabD: screenshot saved to ${join(SHOT_DIR, 'bedrock-high.png')}`, true)
 
       // Keyboard path: Tab to specimen card, Enter, run a test, identify with keyboard only
       await page.focus('[data-testid="back-to-hub-top"]')
@@ -455,8 +448,8 @@ const STEPS = [
       await goToBedrockLab(pLow)
       const lowVideos = await videos(pLow)
       check('BEDROCK LabD (Low): no playing video mounted (poster only)', lowVideos === 0, `${lowVideos} videos`)
-      await pLow.screenshot({ path: `${SHOT_DIR}/bedrock-low.png` })
-      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-low.png', true)
+      await pLow.screenshot({ path: join(SHOT_DIR, 'bedrock-low.png') })
+      check(`BEDROCK LabD: screenshot saved to ${join(SHOT_DIR, 'bedrock-low.png')}`, true)
       await pLow.close()
 
       // Still tier: ?still=1 has no playing video in LabD
@@ -497,8 +490,8 @@ const STEPS = [
       await checkPhoneScreen(page, 'LabD')
 
       // Save screenshot of LabD on phone viewport
-      await page.screenshot({ path: `${SHOT_DIR}/bedrock-phone.png` })
-      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-phone.png', true)
+      await page.screenshot({ path: join(SHOT_DIR, 'bedrock-phone.png') })
+      check(`BEDROCK LabD: screenshot saved to ${join(SHOT_DIR, 'bedrock-phone.png')}`, true)
 
       await page.close()
     },
