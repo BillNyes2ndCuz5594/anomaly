@@ -778,10 +778,12 @@ h1, h2, h3, p {
 .seg:has(input:focus-visible) {
   outline: 3px solid #fff;
   outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(62, 230, 255, 0.45);
   z-index: 1;
 }
 
 .toggle {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -828,6 +830,7 @@ h1, h2, h3, p {
 .toggle input:focus-visible + .toggle-box {
   outline: 3px solid #fff;
   outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(62, 230, 255, 0.45);
 }
 
 .toggle-state {
@@ -1470,6 +1473,8 @@ html[data-reduced-motion='true'] *::after {
   display: grid;
   place-items: center;
   font-size: 0.8rem;
+  background: rgba(7, 12, 23, 0.72);
+  color: var(--muted);
 }
 .captions {
   display: grid;
@@ -2057,6 +2062,7 @@ html[data-reduced-motion='true'] *::after {
 }
 .report-code {
   display: block;
+  min-height: 44px;
   font-size: 0.875rem;
   letter-spacing: 0.08em;
   line-height: var(--line-height);
@@ -2148,7 +2154,8 @@ textarea.input {
 .step-host {
   animation-duration: 0.24s;
 }
-html[data-motion='still'] .screen-host { animation: none; }
+html[data-motion='still'] .screen-host,
+html[data-motion='still'] .step-host { animation: none; }
 @keyframes screen-in {
   from {
     opacity: 0;
