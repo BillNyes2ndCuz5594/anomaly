@@ -14,6 +14,10 @@ export const CUE_LENGTH_S: Record<OneShotId, number> = {
   pickup: 0.2,
   whoosh: 0.42,
   solved: 1.5,
+  streak: 0.35,
+  scratch: 0.08,
+  rockDrop: 0.45,
+  trickle: 0.5,
 }
 
 /** Bed level into the cue bus. Quiet under UI cues. */
@@ -139,6 +143,25 @@ export function scheduleCue(ctx: AudioContext, dest: AudioNode, cue: OneShotId, 
       tone(ctx, dest, { t: t + 0.42, freq: 329.63, dur: 0.95, peak: 0.16, attack: 0.03, type: 'sine' })
       tone(ctx, dest, { t: t + 0.62, freq: 440, dur: 0.88, peak: 0.18, attack: 0.02, type: 'sine' })
       noiseSweep(ctx, dest, t, 0.36, 240, 900, 0.08)
+      return
+    case 'streak':
+      noiseSweep(ctx, dest, t, 0.32, 850, 420, 0.22)
+      tone(ctx, dest, { t, freq: 380, freq2: 240, dur: 0.26, peak: 0.08, attack: 0.015, type: 'triangle' })
+      return
+    case 'scratch':
+      tone(ctx, dest, { t, freq: 2200, freq2: 1700, dur: 0.05, peak: 0.24, attack: 0.003, type: 'triangle' })
+      noiseSweep(ctx, dest, t, 0.04, 2800, 1400, 0.14)
+      return
+    case 'rockDrop':
+      tone(ctx, dest, { t, freq: 110, freq2: 45, dur: 0.35, peak: 0.36, attack: 0.008, type: 'sine' })
+      tone(ctx, dest, { t: t + 0.04, freq: 80, freq2: 40, dur: 0.25, peak: 0.2, attack: 0.01, type: 'triangle' })
+      noiseSweep(ctx, dest, t + 0.03, 0.38, 380, 180, 0.22)
+      return
+    case 'trickle':
+      noiseSweep(ctx, dest, t, 0.48, 600, 920, 0.12)
+      tone(ctx, dest, { t: t + 0.04, freq: 620, freq2: 950, dur: 0.07, peak: 0.16, attack: 0.006, type: 'sine' })
+      tone(ctx, dest, { t: t + 0.16, freq: 840, freq2: 1200, dur: 0.06, peak: 0.14, attack: 0.006, type: 'sine' })
+      tone(ctx, dest, { t: t + 0.28, freq: 700, freq2: 1060, dur: 0.07, peak: 0.12, attack: 0.006, type: 'sine' })
       return
   }
 }

@@ -1,5 +1,20 @@
 /** Short cues. Ambient is a bed, not a one-shot. Lengths live in sfx.ts. */
-export const CUE_IDS = ['hover', 'press', 'toggle', 'wrong', 'correct', 'scan', 'pickup', 'whoosh', 'solved', 'ambient'] as const
+export const CUE_IDS = [
+  'hover',
+  'press',
+  'toggle',
+  'wrong',
+  'correct',
+  'scan',
+  'pickup',
+  'whoosh',
+  'solved',
+  'streak',
+  'scratch',
+  'rockDrop',
+  'trickle',
+  'ambient',
+] as const
 
 export type CueId = (typeof CUE_IDS)[number]
 

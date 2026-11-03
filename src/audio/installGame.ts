@@ -1,10 +1,16 @@
 import { controlOf, isActivationKey, isInert } from './dom'
 import { createEngine, type AudioEngine, type PlayOpts } from './engine'
+import { CUE_IDS, type OneShotId } from './policy'
 import { parseHash } from '../lib/router'
 import { useFx, useSession } from '../state/session'
 import { useGame } from '../state/store'
 
 let installed = false
+let activeEngine: AudioEngine | null = null
+
+export function playCue(cue: OneShotId, opts?: PlayOpts): void {
+  activeEngine?.play(cue, opts)
+}
 
 function ambientRoute(hash: string): boolean {
   const name = parseHash(hash).name
@@ -12,8 +18,12 @@ function ambientRoute(hash: string): boolean {
 }
 
 /** Which UI cue a control should make, or null to stay quiet. */
-export function cueForControl(el: HTMLElement): { cue: 'press' | 'toggle' | 'pickup'; up?: boolean } | null {
+export function cueForControl(el: HTMLElement): { cue: OneShotId; up?: boolean } | null {
   if (isInert(el)) return null
+  const customCue = el.dataset.cue
+  if (customCue && (CUE_IDS as readonly string[]).includes(customCue)) {
+    return { cue: customCue as OneShotId }
+  }
   if (el instanceof HTMLInputElement) {
     if (el.type === 'range' || el.type === 'hidden') return null
     if (el.dataset.testid === 'setting-sound') return null
@@ -221,6 +231,7 @@ export function installGameAudio(): void {
     search: () => location.search,
     hidden: () => document.hidden,
   })
+  activeEngine = engine
   bindPrefs(engine)
   bindUi(engine)
   bindRoutes(engine)
