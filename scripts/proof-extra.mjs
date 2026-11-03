@@ -5,11 +5,17 @@
 //   c) The summary always prints and the exit code is non-zero on any failed check, console error or page error.
 // Also checks that Low tier shows data-motion fade once saved reduced motion is off and the page reloads.
 // Also checks the hub case preview: no <video> while nothing is hovered, and none at all in still or Low tier.
+// Also covers BEDROCK (case 02-2 and LabD):
+//   - Creek backdrop poster per tier, still, and reduced motion vs video on High.
+//   - Lab keyboard path (Tab to specimen card, Enter, test, identify) keyboard-only.
+//   - List view fallback renders all 10 specimens.
+//   - 390x844 phone viewport pass over hub, briefing, and LabD with no overflow and tap targets >= 44px.
+//   - LabD screenshots on High, Low, and phone saved to /tmp/anomaly-proof/bedrock-{high,low,phone}.png.
+//   - Zero console errors across High, Low, ?still=1, and reduced motion.
 // Usage: npm run build && node scripts/proof-extra.mjs   (or: npm run proof:extra)
-// Case 03-1 is played from the content file, the same way scripts/proof.mjs does it.
 import puppeteer from 'puppeteer-core'
 import { spawn } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -28,6 +34,10 @@ const CHROME_ARGS = [
   '--renderer-process-limit=2',
 ]
 const VP = { width: 1366, height: 768 }
+const PHONE_VP = { width: 390, height: 844 }
+const SHOT_DIR = '/tmp/anomaly-proof'
+mkdirSync(SHOT_DIR, { recursive: true })
+
 const TRANSIENT = /detached|Target closed|Session closed|Page crashed|Protocol error|Execution context was destroyed|Connection closed|Navigating frame was detached/i
 
 const checks = []
@@ -79,13 +89,13 @@ const click = async (page, id) => {
 }
 const text = (page, id) => page.$eval(`[data-testid="${id}"]`, (e) => e.textContent)
 
-/** A fresh page with a new agent, left on the hub. Console and page errors are collected under `label`. */
-async function profilePage(qs, label) {
+/** A fresh page with a new agent, left on the hub. Console and page errors are collected under label. */
+async function profilePage(qs, label, vp = VP) {
   const page = await browser.newPage()
   page.on('console', (m) => m.type() === 'error' && errors.push(`[${label}] console.error: ${m.text()}`))
   page.on('pageerror', (e) => errors.push(`[${label}] pageerror: ${e.message}`))
   page.on('requestfailed', (r) => errors.push(`[${label}] requestfailed: ${r.url()} ${r.failure()?.errorText}`))
-  await page.setViewport({ ...VP, deviceScaleFactor: 1 })
+  await page.setViewport({ ...vp, deviceScaleFactor: 1 })
   await page.goto(BASE + qs + '#/', { waitUntil: 'load' })
   await page.evaluate(() => localStorage.clear())
   await page.reload({ waitUntil: 'load' })
@@ -99,6 +109,53 @@ async function profilePage(qs, label) {
   await page.waitForSelector('[data-testid="hub"]')
   page.setDefaultTimeout(60000)
   return page
+}
+
+async function setReducedMotion(page, enabled) {
+  await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: enabled ? 'reduce' : 'no-preference' }])
+  await page.evaluate((val) => {
+    const raw = localStorage.getItem('anomaly.v1')
+    if (!raw) return
+    const st = JSON.parse(raw)
+    if (st?.state?.settings) st.state.settings = { ...st.state.settings, reducedMotion: val }
+    localStorage.setItem('anomaly.v1', JSON.stringify(st))
+  }, enabled)
+  await page.reload({ waitUntil: 'load' })
+  await page.waitForSelector('[data-testid="hub"]')
+}
+
+/** Navigates from hub to BEDROCK briefing and into LabD. */
+async function goToBedrockLab(page) {
+  await page.evaluate(() => (location.hash = '#/case/02-2'))
+  await page.waitForSelector('[data-testid="briefing"]', { timeout: 30000 })
+  await sleep(400)
+  await click(page, 'briefing-continue')
+  await page.waitForSelector('[data-testid="lab-d"]', { timeout: 30000 })
+  await sleep(600)
+}
+
+/** Evaluates phone screen for horizontal overflow and buttons or links below 44px. */
+async function checkPhoneScreen(page, screenName) {
+  const r = await page.evaluate(() => {
+    const el = document.scrollingElement || document.documentElement
+    const scrollW = el.scrollWidth
+    const innerW = window.innerWidth
+    const offenders = []
+    const targets = document.querySelectorAll('button, a, [role="button"]')
+    for (const t of targets) {
+      const s = getComputedStyle(t)
+      if (s.visibility === 'hidden' || s.display === 'none' || s.opacity === '0' || t.closest('[hidden]')) continue
+      const rect = t.getBoundingClientRect()
+      if (rect.width <= 0 || rect.height <= 0) continue
+      if (rect.width < 43.5 || rect.height < 43.5) {
+        const id = t.getAttribute('data-testid') || t.getAttribute('aria-label') || (t.textContent || '').trim().slice(0, 24) || t.className
+        offenders.push(`${id} (${Math.round(rect.width)}x${Math.round(rect.height)})`)
+      }
+    }
+    return { scrollW, innerW, noOverflow: scrollW <= innerW, offenders }
+  })
+  check(`phone ${screenName}: no horizontal overflow`, r.noOverflow, `scrollWidth=${r.scrollW} innerWidth=${r.innerW}`)
+  check(`phone ${screenName}: every visible button/link at least 44 px`, r.offenders.length === 0, r.offenders.length ? `offenders: ${r.offenders.join(', ')}` : 'all >= 44px')
 }
 
 /** Plays case 03-1 through labs, items and debrief to the Results screen. */
@@ -160,8 +217,14 @@ const videos = (page) => page.evaluate(() => document.querySelectorAll('video').
 async function previewState(page) {
   return page.evaluate(() => {
     const el = document.querySelector('[data-testid="case-preview"]')
-    // videos: inside the preview. all: anywhere on the page (the High tier sky backdrop owns one of its own).
-    return { present: !!el, media: el?.getAttribute('data-media') ?? '', videos: el ? el.querySelectorAll('video').length : 0, all: document.querySelectorAll('video').length, imgs: el ? el.querySelectorAll('img').length : 0 }
+    return {
+      present: !!el,
+      clip: el?.getAttribute('data-clip') ?? '',
+      media: el?.getAttribute('data-media') ?? '',
+      videos: el ? el.querySelectorAll('video').length : 0,
+      all: document.querySelectorAll('video').length,
+      imgs: el ? el.querySelectorAll('img').length : 0,
+    }
   })
 }
 
@@ -217,16 +280,7 @@ const STEPS = [
       // Saved settings are read once at load, so a hash-only goto after editing storage keeps the old value.
       // Turn reduced motion off in storage, then reload for real before reading data-motion.
       const page = await profilePage('?tier=low', 'low-fade')
-      await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'no-preference' }])
-      await page.evaluate(() => {
-        const raw = localStorage.getItem('anomaly.v1')
-        if (!raw) return
-        const st = JSON.parse(raw)
-        if (st?.state?.settings) st.state.settings = { ...st.state.settings, reducedMotion: false }
-        localStorage.setItem('anomaly.v1', JSON.stringify(st))
-      })
-      await page.reload({ waitUntil: 'load' })
-      await page.waitForSelector('[data-testid="hub"]')
+      await setReducedMotion(page, false)
       const fade = await page.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
       const mode = await page.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`)
       check('Low tier (reduced motion off, after reload) uses data-motion fade', fade, mode)
@@ -236,6 +290,208 @@ const STEPS = [
   ['hub preview still', () => hubPreview('?tier=high&still=1', 'hub still', 'poster')],
   ['hub preview low', () => hubPreview('?tier=low', 'hub low', 'poster')],
   ['hub preview high', () => hubPreview('?tier=high', 'hub high', 'video')],
+
+  // BEDROCK section: case 02-2 and LabD
+  [
+    'bedrock creek preview',
+    async () => {
+      // Note: No in-case creek backdrop exists for 02-2 (in-case 3D environment uses water clip);
+      // checking hub preview of 02-2 for creek loop instead per brief.
+      // 1. High tier: video present and muted/playsInline/aria-hidden
+      const pHigh = await profilePage('?tier=high', 'bedrock-creek-high')
+      await pHigh.hover('[data-testid="case-marker-02-2"]')
+      await pHigh.waitForSelector('[data-testid="case-preview"]', { timeout: 10000 })
+      const vProps = await pHigh.evaluate(() => {
+        const el = document.querySelector('[data-testid="case-preview"]')
+        const v = el?.querySelector('video')
+        return {
+          clip: el?.getAttribute('data-clip'),
+          media: el?.getAttribute('data-media'),
+          hasVideo: !!v,
+          muted: !!v?.muted,
+          playsInline: !!v?.hasAttribute('playsinline'),
+          ariaHidden: v?.getAttribute('aria-hidden') === 'true',
+        }
+      })
+      check(
+        'BEDROCK hub creek preview (High): video element present and muted/playsInline/aria-hidden',
+        vProps.clip === 'creek' && vProps.media === 'video' && vProps.hasVideo && vProps.muted && vProps.playsInline && vProps.ariaHidden,
+        JSON.stringify(vProps),
+      )
+      await pHigh.close()
+
+      // 2. Low tier: poster shown, no playing video
+      const pLow = await profilePage('?tier=low', 'bedrock-creek-low')
+      await pLow.hover('[data-testid="case-marker-02-2"]')
+      await pLow.waitForSelector('[data-testid="case-preview"]', { timeout: 10000 })
+      const sLow = await previewState(pLow)
+      check('BEDROCK hub creek preview (Low): poster shown, no playing video', sLow.clip === 'creek' && sLow.media === 'poster' && sLow.videos === 0, JSON.stringify(sLow))
+      await pLow.close()
+
+      // 3. ?still=1: poster shown, no playing video
+      const pStill = await profilePage('?tier=high&still=1', 'bedrock-creek-still')
+      await pStill.hover('[data-testid="case-marker-02-2"]')
+      await pStill.waitForSelector('[data-testid="case-preview"]', { timeout: 10000 })
+      const sStill = await previewState(pStill)
+      check('BEDROCK hub creek preview (?still=1): poster shown, no playing video', sStill.clip === 'creek' && sStill.media === 'poster' && sStill.videos === 0, JSON.stringify(sStill))
+      await pStill.close()
+
+      // 4. Reduced motion: poster shown, no playing video
+      const pRed = await profilePage('?tier=high', 'bedrock-creek-reduced')
+      await setReducedMotion(pRed, true)
+      await pRed.hover('[data-testid="case-marker-02-2"]')
+      await pRed.waitForSelector('[data-testid="case-preview"]', { timeout: 10000 })
+      const sRed = await previewState(pRed)
+      check('BEDROCK hub creek preview (reduced motion): poster shown, no playing video', sRed.clip === 'creek' && sRed.media === 'poster' && sRed.videos === 0, JSON.stringify(sRed))
+      await pRed.close()
+    },
+  ],
+  [
+    'bedrock lab high and keyboard',
+    async () => {
+      const page = await profilePage('?tier=high', 'bedrock-lab-high')
+      await goToBedrockLab(page)
+
+      // In-case backdrop check on High tier: video present, muted, playsInline, aria-hidden
+      const sceneVideo = await page.evaluate(() => {
+        const v = document.querySelector('video')
+        return {
+          hasVideo: !!v,
+          muted: !!v?.muted,
+          playsInline: !!v?.hasAttribute('playsinline'),
+          ariaHidden: v?.getAttribute('aria-hidden') === 'true',
+        }
+      })
+      check(
+        'BEDROCK LabD (High): in-case sky video present and muted/playsInline/aria-hidden',
+        sceneVideo.hasVideo && sceneVideo.muted && sceneVideo.playsInline && sceneVideo.ariaHidden,
+        JSON.stringify(sceneVideo),
+      )
+
+      // Save screenshot of LabD on High tier
+      await page.screenshot({ path: `${SHOT_DIR}/bedrock-high.png` })
+      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-high.png', true)
+
+      // Keyboard path: Tab to specimen card, Enter, run a test, identify with keyboard only
+      await page.focus('[data-testid="back-to-hub-top"]')
+      let activeTestId = ''
+      let tabCount = 0
+      while (tabCount < 30) {
+        await page.keyboard.press('Tab')
+        tabCount++
+        activeTestId = await page.evaluate(() => document.activeElement?.getAttribute('data-testid') || '')
+        if (activeTestId.startsWith('mineral-card-')) break
+      }
+      const pickedCardId = activeTestId
+      await page.keyboard.press('Enter')
+      await sleep(200)
+
+      while (tabCount < 50) {
+        await page.keyboard.press('Tab')
+        tabCount++
+        activeTestId = await page.evaluate(() => document.activeElement?.getAttribute('data-testid') || '')
+        if (activeTestId.startsWith('test-')) break
+      }
+      const testRanId = activeTestId
+      await page.keyboard.press('Enter')
+      await sleep(250)
+      const evidenceCount = await page.evaluate(() => document.querySelectorAll('.evidence-list li').length)
+
+      while (tabCount < 80) {
+        await page.keyboard.press('Tab')
+        tabCount++
+        activeTestId = await page.evaluate(() => document.activeElement?.getAttribute('data-testid') || '')
+        if (activeTestId.startsWith('identify-')) break
+      }
+      const chosenId = activeTestId
+      await page.keyboard.press('Enter')
+      await sleep(250)
+      const verdict = await page.evaluate(() => {
+        const fb = document.querySelector('[data-testid="lab-feedback"]')
+        return { present: !!fb, ok: fb?.getAttribute('data-ok') }
+      })
+
+      const keyboardOk = pickedCardId.startsWith('mineral-card-') && testRanId.startsWith('test-') && evidenceCount > 0 && chosenId.startsWith('identify-') && verdict.present
+      check(
+        'BEDROCK: lab keyboard path (Tab to specimen, Enter, test, identify) works keyboard-only',
+        keyboardOk,
+        `card=${pickedCardId} test=${testRanId} evidence=${evidenceCount} identify=${chosenId} verdictOk=${verdict.ok}`,
+      )
+
+      // List view fallback check: renders all 10 specimens (7 minerals + 3 rocks)
+      await click(page, 'toggle-list-view')
+      await page.waitForSelector('[data-testid="list-view-panel"]', { timeout: 10000 })
+      const listInfo = await page.evaluate(() => {
+        const panel = document.querySelector('[data-testid="list-view-panel"]')
+        const cards = panel ? Array.from(panel.querySelectorAll('.list-item-card')) : []
+        const textContent = panel?.textContent || ''
+        const specimens = ['Talc', 'Graphite', 'Mica', 'Calcite', 'Feldspar', 'Quartz', 'Pyrite', 'Granite', 'Limestone', 'Gneiss']
+        const missing = specimens.filter((s) => !textContent.includes(s))
+        return { count: cards.length, missing }
+      })
+      check('BEDROCK: list view fallback renders all 10 specimens', listInfo.count === 10 && listInfo.missing.length === 0, `count=${listInfo.count} missing=${listInfo.missing.join(',')}`)
+      await click(page, 'toggle-list-view')
+      await sleep(200)
+
+      await page.close()
+    },
+  ],
+  [
+    'bedrock lab low, still, and reduced motion',
+    async () => {
+      // Low tier: poster shown, no playing video in LabD
+      const pLow = await profilePage('?tier=low', 'bedrock-lab-low')
+      await goToBedrockLab(pLow)
+      const lowVideos = await videos(pLow)
+      check('BEDROCK LabD (Low): no playing video mounted (poster only)', lowVideos === 0, `${lowVideos} videos`)
+      await pLow.screenshot({ path: `${SHOT_DIR}/bedrock-low.png` })
+      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-low.png', true)
+      await pLow.close()
+
+      // Still tier: ?still=1 has no playing video in LabD
+      const pStill = await profilePage('?tier=high&still=1', 'bedrock-lab-still')
+      await goToBedrockLab(pStill)
+      const stillVideos = await videos(pStill)
+      check('BEDROCK LabD (?still=1): no playing video mounted (poster only)', stillVideos === 0, `${stillVideos} videos`)
+      await pStill.close()
+
+      // Reduced motion: no playing video in LabD
+      const pRed = await profilePage('?tier=high', 'bedrock-lab-reduced')
+      await setReducedMotion(pRed, true)
+      await goToBedrockLab(pRed)
+      const redVideos = await videos(pRed)
+      check('BEDROCK LabD (reduced motion): no playing video mounted (poster only)', redVideos === 0, `${redVideos} videos`)
+      await pRed.close()
+    },
+  ],
+  [
+    'bedrock phone pass',
+    async () => {
+      // Phone viewport 390x844 pass over hub, BEDROCK briefing, and LabD
+      const page = await profilePage('?tier=high', 'bedrock-phone', PHONE_VP)
+
+      // 1. Hub
+      await checkPhoneScreen(page, 'hub')
+
+      // 2. BEDROCK briefing
+      await page.evaluate(() => (location.hash = '#/case/02-2'))
+      await page.waitForSelector('[data-testid="briefing"]', { timeout: 30000 })
+      await sleep(600)
+      await checkPhoneScreen(page, 'BEDROCK briefing')
+
+      // 3. LabD
+      await click(page, 'briefing-continue')
+      await page.waitForSelector('[data-testid="lab-d"]', { timeout: 30000 })
+      await sleep(600)
+      await checkPhoneScreen(page, 'LabD')
+
+      // Save screenshot of LabD on phone viewport
+      await page.screenshot({ path: `${SHOT_DIR}/bedrock-phone.png` })
+      check('BEDROCK LabD: screenshot saved to /tmp/anomaly-proof/bedrock-phone.png', true)
+
+      await page.close()
+    },
+  ],
 ]
 
 /** Runs a step. A transient browser failure relaunches Chrome once and retries the step from a fresh page. */
