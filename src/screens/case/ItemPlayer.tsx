@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { codexById } from '../../content'
 import type { Item } from '../../content/schema'
 import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
-import { useAnnounce } from '../../ui/announce'
+import { useAnnounce } from '../../ui/announceBus'
+import { INTEL, codexIdsFor } from './itemPlayerRules'
 import { flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { CoreVignette } from '../../ui/FrostOverlay'
@@ -16,15 +16,6 @@ import ItemVisual from './ItemVisual'
 import { isStageVisual } from '../../three/paintHold'
 
 const LETTERS = ['A', 'B', 'C', 'D']
-
-/** Intel values. Accuracy and good process earn Intel, speed never does. */
-export const INTEL = { keyWord: 2, eliminate: 1, correct: 5 }
-
-/** Codex entries matched by an item's correct option, e.g. "heart" matches organ:heart. */
-export function codexIdsFor(item: Item): string[] {
-  const slug = item.options[item.key].toLowerCase().trim().replace(/\s+/g, '-')
-  return [`organ:${slug}`, `specimen:${slug}`].filter((id) => codexById.has(id))
-}
 
 interface BodyProps {
   item: Item

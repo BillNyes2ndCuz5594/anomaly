@@ -1,10 +1,7 @@
 import { isAutoActive, resolveTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
-
-export function isDebugUrl(): boolean {
-  return new URLSearchParams(window.location.search).get('debug') === '1'
-}
+import { isDebugUrl } from './debugUrl'
 
 /** FPS, backend and tier. Shown when enabled in Settings or when the URL has ?debug=1. */
 export default function FpsReadout() {

@@ -5,7 +5,7 @@ import { stepsFor, useSession, type CaseKind, type CaseStep } from '../../state/
 import { content } from '../../content'
 import type { CaseDef } from '../../content/schema'
 import { useCaseDef } from './useCaseDef'
-import { useAnnounce } from '../../ui/announce'
+import { useAnnounce } from '../../ui/announceBus'
 
 export function StepBar({ step, kind = 'case', caseDef = null }: { step: CaseStep; kind?: CaseKind; caseDef?: CaseDef | null }) {
   const steps = stepsFor(kind, caseDef)
