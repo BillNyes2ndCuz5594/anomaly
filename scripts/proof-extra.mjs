@@ -350,7 +350,18 @@ const STEPS = [
     'bedrock lab high and keyboard',
     async () => {
       const page = await profilePage('?tier=high', 'bedrock-lab-high')
+      const skyMedia = []
+      page.on('request', (q) => {
+        const n = q.url().split('/').pop() || ''
+        if (/^backdrop-(creek|water)-/.test(n)) skyMedia.push(n)
+      })
       await goToBedrockLab(page)
+      await sleep(900)
+      check(
+        'BEDROCK LabD (High): in-case backdrop is the creek loop (matches hub preview), not the generic earth loop',
+        skyMedia.some((n) => /^backdrop-creek-.*\.(webm|mp4)$/.test(n)) && !skyMedia.some((n) => n.startsWith('backdrop-water-')),
+        JSON.stringify(skyMedia),
+      )
 
       // In-case backdrop check on High tier: video present, muted, playsInline, aria-hidden
       const sceneVideo = await page.evaluate(() => {
