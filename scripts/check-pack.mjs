@@ -17,6 +17,7 @@ const SCENE_IDS = new Set([
 const SPECIMEN_IDS = new Set([
   'manatee', 'brown-pelican', 'gopher-tortoise', 'green-tree-frog', 'bull-shark', 'blue-crab', 'florida-panther',
   'american-alligator', 'garden-spider', 'largemouth-bass', 'barred-owl', 'grasshopper',
+  'quartz', 'pyrite', 'feldspar', 'mica', 'calcite', 'talc', 'graphite', 'granite', 'limestone', 'gneiss',
 ])
 const CATEGORIES = new Set(['nature', 'earth', 'physical', 'life'])
 const COMPLEXITY = new Set(['low', 'moderate', 'high'])

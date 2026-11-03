@@ -13,7 +13,28 @@ import sharkUrl from '../../assets/specimens/bull-shark.glb?url'
 import tortoiseUrl from '../../assets/specimens/gopher-tortoise.glb?url'
 import grasshopperUrl from '../../assets/specimens/grasshopper.glb?url'
 import manateeUrl from '../../assets/specimens/manatee.glb?url'
-import { specimenGeo } from './creatures'
+import quartzUrl from '../../assets/specimens/quartz.glb?url'
+import pyriteUrl from '../../assets/specimens/pyrite.glb?url'
+import feldsparUrl from '../../assets/specimens/feldspar.glb?url'
+import micaUrl from '../../assets/specimens/mica.glb?url'
+import calciteUrl from '../../assets/specimens/calcite.glb?url'
+import talcUrl from '../../assets/specimens/talc.glb?url'
+import graphiteUrl from '../../assets/specimens/graphite.glb?url'
+import graniteUrl from '../../assets/specimens/granite.glb?url'
+import limestoneUrl from '../../assets/specimens/limestone.glb?url'
+import gneissUrl from '../../assets/specimens/gneiss.glb?url'
+
+import quartzPoster from '../../assets/specimens/quartz.webp'
+import pyritePoster from '../../assets/specimens/pyrite.webp'
+import feldsparPoster from '../../assets/specimens/feldspar.webp'
+import micaPoster from '../../assets/specimens/mica.webp'
+import calcitePoster from '../../assets/specimens/calcite.webp'
+import talcPoster from '../../assets/specimens/talc.webp'
+import graphitePoster from '../../assets/specimens/graphite.webp'
+import granitePoster from '../../assets/specimens/granite.webp'
+import limestonePoster from '../../assets/specimens/limestone.webp'
+import gneissPoster from '../../assets/specimens/gneiss.webp'
+import { specimenGeo, type SpecimenId } from './creatures'
 import { meanProjectedArea, outlinePoints } from '../fit'
 import { DISPLAY_YAW, specimenArea } from './specimenBox'
 
@@ -29,6 +50,8 @@ interface HeroDef {
   tilt?: number
   /** Surface roughness for the lit material. */
   rough: number
+  /** Surface metalness (metallic only for pyrite and graphite). */
+  metalness?: number
   /** Depth allowance past the procedural box, for a scan whose legs reach toward the camera (default HERO_SLACK). */
   slack?: number
 }
@@ -46,12 +69,36 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.8 },
   grasshopper: { url: grasshopperUrl, yaw: 0, rough: 0.6 },
   manatee: { url: manateeUrl, yaw: 0, rough: 0.75 },
+  quartz: { url: quartzUrl, yaw: 0, rough: 0.3 },
+  pyrite: { url: pyriteUrl, yaw: 0, rough: 0.35, metalness: 0.85 },
+  feldspar: { url: feldsparUrl, yaw: 0, rough: 0.6 },
+  mica: { url: micaUrl, yaw: 0, rough: 0.4 },
+  calcite: { url: calciteUrl, yaw: 0, rough: 0.45 },
+  talc: { url: talcUrl, yaw: 0, rough: 0.7 },
+  graphite: { url: graphiteUrl, yaw: 0, rough: 0.4, metalness: 0.8 },
+  granite: { url: graniteUrl, yaw: 0, rough: 0.75 },
+  limestone: { url: limestoneUrl, yaw: 0, rough: 0.8 },
+  gneiss: { url: gneissUrl, yaw: 0, rough: 0.75 },
+}
+
+export const SPECIMEN_POSTERS: Partial<Record<SpecimenId, string>> = {
+  quartz: quartzPoster,
+  pyrite: pyritePoster,
+  feldspar: feldsparPoster,
+  mica: micaPoster,
+  calcite: calcitePoster,
+  talc: talcPoster,
+  graphite: graphitePoster,
+  granite: granitePoster,
+  limestone: limestonePoster,
+  gneiss: gneissPoster,
 }
 
 export interface HeroSpecimen {
   geo: THREE.BufferGeometry
   map: THREE.Texture | null
   rough: number
+  metalness?: number
 }
 
 const ready = new Map<string, HeroSpecimen>()
@@ -142,7 +189,7 @@ export function loadHero(id: string): Promise<HeroSpecimen | null> {
           map.colorSpace = THREE.SRGBColorSpace
           map.anisotropy = 4
         }
-        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id), def.slack), map, rough: def.rough }
+        const hero = { geo: normalizeHero(geo, def.yaw, specimenGeo(id).size, def.tilt, specimenArea(id), def.slack), map, rough: def.rough, metalness: def.metalness }
         ready.set(id, hero)
         for (const fn of listeners) fn()
         return hero

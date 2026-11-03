@@ -3,6 +3,7 @@ import type { MotionMode } from './motionMode'
 /** Hub case cards that show a live preview, by the data-testid of their button. */
 export const PREVIEW_TARGETS = {
   'case-marker-03-1': 'cells',
+  'case-marker-02-2': 'creek',
   'cold-marker': 'frost',
 } as const
 
