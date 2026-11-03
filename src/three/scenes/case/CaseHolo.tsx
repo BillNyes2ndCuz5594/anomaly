@@ -32,7 +32,7 @@ const HOLO_MAP: Record<string, string> = {
   'case-07-2': case07_2,
 }
 
-const BASE_Y = 0.95
+const BASE_Y = 1.15
 
 export default function CaseHolo({ caseId, reduced }: { caseId: string; reduced: boolean }) {
   const url = HOLO_MAP[caseId]
@@ -91,7 +91,7 @@ export default function CaseHolo({ caseId, reduced }: { caseId: string; reduced:
 
   return (
     <mesh ref={meshRef} position={[0, BASE_Y, 0]} userData={{ noFit: true }}>
-      <planeGeometry args={[1.3, 1.3]} />
+      <planeGeometry args={[2.2, 2.2]} />
       <primitive object={mat} attach="material" />
     </mesh>
   )
