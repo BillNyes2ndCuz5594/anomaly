@@ -210,6 +210,8 @@ export interface DetailLook {
   roughVar: number
   /** How strongly the cavity channel darkens the color. */
   cavity: number
+  /** Surface metalness (used for metallic luster on pyrite and graphite). */
+  metalness?: number
 }
 
 /** Which skin each specimen wears. */
@@ -226,6 +228,16 @@ export const SPECIMEN_LOOK: Record<string, DetailLook> = {
   'green-tree-frog': { kind: 'skin', freq: 0.9, bump: 0.02, rough: 0.3, roughVar: 0.3, cavity: 0.3 },
   grasshopper: { kind: 'grain', freq: 2.2, bump: 0.0035, rough: 0.36, roughVar: 0.3, cavity: 0.22 },
   'garden-spider': { kind: 'grain', freq: 1.6, bump: 0.008, rough: 0.5, roughVar: 0.3, cavity: 0.3 },
+  quartz: { kind: 'grain', freq: 1.2, bump: 0.005, rough: 0.25, roughVar: 0.2, cavity: 0.15 },
+  pyrite: { kind: 'grain', freq: 1.5, bump: 0.008, rough: 0.35, roughVar: 0.25, cavity: 0.25, metalness: 0.85 },
+  feldspar: { kind: 'grain', freq: 1.0, bump: 0.012, rough: 0.55, roughVar: 0.3, cavity: 0.3 },
+  mica: { kind: 'grain', freq: 1.8, bump: 0.006, rough: 0.4, roughVar: 0.25, cavity: 0.2 },
+  calcite: { kind: 'grain', freq: 1.1, bump: 0.008, rough: 0.45, roughVar: 0.25, cavity: 0.2 },
+  talc: { kind: 'grain', freq: 0.9, bump: 0.005, rough: 0.7, roughVar: 0.2, cavity: 0.2 },
+  graphite: { kind: 'grain', freq: 1.4, bump: 0.01, rough: 0.4, roughVar: 0.3, cavity: 0.3, metalness: 0.8 },
+  granite: { kind: 'grain', freq: 1.6, bump: 0.02, rough: 0.75, roughVar: 0.35, cavity: 0.35 },
+  limestone: { kind: 'grain', freq: 1.2, bump: 0.015, rough: 0.8, roughVar: 0.3, cavity: 0.3 },
+  gneiss: { kind: 'grain', freq: 1.5, bump: 0.018, rough: 0.7, roughVar: 0.35, cavity: 0.35 },
 }
 
 export const DEFAULT_LOOK: DetailLook = { kind: 'grain', freq: 1, bump: 0.01, rough: 0.5, roughVar: 0.3, cavity: 0.3 }
