@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { playCue } from '../../audio/installGame'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
-import { SPECIMEN_POSTERS } from '../../three/models/heroSpecimens'
+import { SPECIMEN_POSTERS } from '../../three/models/specimenPosters'
 import { initLab, isComplete, labCards, labReduce, type GenericLab, type LabState } from './labGenericData'
 import './labs-d.css'
 import {

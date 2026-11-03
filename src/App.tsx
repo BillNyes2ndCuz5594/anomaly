@@ -1,12 +1,12 @@
 import { Component, lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
 import { STILL } from './lib/flags'
 import { navigate, parseHash, type Route } from './lib/router'
-import CaseScreen from './screens/CaseScreen'
 import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
 import { caseInset } from './screens/case/layout'
-import SettingsScreen from './screens/SettingsScreen'
 import TitleScreen from './screens/TitleScreen'
 
+const CaseScreen = lazy(() => import('./screens/CaseScreen'))
+const SettingsScreen = lazy(() => import('./screens/SettingsScreen'))
 const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
 import { resolveTier } from './state/quality'
 import { useRuntime } from './state/runtime'
@@ -80,7 +80,11 @@ function ScreenFor({ route }: { route: Route }) {
     case 'hub':
       return <HubScreen />
     case 'settings':
-      return <SettingsScreen />
+      return (
+        <Suspense fallback={null}>
+          <SettingsScreen />
+        </Suspense>
+      )
     case 'visuals':
       return (
         <Suspense fallback={null}>
@@ -88,9 +92,17 @@ function ScreenFor({ route }: { route: Route }) {
         </Suspense>
       )
     case 'case':
-      return <CaseScreen kind="case" id={route.id} />
+      return (
+        <Suspense fallback={null}>
+          <CaseScreen kind="case" id={route.id} />
+        </Suspense>
+      )
     case 'cold':
-      return <CaseScreen kind="cold" id={route.id} />
+      return (
+        <Suspense fallback={null}>
+          <CaseScreen kind="cold" id={route.id} />
+        </Suspense>
+      )
   }
 }
 
