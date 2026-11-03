@@ -14,8 +14,15 @@ export default function BriefingFeed() {
   const mode = useMotionMode()
   const ref = useRef<HTMLVideoElement | null>(null)
   const [live, setLive] = useState(false)
+  const [ended, setEnded] = useState(false)
   const [done, setDone] = useState(false)
   const playing = mode === 'full'
+
+  useEffect(() => {
+    if (!ended) return
+    const timer = setTimeout(() => setDone(true), 220)
+    return () => clearTimeout(timer)
+  }, [ended])
   useEffect(() => {
     const v = ref.current
     if (!v) return
@@ -42,7 +49,17 @@ export default function BriefingFeed() {
     <div className="briefing-feed" data-mode={mode} data-testid="briefing-feed" aria-hidden="true">
       <img className="feed-poster" src={feedPoster} alt="" decoding="async" />
       {playing && !done ? (
-        <video ref={ref} className="feed-video" data-live={live ? 'yes' : 'no'} muted playsInline preload="auto" tabIndex={-1} onEnded={() => setDone(true)}>
+        <video
+          ref={ref}
+          className="feed-video"
+          data-live={live ? 'yes' : 'no'}
+          data-ended={ended ? 'yes' : 'no'}
+          muted
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          onEnded={() => setEnded(true)}
+        >
           <source src={feedWebm} type="video/webm" />
           <source src={feedMp4} type="video/mp4" />
         </video>

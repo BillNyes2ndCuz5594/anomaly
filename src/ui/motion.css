@@ -980,7 +980,12 @@ html[data-motion='full'] .rd-tick {
   opacity: 0;
 }
 .seal-sting .seal-video[data-live='yes'] {
-  animation: d2-video 0.2s linear both;
+  animation: d2-video 0.2s var(--ease-out) both;
+}
+.seal-sting .seal-video[data-ended='yes'] {
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-out);
+  animation: none;
 }
 html[data-motion='fade'] .seal-poster {
   animation: d2-poster 0.4s linear both;
@@ -1042,7 +1047,12 @@ html[data-motion='fade'] .debrief-list > .debrief-item {
   opacity: 0;
 }
 .briefing-feed .feed-video[data-live='yes'] {
-  animation: w4-feed-video 0.25s linear both;
+  animation: w4-feed-video 0.25s var(--ease-out) both;
+}
+.briefing-feed .feed-video[data-ended='yes'] {
+  opacity: 0;
+  transition: opacity 0.22s var(--ease-out);
+  animation: none;
 }
 .briefing-feed .feed-tag {
   position: absolute;
