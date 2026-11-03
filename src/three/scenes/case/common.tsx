@@ -133,13 +133,17 @@ export function FitRig({
 
 /** Ambient sky loop for each case step. */
 const STEP_CLIP: Partial<Record<string, LoopClip>> = { briefing: 'swamp', 'lab-a': 'cells', 'lab-b': 'canopy', 'lab-c': 'water', debrief: 'debrief', results: 'debrief' }
+/** Cases with their own sky loop for the briefing and lab steps (debrief and results keep the shared loop). Matches the hub preview clip. */
+const CASE_CLIP: Partial<Record<string, LoopClip>> = { '02-2': 'creek' }
 
 /** Shared lab environment: deck, grid, console ring, fog, dust. */
 export function LabEnvironment({ children, ring = true, floorY = 0, clip: clipOverride }: { children?: ReactNode; ring?: boolean; floorY?: number; clip?: LoopClip }) {
   const tier = useTier()
   const step = useSession((s) => s.step)
   const kind = useSession((s) => s.kind)
-  const clip = kind === 'cold' ? 'frost' : (clipOverride ?? STEP_CLIP[step])
+  const caseId = useSession((s) => s.caseId)
+  const caseClip = step === 'debrief' || step === 'results' ? undefined : CASE_CLIP[caseId ?? '']
+  const clip = kind === 'cold' ? 'frost' : (caseClip ?? clipOverride ?? STEP_CLIP[step])
   return (
     <>
       <fogExp2 attach="fog" args={['#070c17', 0.017]} />
