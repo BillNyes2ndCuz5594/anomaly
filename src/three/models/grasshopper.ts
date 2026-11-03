@@ -106,7 +106,7 @@ export const paint: SculptPaint = (p, n, out) => {
   }
   // pronotum: dark saddle with a pale lateral stripe
   if (x > 0.2 && x < 1.1 && y > 0.78) {
-    out.lerp(COL.brown, smooth(1.12, 1.02, y) * 0.0)
+    out.lerp(COL.brown, 0)
     out.lerp(COL.yellow, smooth(0.07, 0.03, Math.abs(y - 1.02)) * smooth(0.12, 0.2, az) * 0.5)
   }
   // a pale yellow stripe runs down the back from the head to the wing tips
@@ -150,7 +150,7 @@ export const paint: SculptPaint = (p, n, out) => {
   const em = smooth(0.012, -0.004, de)
   if (em > 0) {
     const e = new THREE.Color('#7a5a2c')
-    e.lerp(COL.brown, smooth(0.35, 0.85, Math.sin((x * 3 + z * 0.0 + y * 0) * 0 + (y - 1.12) * 55)) * 0.35)
+    e.lerp(COL.brown, smooth(0.35, 0.85, Math.sin((y - 1.12) * 55)) * 0.35)
     e.lerp(new THREE.Color('#d9c27a'), smooth(1.18, 1.3, y) * 0.5)
     e.lerp(COL.dark, smooth(0.0, -0.8, n[0]) * 0.35 * smooth(1.1, 1.0, y))
     out.lerp(e, em)

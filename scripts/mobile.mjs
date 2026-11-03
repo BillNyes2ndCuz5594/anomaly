@@ -242,11 +242,6 @@ async function runDevice(dev, base) {
       report.shots.push(file)
       console.log(`${tag} ${name}: ${r.problems.length} problems, ${r.metrics.ctrls} controls, canvas ${JSON.stringify(r.metrics.canv)}${r.metrics.stageInside !== null ? ` stage inside ${r.metrics.stageInside}` : ''}`)
     }
-    const fail = async (e) => {
-      problem(screen, `flow failed: ${e.message.slice(0, 200)}`)
-      await page.screenshot({ path: join(OUT, `${tag}-FAIL-${screen}.png`) }).catch(() => {})
-    }
-
     /** One tap on the 3D hologram itself, at the projected organ position published on the canvas (data-organs). */
     async function tapHologram(organ) {
       for (let attempt = 0; attempt < 6; attempt++) {
