@@ -205,8 +205,9 @@
 }
 
 .hub-screen .mastery-group > summary:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 2px;
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(62, 230, 255, 0.45);
 }
 
 .hub-screen .mastery-group > .mastery-list {
