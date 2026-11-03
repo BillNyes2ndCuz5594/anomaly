@@ -356,3 +356,17 @@
     transition: none !important;
   }
 }
+
+/* The bench card is much taller than the other labs' job cards. Pin the dock under the top bar so the card
+   never grows past the top of the screen (on a 390x844 phone it started 257 px above the viewport and slid
+   under the bottom sheet), and let the card scroll inside itself instead. */
+[data-testid='lab-d'] .dock {
+  top: calc(var(--bar-h) + 8px);
+  align-items: flex-end;
+}
+[data-testid='lab-d'] .dock .job-card {
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
