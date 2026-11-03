@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMotionMode } from './useMotionMode'
-import alertWebm from '../assets/video/residue-alert.webm?url'
-import alertMp4 from '../assets/video/residue-alert.mp4?url'
-import alertPoster from '../assets/video/residue-alert.webp?url'
-
-/** The clip and its poster, shared with the QA gallery. */
-export const ALERT_CLIP = { webm: alertWebm, mp4: alertMp4, poster: alertPoster }
+import { ALERT_CLIP } from './residueAlertState'
 
 /** Clip length in ms, used for the unmount safety timeout. */
 const CLIP_MS = 3040
@@ -52,11 +47,11 @@ export default function ResidueAlert({ forceMode }: { forceMode?: 'full' | 'fade
   }, [playing])
   return (
     <span className="residue-alert" data-testid="residue-alert" data-mode={mode} data-live={shown && playing ? 'yes' : 'no'} aria-hidden="true">
-      <img className="residue-poster" src={alertPoster} alt="" decoding="async" />
+      <img className="residue-poster" src={ALERT_CLIP.poster} alt="" decoding="async" />
       {playing ? (
         <video ref={ref} className="residue-video" muted playsInline preload="auto" tabIndex={-1} onEnded={() => setDone(true)}>
-          <source src={alertWebm} type="video/webm" />
-          <source src={alertMp4} type="video/mp4" />
+          <source src={ALERT_CLIP.webm} type="video/webm" />
+          <source src={ALERT_CLIP.mp4} type="video/mp4" />
         </video>
       ) : null}
     </span>

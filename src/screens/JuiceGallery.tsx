@@ -1,5 +1,5 @@
 import { CLIPS } from '../three/scenes/LoopSky'
-import { ALERT_CLIP } from '../ui/ResidueAlert'
+import { ALERT_CLIP } from '../ui/residueAlertState'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useMotionMode } from '../ui/useMotionMode'
 import stingWebm from '../assets/video/seal-sting.webm?url'
