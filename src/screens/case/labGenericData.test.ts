@@ -20,7 +20,7 @@ import {
   visibleTargets,
   type GenericLab,
   type LabState,
-} from './labGeneric'
+} from './labGenericData'
 
 const sortLab = fixture.case.lab as SortLab
 const matchLab = labsFixture.match as MatchLab

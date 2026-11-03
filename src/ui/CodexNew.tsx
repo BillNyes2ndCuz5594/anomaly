@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useGame } from '../state/store'
-import { diffNew, loadSeen, markAllSeen } from './codexNew'
+import { diffNew, loadSeen, markAllSeen } from './codexNewData'
 import './codexNew.css'
 
 const PANEL = '[data-testid="codex-panel"]'

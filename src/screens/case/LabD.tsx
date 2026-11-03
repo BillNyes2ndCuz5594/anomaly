@@ -3,7 +3,7 @@ import { playCue } from '../../audio/installGame'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import { SPECIMEN_POSTERS } from '../../three/models/heroSpecimens'
-import { initLab, isComplete, labCards, labReduce, type GenericLab, type LabState } from './labGeneric'
+import { initLab, isComplete, labCards, labReduce, type GenericLab, type LabState } from './labGenericData'
 import './labs-d.css'
 import {
   checkMineralIdentification,
@@ -20,7 +20,7 @@ import {
   type RockFeatureId,
   type RockId,
   type RockTypeId,
-} from './labD'
+} from './labDData'
 import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { useCaseDef } from './useCaseDef'

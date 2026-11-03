@@ -20,7 +20,7 @@ import {
   type GenericLab,
   type LabAction,
   type LabState,
-} from './labGeneric'
+} from './labGenericData'
 import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { useCaseDef } from './useCaseDef'
