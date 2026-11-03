@@ -140,7 +140,21 @@ function harness(patch?: { teacher?: boolean }) {
   return { env, ctxs, engine }
 }
 
-const ONE_SHOTS: OneShotId[] = ['hover', 'press', 'toggle', 'wrong', 'correct', 'scan', 'pickup', 'whoosh', 'solved']
+const ONE_SHOTS: OneShotId[] = [
+  'hover',
+  'press',
+  'toggle',
+  'wrong',
+  'correct',
+  'scan',
+  'pickup',
+  'whoosh',
+  'solved',
+  'streak',
+  'scratch',
+  'rockDrop',
+  'trickle',
+]
 
 describe('audio engine gates', () => {
   it('does not construct a context before the first gesture', () => {

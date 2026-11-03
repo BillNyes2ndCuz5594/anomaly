@@ -11,6 +11,7 @@ import ItemPlayer from './case/ItemPlayer'
 import LabA from './case/LabA'
 import LabB from './case/LabB'
 import LabC from './case/LabC'
+import LabD from './case/LabD'
 import LabGeneric from './case/LabGeneric'
 import Results from './case/Results'
 
@@ -83,6 +84,7 @@ function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
 }
 
 function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getState>['step']; kind: 'case' | 'cold' }) {
+  const caseId = useSession((s) => s.caseId)
   switch (step) {
     case 'briefing':
       return kind === 'cold' ? <Briefing kind="cold" /> : <Briefing />
@@ -93,7 +95,7 @@ function StepScreen({ step, kind }: { step: ReturnType<typeof useSession.getStat
     case 'lab-c':
       return <LabC />
     case 'lab':
-      return <LabGeneric />
+      return caseId === '02-2' ? <LabD /> : <LabGeneric />
     case 'items':
       return <ItemPlayer />
     case 'debrief':
