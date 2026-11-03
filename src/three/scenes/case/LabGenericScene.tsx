@@ -9,6 +9,7 @@ import type { Box } from '../../fit'
 import { tintedHolo } from '../../materials/tinted'
 import type { LoopClip } from '../LoopSky'
 import { FitRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
+import CaseHolo from './CaseHolo'
 import { LabBench, LabLamps } from './labStage'
 import { StagePedestal } from './stageSet'
 
@@ -272,6 +273,7 @@ export default function LabGenericScene() {
   const reduced = useReduced()
   const low = useTier() === 'low'
   const caseDef = useSession((s) => s.caseDef)
+  const card = useFx((s) => s.card)
   const lab = caseDef && caseDef.lab.kind !== 'vitals' ? (caseDef.lab as GenericLab) : null
   const ids = useMemo(() => (lab ? pedestalIds(lab) : []), [lab])
   const layout = useMemo(() => pedestalLayout(ids.length), [ids.length])
@@ -291,6 +293,9 @@ export default function LabGenericScene() {
         <LabBench kind="specimen" radius={DAIS} />
         <Pedestal radius={DAIS * 1.12} />
         <Slab reduced={reduced} />
+        {card === null && caseDef ? (
+          <CaseHolo caseId={((caseDef as { case?: { id: string } }).case?.id) ?? caseDef.id} reduced={calm} />
+        ) : null}
         {ids.map((id, i) => (
           <Bin key={id} id={id} pos={layout[i]} low={low} reduced={reduced} />
         ))}
