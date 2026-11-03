@@ -37,7 +37,21 @@ export function WeatheringErosion() {
   const cliff = 'M -800 60 L 150 60 L 166 88 L 158 118 L 180 148 L 192 174 L 1200 206 L 1200 900 L -800 900 Z'
   return (
     <>
-      <path d={cliff} fill="#6b5a4a" />
+      <clipPath id="sd-plate-we">
+        <rect x="0" y="0" width="400" height="220" rx="8" />
+      </clipPath>
+      <image
+        href={weatheringErosionPlate}
+        x="0"
+        y="0"
+        width="400"
+        height="220"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-we)"
+        aria-hidden="true"
+        opacity="0.4"
+      />
+      <path d={cliff} fill="#6b5a4a" fillOpacity="0.65" />
       <path d="M -800 60 L 150 60 L 166 88 L 158 118 L 180 148 L 192 174" fill="none" stroke={CY} strokeOpacity="0.5" strokeWidth="2" />
       <g stroke="#4d3f33" strokeWidth="2" opacity="0.8">
         <line x1="-40" y1="86" x2="160" y2="86" />
@@ -77,8 +91,22 @@ export function WeatheringErosion() {
 export function MineralStreak() {
   return (
     <>
+      <clipPath id="sd-plate-ms">
+        <rect x="0" y="0" width="400" height="220" rx="8" />
+      </clipPath>
+      <image
+        href={mineralStreakPlate}
+        x="0"
+        y="0"
+        width="400"
+        height="220"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-ms)"
+        aria-hidden="true"
+        opacity="0.4"
+      />
       <Ground y={180} fill="#3a2f2a" edge={AM} />
-      <path d="M 104 138 H 326 L 348 180 H 84 Z" fill="#e9eef4" stroke={STEEL} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M 104 138 H 326 L 348 180 H 84 Z" fill="#e9eef4" fillOpacity="0.75" stroke={STEEL} strokeWidth="2.5" strokeLinejoin="round" />
       <path d="M 132 162 Q 200 156 286 156" stroke={VERM} strokeWidth="11" strokeLinecap="round" fill="none" opacity="0.9" />
       <path d="M 280 128 L 300 112 L 330 118 L 344 140 L 334 162 L 304 168 L 284 152 Z" fill="#5f6672" stroke="#c9d6e3" strokeWidth="2" strokeLinejoin="round" />
       <path d="M 300 112 L 310 140 L 344 140 M 310 140 L 304 168 M 310 140 L 284 152" fill="none" stroke="#a9b6c4" strokeWidth="1.5" />
@@ -104,6 +132,20 @@ export function RockTypes() {
   const right = blob(325, 112, 60, 44, 12, 9, 0.16)
   return (
     <>
+      <clipPath id="sd-plate-rt">
+        <rect x="0" y="0" width="400" height="220" rx="8" />
+      </clipPath>
+      <image
+        href={rockTypesPlate}
+        x="0"
+        y="0"
+        width="400"
+        height="220"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-rt)"
+        aria-hidden="true"
+        opacity="0.4"
+      />
       <Ground y={166} fill="#3a2f2a" edge={AM} />
       {[75, 200, 325].map((x) => (
         <ellipse key={x} cx={x} cy="162" rx="58" ry="8" fill={INK} opacity="0.55" />
@@ -111,12 +153,12 @@ export function RockTypes() {
       {rockClip('sd-rk-l', left)}
       {rockClip('sd-rk-m', mid)}
       {rockClip('sd-rk-r', right)}
-      <g clipPath="url(#sd-rk-l)">
+      <g clipPath="url(#sd-rk-l)" opacity="0.75">
         {['#c9a46a', '#8f6a3e', '#e0c48a', '#a87a45', '#d6b47a', '#7d5a36', '#c9a46a'].map((c, i) => (
           <path key={i} d={`M 0 ${62 + i * 15} q 40 -5 80 0 t 80 0 V 230 H 0 Z`} fill={c} />
         ))}
       </g>
-      <g clipPath="url(#sd-rk-m)">
+      <g clipPath="url(#sd-rk-m)" opacity="0.75">
         <rect x="130" y="50" width="140" height="130" fill="#262a34" />
         <path d="M 160 80 Q 190 66 226 76 Q 200 82 170 96 Z" fill="#ffffff" opacity="0.28" />
         {[
@@ -135,7 +177,7 @@ export function RockTypes() {
           </g>
         ))}
       </g>
-      <g clipPath="url(#sd-rk-r)">
+      <g clipPath="url(#sd-rk-r)" opacity="0.75">
         <rect x="255" y="50" width="140" height="130" fill="#7c7f8a" />
         {['#e3dcd8', '#4f5260', PURPLE, '#e3dcd8', '#4f5260', '#b9a3b0', '#e3dcd8'].map((c, i) => (
           <path key={i} d={`M 255 ${66 + i * 13} q 22 -26 44 0 t 44 0 t 44 0`} fill="none" stroke={c} strokeWidth="7" />
@@ -157,6 +199,55 @@ export function FloridaResources() {
   return (
     <>
       <Florida />
+      {/* resource plate framed insets: spring next to well, quarry next to quarry, solar next to solar */}
+      <clipPath id="sd-plate-spring">
+        <rect x="320" y="26" width="48" height="48" rx="6" />
+      </clipPath>
+      <rect x="320" y="26" width="48" height="48" rx="6" fill="#0b2a4a" />
+      <image
+        href={resourceSpringPlate}
+        x="320"
+        y="26"
+        width="48"
+        height="48"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-spring)"
+        aria-hidden="true"
+      />
+      <rect x="320" y="26" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+
+      <clipPath id="sd-plate-quarry">
+        <rect x="320" y="86" width="48" height="48" rx="6" />
+      </clipPath>
+      <rect x="320" y="86" width="48" height="48" rx="6" fill="#0b2a4a" />
+      <image
+        href={resourceQuarryPlate}
+        x="320"
+        y="86"
+        width="48"
+        height="48"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-quarry)"
+        aria-hidden="true"
+      />
+      <rect x="320" y="86" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+
+      <clipPath id="sd-plate-solar">
+        <rect x="320" y="146" width="48" height="48" rx="6" />
+      </clipPath>
+      <rect x="320" y="146" width="48" height="48" rx="6" fill="#0b2a4a" />
+      <image
+        href={resourceSolarPlate}
+        x="320"
+        y="146"
+        width="48"
+        height="48"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#sd-plate-solar)"
+        aria-hidden="true"
+      />
+      <rect x="320" y="146" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+
       {/* well */}
       <g transform={`translate(${well.x} ${well.y})`}>
         <path d="M -16 -8 L 0 -22 L 16 -8 Z" fill="#8a5a3a" stroke={INK} strokeWidth="1.5" />

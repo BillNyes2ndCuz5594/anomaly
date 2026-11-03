@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { TEXT_SCALE } from '../../state/settings'
 import { S7_SLOTS, sceneLabelSpecs } from './diagramLabels'
 import { baseScale, intersects, labelSize, layoutLabels, viewBoxFor } from './diagramText'
-import { EARTH_DIAGRAMS } from './diagrams/earth'
+import { BEDROCK_PLATES, EARTH_DIAGRAMS, FloridaResources, MineralStreak, RockTypes, WeatheringErosion } from './diagrams/earth'
 import { LIFE_DIAGRAMS } from './diagrams/life'
 import { NATURE_DIAGRAMS } from './diagrams/nature'
 import { PHYSICAL_DIAGRAMS } from './diagrams/physical'
@@ -43,6 +43,73 @@ describe('scene ids', () => {
     const ids = [...block![1].matchAll(/'([^']+)'/g)].map((m) => m[1])
     expect([...ids].sort()).toEqual([...SCENE_IDS].sort())
     expect(ids.length).toBe(new Set(ids).size)
+  })
+})
+
+describe('BEDROCK plates in Unit 4 earth diagrams', () => {
+  function findImages(tree: unknown): Array<{ props: Record<string, unknown> }> {
+    const list: Array<{ props: Record<string, unknown> }> = []
+    function walk(node: unknown) {
+      if (!node || typeof node !== 'object') return
+      const el = node as { type?: unknown; props?: Record<string, unknown> }
+      if (el.type === 'image' && el.props) list.push(el as { props: Record<string, unknown> })
+      if (el.props?.children) {
+        const ch = Array.isArray(el.props.children) ? el.props.children : [el.props.children]
+        for (const c of ch) walk(c)
+      }
+    }
+    walk(tree)
+    return list
+  }
+
+  it('exports the map of all six bedrock diagram plate assets', () => {
+    expect(Object.keys(BEDROCK_PLATES).sort()).toEqual([
+      'mineral-streak',
+      'resource-quarry',
+      'resource-solar',
+      'resource-spring',
+      'rock-types',
+      'weathering-erosion',
+    ])
+    for (const [id, url] of Object.entries(BEDROCK_PLATES)) {
+      expect(typeof url, id).toBe('string')
+      expect(url.length, id).toBeGreaterThan(0)
+    }
+  })
+
+  it('renders each plate inside its diagram with preserveAspectRatio and aria-hidden', () => {
+    const weImgs = findImages(WeatheringErosion())
+    expect(weImgs.length).toBe(1)
+    expect(weImgs[0].props.href).toBe(BEDROCK_PLATES['weathering-erosion'])
+    expect(weImgs[0].props.preserveAspectRatio).toBe('xMidYMid slice')
+    expect(weImgs[0].props['aria-hidden']).toBe('true')
+    expect(weImgs[0].props.clipPath).toBe('url(#sd-plate-we)')
+
+    const msImgs = findImages(MineralStreak())
+    expect(msImgs.length).toBe(1)
+    expect(msImgs[0].props.href).toBe(BEDROCK_PLATES['mineral-streak'])
+    expect(msImgs[0].props.preserveAspectRatio).toBe('xMidYMid slice')
+    expect(msImgs[0].props['aria-hidden']).toBe('true')
+    expect(msImgs[0].props.clipPath).toBe('url(#sd-plate-ms)')
+
+    const rtImgs = findImages(RockTypes())
+    expect(rtImgs.length).toBe(1)
+    expect(rtImgs[0].props.href).toBe(BEDROCK_PLATES['rock-types'])
+    expect(rtImgs[0].props.preserveAspectRatio).toBe('xMidYMid slice')
+    expect(rtImgs[0].props['aria-hidden']).toBe('true')
+    expect(rtImgs[0].props.clipPath).toBe('url(#sd-plate-rt)')
+
+    const flImgs = findImages(FloridaResources())
+    expect(flImgs.length).toBe(3)
+    const flHrefs = flImgs.map((img) => img.props.href)
+    expect(flHrefs).toContain(BEDROCK_PLATES['resource-spring'])
+    expect(flHrefs).toContain(BEDROCK_PLATES['resource-quarry'])
+    expect(flHrefs).toContain(BEDROCK_PLATES['resource-solar'])
+    for (const img of flImgs) {
+      expect(img.props.preserveAspectRatio).toBe('xMidYMid slice')
+      expect(img.props['aria-hidden']).toBe('true')
+      expect(String(img.props.clipPath)).toMatch(/^url\(#sd-plate-/)
+    }
   })
 })
 
