@@ -1218,7 +1218,8 @@ try {
     const page = await profilePage(browser, BASE, '?tier=high&qaitems=L14-01,L315-03', VIEWPORTS.find((v) => v.width === 1920), errors)
     await toCaseStep(page, 'items')
     await page.waitForSelector('.visual-3d canvas')
-    await sleep(2200)
+    await page.waitForFunction(() => document.documentElement.dataset.canvasReady === '1', { timeout: 15000 })
+    await sleep(300)
     const organ = CONTENT.items.find((x) => x.id === 'L14-01')
     await page.click(`[data-testid="option-${organ.key}"]`)
     await page.click('[data-testid="lock-in"]')
@@ -1551,6 +1552,7 @@ try {
       } catch {}
       localStorage.setItem('anomaly.v1', out)
     }, store)
+    await p1.reload({ waitUntil: 'load' })
     await goHub(p1, '?tier=low')
     const lowFade = await p1.waitForFunction(() => document.documentElement.dataset.motion === 'fade', { timeout: 20000, polling: 250 }).then(() => true, () => false)
     check('Low tier uses data-motion fade', lowFade, await p1.evaluate(() => `motion=${document.documentElement.dataset.motion} tier=${document.documentElement.dataset.tier}`))
