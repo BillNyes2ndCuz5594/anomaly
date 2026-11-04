@@ -402,7 +402,8 @@ export default function ItemPlayer() {
   const items = useSession((s) => s.items)
   const go = useSession((s) => s.go)
   const addAnswer = useSession((s) => s.addAnswer)
-  const [idx, setIdx] = useState(0)
+  const idx = useSession((s) => s.itemIndex)
+  const setIdx = useSession((s) => s.setItemIndex)
   const [seen, setSeen] = useState(0)
   const [dir, setDir] = useState<'forward' | 'back'>('forward')
   if (idx !== seen) {
@@ -424,7 +425,7 @@ export default function ItemPlayer() {
   const onNext = useCallback(() => {
     if (idx + 1 >= items.length) go('debrief')
     else setIdx(idx + 1)
-  }, [idx, items.length, go])
+  }, [idx, items.length, go, setIdx])
 
   const cold = useSession((s) => s.kind === 'cold')
   const [sideEl, setSideEl] = useState<HTMLElement | null>(null)

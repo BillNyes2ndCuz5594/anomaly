@@ -5,6 +5,7 @@ import { caseById, content, packLoaded, PACK_ORDER, vitalsCase } from '../conten
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
+import { clearCaseResume as clearStorageResume, loadCaseResume, saveCaseResume } from './caseResume'
 import { toISODate } from './mastery'
 import { useGame } from './store'
 
@@ -77,9 +78,11 @@ interface SessionState {
   stagesBefore: Record<string, string>
   stageUps: number
   paint: string | null
+  itemIndex: number
   start: (caseId: string, kind?: CaseKind) => void
   go: (step: CaseStep) => void
   next: () => void
+  setItemIndex: (i: number) => void
   addAnswer: (a: AnswerRecord, stageUp: boolean, paint: string | null) => void
 }
 
@@ -88,12 +91,44 @@ export function newSeed(): string {
   return `${p?.classCode ?? ''}${p?.agentNumber ?? 0}|${new Date().toDateString()}`
 }
 
+export function clearCaseResume(
+  kind: CaseKind,
+  caseId: string,
+  storage: { removeItem(k: string): void } | null = typeof sessionStorage !== 'undefined' ? sessionStorage : null,
+): void {
+  if (storage) clearStorageResume(storage, kind, caseId)
+}
+
+function persist(s: SessionState) {
+  if (typeof sessionStorage === 'undefined' || !s.caseId) return
+  if (s.step === 'results') {
+    clearStorageResume(sessionStorage, s.kind, s.caseId)
+    return
+  }
+  if (s.step === 'briefing' && s.answers.length === 0) return
+  saveCaseResume(sessionStorage, {
+    v: 1,
+    day: new Date().toDateString(),
+    kind: s.kind,
+    caseId: s.caseId,
+    step: s.step,
+    itemIds: s.items.map((i) => i.id),
+    itemIndex: s.itemIndex,
+    answers: s.answers,
+    benchmarks: s.benchmarks,
+    stagesBefore: s.stagesBefore,
+    stageUps: s.stageUps,
+    paint: s.paint,
+  })
+}
+
 export const useSession = create<SessionState>((set, get) => ({
   caseId: null,
   caseDef: null,
   kind: 'case',
   step: 'briefing',
   items: [],
+  itemIndex: 0,
   benchmarks: [],
   answers: [],
   stagesBefore: {},
@@ -105,6 +140,25 @@ export const useSession = create<SessionState>((set, get) => ({
     // CaseFlow waits for these packs. Reject other callers before reading a partial item pool.
     const required = kind === 'cold' || QA_ITEMS.length ? PACK_ORDER : [caseDef?.id ?? vitalsCase.id]
     if (!required.every(packLoaded)) throw new Error('Session content is not loaded')
+    if (typeof sessionStorage !== 'undefined') {
+      const saved = loadCaseResume(sessionStorage, kind, caseId)
+      if (saved && saved.itemIds.length > 0) {
+        const itemMap = new Map(content.items.map((it) => [it.id, it]))
+        const items = saved.itemIds.map((id) => itemMap.get(id))
+        const known = stepsFor(kind, caseDef).some((st) => st.id === saved.step)
+        if (known && items.every((it): it is Item => it != null)) {
+          const itemIndex = Math.max(saved.itemIndex, saved.answers.length)
+          const step = saved.step === 'items' && itemIndex >= items.length ? 'debrief' : saved.step
+          set({
+            caseId, caseDef, kind, step, items, itemIndex,
+            benchmarks: saved.benchmarks, answers: saved.answers,
+            stagesBefore: saved.stagesBefore, stageUps: saved.stageUps, paint: saved.paint,
+          })
+          persist(get())
+          return
+        }
+      }
+    }
     const qa = kind === 'case' ? QA_ITEMS.map((id) => content.items.find((it) => it.id === id)) : []
     const items =
       qa.length > 0 && qa.every(Boolean)
@@ -115,21 +169,24 @@ export const useSession = create<SessionState>((set, get) => ({
     const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : (caseDef ?? vitalsCase).benchmarks
     const before: Record<string, string> = {}
     for (const b of benchmarks) before[b] = st.progress[b]?.stage ?? 'unseen'
-    set({ caseId, caseDef, kind, step: 'briefing', items, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
+    set({ caseId, caseDef, kind, step: 'briefing', items, itemIndex: 0, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
   },
-  go: (step) => set({ step }),
+  go: (step) => { set({ step }); persist(get()) },
   next: () => {
     const steps = stepsFor(get().kind, get().caseDef)
     const i = steps.findIndex((s) => s.id === get().step)
-    const n = steps[Math.min(i + 1, steps.length - 1)]
-    set({ step: n.id })
+    set({ step: steps[Math.min(i + 1, steps.length - 1)].id })
+    persist(get())
   },
-  addAnswer: (a, stageUp, paint) =>
+  setItemIndex: (itemIndex) => { set({ itemIndex }); persist(get()) },
+  addAnswer: (a, stageUp, paint) => {
     set((s) => ({
       answers: [...s.answers, a],
       stageUps: s.stageUps + (stageUp ? 1 : 0),
       paint: paint ?? s.paint,
-    })),
+    }))
+    persist(get())
+  },
 }))
 
 /** Transient 3D and HUD coupling for the labs. Not persisted. */

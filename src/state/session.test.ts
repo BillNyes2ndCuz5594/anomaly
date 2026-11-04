@@ -16,6 +16,7 @@ const fixtureCase = fixture.case as unknown as CaseDef
 describe('case steps', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', fakeStorage())
+    vi.stubGlobal('sessionStorage', fakeStorage())
   })
 
   it('keeps the seven VITALS steps', async () => {
@@ -65,5 +66,43 @@ describe('case steps', () => {
     useSession.getState().start('cold-1', 'cold')
     expect(useSession.getState().caseDef).toBeNull()
     expect(useSession.getState().items.every((i) => i.pool === 'cold')).toBe(true)
+  })
+
+  it('resumes case progress on reload and clears when reaching results', async () => {
+    const { useSession } = await import('./session')
+    useSession.getState().start('03-1', 'case')
+    const originalIds = useSession.getState().items.map((i) => i.id)
+
+    useSession.getState().go('items')
+    const answer = { itemId: originalIds[0], picked: 0, correct: true, keyTagged: 0, eliminated: 0, hintsUsed: 0, intel: 10 }
+    useSession.getState().addAnswer(answer, false, null)
+    useSession.getState().setItemIndex(1)
+
+    useSession.setState({ caseId: null, caseDef: null, step: 'briefing', items: [], itemIndex: 0, answers: [] })
+    useSession.getState().start('03-1', 'case')
+    const resumed = useSession.getState()
+    expect(resumed.step).toBe('items')
+    expect(resumed.itemIndex).toBe(1)
+    expect(resumed.items.map((i) => i.id)).toEqual(originalIds)
+    expect(resumed.answers.length).toBe(1)
+
+    resumed.go('results')
+    expect(sessionStorage.getItem('anomaly.case.case.03-1')).toBeNull()
+  })
+
+  it('clamps itemIndex to answers length and advances to debrief if items completed', async () => {
+    const { useSession } = await import('./session')
+    useSession.getState().start('03-1', 'case')
+    const items = useSession.getState().items
+    useSession.getState().go('items')
+    for (const item of items) {
+      useSession.getState().addAnswer({ itemId: item.id, picked: 0, correct: true, keyTagged: 0, eliminated: 0, hintsUsed: 0, intel: 10 }, false, null)
+    }
+    useSession.getState().setItemIndex(0)
+    useSession.setState({ caseId: null, items: [], answers: [], itemIndex: 0 })
+
+    useSession.getState().start('03-1', 'case')
+    expect(useSession.getState().step).toBe('debrief')
+    expect(useSession.getState().itemIndex).toBe(items.length)
   })
 })
