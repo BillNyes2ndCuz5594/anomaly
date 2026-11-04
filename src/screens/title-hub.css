@@ -79,10 +79,64 @@
   position: relative;
   min-height: 44px;
   padding-right: 40px;
+  overflow: hidden;
+  isolation: isolate;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--c) 16%, transparent), transparent 48%),
     linear-gradient(90deg, color-mix(in srgb, var(--c) 12%, rgba(4, 10, 20, 0.84)), rgba(4, 10, 20, 0.68));
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--c) 42%, transparent);
+}
+
+/* Keep the light below the labels and above the button background. */
+.hub-screen .case-btn::before {
+  display: none;
+  content: '';
+  position: absolute;
+  inset: -40% 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 25%, #fff 50%, transparent 75%);
+  opacity: 0;
+  transform: translateX(-120%) skewX(-20deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion='full'] .hub-screen .case-btn[data-status='New' i]::before {
+    display: block;
+    will-change: transform, opacity;
+    /* Ten dispatch rows need 9s to keep their 0.9s slots separate. */
+    animation: dispatch-glint 9s linear infinite;
+  }
+
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(2)::before { animation-delay: 0.9s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(3)::before { animation-delay: 1.8s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(4)::before { animation-delay: 2.7s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(5)::before { animation-delay: 3.6s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(6)::before { animation-delay: 4.5s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(7)::before { animation-delay: 5.4s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(8)::before { animation-delay: 6.3s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(9)::before { animation-delay: 7.2s; }
+  html[data-motion='full'] .hub-screen .case-btn:nth-child(10)::before { animation-delay: 8.1s; }
+
+  html[data-motion='full'] .hub-screen .case-btn::after {
+    transition: transform 160ms ease;
+  }
+
+  html[data-motion='full'] .hub-screen .case-btn:focus-visible::after {
+    transform: translateX(3px) rotate(45deg);
+  }
+
+  @media (hover: hover) {
+    html[data-motion='full'] .hub-screen .case-btn:hover::after {
+      transform: translateX(3px) rotate(45deg);
+    }
+  }
+}
+
+@keyframes dispatch-glint {
+  0% { transform: translateX(-120%) skewX(-20deg); opacity: 0; }
+  4% { opacity: 0.18; }
+  8%, 100% { transform: translateX(120%) skewX(-20deg); opacity: 0; }
 }
 
 /* Always-on cue. A hover glow is extra, not the only sign that the row opens. */
