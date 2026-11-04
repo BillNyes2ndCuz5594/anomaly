@@ -1,3 +1,4 @@
+import { useTapGuard } from '../../ui/useTapGuard'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
@@ -16,6 +17,8 @@ interface Feedback {
 }
 
 export default function LabA() {
+  const admit = useTapGuard()
+  const completed = useRef(new Set<string>())
   const lab = VITALS_LABS.organOps
   const next = useSession((s) => s.next)
   const unlock = useGame((s) => s.unlockCodex)
@@ -32,7 +35,8 @@ export default function LabA() {
 
   const pick = useCallback(
     (id: string) => {
-      if (done) return
+      if (done || completed.current.has(String(i)) || !admit(`pick:${i}:${id}`, id === task.organ ? Infinity : 450)) return
+      if (id === task.organ) completed.current.add(String(i))
       const fx = useFx.getState()
       fx.flashPart(id, id === task.organ)
       fireReact(`${id === task.organ ? 'ok' : 'bad'}:${id}`)
@@ -44,7 +48,7 @@ export default function LabA() {
         setFb({ ok: false, word: 'Not that one.', text: task.hint })
       }
     },
-    [done, task, unlock, fireReact],
+    [done, task, unlock, fireReact, admit, i],
   )
 
   // The 3D layer calls the registered handler on a click. Keep it pointed at the latest closure.

@@ -30,9 +30,11 @@ export default function SealSting({ open }: { open: boolean }) {
     const shown = () => {
       if (!dead) setLive(true)
     }
+    let frame: number | undefined
     const onPlaying = () => {
       const rvfc = (v as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number }).requestVideoFrameCallback
-      if (rvfc) rvfc.call(v, shown)
+      if (frame !== undefined) v.cancelVideoFrameCallback?.(frame)
+      if (rvfc) frame = rvfc.call(v, shown)
       else shown()
     }
     v.addEventListener('playing', onPlaying)
@@ -42,9 +44,10 @@ export default function SealSting({ open }: { open: boolean }) {
     return () => {
       dead = true
       v.removeEventListener('playing', onPlaying)
+      if (frame !== undefined) v.cancelVideoFrameCallback?.(frame)
       v.pause()
     }
-  }, [playing])
+  }, [playing, done])
   return (
     <div className="seal-sting" data-mode={mode} data-open={open ? 'yes' : 'no'} aria-hidden="true">
       <img className="seal-poster" src={stingPoster} alt="" decoding="async" />

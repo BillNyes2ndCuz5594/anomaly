@@ -1,0 +1,434 @@
+[
+  {
+    "name": "Lab A wrong",
+    "inputMs": 895,
+    "maxLongTask": 81,
+    "longTasks": 3,
+    "rafGap": 100,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 7,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 6
+    }
+  },
+  {
+    "name": "Lab A correct",
+    "inputMs": 714,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 133,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 6,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 6
+    }
+  },
+  {
+    "name": "Lab B unarmed",
+    "inputMs": 480,
+    "maxLongTask": 75,
+    "longTasks": 1,
+    "rafGap": 133,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 6,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab B animal",
+    "inputMs": 638,
+    "maxLongTask": 149,
+    "longTasks": 2,
+    "rafGap": 233,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 6,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab B match",
+    "inputMs": 728,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 100,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 13,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 5
+    }
+  },
+  {
+    "name": "Lab B contrast wrong",
+    "inputMs": 627,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 100,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 3,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab B contrast correct",
+    "inputMs": 672,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 134,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 2,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab C wrong",
+    "inputMs": 469,
+    "maxLongTask": 164,
+    "longTasks": 1,
+    "rafGap": 183,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 7,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 6
+    }
+  },
+  {
+    "name": "Lab C backbone",
+    "inputMs": 383,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 83,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 43,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 6
+    }
+  },
+  {
+    "name": "Lab C group",
+    "inputMs": 446,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 100,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 8,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 3
+    }
+  },
+  {
+    "name": "RKEA keyword",
+    "inputMs": 871,
+    "maxLongTask": 182,
+    "longTasks": 3,
+    "rafGap": 300,
+    "chips": 30,
+    "chipsPerTarget": 30,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 34,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 7
+    }
+  },
+  {
+    "name": "RKEA eliminate",
+    "inputMs": 835,
+    "maxLongTask": 88,
+    "longTasks": 3,
+    "rafGap": 133,
+    "chips": 30,
+    "chipsPerTarget": 30,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 36,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 4
+    }
+  },
+  {
+    "name": "RKEA click lock",
+    "inputMs": 638,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 133,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 18,
+    "recordings": 60,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "RKEA touch lock",
+    "inputMs": 740,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 150,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 22,
+    "recordings": 1,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 6
+    }
+  },
+  {
+    "name": "RKEA keyboard lock",
+    "inputMs": 1002,
+    "maxLongTask": 0,
+    "longTasks": 0,
+    "rafGap": 200,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 24,
+    "recordings": 30,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Generic sort wrong",
+    "inputMs": 540,
+    "maxLongTask": 78,
+    "longTasks": 2,
+    "rafGap": 167,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 2,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 16
+    }
+  },
+  {
+    "name": "Generic sort correct",
+    "inputMs": 980,
+    "maxLongTask": 242,
+    "longTasks": 4,
+    "rafGap": 267,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 14,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 20
+    }
+  },
+  {
+    "name": "Generic order wrong",
+    "inputMs": 869,
+    "maxLongTask": 138,
+    "longTasks": 2,
+    "rafGap": 217,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 2,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 20
+    }
+  },
+  {
+    "name": "Generic order correct",
+    "inputMs": 717,
+    "maxLongTask": 131,
+    "longTasks": 1,
+    "rafGap": 167,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 31,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab D identify",
+    "inputMs": 397,
+    "maxLongTask": 69,
+    "longTasks": 2,
+    "rafGap": 117,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 1,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab D classify",
+    "inputMs": 472,
+    "maxLongTask": 80,
+    "longTasks": 2,
+    "rafGap": 150,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 1,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  },
+  {
+    "name": "Lab D sort",
+    "inputMs": 400,
+    "maxLongTask": 53,
+    "longTasks": 1,
+    "rafGap": 50,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 1,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 21
+    }
+  },
+  {
+    "name": "Generic match wrong",
+    "inputMs": 552,
+    "maxLongTask": 132,
+    "longTasks": 2,
+    "rafGap": 167,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 14,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 20
+    }
+  },
+  {
+    "name": "Generic match correct",
+    "inputMs": 573,
+    "maxLongTask": 113,
+    "longTasks": 1,
+    "rafGap": 217,
+    "chips": 0,
+    "chipsPerTarget": 0,
+    "bursts": 0,
+    "confetti": 0,
+    "animations": 8,
+    "recordings": 0,
+    "audio": {
+      "contexts": 1,
+      "sources": 3,
+      "peakSources": 8
+    }
+  }
+]

@@ -12,7 +12,8 @@
     "proof": "node scripts/proof.mjs",
     "proof:extra": "node scripts/proof-extra.mjs",
     "mobile": "node scripts/mobile.mjs",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "taps": "node scripts/rapid-taps.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

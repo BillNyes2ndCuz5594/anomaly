@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useTapGuard } from '../../ui/useTapGuard'
+import { useRef, useState } from 'react'
 import { playCue } from '../../audio/installGame'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
@@ -26,6 +27,8 @@ import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { useCaseDef } from './useCaseDef'
 
 export default function LabD() {
+  const admit = useTapGuard()
+  const completed = useRef(new Set<string>())
   const def = useCaseDef()
   const next = useSession((s) => s.next)
   const unlockCodex = useGame((s) => s.unlockCodex)
@@ -68,6 +71,7 @@ export default function LabD() {
   const sortComplete = isComplete(sortLab, sortState)
 
   function runMineralTest(testId: MineralTestId, cue: 'streak' | 'scratch' | 'press') {
+    if (!admit(`test:${activeMineral}:${testId}`, 450)) return
     playCue(cue)
     setRevealedTests((prev) => ({
       ...prev,
@@ -79,15 +83,18 @@ export default function LabD() {
   }
 
   function identifyMineral(chosen: MineralId) {
+    if (identifiedMinerals.has(activeMineral) || completed.current.has(`mineral:${activeMineral}`) || !admit(`mineral:${activeMineral}:${chosen}`, 450)) return
     const res = checkMineralIdentification(activeMineral, chosen)
     setMineralVerdict(res)
     if (res.ok) {
+      completed.current.add(`mineral:${activeMineral}`)
       setIdentifiedMinerals((prev) => new Set([...prev, activeMineral]))
       unlockCodex([`mineral:${activeMineral}`])
     }
   }
 
   function runRockFeature(featureId: RockFeatureId) {
+    if (!admit(`feature:${activeRock}:${featureId}`, 450)) return
     playCue('press')
     setRevealedFeatures((prev) => ({
       ...prev,
@@ -99,15 +106,18 @@ export default function LabD() {
   }
 
   function classifyRock(chosen: RockTypeId) {
+    if (classifiedRocks.has(activeRock) || completed.current.has(`rock:${activeRock}`) || !admit(`rock:${activeRock}:${chosen}`, 450)) return
     const res = checkRockClassification(activeRock, chosen)
     setRockVerdict(res)
     if (res.ok) {
+      completed.current.add(`rock:${activeRock}`)
       setClassifiedRocks((prev) => new Set([...prev, activeRock]))
       unlockCodex([`rock:${activeRock}`])
     }
   }
 
   function handleSortPlacement(binId: string) {
+    if (!admit('feedback', 0) || !admit(`sort:${sortState.current}:${binId}`, 450)) return
     if (binId === 'weathering') {
       playCue('rockDrop')
     } else if (binId === 'erosion') {
@@ -116,6 +126,7 @@ export default function LabD() {
     const after = labReduce(sortLab, sortState, { type: 'place', target: binId })
     setSortState(after)
     if (after.feedback?.ok) {
+      admit('feedback', 400)
       unlockCodex([`lab:${def.id}:${after.feedback.card}`])
     }
   }
@@ -464,6 +475,7 @@ export default function LabD() {
                       type="button"
                       className={`choice-btn${identifiedMinerals.has(id) && activeMineral === id ? ' is-correct' : ''}`}
                       data-testid={`identify-${id}`}
+                      disabled={identifiedMinerals.has(activeMineral)}
                       onClick={() => identifyMineral(id)}
                       {...press(`id-${id}`)}
                     >
@@ -560,6 +572,7 @@ export default function LabD() {
                       type="button"
                       className={`choice-btn${classifiedRocks.has(activeRock) && currentRockDef.rockType === rt.id ? ' is-correct' : ''}`}
                       data-testid={`classify-${rt.id}`}
+                      disabled={classifiedRocks.has(activeRock)}
                       onClick={() => classifyRock(rt.id)}
                       {...press(`classify-${rt.id}`)}
                     >

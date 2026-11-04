@@ -1,3 +1,4 @@
+import { useTapGuard } from '../../ui/useTapGuard'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
@@ -18,6 +19,8 @@ interface Say {
 }
 
 export default function LabB() {
+  const admit = useTapGuard()
+  const completed = useRef(new Set<string>())
   const lab = VITALS_LABS.structureMatch
   const next = useSession((s) => s.next)
   const [armed, setArmed] = useState<string | null>(null)
@@ -50,17 +53,20 @@ export default function LabB() {
 
   const pickAnimal = useCallback(
     (pairId: string) => {
-      if (matched.includes(pairId) || phase !== 'match') return
+      if (matched.includes(pairId) || completed.current.has(pairId) || phase !== 'match') return
+      if (armed === pairId || !admit(`animal:${pairId}`, 100)) return
       setArmed(pairId)
       syncFx(pairId, matched)
       setSay({ ok: true, word: 'Selected', text: 'Now pick the plant part that does the same job.' })
     },
-    [matched, phase, syncFx],
+    [matched, phase, syncFx, armed, admit],
   )
 
   const pickPlant = useCallback(
     (pairId: string) => {
-      if (matched.includes(pairId) || phase !== 'match') return
+      if (matched.includes(pairId) || completed.current.has(pairId) || phase !== 'match') return
+      if (armed && completed.current.has(armed)) return
+      if (!admit(`plant:${armed}:${pairId}`, armed === pairId ? Infinity : 450)) return
       const plantId = `p:${partKey(pairs.find((p) => p.id === pairId)!.plant)}`
       if (!armed) {
         fireReact(`bad:p-${pairId}`)
@@ -69,6 +75,7 @@ export default function LabB() {
         return
       }
       if (armed === pairId) {
+        completed.current.add(pairId)
         const list = [...matched, pairId]
         setMatched(list)
         setArmed(null)
@@ -83,7 +90,7 @@ export default function LabB() {
         setSay({ ok: false, word: 'Not a match.', text: 'Think about the job each part does, then try another plant part.' })
       }
     },
-    [armed, matched, pairs, phase, syncFx, fireReact],
+    [armed, matched, pairs, phase, syncFx, fireReact, admit],
   )
 
   const handle3D = useCallback(
@@ -124,12 +131,13 @@ export default function LabB() {
   }, [phase, card])
 
   function answer(idx: number) {
-    if (cDone) return
+    if (cDone || completed.current.has(`contrast:${ci}`) || !admit(`contrast:${ci}:${idx}`, card.choices[idx] === card.job ? Infinity : 450)) return
     if (card.choices[idx] === card.job) {
+      completed.current.add(`contrast:${ci}`)
       setCDone(true)
       setSay({ ok: true, word: 'Correct', text: card.why })
     } else {
-      setTried((t) => [...t, idx])
+      setTried((t) => t.includes(idx) ? t : [...t, idx])
       setSay({ ok: false, word: 'Not quite.', text: 'Try another choice.' })
     }
   }

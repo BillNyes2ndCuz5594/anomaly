@@ -1,5 +1,5 @@
 import { audioBlock, type AudioBlock, type CueId, type OneShotId } from './policy'
-import { AMBIENT_BUS_GAIN, scheduleCue } from './sfx'
+import { AMBIENT_BUS_GAIN, scheduleCue, stopCue } from './sfx'
 import { clampSoundVolume, DEFAULT_SOUND_VOLUME } from '../state/settings'
 
 /** Full volume on a full-scale bus. 10^(-12/20). The compressor sits after this. */
@@ -237,6 +237,7 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
   }
 
   function haltNow(): void {
+    if (cueBus) stopCue(cueBus)
     clearMuteTimer()
     clearHideTimer()
     stopAmbient(true)
@@ -311,6 +312,7 @@ export function createEngine(opts: EngineOptions = {}): AudioEngine {
       else ensureAmbient()
     },
     onVisibility() {
+      if (hidden() && cueBus) stopCue(cueBus)
       if (hidden()) {
         // Let the hum fall away, then suspend. A hard suspend clicks the bed off.
         if (ambient && ctx && ctx.state === 'running') {

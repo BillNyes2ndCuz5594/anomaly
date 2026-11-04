@@ -1,8 +1,9 @@
+import { useTapGuard } from '../../ui/useTapGuard'
 import { useEffect, useRef, useState } from 'react'
 import { codexById } from '../../content'
 import { newSeed, useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
-import { flyChip } from '../../ui/flyChip'
+import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import './lab-generic.css'
 import {
@@ -45,6 +46,8 @@ function cardTestId(kind: GenericLab['kind'], id: string): string {
 
 /** One Field Lab for every case except VITALS: sort cards into bins, match pairs, or put steps in order. */
 export default function LabGeneric() {
+  useEffect(() => clearFlyChips, [])
+  const admit = useTapGuard()
   const def = useCaseDef()
   const lab = def.lab as GenericLab
   const next = useSession((s) => s.next)
@@ -63,6 +66,7 @@ export default function LabGeneric() {
   const order = lab.kind === 'order'
 
   function act(action: LabAction) {
+    if (action.type === 'place' && (!admit('feedback', 0) || !admit(`place:${st.current}:${slot}:${action.target}`, 450))) return
     const after = labReduce(lab, st, action)
     if (after === st) return
     setSt(after)
@@ -72,6 +76,7 @@ export default function LabGeneric() {
     const pedestal = order ? `slot-${slot}` : fb.target
     fx.flashPart(pedestal, fb.ok)
     if (!fb.ok) return
+    admit('feedback', 400)
     fx.setLit(Object.keys(after.placed).map((c) => pedestalFor(lab, after, c) as string))
     const codex = codexFor(def.id, fb.card, codexById)
     if (codex.length) unlock(codex)
@@ -83,14 +88,14 @@ export default function LabGeneric() {
   }
 
   // The 3D pedestals call the registered handler on a click. Sort bins and match cards are pickable; order slots are not.
-  const actRef = useRef(act)
+  const actRef = useRef<typeof act | null>(null)
   useEffect(() => {
     actRef.current = act
   })
   useEffect(() => {
     const fx = useFx.getState()
     fx.setPick((id) => {
-      if (lab.kind !== 'order') actRef.current({ type: 'place', target: id })
+      if (lab.kind !== 'order') actRef.current?.({ type: 'place', target: id })
     })
     return () => {
       const f = useFx.getState()

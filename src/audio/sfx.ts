@@ -35,6 +35,32 @@ interface ToneOpts {
   type: OscillatorType
 }
 
+const voices = new WeakMap<AudioNode, Map<AudioScheduledSourceNode, () => void>>()
+
+/** One cue at a time on a bus, including scheduled notes that have not started yet. */
+export function stopCue(dest: AudioNode): void {
+  const active = voices.get(dest)
+  if (!active) return
+  for (const [source, cleanup] of active) {
+    source.onended = null
+    try { source.stop() } catch { /* already ended */ }
+    cleanup()
+  }
+  active.clear()
+}
+
+function track(dest: AudioNode, source: AudioScheduledSourceNode, nodes: AudioNode[]): void {
+  let active = voices.get(dest)
+  if (!active) { active = new Map(); voices.set(dest, active) }
+  const cleanup = () => {
+    active.delete(source)
+    source.disconnect()
+    nodes.forEach(node => node.disconnect())
+  }
+  active.set(source, cleanup)
+  source.onended = cleanup
+}
+
 function tone(ctx: AudioContext, dest: AudioNode, o: ToneOpts): void {
   const osc = ctx.createOscillator()
   const g = ctx.createGain()
@@ -48,6 +74,7 @@ function tone(ctx: AudioContext, dest: AudioNode, o: ToneOpts): void {
   g.gain.exponentialRampToValueAtTime(FLOOR, end)
   osc.connect(g)
   g.connect(dest)
+  track(dest, osc, [g])
   osc.start(o.t)
   osc.stop(end + 0.02)
 }
@@ -90,12 +117,14 @@ function noiseSweep(ctx: AudioContext, dest: AudioNode, t: number, dur: number, 
   src.connect(bp)
   bp.connect(g)
   g.connect(dest)
+  track(dest, src, [bp, g])
   src.start(t)
   src.stop(t + dur + 0.02)
 }
 
 /** Schedule one cue on `dest`. Nodes are one-shot. The noise buffer is reused. */
 export function scheduleCue(ctx: AudioContext, dest: AudioNode, cue: OneShotId, up = true): void {
+  stopCue(dest)
   const t = ctx.currentTime
   switch (cue) {
     case 'hover':
