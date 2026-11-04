@@ -29,7 +29,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest,json,glb,webp}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest,json,glb,webp,mp4,webm}'],
+        // Runs before Workbox registers its precache fetch listener.
+        importScripts: ['video-range.js'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/teacher\.html$/],
