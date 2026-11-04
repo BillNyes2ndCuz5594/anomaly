@@ -27,6 +27,12 @@ export function parseHash(hash: string): Route {
   return { name: 'title' }
 }
 
+/** True when the hash names a path the app does not know (it parses to the title as a fallback). */
+export function isUnknownHash(hash: string): boolean {
+  const path = hash.replace(/^#/, '').split('?')[0]
+  return path.split('/').filter(Boolean).length > 0 && parseHash(hash).name === 'title'
+}
+
 export function routeNeedsProfile(routeName: string, hasProfile: boolean): boolean {
   return (routeName === 'hub' || routeName === 'case' || routeName === 'cold' || routeName === 'gold') && !hasProfile
 }

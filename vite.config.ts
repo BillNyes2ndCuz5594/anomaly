@@ -34,7 +34,7 @@ export default defineConfig({
         importScripts: ['video-range.js'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/teacher\.html$/],
+        navigateFallbackDenylist: [/teacher\.html(?:[?#]|$)/],
         cleanupOutdatedCaches: true,
       },
     }),

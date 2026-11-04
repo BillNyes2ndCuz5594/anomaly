@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseHash } from './router'
+import { parseHash, isUnknownHash } from './router'
 
 describe('parseHash', () => {
   it('parses the spec routes', () => {
@@ -13,5 +13,15 @@ describe('parseHash', () => {
   it('falls back to the title for unknown routes', () => {
     expect(parseHash('#/nope')).toEqual({ name: 'title' })
     expect(parseHash('#/case/<script>')).toEqual({ name: 'title' })
+  })
+})
+
+describe('isUnknownHash', () => {
+  it('flags paths the router does not know', () => {
+    expect(isUnknownHash('#/nonsense/route')).toBe(true)
+    expect(isUnknownHash('#/hub/extra')).toBe(true)
+  })
+  it('passes known routes and the title', () => {
+    for (const h of ['', '#', '#/', '#/hub', '#/settings', '#/case/00-1', '#/cold/x', '#/gold/02-2', '#/hub?still=1']) expect(isUnknownHash(h)).toBe(false)
   })
 })
