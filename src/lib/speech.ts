@@ -95,11 +95,16 @@ export function useReadAloud(text: string, onStart?: () => void): ReadAloud {
     }
   }, [])
 
+  const [previousText, setPreviousText] = useState(text)
+  if (text !== previousText) {
+    setPreviousText(text)
+    setSpeaking(false)
+    setCharIndex(-1)
+  }
+
   // New text means the old utterance is stale.
   useEffect(() => {
     cancelSpeech()
-    setSpeaking(false)
-    setCharIndex(-1)
   }, [text])
 
   const stop = useCallback(() => {

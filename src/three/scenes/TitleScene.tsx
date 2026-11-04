@@ -25,8 +25,9 @@ import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
 import { sceneCalm } from './hub/markerMotion'
-import { useWidthFit } from './case/common'
-import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor, makeRadialTexture } from './common'
+import { useWidthFit } from './case/sceneHelpers'
+import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
+import { makeRadialTexture } from './radialTexture'
 import { FloorPool, NightBody, SkyBand, SubjectLights } from './grade'
 
 const LOGO_BASE_Y = 1.05
@@ -191,7 +192,8 @@ export default function TitleScene() {
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
   const rich = tier !== 'low'
-  const start = useRef(performance.now())
+  const [mountedAt] = useState(() => performance.now())
+  const start = useRef(mountedAt)
   const logo = useRef<THREE.Group>(null)
   // The logo is wider than a phone held upright: widen the view and back the camera off until it fits.
   const logoHalf = useMemo(() => (layoutLogo('ANOMALY').width * LOGO_H) / 2, [])

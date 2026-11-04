@@ -41,7 +41,8 @@ const GRACE_MS = 2500
 function Runtime() {
   const stamps = useRef<number[]>([])
   const auto = useRef<AdaptiveState>(initialAdaptiveState(useRuntime.getState().autoTier, useRuntime.getState().dprStep))
-  const graceUntil = useRef(performance.now() + GRACE_MS)
+  const [initialGraceUntil] = useState(() => performance.now() + GRACE_MS)
+  const graceUntil = useRef(initialGraceUntil)
   const lastKey = useRef<string | null>(null)
   const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
   // Draw stats of the last finished frame, including post passes. Info resets once per frame here.

@@ -6,7 +6,7 @@ import { depthOnlyMaterial, tintedHolo } from '../../materials/tinted'
 import type { PartGeo } from '../../models/creatures'
 import { OAK_SCALE } from '../../models/creatures'
 import { useLabBGeo } from '../../models/labScans'
-import { pointerHandlers, useTier } from './common'
+import { pointerHandlers, useTier } from './sceneHelpers'
 
 import { PAIR_TINTS } from './pairTints'
 const pairColors = PAIR_TINTS.map((t) => new THREE.Color(t))

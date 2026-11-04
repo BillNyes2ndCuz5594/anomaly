@@ -1,5 +1,5 @@
 import { useTapGuard } from '../../ui/useTapGuard'
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
 import { PAIR_TINTS } from '../../three/scenes/case/pairTints'
@@ -107,7 +107,9 @@ export default function LabB() {
     [pairs, pickAnimal, pickPlant],
   )
   const ref = useRef(handle3D)
-  ref.current = handle3D
+  useLayoutEffect(() => {
+    ref.current = handle3D
+  })
   useEffect(() => {
     const fx = useFx.getState()
     fx.setBridges([])

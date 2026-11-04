@@ -5,7 +5,7 @@ import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { depthOnlyMaterial, humanShell, organMaterial, tintedHolo } from '../../materials/tinted'
 import { humanModel, ORGAN_LIST, type OrganDef } from '../../models/human'
-import { pointerHandlers, useTier } from './common'
+import { pointerHandlers, useTier } from './sceneHelpers'
 import { SCAN_FACE_SHIFT, useBodyScan, useOrganGeo } from '../../models/labScans'
 
 export interface HumanFigureProps {

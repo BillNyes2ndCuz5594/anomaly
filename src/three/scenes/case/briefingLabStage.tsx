@@ -5,7 +5,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { STILL } from '../../../lib/flags'
 import { TIER_CONFIG } from '../../../state/quality'
 import { ContactShadow } from '../common'
-import { useTier } from './common'
+import { useTier } from './sceneHelpers'
 import { lampScale } from './briefingStage'
 
 function useStageMaterials() {

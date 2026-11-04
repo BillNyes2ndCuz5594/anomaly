@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dampFactor, PUSH_IN } from './FitCamera'
+import { dampFactor, PUSH_IN } from './fitCameraHelpers'
 
 describe('camera easing', () => {
   it('damps by a bounded, frame rate independent amount', () => {

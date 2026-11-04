@@ -1,5 +1,5 @@
 import { useTapGuard } from '../../ui/useTapGuard'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { VITALS_LABS } from '../../content'
 import { useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
@@ -53,7 +53,9 @@ export default function LabA() {
 
   // The 3D layer calls the registered handler on a click. Keep it pointed at the latest closure.
   const pickRef = useRef(pick)
-  pickRef.current = pick
+  useLayoutEffect(() => {
+    pickRef.current = pick
+  })
   useEffect(() => {
     useFx.getState().setPick((id) => pickRef.current(id))
     return () => {

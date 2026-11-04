@@ -4,7 +4,8 @@ import * as THREE from 'three/webgpu'
 import { STILL } from '../../../lib/flags'
 import { useFx } from '../../../state/session'
 import { animalParts, plantParts, type PartGeo } from '../../models/creatures'
-import { FitRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
+import { FitRig, LabEnvironment, Pedestal } from './common'
+import { useReduced, useTier } from './sceneHelpers'
 import type { Box } from '../../fit'
 import PartMesh from './PartMesh'
 import { PAIR_TINTS } from './pairTints'
@@ -12,8 +13,8 @@ import { useMotionMode } from '../../../ui/useMotionMode'
 import { StageLights, SubjectStand } from './briefingLabStage'
 import { partTint } from './briefingStage'
 
-export const ANIMAL_POS: [number, number, number] = [-3.4, 0, 0]
-export const PLANT_POS: [number, number, number] = [3.4, 0, 0]
+const ANIMAL_POS: [number, number, number] = [-3.4, 0, 0]
+const PLANT_POS: [number, number, number] = [3.4, 0, 0]
 
 /** Pickable parts and their pick priority. Inner structures win over the covering that wraps them. */
 const PICK: Record<string, number> = { skeleton: 1, skin: 0, stem: 0, bark: 1 }

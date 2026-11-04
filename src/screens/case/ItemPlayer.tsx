@@ -1,5 +1,5 @@
 import { useTapGuard } from '../../ui/useTapGuard'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Item } from '../../content/schema'
 import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
@@ -162,7 +162,9 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
 
   // Keyboard: 1-4 or A-D choose, X eliminate mode, Space read aloud, Enter lock in (or next after).
   const latest = useRef({ choose, lockIn, ra, onNext, selected, elim, locked })
-  latest.current = { choose, lockIn, ra, onNext, selected, elim, locked }
+  useLayoutEffect(() => {
+    latest.current = { choose, lockIn, ra, onNext, selected, elim, locked }
+  })
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || e.altKey) return

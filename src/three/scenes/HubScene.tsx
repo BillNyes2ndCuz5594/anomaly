@@ -1,12 +1,12 @@
 import { useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { FloorPool, SubjectLights, VolumeColumn } from './grade'
-import { useWidthFit } from './case/common'
+import { useWidthFit } from './case/sceneHelpers'
 import Drone from './hub/Drone'
 import MapTable, { TABLE_RADIUS, TABLE_TOP_Y } from './hub/MapTable'
 import { sceneCalm } from './hub/markerMotion'
@@ -26,7 +26,8 @@ export default function HubScene() {
   const tier = resolveTier(quality, autoTier)
   const cfg = TIER_CONFIG[tier]
   const rich = tier !== 'low'
-  const start = useRef(performance.now())
+  const [mountedAt] = useState(() => performance.now())
+  const start = useRef(mountedAt)
   // Keep the whole map table in view on a tall narrow screen (phone held upright).
   const fit = useWidthFit(TABLE_RADIUS + 0.7, 11.2, 66, 0.04)
 
