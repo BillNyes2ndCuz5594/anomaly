@@ -72,7 +72,7 @@ Rules for video clips
   a 0.8 s crossfade at the seam, 960x540 VP9 WebM plus H.264 MP4, 17 to 83 KB. They are painted into the sky dome
   shader (`LoopSky`) as a soft window above the horizon, graded to the navy and cyan palette, never a box. The
   precached WebP poster shows first and the video crosses in after its first decoded frame. Low tier and reduced
-  motion get the poster only. Videos are not precached, so offline play keeps the poster. Spend $1.84.
+  motion get the poster only. All loop-sky and warp MP4/WebM videos are precached after the first online load. Offline playback supports byte Range requests, including Safari/iOS; Low tier and reduced motion still use posters. Spend $1.84.
 - Wave 4a: app icons, favicon and a 1200x630 share image. The icons are drawn by `scripts/gen-icons.mjs` in the
   title screen look (glass cyan letter, amber scan line, grid floor); the share image is a frame of the real title
   screen. No fal spend.
