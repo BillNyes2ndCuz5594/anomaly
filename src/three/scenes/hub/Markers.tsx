@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { content } from '../../../content'
 import * as THREE from 'three/webgpu'
-import { attribute, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
+import { color, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
 import { STILL } from '../../../lib/flags'
 import { navigate } from '../../../lib/router'
 import { useReviewDue } from '../../../state/due'
@@ -11,7 +11,6 @@ import { useRuntime } from '../../../state/runtime'
 import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
 import { createLabelDeclutter, type LabelItem } from './labelDeclutter'
-import MarkerInstances from './MarkerInstances'
 import { TABLE_TOP_Y } from './MapTable'
 import { layoutMarkers, markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from './markerMotion'
 
@@ -62,7 +61,7 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
 
   const glowU = useMemo(() => uniform(glow), []) // eslint-disable-line react-hooks/exhaustive-deps
   const { gemMat, wireMat, beamMat, ringMat, label } = useMemo(() => {
-    const c = attribute('markerColor', 'vec3')
+    const c = color(hex).mul(glowU)
     const clock = calm ? float(0.4) : time
     const gemMat = new THREE.MeshStandardNodeMaterial()
     gemMat.color = new THREE.Color('#06101c')
@@ -106,7 +105,7 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
     labelMat.depthWrite = false
     labelMat.depthTest = false
     return { gemMat, wireMat, beamMat, ringMat, label: { ...label, mat: labelMat } }
-  }, [hex, title, sub, calm])
+  }, [hex, title, sub, glowU, calm])
 
   const entry = useMemo<LabelEntry>(() => ({
     id, x: 0, y: 0, w: 0, h: 0, priority: 0, world: new THREE.Vector3(),
@@ -175,32 +174,31 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
     }
   })
 
-  const batch = (markerBatch: string) => ({ markerBatch, markerHex: hex, markerGlow: glowU, markerHidden: markerBatch === 'stick' ? () => label.mat.opacity < 0.02 : undefined })
   const base = TABLE_TOP_Y + 0.42
   const beamH = height - 0.4
   const release = () => setMarkerPressed(id, false)
   return (
     <group ref={anchor} position={[x, base, z]}>
-      <mesh userData={batch("ring")} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
         <planeGeometry args={[1.5, 1.5]} />
         <primitive object={ringMat} attach="material" />
       </mesh>
       <group ref={root}>
-        <mesh userData={batch("beam")} position={[0, beamH / 2 + 0.05, 0]} scale={[1, beamH, 1]}>
+        <mesh position={[0, beamH / 2 + 0.05, 0]} scale={[1, beamH, 1]}>
           <cylinderGeometry args={[0.035, 0.07, 1, 12, 1, true]} />
           <primitive object={beamMat} attach="material" />
         </mesh>
         <group ref={gem} position={[0, height, 0]}>
-          <mesh userData={batch("gem")} scale={[0.9, 1.35, 0.9]}>
+          <mesh scale={[0.9, 1.35, 0.9]}>
             <octahedronGeometry args={[0.2, 0]} />
             <primitive object={gemMat} attach="material" />
           </mesh>
-          <mesh userData={batch("wire")} scale={[1.18, 1.75, 1.18]}>
+          <mesh scale={[1.18, 1.75, 1.18]}>
             <octahedronGeometry args={[0.2, 0]} />
             <primitive object={wireMat} attach="material" />
           </mesh>
         </group>
-        <mesh userData={batch("stick")} ref={stick} position={[0.3 * side, height, 0]}>
+        <mesh ref={stick} position={[0.3 * side, height, 0]}>
           <boxGeometry args={[0.6, 0.012, 0.012]} />
           <primitive object={wireMat} attach="material" />
         </mesh>
@@ -287,7 +285,7 @@ export default function Markers({ reduced }: { reduced: boolean }) {
   }, -1)
   const places = useMemo(() => layoutMarkers(content.cases.map((c) => ({ id: c.id, lon: c.marker.lon, lat: c.marker.lat })), [COLD_SPOT]), [])
   return (
-    <MarkerInstances>
+    <>
       {places.map((p, i) => {
         const c = content.cases[i]
         return (
@@ -323,6 +321,6 @@ export default function Markers({ reduced }: { reduced: boolean }) {
         reduced={reduced}
         glow={due ? 1.35 : 0.5}
       />
-    </MarkerInstances>
+    </>
   )
 }

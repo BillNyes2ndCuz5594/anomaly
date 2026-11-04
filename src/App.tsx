@@ -124,7 +124,7 @@ export default function App() {
   const { hash, phase, kind, dir, mode } = useRouteTransition(reducedMotion, tier)
   const route = parseHash(hash)
   const hubReady = useRuntime((s) => s.hubReady)
-  const hubWaiting = route.name === 'hub' && !hubReady
+  const hubWaiting = route.name === 'hub' && !hubReady && mode !== 'still'
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
