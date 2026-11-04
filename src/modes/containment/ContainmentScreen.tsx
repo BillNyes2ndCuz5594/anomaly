@@ -117,7 +117,7 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
   })
   const [game, setGame] = useState(initial), stateRef = useRef(initial)
   const [readyToDeploy, setReadyToDeploy] = useState(() => Boolean(initial.phase === 'action' && initial.board.some((b) => b.type && b.type !== 'anomaly')))
-  const restoredRef = useRef(Boolean(initial.feedback && initial.phase === 'action'))
+  const [restoredFeedback, setRestoredFeedback] = useState(() => Boolean(initial.feedback && initial.phase === 'action'))
   const [selectedDefense, setSelectedDefense] = useState<DefenseType>('magnet'), admit = useRef(createTapGuard()), motion = useMotionMode()
   const pool = useMemo(() => buildQuickPool(content.items, { caseId, count: 10, seed: game.seed }), [caseId, game.seed])
   const def = caseById(caseId)!, done = game.phase === 'done', stats = getContainmentStats(game)
@@ -147,7 +147,7 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
     const explanation = cleanFeedback(ans.correct ? `Correct. ${item.why[item.key]}` : `Not quite. Correct answer: ${'ABCD'[item.key]}. ${toSentenceCase(item.options[item.key])}. ${item.why[item.key]}`).replace(/[\u2013\u2014]/g, '-')
     handleTurn({ type: 'answer', correct: ans.correct, feedback: { itemId: item.id, correct: ans.correct, explanation } })
   }
-  const handleNext = () => { setReadyToDeploy(false); restoredRef.current = false; handleTurn({ type: 'next' }) }
+  const handleNext = () => { setReadyToDeploy(false); setRestoredFeedback(false); handleTurn({ type: 'next' }) }
 
   return (
     <main className="screen containment-screen" data-testid="containment-rush" data-motion={motion}>
@@ -169,14 +169,14 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
             </div>
             <p className="containment-debrief">{game.resources.integrity > 0 ? 'Field perimeter held. Geological anomaly specimens contained safely.' : 'Integrity compromised. Review geological data and retry containment.'}</p>
             <div className="containment-end-actions">
-              <button type="button" className="btn" onClick={() => { clearModeSession(getSafeStorage(), 'containment', caseId); setReadyToDeploy(false); restoredRef.current = false; handleTurn({ type: 'restart' }) }}>Play again</button>
+              <button type="button" className="btn" onClick={() => { clearModeSession(getSafeStorage(), 'containment', caseId); setReadyToDeploy(false); setRestoredFeedback(false); handleTurn({ type: 'restart' }) }}>Play again</button>
               <button type="button" className="btn" onClick={() => { clearModeSession(getSafeStorage(), 'containment', caseId); navigate('/hub') }}>Exit to hub</button>
             </div>
           </section>
         ) : (
           <>
             {!readyToDeploy ? (
-              restoredRef.current && game.feedback ? (
+              restoredFeedback && game.feedback ? (
                 <RestoredFeedback item={pool[game.questionIndex]} feedback={game.feedback} onContinue={() => { setReadyToDeploy(true); deployGroupRef.current?.focus() }} />
               ) : (
                 <>

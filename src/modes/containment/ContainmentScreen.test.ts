@@ -22,7 +22,7 @@ function setupMockDom() {
   const doc: any = {
     nodeType: 9, activeElement: null,
     createElement(tag: string) {
-      return {
+      const el: any = {
         nodeType: 1, tagName: tag.toUpperCase(), nodeName: tag.toUpperCase(), style: {}, attributes: {} as Record<string, string>,
         children: [] as any[], parentNode: null, ownerDocument: doc, _tc: '',
         get textContent() { return this._tc || this.children.map((c: any) => c.textContent ?? c.nodeValue ?? '').join('') },
@@ -36,6 +36,7 @@ function setupMockDom() {
         getBoundingClientRect() { return { x: 0, y: 0, width: 100, height: 100, top: 0, right: 100, bottom: 100, left: 0 } },
         focus() { doc.activeElement = this },
       }
+      return el
     },
     createElementNS(_ns: string, tag: string) { return this.createElement(tag) },
     createComment: () => ({ nodeType: 8 }), createTextNode: (t: string) => ({ nodeType: 3, nodeValue: t, textContent: t }),
