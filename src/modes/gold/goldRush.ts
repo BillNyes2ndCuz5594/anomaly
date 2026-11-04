@@ -140,6 +140,25 @@ export function clearGoldSession(
   }
 }
 
+export function crateLabel(crate: Crate | string | number): string {
+  if (typeof crate === 'number' || /^\d+$/.test(String(crate))) {
+    return `+${crate} intel!`
+  }
+  const key = String(crate).toLowerCase()
+  switch (key) {
+    case 'steal':
+      return 'Steal! Took intel from a rival'
+    case 'glitch':
+      return 'Glitch! Lost some intel'
+    case 'swap':
+      return 'Swap! Traded scores with a rival'
+    case 'double':
+      return 'Double! Doubled your intel'
+    default:
+      return String(crate)
+  }
+}
+
 export function resolveGoldFocusTarget(
   phase: 'question' | 'crate' | 'next' | 'done',
   refs: {

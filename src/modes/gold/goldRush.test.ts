@@ -4,7 +4,7 @@ import type { Item } from '../../content/schema'
 import { parseHash, routeNeedsProfile } from '../../lib/router'
 import { buildQuickPool } from '../quick/quickPool'
 import { createQuickAnswer } from '../quick/quickAnswer'
-import { answerGold, applyCrate, clearGoldSession, cratesFor, loadGoldSession, nextGold, pickCrate, rankOf, resolveGoldFocusTarget, saveGoldSession, standings, startGold } from './goldRush'
+import { answerGold, applyCrate, crateLabel, clearGoldSession, cratesFor, loadGoldSession, nextGold, pickCrate, rankOf, resolveGoldFocusTarget, saveGoldSession, standings, startGold } from './goldRush'
 
 function play(seed: string) {
   let s = startGold(seed)
@@ -196,5 +196,14 @@ describe('Gold Rush', () => {
 
     map.set('anomaly:gold:02-2', JSON.stringify({ game: 'not an object' }))
     expect(loadGoldSession(storage, '02-2')).toBeNull()
+  })
+  it('maps raw crate tokens to kid-friendly labels', () => {
+    expect(crateLabel(20)).toBe('+20 intel!')
+    expect(crateLabel(10)).toBe('+10 intel!')
+    expect(crateLabel(40)).toBe('+40 intel!')
+    expect(crateLabel('steal')).toBe('Steal! Took intel from a rival')
+    expect(crateLabel('glitch')).toBe('Glitch! Lost some intel')
+    expect(crateLabel('swap')).toBe('Swap! Traded scores with a rival')
+    expect(crateLabel('double')).toBe('Double! Doubled your intel')
   })
 })
