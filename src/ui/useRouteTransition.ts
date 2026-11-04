@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from '../state/settings'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { STILL } from '../lib/flags'
 import { parseHash, useHash } from '../lib/router'
@@ -15,7 +16,7 @@ export type Phase = 'idle' | 'cover' | 'reveal'
  */
 export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string; phase: Phase; kind: VeilKind; dir: 'forward' | 'back'; mode: MotionMode } {
   const target = useHash()
-  const mode = motionMode({ reduced, still: STILL, tier })
+  const mode = motionMode({ reduced: reduced || prefersReducedMotion(), still: STILL, tier })
   const [shown, setShown] = useState(target)
   const [phase, setPhase] = useState<Phase>('idle')
   const [kind, setKind] = useState<VeilKind>('scan')

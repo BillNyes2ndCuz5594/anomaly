@@ -330,18 +330,18 @@ async function motionShots(page, name, w) {
   // Frame strips. s19 keeps four frames. s20 signature moments use six, in a 3 by 2 grid.
   const plans = []
   if (name === 'hub') {
-    plans.push({ file: 's19-strip-route', times: [40, 280, 640, 1040], columns: 4, mode: 'launch' })
-    plans.push({ file: 's20-strip-title-hub', times: [30, 180, 400, 640, 880, 1100], columns: 3, mode: 'launch' })
+    plans.push({ file: 's19-strip-route', times: [20, 120, 260, 420], columns: 4, mode: 'launch' })
+    plans.push({ file: 's20-strip-title-hub', times: [20, 80, 160, 240, 320, 420], columns: 3, mode: 'launch' })
   } else if (name === 'briefing') {
     plans.push({ file: 's19-strip-step', times: [30, 120, 240, 380], columns: 4, mode: 'step' })
-    plans.push({ file: 's20-strip-hub-case', times: [30, 180, 400, 640, 880, 1060], columns: 3, mode: 'warp' })
+    plans.push({ file: 's20-strip-hub-case', times: [20, 80, 160, 240, 320, 420], columns: 3, mode: 'warp' })
   } else if (name === 'firstrun') {
     plans.push({ file: 's19-strip-modal', times: [30, 120, 240, 380], columns: 4, mode: 'modal' })
   } else if (name === 'item-rkea') {
     plans.push({ file: 's19-strip-item', times: [30, 120, 240, 380], columns: 4, mode: 'item' })
   } else if (name === 'results-with-code') {
-    plans.push({ file: 's19-strip-results', times: [40, 280, 640, 1000], columns: 4, mode: 'results' })
-    plans.push({ file: 's20-strip-results', times: [40, 200, 420, 680, 900, 1100], columns: 3, mode: 'results' })
+    plans.push({ file: 's19-strip-results', times: [20, 160, 340, 520], columns: 4, mode: 'results' })
+    plans.push({ file: 's20-strip-results', times: [20, 100, 200, 300, 400, 520], columns: 3, mode: 'results' })
   }
   for (const plan of plans) {
     const frames = []

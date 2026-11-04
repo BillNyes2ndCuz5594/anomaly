@@ -36,14 +36,15 @@ function makeVideo(src: { webm: string; mp4: string }): HTMLVideoElement {
 /** Navy sky dome with an ambient video loop blended into it. */
 export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: number }) {
   // fade (Low tier) and still (reduced motion, ?still=1) both get the poster only, with no video element.
-  const still = useMotionMode() !== 'full'
+  const mode = useMotionMode()
+  const still = mode === 'still'
   const src = CLIPS[clip]
 
   const { mat, poster, video, vnode, u } = useMemo(() => {
     const u = { show: uniform(0), live: uniform(0), az: uniform(0) }
     const poster = new THREE.Texture()
     poster.colorSpace = THREE.SRGBColorSpace
-    const video = still ? null : makeVideo(src)
+    const video = mode === 'full' ? makeVideo(src) : null
 
     // Everything but the texture reads is per vertex (the dome is 48x24, smooth enough for these slow gradients),
     // so the fragment cost is two texture samples and a few mixes, cheap on low power GPUs.
@@ -85,7 +86,7 @@ export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: 
     m.fog = false
     m.depthWrite = false
     return { mat: m, poster, video, vnode, u }
-  }, [src, still, strength])
+  }, [src, mode, strength])
 
   useEffect(() => {
     let dead = false
@@ -95,7 +96,7 @@ export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: 
       if (dead) return
       poster.image = img
       poster.needsUpdate = true
-      u.show.value = 0.0001
+      u.show.value = still ? 1 : 0.0001
     }
     img.src = src.poster
     let onPlaying: (() => void) | null = null
@@ -131,18 +132,18 @@ export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: 
       poster.dispose()
       mat.dispose()
     }
-  }, [mat, poster, video, vnode, u, src])
+  }, [mat, poster, video, vnode, u, src, still])
 
   useFrame((state, dt) => {
     const step = Math.min(dt, 0.05)
-    if (u.show.value > 0 && u.show.value < 1) u.show.value = Math.min(1, u.show.value + step / 0.7)
-    if (u.live.value > 0 && u.live.value < 1) u.live.value = Math.min(1, u.live.value + step / 0.9)
+    if (u.show.value > 0 && u.show.value < 1) u.show.value = still ? 1 : THREE.MathUtils.damp(u.show.value, 1, 8, step)
+    if (u.live.value > 0 && u.live.value < 1) u.live.value = THREE.MathUtils.damp(u.live.value, 1, 6, step)
     // The window settles where the camera looks and then follows it slowly, so it reads as part of the far sky.
     const d = state.camera.getWorldDirection(tmp)
     const target = Math.atan2(d.x, -d.z)
     let delta = target - u.az.value
     delta = Math.atan2(Math.sin(delta), Math.cos(delta))
-    u.az.value += u.show.value <= 0.0001 ? delta : delta * Math.min(1, step * 0.6)
+    u.az.value += still || u.show.value <= 0.0001 ? delta : delta * Math.min(1, step * 0.6)
   })
 
   return (
