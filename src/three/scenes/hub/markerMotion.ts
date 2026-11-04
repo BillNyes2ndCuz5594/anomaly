@@ -1,7 +1,37 @@
 /** How a case marker should read. Hover and keyboard focus share one state, so nothing depends on a pointer. */
 
+import type { Vector3 } from 'three/webgpu'
+
 /** A case id such as '03-1', or 'cold' for the cold case. */
 export type MarkerId = string
+
+/** Shared registry of marker world positions so HubScene can frame focused markers. */
+export const markerWorldPositions = new Map<string, Vector3>()
+
+export const PAN_FRACTION = 0.5
+
+/**
+ * Returns whether a projected NDC coordinate lies outside the safe marker viewing area.
+ * Margin: |x| > 0.8 or y > 0.7 or y < -0.85.
+ */
+export function markerNeedsPan(ndcX: number, ndcY: number): boolean {
+  return Math.abs(ndcX) > 0.8 || ndcY > 0.7 || ndcY < -0.85
+}
+
+/**
+ * Steps a camera pan offset scalar toward its target, using exponential follow or snapping when calm.
+ */
+export function panOffsetStep(
+  current: number,
+  target: number,
+  dt: number,
+  calm: boolean,
+  speed = 7,
+): number {
+  if (calm) return target
+  const follow = 1 - Math.exp(-dt * speed)
+  return current + (target - current) * follow
+}
 
 export interface MarkerFlags {
   hover: boolean
