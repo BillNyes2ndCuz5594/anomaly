@@ -1,6 +1,8 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { baseContent, caseById, content, mergeContent, PACK_ORDER, packs, vitalsCase } from '.'
+import { baseContent, caseById, content, mergeContent, PACK_ORDER, vitalsCase } from '.'
+import { packs } from './sync.test-helper'
+import manifest from './manifest.json'
 import fixture from './__fixtures__/pack-test.json'
 import labsFixture from './__fixtures__/labs-test.json'
 import { validateContent, validatePack, type CasePack, type LabDef } from './schema'
@@ -23,6 +25,10 @@ describe('case packs on disk', () => {
     for (const id of onDisk) expect(PACK_ORDER, `src/content/packs/${id}.json is not listed in PACK_ORDER`).toContain(id)
     for (const id of PACK_ORDER) expect(onDisk, `PACK_ORDER lists ${id} but there is no file`).toContain(id)
     expect(new Set(PACK_ORDER).size).toBe(PACK_ORDER.length)
+  })
+
+  it('keeps navigation metadata and counts in sync with the packs', () => {
+    expect(manifest, 'Manifest is stale: run npm run manifest').toEqual(packs.map((p) => ({ case: p.case, codex: p.codex ?? [], itemCount: p.items.length, reviewBenchmarks: [...new Set(p.items.filter((i) => i.pool === 'cold').map((i) => i.benchmark))].sort() })))
   })
 
   it('never lists the test fixture', () => {

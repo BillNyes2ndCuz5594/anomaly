@@ -14,5 +14,5 @@ export const QA_ITEMS: string[] =
     : (new URLSearchParams(window.location.search).get('qaitems') ?? '')
         .split(',')
         .map((s) => s.trim())
-        .filter((s) => /^[A-Z0-9]{1,4}-\d{2}$/.test(s))
+        .filter((s) => /^[A-Z0-9][A-Za-z0-9.]{0,15}-\d{2}$/.test(s))
         .slice(0, 8)

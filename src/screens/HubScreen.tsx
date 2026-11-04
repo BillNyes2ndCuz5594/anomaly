@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { caseById, codexById, content } from '../content'
+import { caseById, codexById, content, loadPack } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
@@ -17,7 +17,7 @@ import { useMotionMode } from '../ui/useMotionMode'
 import foilBadge from '../assets/textures/agent-badge-foil.webp?url'
 import './title-hub.css'
 
-export const HUB_PANEL_WIDTH = 360
+import { HUB_PANEL_WIDTH } from './hubLayout'
 
 /** Four pips (Rookie to Ace). Filled square plus the stage word, never color alone. */
 function Pips({ stage }: { stage: MasteryStage }) {
@@ -62,16 +62,17 @@ function CaseButton({
       data-pressed={pressed ? 'yes' : 'no'}
       data-due={due}
       data-status={status}
-      onClick={() => {
+      onClick={async () => {
+        if (caseById(id)) await loadPack(id)
         if (resolveTier(useGame.getState().settings.quality, useRuntime.getState().autoTier) !== 'low') {
           const def = caseById(id)
           if (def) void import('../three/models/heroSpecimens').then((m) => m.prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))).catch(() => {})
         }
         navigate(to)
       }}
-      onFocus={() => setFocused(id)}
+      onFocus={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
       onBlur={() => setFocused(null)}
-      onMouseEnter={() => setFocused(id)}
+      onMouseEnter={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
       onMouseLeave={() => setFocused(null)}
       onPointerDown={() => setMarkerPressed(id, true)}
       onPointerUp={() => setMarkerPressed(id, false)}

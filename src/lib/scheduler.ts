@@ -18,13 +18,13 @@ export interface ReviewProgress {
 }
 
 /** Benchmarks (from the cold pool) whose scheduled review is due today or earlier. */
-export function dueColdBenchmarks(items: Item[], progress: ReviewProgress, today: string): string[] {
+export function dueColdBenchmarks(items: readonly Pick<Item, 'pool' | 'benchmark'>[], progress: ReviewProgress, today: string): string[] {
   const ids = new Set(items.filter((i) => i.pool === 'cold').map((i) => i.benchmark))
   return [...ids].filter((b) => isDue(progress[b], today))
 }
 
 /** True when any cold pool benchmark has a review due. Drives the hub marker glow. */
-export function anyReviewDue(items: Item[], progress: ReviewProgress, today: string): boolean {
+export function anyReviewDue(items: readonly Pick<Item, 'pool' | 'benchmark'>[], progress: ReviewProgress, today: string): boolean {
   return dueColdBenchmarks(items, progress, today).length > 0
 }
 

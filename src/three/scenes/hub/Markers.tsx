@@ -1,7 +1,7 @@
 import { Billboard } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { content } from '../../../content'
+import { content, loadPack, caseById } from '../../../content'
 import * as THREE from 'three/webgpu'
 import { color, uniform, float, oneMinus, positionLocal, saturate, sin, smoothstep, time, uv, length } from 'three/tsl'
 import { STILL } from '../../../lib/flags'
@@ -217,6 +217,7 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
         onPointerOver={(e) => {
           e.stopPropagation()
           setHover(true)
+          if (caseById(id)) void loadPack(id).catch(() => {})
           document.body.style.cursor = 'pointer'
         }}
         onPointerOut={() => {
@@ -233,10 +234,11 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
           release()
         }}
         onPointerCancel={release}
-        onClick={(e) => {
+        onClick={async (e) => {
           e.stopPropagation()
           document.body.style.cursor = ''
           release()
+          if (caseById(id)) await loadPack(id)
           navigate(to)
         }}
       >

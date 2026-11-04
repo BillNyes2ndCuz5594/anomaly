@@ -1,7 +1,7 @@
 import { createTapGuard } from '../ui/tapGuard'
 import { create } from 'zustand'
 import type { CaseDef, Item } from '../content/schema'
-import { caseById, content, vitalsCase } from '../content'
+import { caseById, content, packLoaded, PACK_ORDER, vitalsCase } from '../content'
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
@@ -102,6 +102,9 @@ export const useSession = create<SessionState>((set, get) => ({
   start: (caseId, kind = 'case') => {
     const st = useGame.getState()
     const caseDef = kind === 'case' ? caseById(caseId) ?? vitalsCase : null
+    // CaseFlow waits for these packs. Reject other callers before reading a partial item pool.
+    const required = kind === 'cold' || QA_ITEMS.length ? PACK_ORDER : [caseDef?.id ?? vitalsCase.id]
+    if (!required.every(packLoaded)) throw new Error('Session content is not loaded')
     const qa = kind === 'case' ? QA_ITEMS.map((id) => content.items.find((it) => it.id === id)) : []
     const items =
       qa.length > 0 && qa.every(Boolean)

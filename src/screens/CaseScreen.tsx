@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { caseById, content } from '../content'
+import { QA_ITEMS } from '../lib/flags'
+import { usePack } from '../content/usePack'
 import { navigate } from '../lib/router'
 import { stepsFor, useSession } from '../state/session'
 import { carryDelta, carryForget } from '../ui/carry'
@@ -39,6 +41,7 @@ const CARRY: readonly [string, number][] = [
 ]
 
 function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
+  const loaded = usePack(kind === 'cold' || QA_ITEMS.length ? 'all' : id)
   const caseId = useSession((s) => s.caseId)
   const step = useSession((s) => s.step)
   const caseDef = useSession((s) => s.caseDef)
@@ -53,9 +56,9 @@ function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
     setSeen(step)
   }
   useEffect(() => {
-    start(id, kind)
+    if (loaded) start(id, kind)
     return () => useSession.setState({ caseId: null })
-  }, [id, kind, start])
+  }, [id, kind, start, loaded])
   useLayoutEffect(() => {
     const root = hostRef.current
     if (root) {
@@ -75,7 +78,7 @@ function CaseFlow({ id, kind }: { id: string; kind: 'case' | 'cold' }) {
       }
     }
   }, [step, motion, caseId])
-  if (caseId !== id) return null
+  if (!loaded || caseId !== id) return null
   return (
     <div className="step-host" data-dir={dir} key={step} ref={hostRef}>
       <StepScreen step={step} kind={kind} />
