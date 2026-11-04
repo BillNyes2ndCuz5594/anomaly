@@ -4,7 +4,20 @@ import { usePack } from '../../content/usePack'
 import { navigate } from '../../lib/router'
 import QuickQuestion from '../quick/QuickQuestion'
 import { buildQuickPool } from '../quick/quickPool'
-import { answerGold, cratesFor, nextGold, pickCrate, resolveGoldFocusTarget, standings, startGold } from './goldRush'
+import {
+  answerGold,
+  clearGoldSession,
+  cratesFor,
+  loadGoldSession,
+  nextGold,
+  pickCrate,
+  rankOf,
+  resolveGoldFocusTarget,
+  saveGoldSession,
+  standings,
+  startGold,
+  type GoldReveal,
+} from './goldRush'
 import { useMotionMode } from '../../ui/useMotionMode'
 import './gold.css'
 
@@ -14,9 +27,16 @@ export default function GoldRushScreen({ caseId }: { caseId: string }) {
   return ready ? <GoldGame key={id} caseId={id} /> : <main className="screen gold-screen"><p role="status">Opening the vault...</p></main>
 }
 function GoldGame({ caseId }: { caseId: string }) {
-  const [game, setGame] = useState(() => startGold(String(Date.now())))
+  const [initial] = useState(() => {
+    if (typeof sessionStorage !== 'undefined') {
+      const saved = loadGoldSession(sessionStorage, caseId)
+      if (saved && saved.game.phase !== 'done') return saved
+    }
+    return { game: startGold(String(Date.now())), reveal: null }
+  })
+  const [game, setGame] = useState(initial.game)
   const motion = useMotionMode()
-  const [reveal, setReveal] = useState<{ index: number; contents: string; delta: number } | null>(null)
+  const [reveal, setReveal] = useState<GoldReveal | null>(initial.reveal)
   const pool = useMemo(() => buildQuickPool(content.items, { caseId, count: 10, seed: game.seed }), [caseId, game.seed])
   const def = caseById(caseId)!
   const board = standings(game)
@@ -25,6 +45,21 @@ function GoldGame({ caseId }: { caseId: string }) {
   const firstCrateRef = useRef<HTMLButtonElement>(null)
   const nextBtnRef = useRef<HTMLButtonElement>(null)
   const resultsRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (typeof sessionStorage === 'undefined') return
+    if (game.phase !== 'done') {
+      saveGoldSession(sessionStorage, caseId, { game, reveal })
+    }
+  }, [caseId, game, reveal])
+
+  useEffect(() => {
+    return () => {
+      if (typeof sessionStorage !== 'undefined' && game.phase === 'done') {
+        clearGoldSession(sessionStorage, caseId)
+      }
+    }
+  }, [caseId, game.phase])
 
   useEffect(() => {
     resolveGoldFocusTarget(game.phase, {
@@ -36,15 +71,17 @@ function GoldGame({ caseId }: { caseId: string }) {
 
   return <main className="screen gold-screen" data-testid="gold-rush" data-motion={motion}>
     <div className="gold-body">
-      <header><h1>Anomaly Gold Rush</h1><p>{def.codename} | {def.unitLabel}</p>
+      <header>
+        <button type="button" className="btn" onClick={() => navigate('/hub')} aria-label="Exit to hub">Exit to hub</button>
+        <h1>Anomaly Gold Rush</h1><p>{def.codename} | {def.unitLabel}</p>
         <p>{done ? 'Expedition complete' : `Question ${game.question + 1}/10`} | <strong key={game.intel} className={reveal?.delta ? "gold-intel-changed" : undefined}>{game.intel} intel</strong></p></header>
       <aside className="panel" aria-label="Live standings"><ol className="gold-board">
         {board.map((rival) => <li key={rival.name}>{rival.name}: <strong>{rival.intel}</strong></li>)}
       </ol></aside>
-      {done ? <section className="panel"><h2 ref={resultsRef} tabIndex={-1}>You placed {board.findIndex((r) => r.name === 'You') + 1} of 4!</h2>
+      {done ? <section className="panel"><h2 ref={resultsRef} tabIndex={-1}>You placed {rankOf(board, 'You')} of 4!</h2>
         <p>Science collected. Vaults explored. Ready for another expedition?</p>
-        <button className="btn" onClick={() => { setReveal(null); setGame(startGold(String(Date.now()))) }}>Play again</button>
-        <button className="btn" onClick={() => navigate('/hub')}>Back to hub</button>
+        <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); setReveal(null); setGame(startGold(String(Date.now()))) }}>Play again</button>
+        <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); navigate('/hub') }}>Back to hub</button>
       </section> : <>
         <QuickQuestion key={`${game.seed}:${game.question}`} item={pool[game.question]}
           onAnswer={(answer) => setGame((s) => answerGold(s, answer.correct))} />
