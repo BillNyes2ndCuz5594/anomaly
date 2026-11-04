@@ -1,0 +1,20 @@
+.containment-screen { overflow-y: auto; pointer-events: auto; padding: var(--sp-5); }
+.containment-body { width: min(100%, 850px); margin: auto; display: grid; gap: var(--sp-4); }
+.containment-header { background: var(--navy-1); padding: var(--sp-4); border: 1px solid var(--cyan); }
+.containment-header h1, .containment-outcome { color: var(--cyan); }
+.containment-body .btn { min-height: 44px; min-width: 44px; white-space: normal; }
+.containment-body .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.containment-defense-select, .containment-lanes, .containment-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+.containment-stats { grid-template-columns: repeat(2, 1fr); margin: var(--sp-3) 0; }
+.containment-defense-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; border: 1px solid var(--navy-2, #1b2a47); }
+.containment-defense-btn.selected { border-color: var(--cyan); background: rgba(62, 230, 255, 0.15); color: var(--cyan); }
+.containment-lane-btn { min-height: 88px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--cyan); }
+.containment-lane-btn.has-defense { border-color: var(--amber); }
+.containment-lane-btn[aria-disabled='true'] { opacity: 0.6; cursor: not-allowed; }
+.containment-summary-list { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; opacity: 0.85; }
+.containment-feedback { border-left: 3px solid var(--cyan); }
+.containment-feedback .containment-explanation.correct { color: #5efc82; }
+.containment-feedback .containment-explanation.incorrect { color: #ff7b72; }
+.containment-actions, .containment-end-actions { display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-3); }
+@media (max-width: 600px) { .containment-screen { padding: var(--sp-3); } .containment-defense-select, .containment-lanes, .containment-stats { grid-template-columns: 1fr; } }
+.containment-screen[data-motion='still'] *, .containment-screen[data-motion='fade'] * { animation: none !important; transition: none !important; }
