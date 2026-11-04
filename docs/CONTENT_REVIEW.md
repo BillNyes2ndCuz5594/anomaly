@@ -79,25 +79,25 @@ The 24 items from PR #62 were checked against the CPALMS wording of SC.4.E.6.1, 
 - **E6.1-10** (SC.4.E.6.1, cold): reviewed-by-bot. simpler wording ("flat layers", "shell bits"); feedback fixed ("heat and pressure", not "steam").
 - **E6.1-11** (SC.4.E.6.1, cold): reviewed-by-bot. stem no longer names shale as the starting rock, so no rock cycle; feedback simplified.
 - **E6.1-12** (SC.4.E.6.1, cold): reviewed-by-bot. descriptions use "melted rock" and "heat and pressure"; marble/limestone change removed (rock cycle).
-- **E6.2-07** (SC.4.E.6.2, case): reviewed-by-bot. rewritten to ask what a fingernail scratch test shows (talc is softest of four), not to name a mineral from its properties (SSA limit).
+- **E6.2-07** (SC.4.E.6.2, case): reviewed-by-bot. rewritten to ask what a fingernail scratch test shows (talc is softest of four), not to name a mineral from its properties (SSA limit). Replaced the streak-plate picture with a scratch-results table.
 - **E6.2-08** (SC.4.E.6.2, case): reviewed-by-bot. wording simplified ("show"); feedback and labels tidied. No Mohs numbers.
 - **E6.2-09** (SC.4.E.6.2, case): reviewed-by-bot. rewritten: which note about calcite describes hardness. Vinegar fizz removed (chemical test, outside 6.2).
 - **E6.2-10** (SC.4.E.6.2, case): reviewed-by-bot. rewritten: which property (cleavage) mica shows, instead of naming the mineral.
 - **E6.2-11** (SC.4.E.6.2, cold): reviewed-by-bot. rewritten: which property (streak color) the tile test shows.
 - **E6.2-12** (SC.4.E.6.2, cold): reviewed-by-bot. stem names pyrite and says "rough white tile"; asks for luster and streak.
 - **E6.4-07** (SC.4.E.6.4, case): reviewed-by-bot. "pull ... deposit it offshore" simplified to "carry ... to a new place"; label on the stream slot.
-- **E6.4-08** (SC.4.E.6.4, case): reviewed-by-bot. was chemical weathering (water dissolving limestone), outside SC.4.E.6.4 (physical only). Rewritten as erosion by gravity on a Florida sinkhole slope, with weathering and erosion reasons as options.
+- **E6.4-08** (SC.4.E.6.4, case): reviewed-by-bot. was chemical weathering (water dissolving limestone), outside SC.4.E.6.4 (physical only). Rewritten as erosion by gravity on a Florida sinkhole slope, with weathering and erosion reasons as options. Replaced the rain melting limestone option with physical weathering in place.
 - **E6.4-09** (SC.4.E.6.4, case): reviewed-by-bot. options now name weathering or erosion with a reason; key is physical weathering by ice.
 - **E6.4-10** (SC.4.E.6.4, case): reviewed-by-bot. key changed from a sidewalk (not rock) to roots cracking a limestone ledge.
 - **E6.4-11** (SC.4.E.6.3, cold): reviewed-by-bot. retagged testedAs SC.4.E.6.3 (benchmark stays SC.4.E.6.4, which also assesses 6.3, same as E6.4-04); feedback simplified; four resource labels match the Florida map slots.
-- **E6.4-12** (SC.4.E.6.4, cold): reviewed-by-bot. weak distractors ("freezing sand", "dissolving") replaced with a real weathering vs erosion mix-up.
+- **E6.4-12** (SC.4.E.6.4, cold): reviewed-by-bot. weak distractors ("freezing sand", "dissolving") replaced with a real weathering vs erosion mix-up. Replaced the mismatched cliff/root/stream diagram with a three-row beach observation table.
 
 ### Benchmark labels
 
 SC.4.E.6.1 "Three categories of rocks" and SC.4.E.6.2 "Minerals and rocks" match CPALMS (6.1 is the three rock categories, 6.2 is mineral properties and their role in forming rocks). They are not swapped. No change.
 
-### Needs a teacher's judgment
+### Teacher calls (decided 2026-11-03)
 
-- **E6.4-08**: rewritten from a dissolving sinkhole to soil sliding down a sinkhole slope. Confirm the sinkhole setting is fine without teaching dissolving.
-- **E6.4-12**: the weathering-erosion diagram shows a cliff, a root and a stream, not dunes. Confirm the picture still helps, or drop the visual.
-- **E6.2-07**: still tells students talc is the softest of the four minerals tested. Confirm this does not cross the "no identifying a specific mineral" limit.
+- **E6.4-08**: keep the Florida sinkhole slope (local context; the stem never asks why sinkholes form); removed the "rain melted the limestone" option because it pointed at dissolving, which is chemical and outside SC.4.E.6.4.
+- **E6.4-12**: dropped the cliff/root/stream diagram because it did not match the dune stem; replaced with a three-row beach observation table so students reason from evidence without the picture giving the answer.
+- **E6.2-07**: kept. Comparing hardness of four named minerals with a fingernail is an allowed SC.4.E.6.2 hardness property task, not identifying an unknown mineral, and no Mohs numbers appear; swapped the streak-plate picture for a scratch-results table so the visual matches the hardness test.

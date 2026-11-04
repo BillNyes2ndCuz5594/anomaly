@@ -905,15 +905,32 @@
         "What does this test show"
       ],
       "visual": {
-        "kind": "scene",
-        "id": "mineral-streak",
-        "labels": [
-          "Talc",
-          "Test plate",
-          "Scratch"
+        "kind": "table",
+        "title": "Fingernail scratch test",
+        "columns": [
+          "Mineral",
+          "Did a fingernail scratch it?"
+        ],
+        "rows": [
+          [
+            "Talc",
+            "Yes"
+          ],
+          [
+            "Quartz",
+            "No"
+          ],
+          [
+            "Feldspar",
+            "No"
+          ],
+          [
+            "Pyrite",
+            "No"
+          ]
         ]
       },
-      "alt": "A mineral sample labeled Talc on a test plate with a hand lens nearby.",
+      "alt": "A table shows that a fingernail scratched talc but did not scratch quartz, feldspar, or pyrite.",
       "tisCheck": "Hardness compared with a fingernail scratch test on talc, quartz, feldspar, and pyrite; allowed minerals only; no Mohs scale numbers; no identifying an unknown mineral.",
       "misconceptions": "The scratched mineral thought to be the harder one; hardness confused with streak."
     },
@@ -1409,14 +1426,14 @@
       "options": [
         "Weathering happened, because gravity broke large boulders into sand.",
         "Erosion happened, because gravity moved the soil and rock pieces to a new place.",
-        "Weathering happened, because rainwater melted the limestone on the slope.",
+        "Weathering happened, because the rain broke the soil into smaller bits without moving it.",
         "Erosion happened, because tree roots grew into cracks and split the rock in place."
       ],
       "key": 1,
       "why": [
         "Decoy: weathering breaks rock in place, while sliding downhill is movement to a new place.",
         "Correct: erosion is the movement of rock and soil from one place to another by gravity, water, wind, or ice.",
-        "Decoy: rainwater does not melt rock, and moving rock downhill is erosion, not weathering.",
+        "Decoy: the soil and rock pieces moved to the bottom of the sinkhole, so this is erosion, not weathering in place.",
         "Decoy: tree roots splitting rock in place is physical weathering, not erosion."
       ],
       "keyWords": [
@@ -1435,7 +1452,7 @@
       },
       "alt": "A steep rocky slope with loose rock falling downhill and water carrying pebbles at the bottom.",
       "tisCheck": "Erosion by gravity moving loose limestone and soil down a slope vs physical weathering (SC.4.E.6.4); no chemical weathering or dissolving.",
-      "misconceptions": "Confusing erosion by gravity with physical weathering; thinking rainwater melts rock."
+      "misconceptions": "Confusing erosion by gravity with physical weathering in place."
     },
     {
       "id": "E6.4-09",
@@ -1582,16 +1599,29 @@
         "what the wind is doing"
       ],
       "visual": {
-        "kind": "scene",
-        "id": "weathering-erosion",
-        "labels": [
-          "Cracking rock",
-          "Tree root",
-          "Moving sand and rock"
+        "kind": "table",
+        "title": "Beach notes",
+        "columns": [
+          "Time",
+          "What the student saw"
+        ],
+        "rows": [
+          [
+            "Morning",
+            "Loose, dry sand lies on the flat beach."
+          ],
+          [
+            "Afternoon",
+            "Strong wind blows sand grains across the beach."
+          ],
+          [
+            "Next day",
+            "A new pile of sand has formed behind the beach."
+          ]
         ]
       },
-      "alt": "A diagram comparing rock cracking in place with sand and pebbles being moved to a new place.",
-      "tisCheck": "Erosion by wind vs physical weathering (SC.4.E.6.4); dunes used as Florida coastal context, no landform assessed.",
+      "alt": "A table shows loose, dry sand in the morning, wind blowing sand in the afternoon, and a new pile of sand the next day.",
+      "tisCheck": "Erosion by wind vs physical weathering (SC.4.E.6.4); dunes used as Florida coastal context, no landform assessed. A beach observation table replaced the mismatched cliff, root, and stream diagram.",
       "misconceptions": "Confusing wind erosion (moving sand) with weathering (breaking rock)."
     }
   ],
