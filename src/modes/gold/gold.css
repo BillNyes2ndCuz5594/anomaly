@@ -1,4 +1,6 @@
 .gold-screen { overflow-y: auto; pointer-events: auto; padding: var(--sp-5); }
+.gold-screen .visual-panel { max-height: min(34vh, 260px); }
+.gold-screen .scene-svg { max-height: min(34vh, 260px); object-fit: contain; }
 .gold-body { width: min(100%, 850px); margin: auto; display: grid; gap: var(--sp-4); }
 .gold-body header { background: var(--navy-1); padding: var(--sp-4); border: 1px solid var(--amber); }
 .gold-body h1 { color: var(--amber); }

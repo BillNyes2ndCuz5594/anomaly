@@ -55,3 +55,26 @@ export function nextGold(s: GoldRush): GoldRush {
 export function standings(s: GoldRush): Rival[] {
   return [{ name: 'You', intel: s.intel }, ...s.bots].sort((a, b) => b.intel - a.intel)
 }
+
+export function resolveGoldFocusTarget(
+  phase: 'question' | 'crate' | 'next' | 'done',
+  refs: {
+    firstCrate: { focus: () => void } | null
+    nextBtn: { focus: () => void } | null
+    results: { focus: () => void } | null
+  },
+): 'crate' | 'next' | 'done' | null {
+  if (phase === 'crate') {
+    refs.firstCrate?.focus()
+    return 'crate'
+  }
+  if (phase === 'next') {
+    refs.nextBtn?.focus()
+    return 'next'
+  }
+  if (phase === 'done') {
+    refs.results?.focus()
+    return 'done'
+  }
+  return null
+}

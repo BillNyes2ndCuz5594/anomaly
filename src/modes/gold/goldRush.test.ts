@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import bedrock from '../../content/packs/02-2.json'
 import type { Item } from '../../content/schema'
-import { parseHash } from '../../lib/router'
+import { parseHash, routeNeedsProfile } from '../../lib/router'
 import { buildQuickPool } from '../quick/quickPool'
 import { createQuickAnswer } from '../quick/quickAnswer'
-import { answerGold, applyCrate, cratesFor, nextGold, pickCrate, standings, startGold } from './goldRush'
+import { answerGold, applyCrate, cratesFor, nextGold, pickCrate, resolveGoldFocusTarget, standings, startGold } from './goldRush'
 
 function play(seed: string) {
   let s = startGold(seed)
@@ -91,5 +91,33 @@ describe('Gold Rush', () => {
   it('keeps typical six-correct expeditions competitive', () => {
     const topTwo = Array.from({ length: 200 }, (_, i) => standings(play(String(i))).findIndex((r) => r.name === 'You') < 2)
     expect(topTwo.filter(Boolean).length).toBeGreaterThan(100)
+  })
+  it('requires profile for gold route like other play routes', () => {
+    expect(routeNeedsProfile('gold', false)).toBe(true)
+    expect(routeNeedsProfile('gold', true)).toBe(false)
+    expect(routeNeedsProfile('hub', false)).toBe(true)
+    expect(routeNeedsProfile('case', false)).toBe(true)
+    expect(routeNeedsProfile('cold', false)).toBe(true)
+    expect(routeNeedsProfile('title', false)).toBe(false)
+    expect(routeNeedsProfile('settings', false)).toBe(false)
+  })
+  it('directs programmatic focus to crates, next button, and results', () => {
+    const calls: string[] = []
+    const refs = {
+      firstCrate: { focus: () => calls.push('firstCrate') },
+      nextBtn: { focus: () => calls.push('nextBtn') },
+      results: { focus: () => calls.push('results') },
+    }
+    // after answer: if correct -> crate, if incorrect -> next
+    expect(resolveGoldFocusTarget('crate', refs)).toBe('crate')
+    expect(calls).toEqual(['firstCrate'])
+    // after crate pick -> next
+    expect(resolveGoldFocusTarget('next', refs)).toBe('next')
+    expect(calls).toEqual(['firstCrate', 'nextBtn'])
+    // at game done -> results
+    expect(resolveGoldFocusTarget('done', refs)).toBe('done')
+    expect(calls).toEqual(['firstCrate', 'nextBtn', 'results'])
+    // question phase delegates to stem ref
+    expect(resolveGoldFocusTarget('question', refs)).toBeNull()
   })
 })

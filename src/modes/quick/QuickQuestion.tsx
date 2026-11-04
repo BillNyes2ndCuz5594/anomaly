@@ -3,6 +3,7 @@ import type { Item } from '../../content/schema'
 import { useReadAloud } from '../../lib/speech'
 import ItemVisual from '../../screens/case/ItemVisual'
 import { createQuickAnswer, type QuickAnswer } from './quickAnswer'
+import './quick.css'
 
 export interface QuickQuestionProps {
   item: Item
@@ -33,9 +34,11 @@ function QuestionBody({ item, onAnswer }: QuickQuestionProps) {
   }
   // Static feedback and controls respect reduced motion without animation or timers.
   return (
-    <section className="panel" aria-label="Quick question" style={{ animation: 'none', transition: 'none' }}>
+    <section className="panel quick-panel" aria-label="Quick question" style={{ animation: 'none', transition: 'none' }}>
       <h2 ref={stem} tabIndex={-1} className="stem">{item.stem}</h2>
-      <ItemVisual item={item} />
+      <div className="quick-visual-wrap" style={{ maxHeight: 'min(34vh, 260px)', display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <ItemVisual item={item} />
+      </div>
       <button type="button" className="btn" aria-pressed={ra.speaking}
         onClick={() => ra.speaking ? ra.stop() : ra.start()} style={{ minHeight: 44, transition: 'none' }}>
         {ra.speaking ? 'Stop reading' : 'Read aloud'}
