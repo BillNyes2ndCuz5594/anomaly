@@ -430,3 +430,28 @@
     line-height: 1.25;
   }
 }
+
+.briefing-poster {
+  position: relative;
+  width: min(100%, 220px);
+  aspect-ratio: 16 / 9;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgba(62, 230, 255, 0.4);
+  border-radius: 4px;
+  background: #050b16;
+}
+
+.briefing-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.briefing-poster::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 60%, rgba(5, 11, 22, 0.5));
+}

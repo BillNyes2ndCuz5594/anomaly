@@ -11,11 +11,24 @@ import { useCaseDef } from './useCaseDef'
 import { usePressed } from './usePressed'
 import './briefing-labb.css'
 
+const posters = import.meta.glob<string>([
+  '../../assets/briefing/briefing-00-1.webp',
+  '../../assets/briefing/briefing-02-1.webp',
+  '../../assets/briefing/briefing-02-2.webp',
+  '../../assets/briefing/briefing-03-1.webp',
+  '../../assets/briefing/briefing-04-1.webp',
+  '../../assets/briefing/briefing-05-1.webp',
+  '../../assets/briefing/briefing-06-1.webp',
+  '../../assets/briefing/briefing-07-1.webp',
+  '../../assets/briefing/briefing-07-2.webp',
+], { eager: true, query: '?url', import: 'default' })
+
 export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) {
   const next = useSession((s) => s.next)
   const cold = kind === 'cold'
   const def = useCaseDef()
   const c = cold ? content.coldCase : def
+  const poster = cold ? undefined : posters[`../../assets/briefing/briefing-${def.id}.webp`]
   const text = c.briefing.join(' ')
   const ra = useReadAloud(text)
 
@@ -70,7 +83,11 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
           </span>
         </header>
         <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${def.id} ${c.codename}`}</h1>
-        {cold ? null : <BriefingFeed />}
+        {cold ? null : poster ? (
+          <div className="briefing-poster" data-testid="briefing-poster" aria-hidden="true">
+            <img src={poster} alt="" />
+          </div>
+        ) : <BriefingFeed />}
         <p className="dispatch-hook" data-testid="dispatch-hook" style={{ '--wn': hookWords.length } as CSSProperties}>
           {hookWords.map((w, i) => (
             <Fragment key={i}>
