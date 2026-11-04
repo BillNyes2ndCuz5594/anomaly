@@ -25,6 +25,7 @@ import {
   uv,
   vec2,
   vec3,
+  varying,
   cameraProjectionMatrix,
   positionView,
   vec4,
@@ -138,7 +139,9 @@ function PlainSky() {
     const horizon = pow(oneMinus(saturate(abs(h).mul(2.2))), float(3))
     const base = mix(color('#0a1426'), color('#060a14'), saturate(h.mul(1.6)))
     const m = new THREE.MeshBasicNodeMaterial()
-    m.colorNode = base.add(color('#1b6a86').mul(horizon.mul(0.3)))
+    const haze = base.add(color('#1b6a86').mul(horizon.mul(0.3)))
+    // Match the deck fog below the horizon without changing the cyan haze above it.
+    m.colorNode = varying(mix(haze, color('#070c17'), smoothstep(0.02, 0.25, h.negate())))
     m.side = THREE.BackSide
     m.fog = false
     m.depthWrite = false
@@ -154,10 +157,10 @@ function PlainSky() {
 }
 
 /** Dark reflective-looking deck plate under everything. */
-export function DeckPlate({ y = -0.02, radius = 40 }: { y?: number; radius?: number }) {
+export function DeckPlate({ y = -0.02, radius = 86 }: { y?: number; radius?: number }) {
   return (
     <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <circleGeometry args={[radius, 64]} />
+      <circleGeometry args={[radius, 96]} />
       <meshStandardMaterial color="#0a1424" roughness={0.55} metalness={0.5} />
     </mesh>
   )
