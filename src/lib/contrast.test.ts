@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { blend, contrastRatio } from './contrast'
+import { contrastRatio } from './contrast'
 import { scaleColor } from '../teacher/analysis'
 
 // Panel backgrounds the HUD text sits on, darkest to lightest.
@@ -25,8 +25,16 @@ describe('WCAG AA contrast on the navy panels', () => {
     })
   }
 
-  it('struck and dimmed option text stays above AA', () => {
-    expect(contrastRatio(blend('#e6f1ff', '#15233b', 0.62), '#15233b')).toBeGreaterThanOrEqual(AA)
+  it('struck and tried text uses the AA muted token without opacity', () => {
+    const css = readFileSync(new URL('../index.css', import.meta.url), 'utf8')
+    expect(css).toMatch(/--muted:\s*#9db2d1;/i)
+    const labCss = readFileSync(new URL('../screens/case/briefing-labb.css', import.meta.url), 'utf8')
+    for (const [source, selector] of [[css, '.opt.struck .opt-text'], [labCss, '.labb-screen .match-btn.tried']]) {
+      const rule = source.slice(source.indexOf(`${selector} {`)).split('}')[0]
+      expect(rule).toMatch(/color:\s*var\(--muted\);/)
+      expect(rule).not.toMatch(/opacity\s*:/)
+    }
+    for (const bg of PANELS) expect(contrastRatio('#9db2d1', bg), `muted on ${bg}`).toBeGreaterThanOrEqual(AA)
   })
 
   it('every hard coded text color in the HUD stylesheet reads on the lightest panel', () => {
