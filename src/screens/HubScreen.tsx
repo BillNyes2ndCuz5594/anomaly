@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { caseById, codexById, content, loadPack } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
@@ -6,6 +6,7 @@ import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
+import GoldRushButton from '../ui/GoldRushButton'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
@@ -152,8 +153,8 @@ export default function HubScreen() {
             {content.cases.map((c) => {
               const st = caseStatus(cases[c.id])
               return (
+                <Fragment key={c.id}>
                 <CaseButton
-                  key={c.id}
                   id={c.id}
                   testId={`case-marker-${c.id}`}
                   className="case-btn amber"
@@ -169,6 +170,8 @@ export default function HubScreen() {
                     </>
                   }
                 />
+                <GoldRushButton caseId={c.id} />
+                </Fragment>
               )
             })}
             <CaseButton

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import GoldRushButton from '../../ui/GoldRushButton'
 import Burst from '../../ui/Burst'
 import Confetti from '../../ui/Confetti'
 import { STILL } from '../../lib/flags'
@@ -193,6 +194,7 @@ export default function Results() {
             <span className="muted tiny">Codex entries: {codexCount}</span>
           </div>
           <ReportCodePanel intro="Copy this into your Canvas assignment. It also resumes your progress on another laptop." />
+          {!cold && <GoldRushButton caseId={caseId} />}
           <button type="button" className="btn primary big" data-testid="back-to-hub" onClick={() => navigate('/hub')}>
             Back to hub
           </button>

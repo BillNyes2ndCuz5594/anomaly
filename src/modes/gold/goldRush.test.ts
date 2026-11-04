@@ -41,6 +41,23 @@ describe('Gold Rush', () => {
       }
     }
   })
+  it('replaces zero-intel doubles with deterministic number crates', () => {
+    let replacements = 0
+    for (let seed = 0; seed < 100; seed++) {
+      const s = answerGold(startGold(String(seed)), true)
+      const positive = cratesFor({ ...s, intel: 1 })
+      const empty = cratesFor(s)
+      expect(empty).not.toContain('double')
+      expect(empty).toEqual(cratesFor(s))
+      positive.forEach((crate, i) => {
+        if (crate === 'double') {
+          expect([10, 20, 40]).toContain(empty[i])
+          replacements++
+        }
+      })
+    }
+    expect(replacements).toBeGreaterThan(0)
+  })
   it('applies additions, doubling and glitch rounding', () => {
     const s = { ...answerGold(startGold('rules'), true), intel: 21 }
     expect(applyCrate(s, 10).intel).toBe(31)
