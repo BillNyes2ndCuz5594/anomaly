@@ -1,6 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
 import { STILL } from './lib/flags'
-import { navigate, parseHash, routeNeedsProfile, type Route } from './lib/router'
+import { isUnknownHash, navigate, parseHash, routeNeedsProfile, type Route } from './lib/router'
 import { HUB_PANEL_WIDTH } from './screens/hubLayout'
 const loadHub = () => import('./screens/HubScreen')
 const HubScreen = lazy(loadHub)
@@ -193,6 +193,11 @@ export default function App() {
   useEffect(() => {
     if (needsProfile) navigate('/')
   }, [needsProfile])
+  // A typo or stale link sends a checked-in agent back to the hub instead of the title screen.
+  const unknown = isUnknownHash(hash)
+  useEffect(() => {
+    if (unknown) window.location.replace(profile ? '#/hub' : '#/')
+  }, [unknown, profile])
   if (needsProfile) return null
 
   return (
