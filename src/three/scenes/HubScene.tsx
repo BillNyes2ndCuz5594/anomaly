@@ -1,5 +1,5 @@
-import { useFrame } from '@react-three/fiber'
-import { useRef, useState } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
 import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
@@ -20,6 +20,28 @@ const DRONE_POS: [number, number, number] = [-2.15, 2.85, 2.2]
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 
 export default function HubScene() {
+  const { gl, scene, camera } = useThree()
+  const warmup = useRef<Promise<unknown> | null>(null)
+  useEffect(() => {
+    let active = true
+    let released = false
+    const release = () => {
+      if (!active || released) return
+      released = true
+      start.current = performance.now()
+      useRuntime.getState().setHubReady(true)
+    }
+    useRuntime.getState().setHubReady(false)
+    const timer = window.setTimeout(release, 1500)
+    warmup.current ??= (gl as unknown as { compileAsync: (scene: unknown, camera: unknown) => Promise<void> })
+      .compileAsync(scene, camera)
+    void warmup.current.then(release, release)
+    return () => {
+      active = false
+      window.clearTimeout(timer)
+      useRuntime.getState().setHubReady(false)
+    }
+  }, [gl, scene, camera])
   const calm = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)

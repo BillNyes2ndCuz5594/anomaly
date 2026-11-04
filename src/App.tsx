@@ -123,6 +123,8 @@ export default function App() {
   const tier = resolveTier(quality, autoTier)
   const { hash, phase, kind, dir, mode } = useRouteTransition(reducedMotion, tier)
   const route = parseHash(hash)
+  const hubReady = useRuntime((s) => s.hubReady)
+  const hubWaiting = route.name === 'hub' && !hubReady
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
@@ -138,11 +140,11 @@ export default function App() {
   useLayoutEffect(() => {
     const host = document.querySelector('.screen-host') as HTMLElement | null
     if (!host) return
-    host.inert = phase === 'cover'
+    host.inert = hubWaiting || phase === 'cover'
     return () => {
       host.inert = false
     }
-  }, [phase, hash])
+  }, [phase, hash, hubWaiting])
 
   // Routes past the title need an agent. Send new visitors to check in first.
   const needsProfile = (route.name === 'hub' || route.name === 'case' || route.name === 'cold') && !profile
@@ -153,10 +155,10 @@ export default function App() {
 
   return (
     <div className="app" data-route={route.name}>
-      <div className={ready ? 'stage-layer ready' : 'stage-layer'}>
+      <div className={ready && !hubWaiting ? 'stage-layer ready' : 'stage-layer'}>
         <StageBoundary>
           <Suspense fallback={null}>
-            <Stage prefetch={route.name !== 'title'} verticalInsets={route.name === 'case' || route.name === 'cold'} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
+            <Stage prefetch={route.name !== 'title' && (route.name !== 'hub' || (hubReady && phase === 'idle'))} verticalInsets={route.name === 'case' || route.name === 'cold'} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
               <Suspense fallback={null}>
                 <SceneFor key={route.name} route={route} />
               </Suspense>
@@ -176,7 +178,7 @@ export default function App() {
         <div className="handoff-sweep delay" />
         <div className="handoff-edge" />
       </div>
-      <div className="veil" data-phase={phase} data-kind={kind} data-dir={dir} aria-hidden="true">
+      <div className="veil" data-phase={hubWaiting ? 'cover' : phase} data-kind={kind} data-dir={dir} aria-hidden="true">
         <div className="veil-stack">
           {mode === 'full' ? <WarpPreload /> : null}
           <div className="veil-fill">{mode === 'full' && phase !== 'idle' && (kind === 'launch' || kind === 'warp') ? <WarpStreak /> : null}</div>
