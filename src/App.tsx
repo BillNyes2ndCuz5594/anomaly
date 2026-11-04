@@ -9,6 +9,7 @@ import TitleScreen from './screens/TitleScreen'
 
 const CaseScreen = lazy(() => import('./screens/CaseScreen'))
 const SettingsScreen = lazy(() => import('./screens/SettingsScreen'))
+const GoldRushScreen = lazy(() => import('./modes/gold/GoldRushScreen'))
 const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
 import { resolveTier } from './state/quality'
 import { useRuntime } from './state/runtime'
@@ -87,6 +88,8 @@ function ScreenFor({ route }: { route: Route }) {
           <SettingsScreen />
         </Suspense>
       )
+    case 'gold':
+      return <Suspense fallback={null}><GoldRushScreen key={route.id} caseId={route.id} /></Suspense>
     case 'visuals':
       return (
         <Suspense fallback={null}>
