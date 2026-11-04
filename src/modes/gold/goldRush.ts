@@ -1,5 +1,7 @@
 import { seeded } from '../../lib/rkea'
 
+export const GOLD_CASES: ReadonlySet<string> = new Set(['02-2'])
+
 export type Crate = 10 | 20 | 40 | 'double' | 'glitch' | 'swap' | 'steal'
 export interface Rival { name: string; intel: number }
 export interface GoldRush {
@@ -18,7 +20,11 @@ export function answerGold(s: GoldRush, correct: boolean): GoldRush {
 }
 export function cratesFor(s: GoldRush): Crate[] {
   const choices = table.filter((crate) => crate !== 'swap' || s.bots.some((b) => b.intel > s.intel))
-  return Array.from({ length: 3 }, (_, i) => choices[Math.floor(seeded(s.seed, `crate:${s.question}:${i}`) * choices.length)])
+  return Array.from({ length: 3 }, (_, i) => {
+    const crate = choices[Math.floor(seeded(s.seed, `crate:${s.question}:${i}`) * choices.length)]
+    return crate === 'double' && s.intel === 0
+      ? ([10, 20, 40] as const)[Math.floor(seeded(s.seed, `number:${s.question}:${i}`) * 3)] : crate
+  })
 }
 export function pickCrate(s: GoldRush, index: number): GoldRush {
   if (s.phase !== 'crate' || !Number.isInteger(index) || index < 0 || index > 2) return s
