@@ -1,3 +1,4 @@
+import { createTapGuard } from '../ui/tapGuard'
 import { create } from 'zustand'
 import type { CaseDef, Item } from '../content/schema'
 import { caseById, content, vitalsCase } from '../content'
@@ -152,6 +153,8 @@ interface FxState {
   setCard: (id: string | null) => void
 }
 
+const admitFlash = createTapGuard()
+
 export const useFx = create<FxState>((set) => ({
   hover: null,
   flash: null,
@@ -161,7 +164,9 @@ export const useFx = create<FxState>((set) => ({
   specimen: null,
   card: null,
   setHover: (hover) => set({ hover }),
-  flashPart: (id, ok) => set((s) => ({ flash: { id, ok, n: (s.flash?.n ?? 0) + 1 } })),
+  flashPart: (id, ok) => {
+    if (admitFlash(`${id}:${ok}`, 450)) set((s) => ({ flash: { id, ok, n: (s.flash?.n ?? 0) + 1 } }))
+  },
   setLit: (lit) => set({ lit }),
   setPick: (pick) => set({ pick }),
   setBridges: (bridges) => set({ bridges }),

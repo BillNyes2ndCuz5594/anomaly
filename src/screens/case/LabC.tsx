@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { flyChip } from '../../ui/flyChip'
+import { useTapGuard } from '../../ui/useTapGuard'
+import { useEffect, useRef, useState } from 'react'
+import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import VitalsStable from '../../ui/VitalsStable'
 import { VITALS_LABS } from '../../content'
@@ -18,6 +19,9 @@ interface Progress {
 }
 
 export default function LabC() {
+  useEffect(() => clearFlyChips, [])
+  const admit = useTapGuard()
+  const completed = useRef(new Set<string>())
   const lab = VITALS_LABS.specimenSort
   const specimens = lab.specimens
   const next = useSession((s) => s.next)
@@ -50,8 +54,9 @@ export default function LabC() {
   }
 
   function sortBackbone(yes: boolean) {
-    if (p.backbone) return
+    if (p.backbone || completed.current.has(`backbone:${sp.id}`) || !admit(`backbone:${sp.id}:${yes}`, yes === sp.backbone ? Infinity : 450)) return
     if (yes === sp.backbone) {
+      completed.current.add(`backbone:${sp.id}`)
       setProg({ ...prog, [sp.id]: { ...p, backbone: true } })
       // The id prefix tells the 3D specimen to add its x-ray fresnel pass on top of the usual hop.
       useFx.getState().flashPart(`xray:${sp.id}`, true)
@@ -63,8 +68,9 @@ export default function LabC() {
   }
 
   function sortGroup(g: string) {
-    if (!p.backbone || p.group) return
+    if (!p.backbone || p.group || completed.current.has(`group:${sp.id}`) || !admit(`group:${sp.id}:${g}`, g === sp.group ? Infinity : 450)) return
     if (g === sp.group) {
+      completed.current.add(`group:${sp.id}`)
       setProg({ ...prog, [sp.id]: { ...p, group: true } })
       unlock([`specimen:${sp.id}`])
       if (motion === 'full') flyChip(sp.name, document.querySelector(`[data-testid="specimen-chip-${sp.id}"]`), document.querySelector(`[data-testid="sort-group-${g}"]`), motion, 400)

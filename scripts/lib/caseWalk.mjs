@@ -51,6 +51,7 @@ export async function playGenericLab(page, lab, { check = () => {}, label = '', 
       await page.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'no', { timeout: 10000 })
       check(`generic lab wrong pick says Not quite. with a hint (${label})`, (await textOf(page, 'lab-feedback')).includes('Not quite.'))
     }
+    await sleep(450)
     const before = await page.$$eval('[data-testid="lab-feedback"]', (els) => els.length)
     if (n === 1) {
       await page.focus(sel(move.right))
@@ -61,7 +62,7 @@ export async function playGenericLab(page, lab, { check = () => {}, label = '', 
     await page.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'yes', { timeout: 10000 })
     if (n === 1) check(`generic lab plays from the keyboard (${label})`, (await attrOf(page, 'lab-feedback', 'data-ok')) === 'yes', `${before}`)
     if (n === 0 && onFirstCorrect) await onFirstCorrect()
-    await sleep(120)
+    await sleep(450)
   }
   await page.waitForSelector(sel('lab-next'))
   const placed = (await textOf(page, 'lab-placed')).match(/PLACED (\d+) OF (\d+)/)

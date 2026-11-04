@@ -335,3 +335,18 @@ describe('audio engine gates', () => {
     expect(ctxs[0].oscs.length).toBe(n)
   })
 })
+
+it('stops scheduled notes before another cue and when sound is muted', () => {
+  const { engine, ctxs, env } = harness()
+  engine.gesture()
+  engine.play('correct')
+  const first = [...ctxs[0].oscs]
+  expect(first.length).toBeGreaterThan(0)
+  env.now += 200
+  engine.play('press')
+  expect(first.every(o => o.stopped === 2)).toBe(true)
+  const second = ctxs[0].oscs.slice(first.length)
+  expect(second.length).toBeGreaterThan(0)
+  engine.setPrefs(false, 0.5, { silent: true })
+  expect(second.every(o => o.stopped === 2)).toBe(true)
+})

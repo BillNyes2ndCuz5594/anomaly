@@ -1,3 +1,4 @@
+import { useTapGuard } from '../../ui/useTapGuard'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Item } from '../../content/schema'
@@ -8,7 +9,7 @@ import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announceBus'
 import { INTEL, codexIdsFor } from './itemPlayerRules'
-import { flyChip } from '../../ui/flyChip'
+import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { CoreVignette } from '../../ui/FrostOverlay'
 import { CaseTop } from './ui'
@@ -26,6 +27,7 @@ interface BodyProps {
 }
 
 function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & { sideEl: HTMLElement }) {
+  useEffect(() => clearFlyChips, [])
   const tokens = useMemo(() => tokenizeStem(item.stem), [item.stem])
   const phrases = useMemo(() => findKeyPhrases(item.stem, item.keyWords), [item.stem, item.keyWords])
   const phraseOf = useMemo(() => {
@@ -47,6 +49,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const [attemptedStrike, setAttempted] = useState(false)
   const [readUsed, setReadUsed] = useState(false)
   const [result, setResult] = useState<AnswerRecord | null>(null)
+  const submitted = useRef(false)
+  const admit = useTapGuard()
   const locked = result !== null
   useAnnounce(result ? `${result.correct ? 'Correct' : 'Not quite'}. ${result.correct ? 'Locked in.' : `The key was ${LETTERS[item.key]}.`} Intel earned: ${result.intel}` : '')
 
@@ -75,7 +79,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
 
   const toggleWord = useCallback(
     (t: number) => {
-      if (locked) return
+      if (submitted.current) return
+      if (!admit(`word:${t}`, 450)) return
       const pi = phraseOf.get(t)
       setTagged((prev) => {
         const next = new Set(prev)
@@ -95,12 +100,13 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         flyChip(`+${INTEL.keyWord}`, document.querySelector(`[data-testid="word-${t}"]`), document.querySelector('[data-testid="rkea-key-words"]'), motion)
       }
     },
-    [locked, phraseOf, phrases, tagged, earnedPhrases, motion],
+    [phraseOf, phrases, tagged, earnedPhrases, motion, admit],
   )
 
   const strike = useCallback(
     (i: number) => {
-      if (locked) return
+      if (submitted.current) return
+      if (!admit(`strike:${i}`, 450)) return
       setAttempted(true)
       if (i === item.key) {
         setHints((h) => h + 1)
@@ -121,26 +127,28 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       }
       setSelected((s) => (s === i ? null : s))
     },
-    [locked, item.key, struckEver, motion],
+    [item.key, struckEver, motion, admit],
   )
 
   const choose = useCallback(
     (i: number) => {
-      if (locked) return
+      if (submitted.current) return
       if (elim) return strike(i)
       if (struck.has(i)) return
+      if (selected === i) return
       setSelected(i)
       setMsg(null)
     },
-    [locked, elim, strike, struck],
+    [elim, strike, struck, selected],
   )
 
   const lockIn = useCallback(() => {
-    if (locked) return
+    if (submitted.current) return
     if (selected === null) {
       setMsg('Pick an answer first, then lock it in.')
       return
     }
+    submitted.current = true
     const correct = selected === item.key
     const keyTagged = phrases.filter((p) => p.tokens.every((t) => tagged.has(t))).length
     const intel = keyTagged * INTEL.keyWord + struckEver.size * INTEL.eliminate + (correct ? INTEL.correct : 0)
@@ -150,7 +158,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     if (useSession.getState().kind === 'cold') useRuntime.getState().fireCoreFx(correct)
     ra.stop()
     onLocked(rec)
-  }, [locked, selected, item, phrases, tagged, struckEver, hints, ra, onLocked])
+  }, [selected, item, phrases, tagged, struckEver, hints, ra, onLocked])
 
   // Keyboard: 1-4 or A-D choose, X eliminate mode, Space read aloud, Enter lock in (or next after).
   const latest = useRef({ choose, lockIn, ra, onNext, selected, elim, locked })
@@ -162,6 +170,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       const el = e.target as HTMLElement | null
       const tag = el?.tagName ?? ''
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.repeat && ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'x', ' ', 'enter'].includes(e.key.toLowerCase())) { e.preventDefault(); return }
       const tid = el?.dataset?.testid ?? ''
       const onOption = tid.startsWith('option-')
       const onButton = tag === 'BUTTON'

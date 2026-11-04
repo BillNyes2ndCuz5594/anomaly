@@ -26,9 +26,9 @@ export const freePort = () =>
     })
   })
 
-export async function startPreview(port) {
-  const base = `http://localhost:${port}/`
-  const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
+export async function startPreview(port, host = 'localhost', outDir = 'dist') {
+  const base = `http://${host}:${port}/`
+  const proc = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'preview', '--outDir', outDir, '--host', host, '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], cwd: ROOT })
   writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-preview.pid`), String(proc.pid))
   let log = ''
   proc.stdout.on('data', (d) => (log += d))
@@ -45,8 +45,8 @@ export async function startPreview(port) {
   throw new Error('vite preview did not start:\n' + log)
 }
 
-export async function launch() {
-  const browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, args: CHROME_ARGS })
+export async function launch(args = CHROME_ARGS) {
+  const browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, args })
   writeFileSync(join(tmpdir(), `an${process.env.AN_TAG ? '-' + process.env.AN_TAG : ''}-chrome.pid`), String(browser.process()?.pid ?? ''))
   return browser
 }
