@@ -27,4 +27,14 @@ describe('briefing and lab B sheet', () => {
     expect(css).toContain('position: static')
     expect(css).toContain('order: 0')
   })
+
+  it('scrolls briefing text inside flex column card and caps poster at max-height 800px', () => {
+    expect(css).toContain('.briefing-screen .side-panel.dispatch-card')
+    expect(css).toContain('display: flex')
+    expect(css).toContain('flex-direction: column')
+    expect(css).toContain('overflow-y: auto')
+    expect(css).toContain('min-height: 0')
+    expect(css).toContain('scrollbar-width: thin')
+    expect(css).toMatch(/@media[^{]*max-height:\s*800px/)
+  })
 })

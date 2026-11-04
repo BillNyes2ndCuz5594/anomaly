@@ -9,6 +9,29 @@
     inset 0 0 32px rgba(62, 230, 255, 0.045);
 }
 
+.briefing-screen .side-panel.dispatch-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.briefing-screen .side-panel.dispatch-card > :not(.dispatch-lines) {
+  flex-shrink: 0;
+}
+
+.briefing-screen .dispatch-lines {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(62, 230, 255, 0.4) transparent;
+}
+
+.briefing-screen .side-panel.dispatch-card .panel-actions {
+  flex: none;
+  margin-top: auto;
+}
+
 .briefing-screen .dispatch-title,
 .briefing-screen .dispatch-hook,
 .briefing-screen .dispatch-lines,
@@ -454,4 +477,11 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(transparent 60%, rgba(5, 11, 22, 0.5));
+}
+
+@media (max-height: 800px) {
+  .briefing-poster {
+    max-height: 90px;
+    width: auto;
+  }
 }

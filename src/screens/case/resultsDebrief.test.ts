@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   STAMP_MIN_FONT,
@@ -11,6 +12,8 @@ import {
   verdictPhrase,
   verdictWord,
 } from './resultsDebrief'
+
+const css = readFileSync(new URL('./results-debrief.css', import.meta.url), 'utf8')
 
 const WIDTHS = [240, 280, 316, 360, 480, 700, 800, 1100, 1400, 1800]
 
@@ -72,5 +75,20 @@ describe('verdict copy', () => {
     expect(debriefLine(true, false, 'Closed line.', 'Open line.')).toBe('Closed line.')
     expect(debriefLine(false, true, 'Closed line.', 'Open line.')).toBe('Open line.')
     expect(debriefLine(false, false, 'Closed line.', 'Open line.')).toBe('CASE STILL OPEN. It returns as a cold case soon.')
+  })
+})
+
+describe('results panel and side panel scroll', () => {
+  it('scrolls results-panel and results-side internally with visible scrollbar', () => {
+    expect(css).toContain('.rd-screen .results-panel')
+    expect(css).toContain('.rd-screen .results-side-scroll')
+    expect(css).toContain('scrollbar-width: thin')
+    expect(css).toContain('scrollbar-color:')
+  })
+
+  it('keeps back-to-hub footer always visible as flex footer', () => {
+    expect(css).toContain('.rd-screen .results-side-footer')
+    expect(css).toContain('flex: none')
+    expect(css).toContain('margin-top: auto')
   })
 })
