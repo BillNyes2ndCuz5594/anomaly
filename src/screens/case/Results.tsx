@@ -174,30 +174,34 @@ export default function Results() {
         </section>
 
         <aside className="panel brackets results-side" aria-label="Shift file">
-          <h2 className="panel-title">Shift file</h2>
-          <div className={paint ? 'reward unlocked' : 'reward'} data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
-            {paint ? <Burst color="#ffb547" spread={90} delay={0.9} big={false} /> : null}
-            <span className="label amber">Drone paint</span>
-            {paint ? (
+          <div className="results-side-scroll">
+            <h2 className="panel-title">Shift file</h2>
+            <div className={paint ? 'reward unlocked' : 'reward'} data-testid="paint-unlock" data-unlocked={paint ? 'yes' : 'no'}>
+              {paint ? <Burst color="#ffb547" spread={90} delay={0.9} big={false} /> : null}
+              <span className="label amber">Drone paint</span>
+              {paint ? (
+                <p>
+                  <span aria-hidden="true">{'\u2605'}</span> Unlocked: <strong>{paint}</strong>
+                </p>
+              ) : (
+                <p className="muted">No new paint this time. A paint unlocks when a benchmark moves up a stage.</p>
+              )}
+            </div>
+            <div className="reward">
+              <span className="label amber">Agent</span>
               <p>
-                <span aria-hidden="true">{'\u2605'}</span> Unlocked: <strong>{paint}</strong>
+                Rank: <strong data-testid="results-rank">{rankFor(mastery)}</strong>
               </p>
-            ) : (
-              <p className="muted">No new paint this time. A paint unlocks when a benchmark moves up a stage.</p>
-            )}
+              <span className="muted tiny">Codex entries: {codexCount}</span>
+            </div>
+            <ReportCodePanel intro="Copy this into your Canvas assignment. It also resumes your progress on another laptop." />
+            {!cold && <GoldRushButton caseId={caseId} />}
           </div>
-          <div className="reward">
-            <span className="label amber">Agent</span>
-            <p>
-              Rank: <strong data-testid="results-rank">{rankFor(mastery)}</strong>
-            </p>
-            <span className="muted tiny">Codex entries: {codexCount}</span>
-          </div>
-          <ReportCodePanel intro="Copy this into your Canvas assignment. It also resumes your progress on another laptop." />
-          {!cold && <GoldRushButton caseId={caseId} />}
-          <button type="button" className="btn primary big" data-testid="back-to-hub" onClick={() => navigate('/hub')}>
-            Back to hub
-          </button>
+          <footer className="results-side-footer">
+            <button type="button" className="btn primary big" data-testid="back-to-hub" onClick={() => navigate('/hub')}>
+              Back to hub
+            </button>
+          </footer>
         </aside>
       </main>
     </div>

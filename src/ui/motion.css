@@ -53,7 +53,7 @@
 .case-list > *,
 .mastery-list > li,
 .bars > li,
-.results-side > .reward,
+.results-side .reward,
 .debrief-list > .debrief-item,
 .title-bottom > * {
   animation: row-in 0.32s var(--ease-out) backwards;
@@ -63,7 +63,7 @@
 .case-list > *:nth-child(2),
 .mastery-list > li:nth-child(2),
 .bars > li:nth-child(2),
-.results-side > .reward:nth-child(2),
+.results-side .reward:nth-child(2),
 .debrief-list > .debrief-item:nth-child(2),
 .title-bottom > *:nth-child(2) {
   animation-delay: 210ms;
@@ -72,7 +72,7 @@
 .case-list > *:nth-child(3),
 .mastery-list > li:nth-child(3),
 .bars > li:nth-child(3),
-.results-side > .reward:nth-child(3),
+.results-side .reward:nth-child(3),
 .debrief-list > .debrief-item:nth-child(3),
 .title-bottom > *:nth-child(3) {
   animation-delay: 260ms;
@@ -81,7 +81,7 @@
 .case-list > *:nth-child(4),
 .mastery-list > li:nth-child(4),
 .bars > li:nth-child(4),
-.results-side > .reward:nth-child(4),
+.results-side .reward:nth-child(4),
 .debrief-list > .debrief-item:nth-child(4),
 .title-bottom > *:nth-child(4) {
   animation-delay: 310ms;
@@ -90,7 +90,7 @@
 .case-list > *:nth-child(n + 5),
 .mastery-list > li:nth-child(n + 5),
 .bars > li:nth-child(n + 5),
-.results-side > .reward:nth-child(n + 5),
+.results-side .reward:nth-child(n + 5),
 .debrief-list > .debrief-item:nth-child(n + 5),
 .title-bottom > *:nth-child(n + 5) {
   animation-delay: 360ms;
@@ -582,16 +582,16 @@ html[data-motion='still'] .results-body {
 html[data-motion='full'] .bar-fill {
   transition: width 0.48s var(--ease-out);
 }
-html[data-motion='full'] .results-side > .reward {
+html[data-motion='full'] .results-side .reward {
   animation-name: reward-in;
   animation-duration: 0.28s;
   animation-fill-mode: both;
   animation-timing-function: var(--ease-out);
 }
-html[data-motion='full'] .results-side > .reward:nth-child(1) { animation-delay: 0.06s; }
-html[data-motion='full'] .results-side > .reward:nth-child(2) { animation-delay: 0.12s; }
-html[data-motion='full'] .results-side > .reward:nth-child(3) { animation-delay: 0.18s; }
-html[data-motion='full'] .results-side > .reward:nth-child(n + 4) { animation-delay: 0.24s; }
+html[data-motion='full'] .results-side .reward:nth-child(1) { animation-delay: 0.06s; }
+html[data-motion='full'] .results-side .reward:nth-child(2) { animation-delay: 0.12s; }
+html[data-motion='full'] .results-side .reward:nth-child(3) { animation-delay: 0.18s; }
+html[data-motion='full'] .results-side .reward:nth-child(n + 4) { animation-delay: 0.24s; }
 
 /* Signature arrival: panels, titles and buttons follow the veil instead of popping in together. */
 html[data-motion='full'] .screen-host[data-arrive='launch'],
@@ -676,7 +676,7 @@ html[data-motion='still'] .presence .modal.panel {
   .case-list > *,
   .mastery-list > li,
   .bars > li,
-  .results-side > .reward,
+  .results-side .reward,
   .debrief-list > .debrief-item,
   .title-bottom > *,
   .modal-backdrop,
@@ -723,7 +723,7 @@ html[data-reduced-motion='true'] .options > .opt,
 html[data-reduced-motion='true'] .case-list > *,
 html[data-reduced-motion='true'] .mastery-list > li,
 html[data-reduced-motion='true'] .bars > li,
-html[data-reduced-motion='true'] .results-side > .reward,
+html[data-reduced-motion='true'] .results-side .reward,
 html[data-reduced-motion='true'] .debrief-list > .debrief-item,
 html[data-reduced-motion='true'] .title-bottom > *,
 html[data-reduced-motion='true'] .modal-backdrop,
