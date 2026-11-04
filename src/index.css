@@ -2290,10 +2290,10 @@ html[data-motion='still'] .step-host { animation: none; }
 .veil[data-phase='cover'] .veil-stack {
   animation: veil-cover 0.15s cubic-bezier(0.4, 0, 0.6, 1) forwards;
 }
-.veil[data-kind='launch'][data-phase='cover'] .veil-stack { animation-duration: 0.16s; }
-.veil[data-kind='warp'][data-phase='cover'] .veil-stack { animation-duration: 0.18s; }
-.veil[data-phase='cover'] .veil-mark { animation: mark-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.veil[data-phase='cover'] .veil-edge { animation: edge-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.veil[data-kind='launch'][data-phase='cover'] .veil-stack { animation-duration: 0.12s; animation-timing-function: var(--ease-out); }
+.veil[data-kind='warp'][data-phase='cover'] .veil-stack { animation-duration: 0.12s; animation-timing-function: var(--ease-out); }
+.veil[data-phase='cover'] .veil-mark { animation: mark-in 0.12s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.veil[data-phase='cover'] .veil-edge { animation: edge-in 0.12s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
 .veil[data-kind='scan'][data-phase='reveal'] .veil-stack {
   opacity: 1;
@@ -2306,37 +2306,37 @@ html[data-motion='still'] .step-host { animation: none; }
 .veil[data-kind='launch'][data-phase='reveal'] .veil-stack,
 .veil[data-kind='deploy'][data-phase='reveal'] .veil-stack {
   opacity: 1;
-  animation: launch-open 1.12s cubic-bezier(0.16, 0.84, 0.24, 1) forwards;
+  animation: launch-open 0.42s var(--ease-out) forwards;
 }
 .veil[data-kind='warp'][data-phase='reveal'] .veil-stack {
   opacity: 1;
-  animation: warp-open 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: warp-open 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 .veil[data-kind='warp'][data-dir='back'][data-phase='reveal'] .veil-stack {
   animation-name: warp-open-up;
 }
 
-.veil[data-phase='reveal'] .veil-grid { animation: grid-drift 1.08s linear forwards; }
+.veil[data-phase='reveal'] .veil-grid { animation: grid-drift 0.42s var(--ease-out) forwards; }
 .veil[data-kind='scan'][data-phase='reveal'] .veil-grid,
 .veil[data-kind='dissolve'][data-phase='reveal'] .veil-grid { animation-duration: 0.38s; }
-.veil[data-phase='reveal'] .veil-sweep { animation: sweep-down 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-.veil[data-phase='reveal'] .veil-sweep.b { animation-delay: 0.16s; animation-duration: 0.9s; }
+.veil[data-phase='reveal'] .veil-sweep { animation: sweep-down 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-phase='reveal'] .veil-sweep.b { animation-delay: 0.06s; animation-duration: 0.36s; }
 .veil[data-kind='scan'][data-phase='reveal'] .veil-sweep,
 .veil[data-kind='dissolve'][data-phase='reveal'] .veil-sweep { animation-duration: 0.38s; }
 .veil[data-kind='warp'][data-dir='back'][data-phase='reveal'] .veil-sweep { animation-name: sweep-up; }
-.veil[data-phase='reveal'] .veil-edge { animation: edge-unfold 1.08s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-phase='reveal'] .veil-edge { animation: edge-unfold 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 .veil[data-kind='scan'][data-phase='reveal'] .veil-edge { animation-duration: 0.38s; }
-.veil[data-phase='reveal'] .veil-mark { animation: mark-out 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.veil[data-phase='reveal'] .veil-mark { animation: mark-out 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 .veil[data-kind='scan'][data-phase='reveal'] .veil-mark,
 .veil[data-kind='dissolve'][data-phase='reveal'] .veil-mark { animation-duration: 0.38s; }
-.veil[data-phase='reveal'] .veil-bits i { animation: bit-drift 1.08s linear forwards; }
-.veil-bits i:nth-child(2) { animation-delay: 0.08s; }
-.veil-bits i:nth-child(3) { animation-delay: 0.14s; }
-.veil-bits i:nth-child(4) { animation-delay: 0.05s; }
-.veil-bits i:nth-child(5) { animation-delay: 0.18s; }
-.veil-bits i:nth-child(6) { animation-delay: 0.1s; }
-.veil-bits i:nth-child(7) { animation-delay: 0.22s; }
-.veil-bits i:nth-child(8) { animation-delay: 0.12s; }
+.veil[data-phase='reveal'] .veil-bits i { animation: bit-drift 0.34s var(--ease-out) forwards; }
+.veil-bits i:nth-child(2) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(3) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(4) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(5) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(6) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(7) { animation-delay: 0.04s; }
+.veil-bits i:nth-child(8) { animation-delay: 0.04s; }
 .veil[data-kind='scan'][data-phase='cover'] .veil-line,
 .veil[data-kind='scan'][data-phase='reveal'] .veil-line,
 .veil[data-kind='warp'][data-phase='cover'] .veil-line,
@@ -2346,7 +2346,7 @@ html[data-motion='still'] .step-host { animation: none; }
   animation: veil-line 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 .veil[data-kind='launch'][data-phase='reveal'] .veil-line,
-.veil[data-kind='warp'][data-phase='reveal'] .veil-line { animation-duration: 1.08s; }
+.veil[data-kind='warp'][data-phase='reveal'] .veil-line { animation-duration: 0.42s; }
 .veil[data-kind='scan'][data-phase='cover'] .veil-line { animation-duration: 0.15s; }
 
 html[data-motion='fade'] .veil-glow,
@@ -2476,13 +2476,14 @@ html[data-motion='full'] .handoff[data-phase='on'] .handoff-sweep {
 html[data-motion='full'] .handoff[data-dir='back'][data-phase='on'] .handoff-sweep { animation-name: sweep-up; }
 html[data-motion='full'] .handoff[data-phase='on'] .handoff-sweep.delay { animation-delay: 0.08s; }
 html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-grid {
-  animation: handoff-grid 1.12s linear forwards;
+  animation: handoff-grid 0.52s var(--ease-out) forwards;
 }
 html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-sweep {
-  animation-duration: 1.12s;
+  animation-duration: 0.52s;
 }
+html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-sweep.delay { animation-duration: 0.44s; }
 html[data-motion='full'] .handoff[data-kind='results'][data-phase='on'] .handoff-edge {
-  animation: edge-unfold 1.12s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: edge-unfold 0.52s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 html[data-motion='fade'] .handoff-grid,
 html[data-motion='fade'] .handoff-band,

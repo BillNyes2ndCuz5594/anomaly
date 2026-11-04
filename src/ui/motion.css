@@ -558,15 +558,15 @@ html[data-motion='full'] .item-grid .visual-panel::after {
 
 /* Results: the file rises, rows and rewards follow, bars ease to their new width. */
 html[data-motion='full'] .results-body {
-  animation: results-rise 0.72s var(--ease-out) both;
+  animation: results-rise 0.42s var(--ease-out) both;
 }
 html[data-motion='full'] .results-body .bar-row {
-  animation: row-in 0.46s var(--ease-out) both;
+  animation: row-in 0.24s var(--ease-out) both;
 }
-html[data-motion='full'] .results-body .bar-row:nth-child(1) { animation-delay: 0.16s; }
-html[data-motion='full'] .results-body .bar-row:nth-child(2) { animation-delay: 0.28s; }
-html[data-motion='full'] .results-body .bar-row:nth-child(3) { animation-delay: 0.4s; }
-html[data-motion='full'] .results-body .bar-row:nth-child(4) { animation-delay: 0.52s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(1) { animation-delay: 0.04s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(2) { animation-delay: 0.08s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(3) { animation-delay: 0.12s; }
+html[data-motion='full'] .results-body .bar-row:nth-child(4) { animation-delay: 0.16s; }
 html[data-motion='fade'] .results-body {
   animation: screen-in 0.18s linear both;
 }
@@ -580,42 +580,42 @@ html[data-motion='still'] .results-body {
   }
 }
 html[data-motion='full'] .bar-fill {
-  transition: width 0.65s var(--ease-out);
+  transition: width 0.48s var(--ease-out);
 }
 html[data-motion='full'] .results-side > .reward {
   animation-name: reward-in;
-  animation-duration: 0.5s;
+  animation-duration: 0.28s;
   animation-fill-mode: both;
   animation-timing-function: var(--ease-out);
 }
-html[data-motion='full'] .results-side > .reward:nth-child(1) { animation-delay: 0.22s; }
-html[data-motion='full'] .results-side > .reward:nth-child(2) { animation-delay: 0.34s; }
-html[data-motion='full'] .results-side > .reward:nth-child(3) { animation-delay: 0.46s; }
-html[data-motion='full'] .results-side > .reward:nth-child(4) { animation-delay: 0.58s; }
+html[data-motion='full'] .results-side > .reward:nth-child(1) { animation-delay: 0.06s; }
+html[data-motion='full'] .results-side > .reward:nth-child(2) { animation-delay: 0.12s; }
+html[data-motion='full'] .results-side > .reward:nth-child(3) { animation-delay: 0.18s; }
+html[data-motion='full'] .results-side > .reward:nth-child(n + 4) { animation-delay: 0.24s; }
 
 /* Signature arrival: panels, titles and buttons follow the veil instead of popping in together. */
 html[data-motion='full'] .screen-host[data-arrive='launch'],
 html[data-motion='full'] .screen-host[data-arrive='warp'] {
-  animation: arrive-hud 0.9s var(--ease-out) both;
+  animation: arrive-hud 0.42s var(--ease-out) both;
 }
 html[data-motion='full'] .screen-host[data-arrive='launch'] .panel,
 html[data-motion='full'] .screen-host[data-arrive='warp'] .panel {
-  animation: hud-in 0.42s var(--ease-out) both;
-  animation-delay: 0.14s;
+  animation: hud-in 0.28s var(--ease-out) both;
+  animation-delay: 0.06s;
 }
 html[data-motion='full'] .screen-host[data-arrive='launch'] .panel:nth-of-type(2),
 html[data-motion='full'] .screen-host[data-arrive='warp'] .panel:nth-of-type(2) {
-  animation-delay: 0.18s;
+  animation-delay: 0.1s;
 }
 html[data-motion='full'] .screen-host[data-arrive='launch'] .panel-title,
 html[data-motion='full'] .screen-host[data-arrive='warp'] .panel-title {
-  animation: rise-in 0.4s var(--ease-out) both;
-  animation-delay: 0.2s;
+  animation: rise-in 0.24s var(--ease-out) both;
+  animation-delay: 0.12s;
 }
 html[data-motion='full'] .screen-host[data-arrive='launch'] .btn,
 html[data-motion='full'] .screen-host[data-arrive='warp'] .btn {
-  animation: rise-in 0.36s var(--ease-out) both;
-  animation-delay: 0.24s;
+  animation: rise-in 0.24s var(--ease-out) both;
+  animation-delay: 0.16s;
 }
 @keyframes arrive-hud {
   from { opacity: 0; translate: 0 18px; }

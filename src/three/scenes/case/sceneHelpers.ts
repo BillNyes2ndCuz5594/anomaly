@@ -5,6 +5,7 @@ import * as THREE from 'three/webgpu'
 import { resolveTier } from '../../../state/quality'
 import { useRuntime } from '../../../state/runtime'
 import { useGame } from '../../../state/store'
+import { useMotionMode } from '../../../ui/useMotionMode'
 import { widthFit } from '../../fit'
 
 const BASE_FOV = 40
@@ -39,7 +40,7 @@ export function useTier() {
 }
 
 export function useReduced() {
-  return useGame((s) => s.settings.reducedMotion)
+  return useMotionMode() === 'still'
 }
 
 export interface Pickable {

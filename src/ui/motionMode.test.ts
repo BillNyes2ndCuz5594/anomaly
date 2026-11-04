@@ -20,17 +20,16 @@ describe('motion mode', () => {
       }
     }
   })
-  it('gives the signature moments a long reveal and a short cover', () => {
+  it('gives the signature moments an eased reveal and a short cover', () => {
     for (const kind of ['launch', 'warp'] as const) {
       const full = routeMs('full', kind)
-      expect(full.cover).toBeLessThanOrEqual(200)
-      expect(full.cover + full.reveal).toBeGreaterThanOrEqual(900)
-      expect(full.cover + full.reveal).toBeLessThanOrEqual(1400)
+      expect(full).toEqual({ cover: 120, reveal: 420 })
+      expect(full.cover + full.reveal).toBeGreaterThanOrEqual(400)
+      expect(full.cover + full.reveal).toBeLessThanOrEqual(600)
       expect(routeMs('fade', kind)).toEqual({ cover: 90, reveal: 180 })
       expect(routeMs('still', kind)).toEqual({ cover: 0, reveal: 0 })
     }
-    expect(RESULTS_MS).toBeGreaterThanOrEqual(900)
-    expect(RESULTS_MS).toBeLessThanOrEqual(1400)
+    expect(RESULTS_MS).toBe(520)
   })
   it('picks a veil that matches the route pair', () => {
     expect(veilKind('title', 'hub')).toBe('launch')

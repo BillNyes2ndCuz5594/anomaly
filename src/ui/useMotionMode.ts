@@ -1,3 +1,4 @@
+import { prefersReducedMotion } from '../state/settings'
 import { STILL } from '../lib/flags'
 import { resolveTier } from '../state/quality'
 import { useRuntime } from '../state/runtime'
@@ -9,5 +10,5 @@ export function useMotionMode(): MotionMode {
   const reduced = useGame((s) => s.settings.reducedMotion)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
-  return motionMode({ reduced, still: STILL, tier: resolveTier(quality, autoTier) })
+  return motionMode({ reduced: reduced || prefersReducedMotion(), still: STILL, tier: resolveTier(quality, autoTier) })
 }

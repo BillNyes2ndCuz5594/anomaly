@@ -3,8 +3,8 @@ import warpWebm from '../assets/video/warp-streak.webm?url'
 import warpMp4 from '../assets/video/warp-streak.mp4?url'
 import warpPoster from '../assets/video/warp-streak.webp?url'
 
-/** The 2 s clip is sped up so the whole tunnel lands inside the launch or warp veil (about 1.3 s). */
-const RATE = 1.5
+/** The 2 s clip is sped up so the whole tunnel lands inside the launch or warp veil (540 ms). */
+const RATE = 2 / 0.54
 
 /**
  * Cyan streak tunnel on black, screen blended inside the veil fill. Mounted only for the full motion mode while a

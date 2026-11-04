@@ -11,9 +11,9 @@ import { useReduced, useTier } from './sceneHelpers'
 import { flyStart, noteCamera, peekCamera, takeWarpFly, vlen, vsub, type V3 } from '../../flyPose'
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-/** Full tier dolly. A warp arrival (hub into a case) is longer. Low tier stays a short push. */
-const FLY_MS = 0.64
-const WARP_FLY_S = 1.05
+/** Full tier dolly. A warp arrival (hub into a case) matches the veil reveal. Low tier stays a short push. */
+const FLY_MS = 0.48
+const WARP_FLY_S = 0.42
 const LOW_FLY_MS = 0.28
 
 /**
@@ -47,7 +47,7 @@ export function CameraRig({
     const lookAt: V3 = [look[0], look[1], look[2]]
     if (!start.current) {
       const long = takeWarpFly() && !snap && tier !== 'low'
-      flyDur.current = snap ? 0.01 : tier === 'low' ? LOW_FLY_MS : long ? WARP_FLY_S : FLY_MS
+      flyDur.current = snap ? 0 : tier === 'low' ? LOW_FLY_MS : long ? WARP_FLY_S : FLY_MS
       const push = snap ? 0 : tier === 'low' ? 0.06 : long ? 0.32 : 0.16
       const hint: V3 = tier === 'low' || snap ? [0, 0, 0] : from
       start.current = flyStart(next, lookAt, tier === 'low' || snap ? null : peekCamera(), hint, push)

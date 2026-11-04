@@ -79,13 +79,13 @@ Gates on this branch: `npm test` 288/288 (check-assets clean), `npm run build`, 
 
 ## Signature transitions
 
-Phase 1 reads as a brisk 0.5 s navy wipe. This pass keeps that for settings, the art check, and ordinary case steps, and spends the time on three arrivals.
+Phase 1 reads as a brisk 0.5 s navy wipe. This pass keeps that for settings, the art check, and ordinary case steps, and keeps the three signature arrivals within 540 ms.
 
 Durations, full tier:
 
-- Title to hub (`launch`): cover 160 ms, reveal 1120 ms, total 1280 ms.
-- Hub to case and case back to hub (`warp`): cover 180 ms, reveal 1080 ms, total 1260 ms. The case camera dolly on that arrival is 1.05 s and starts farther back than the fit.
-- Case step into results: 1120 ms handoff, pointer-events none. Mastery rows and reward cards are delayed in sequence inside that window.
+- Title to hub (`launch`): cover 120 ms, reveal 420 ms, total 540 ms.
+- Hub to case and case back to hub (`warp`): cover 120 ms, reveal 420 ms, total 540 ms. The case camera dolly on that arrival is 0.42 s and starts farther back than the fit. Ordinary full-tier camera dollies take 0.48 s.
+- Case step into results: 520 ms handoff, pointer-events none. Mastery rows and reward cards are delayed in sequence inside that window.
 - Scan and dissolve routes stay at 150 + 380 ms. Low tier is 90 + 180 ms of opacity, with the grid, sweeps, mark, and mask forced off. Reduced motion and `?still=1` stay at 0.
 
 The closed frame is the stack, not a flat fill: radial cyan and amber light, a tilted grid, scanlines, a dot field, two sweeps, a cyan edge, and the ANOMALY wordmark. Launch starts as that full plate and contracts to a point, so the hub is revealed from the edges. Warp clips the plate off in the direction of travel, and the HUD panels, titles, and buttons follow.

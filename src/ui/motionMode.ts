@@ -20,15 +20,15 @@ export const ROUTE_FADE_REVEAL_MS = 180
 /**
  * Signature moments. The cover stays short so a tap is never blocked for long.
  * The reveal is the show, and a tap skips that too.
- * launch 160 + 1120 = 1280 ms. warp 180 + 1080 = 1260 ms.
+ * launch and warp: 120 + 420 = 540 ms.
  */
-export const LAUNCH_COVER_MS = 160
-export const LAUNCH_REVEAL_MS = 1120
-export const WARP_COVER_MS = 180
-export const WARP_REVEAL_MS = 1080
+export const LAUNCH_COVER_MS = 120
+export const LAUNCH_REVEAL_MS = 420
+export const WARP_COVER_MS = 120
+export const WARP_REVEAL_MS = 420
 
 /** Case step into results. It does not take the pointer. */
-export const RESULTS_MS = 1120
+export const RESULTS_MS = 520
 
 /** Hard cap for the brisk routes (scan, dissolve, low tier, still). */
 export const ROUTE_BUDGET_MS = 560
