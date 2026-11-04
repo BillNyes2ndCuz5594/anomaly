@@ -3,6 +3,8 @@ import type { Backend, Tier } from './quality'
 
 /** Non persisted renderer facts shared between the 3D layer and the HUD. */
 interface RuntimeState {
+  hubReady: boolean
+  setHubReady: (ready: boolean) => void
   backend: Backend
   autoTier: Tier
   /** Auto resolution step, index into DPR_STEPS (0 is full resolution). */
@@ -25,6 +27,8 @@ interface RuntimeState {
 }
 
 export const useRuntime = create<RuntimeState>((set) => ({
+  hubReady: false,
+  setHubReady: (hubReady) => set({ hubReady }),
   backend: 'none',
   autoTier: 'medium',
   dprStep: 0,

@@ -1,7 +1,8 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo, useRef, type RefObject } from 'react'
 import * as THREE from 'three/webgpu'
-import { boxCorners, fitBox, fitPoints, outlinePoints, projectPoints, type Box, type V3 } from './fit'
+import { boxCorners, fitBox, fitPoints, projectPoints, type Box, type V3 } from './fit'
+import { cachedOutline } from './cachedOutline'
 import { useInsets } from './insets'
 
 export interface FitView {
@@ -34,18 +35,11 @@ export function useFitPose(view: FitView) {
   }, [box, points, fov, size.width, size.height, margin, elevation, azimuth, frame])
 }
 
-const outlines = new WeakMap<THREE.BufferGeometry, V3[]>()
 const tmpV = new THREE.Vector3()
 
-/** Silhouette proxy of a geometry in its own space, cached. */
+/** Silhouette proxy is scanned only on first measurement, then shared with hero normalization. */
 function outlineOf(geo: THREE.BufferGeometry): V3[] {
-  let o = outlines.get(geo)
-  if (!o) {
-    const pos = geo.getAttribute('position')
-    o = pos && pos.count > 0 ? outlinePoints(pos.array as ArrayLike<number>, pos.count > 200 ? 96 : 20) : []
-    outlines.set(geo, o)
-  }
-  return o
+  return cachedOutline(geo, geo.getAttribute('position')?.count > 200 ? 96 : 20)
 }
 
 /** World space outline points of the visible meshes under `root`. Effects (feedback beams, rings) opt out with userData.noFit. */
@@ -78,7 +72,7 @@ export function usePublishFit(
   const n = useRef(0)
   useFrame((state) => {
     if (enabledRef && !enabledRef.current) return
-    if (n.current++ % 20 !== 0) return
+    if (++n.current % 20 !== 0) return
     let pts = boxCorners(fallback)
     const obj = measure?.current
     if (obj) {
