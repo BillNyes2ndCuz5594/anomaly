@@ -1488,3 +1488,45 @@ html[data-motion='still'] .tier-badge[data-blip='flick'] { animation: none; }
 @media (max-width: 720px) {
   .juice-row { grid-template-columns: 1fr; }
 }
+
+/* Art E2: case solved confetti */
+.case-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  width: 5px;
+  height: 9px;
+  background: var(--cc);
+  opacity: 0;
+  animation: case-confetti-fall var(--cd) ease-in var(--cl) both;
+}
+.confetti-piece.dot {
+  height: 5px;
+  border-radius: 50%;
+}
+@keyframes case-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--cx), var(--cy), 0) rotate(var(--cr));
+  }
+}
+html[data-motion='still'] .case-confetti,
+html[data-motion='fade'] .case-confetti {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-confetti { display: none; }
+}
