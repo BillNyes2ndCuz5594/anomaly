@@ -1,6 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
 import { STILL } from './lib/flags'
-import { navigate, parseHash, type Route } from './lib/router'
+import { navigate, parseHash, routeNeedsProfile, type Route } from './lib/router'
 import { HUB_PANEL_WIDTH } from './screens/hubLayout'
 const loadHub = () => import('./screens/HubScreen')
 const HubScreen = lazy(loadHub)
@@ -120,6 +120,8 @@ function useResultCountUps(routeName: string, step: string, reduced: boolean) {
   }, [routeName, step, reduced])
 }
 
+let hubBooted = false
+
 export default function App() {
   useApplySettings()
   useEffect(() => {
@@ -148,7 +150,23 @@ export default function App() {
   const { hash, phase, kind, dir, mode } = useRouteTransition(reducedMotion, tier)
   const route = parseHash(hash)
   const hubReady = useRuntime((s) => s.hubReady)
-  const hubWaiting = route.name === 'hub' && !hubReady && mode !== 'still'
+  useEffect(() => {
+    if (hubReady) hubBooted = true
+  }, [hubReady])
+  useEffect(() => {
+    if (route.name === 'hub') {
+      if (hubBooted) {
+        if (!useRuntime.getState().hubReady) useRuntime.getState().setHubReady(true)
+        return
+      }
+      const timer = window.setTimeout(() => {
+        hubBooted = true
+        useRuntime.getState().setHubReady(true)
+      }, 2500)
+      return () => window.clearTimeout(timer)
+    }
+  }, [route.name, hubReady])
+  const hubWaiting = route.name === 'hub' && !hubReady && mode !== 'still' && !hubBooted
   const profile = useGame((s) => s.profile)
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
@@ -171,7 +189,7 @@ export default function App() {
   }, [phase, hash, hubWaiting])
 
   // Routes past the title need an agent. Send new visitors to check in first.
-  const needsProfile = (route.name === 'hub' || route.name === 'case' || route.name === 'cold') && !profile
+  const needsProfile = routeNeedsProfile(route.name, Boolean(profile))
   useEffect(() => {
     if (needsProfile) navigate('/')
   }, [needsProfile])

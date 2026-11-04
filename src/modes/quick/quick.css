@@ -1,0 +1,25 @@
+.quick-visual-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: min(34vh, 260px);
+  width: 100%;
+  overflow: hidden;
+}
+
+.quick-visual-wrap .visual-panel,
+.quick-panel .visual-panel {
+  max-height: min(34vh, 260px);
+  width: 100%;
+}
+
+.quick-visual-wrap .scene-svg,
+.quick-panel .scene-svg {
+  max-height: min(34vh, 260px);
+  object-fit: contain;
+}
+
+.quick-visual-wrap .visual-3d,
+.quick-panel .visual-3d {
+  max-height: min(34vh, 260px);
+}

@@ -27,6 +27,10 @@ export function parseHash(hash: string): Route {
   return { name: 'title' }
 }
 
+export function routeNeedsProfile(routeName: string, hasProfile: boolean): boolean {
+  return (routeName === 'hub' || routeName === 'case' || routeName === 'cold' || routeName === 'gold') && !hasProfile
+}
+
 export function navigate(path: string): void {
   const target = path.startsWith('#') ? path : `#${path}`
   if (window.location.hash === target) return
