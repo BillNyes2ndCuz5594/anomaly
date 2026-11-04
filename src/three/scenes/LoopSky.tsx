@@ -50,8 +50,8 @@ export const CLIPS: Record<LoopClip, { webm: string; mp4: string; poster: string
 }
 
 /** Elevation band (radians above the horizon) and azimuth width the clip covers on the dome. */
-const EL_LO = -0.1
-const EL_HI = 0.62
+const EL_LO = -0.02
+const EL_HI = 0.7
 const AZ_SPAN = 1.3
 
 function makeVideo(src: { webm: string; mp4: string }): HTMLVideoElement {
@@ -94,7 +94,10 @@ export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: 
     const dir = normalize(positionWorld)
     const h = dir.y
     const horizon = pow(oneMinus(saturate(abs(h).mul(2.2))), float(3))
-    const sky = varying(mix(color('#0a1426'), color('#060a14'), saturate(h.mul(1.6))).add(color('#1b6a86').mul(horizon.mul(0.3))))
+    const base = mix(color('#0a1426'), color('#060a14'), saturate(h.mul(1.6)))
+    const haze = base.add(color('#1b6a86').mul(horizon.mul(0.3)))
+    // Match the deck fog below the horizon without changing the cyan haze above it.
+    const sky = varying(mix(haze, color('#070c17'), smoothstep(0.02, 0.25, h.negate())))
 
     // Azimuth relative to the window centre (radians), wrapped to -pi..pi through atan of a rotated direction.
     // The wrap sits directly behind the window, where the front mask is zero, so interpolation across it is hidden.
@@ -109,7 +112,8 @@ export function LoopSky({ clip, strength = 0.62 }: { clip: LoopClip; strength?: 
     const uvn = vec2(saturate(uvx), oneMinus(saturate(uvy)))
     const edgeX = smoothstep(0, 0.22, uvx).mul(smoothstep(1, 0.78, uvx))
     const edgeY = smoothstep(0, 0.3, uvy).mul(smoothstep(1, 0.72, uvy))
-    const mask = edgeX.mul(edgeY).mul(front).mul(u.show).mul(strength)
+    const aboveHorizon = varying(smoothstep(0, 0.06, h))
+    const mask = edgeX.mul(edgeY).mul(front).mul(aboveHorizon).mul(u.show).mul(strength)
 
     const still4 = texture(poster, uvn).rgb
     // The video slot samples the poster until the clip has a decoded frame, then its value is swapped to the

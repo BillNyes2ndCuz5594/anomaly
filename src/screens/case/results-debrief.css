@@ -197,6 +197,27 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
   min-width: 0;
 }
 
+/* Keep the emblem gutter across padding overrides without affecting cold cases. */
+.rd-hero:has(.seal-sting) {
+  --rd-seal-size: 112px;
+  padding-left: calc(var(--rd-seal-inset, 28px) + var(--rd-seal-size) + 18px);
+}
+
+.rd-hero:has(.seal-sting) .verdict-block {
+  min-height: var(--rd-seal-size);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .rd-hero:has(.seal-sting) { --rd-seal-size: 84px; }
+}
+
+@media (max-width: 480px) {
+  .rd-hero:has(.seal-sting) { --rd-seal-size: 64px; }
+}
+
 .rd-hero .reward {
   border-bottom: none;
   padding-bottom: 0;
@@ -341,6 +362,7 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
   .rd-hero {
     grid-template-columns: minmax(0, 1fr);
     gap: 10px;
+    --rd-seal-inset: 14px;
     padding: 14px;
   }
 
@@ -402,6 +424,7 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
   }
 
   .rd-hero {
+    --rd-seal-inset: 36px;
     padding: 22px 36px 18px;
   }
 
@@ -474,6 +497,7 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
   .rd-hero {
     grid-column: 1 / -1;
     grid-template-columns: minmax(0, 1fr) auto;
+    --rd-seal-inset: 12px;
     padding: 8px 12px;
     gap: 6px 16px;
   }

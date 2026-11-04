@@ -10,13 +10,26 @@ import { useReviewDue } from '../../../state/due'
 import { useRuntime } from '../../../state/runtime'
 import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
+import { createLabelDeclutter, type LabelItem } from './labelDeclutter'
 import { TABLE_TOP_Y } from './MapTable'
 import { layoutMarkers, markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from './markerMotion'
 
 const tmpScale = new THREE.Vector3()
 const tmpHit = new THREE.Vector3()
 
+interface LabelEntry extends LabelItem {
+  world: THREE.Vector3
+  width: number
+  height: number
+  pixelsPerUnit: number
+  visible: boolean
+  dy: number
+}
+type LabelRegistry = Map<string, LabelEntry>
+
 interface MarkerProps {
+  registry: LabelRegistry
+  priority: number
   id: MarkerId
   lon: number
   lat: number
@@ -32,8 +45,10 @@ interface MarkerProps {
   glow?: number
 }
 
-function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow = 1 }: MarkerProps) {
+function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to, side, reduced, glow = 1 }: MarkerProps) {
   const [x, z] = lonLatToXZ(lon, lat)
+  const labelMesh = useRef<THREE.Mesh>(null)
+  const stick = useRef<THREE.Mesh>(null)
   const gem = useRef<THREE.Group>(null)
   const root = useRef<THREE.Group>(null)
   const anchor = useRef<THREE.Group>(null)
@@ -92,6 +107,15 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     return { gemMat, wireMat, beamMat, ringMat, label: { ...label, mat: labelMat } }
   }, [hex, title, sub, glowU, calm])
 
+  const entry = useMemo<LabelEntry>(() => ({
+    id, x: 0, y: 0, w: 0, h: 0, priority: 0, world: new THREE.Vector3(),
+    width: 1.6, height: 1.6 / label.aspect, pixelsPerUnit: 1, visible: true, dy: 0,
+  }), [id, label.aspect])
+  useEffect(() => {
+    registry.set(id, entry)
+    return () => { registry.delete(id) }
+  }, [registry, id, entry])
+
   useEffect(
     () => () => {
       gemMat.dispose()
@@ -125,6 +149,29 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
     const origin = anchor.current?.getWorldPosition(tmpHit) ?? tmpHit.set(x, TABLE_TOP_Y, z)
     const radius = markerHitRadius(state.size.height, cam.position.distanceTo(origin), cam.fov)
     if (hit.current) hit.current.scale.set(radius / 0.55, 1, radius / 0.55)
+    if (root.current) {
+      root.current.updateWorldMatrix(true, false)
+      root.current.localToWorld(entry.world.set(1.4 * side, height, 0))
+      entry.width = 1.6 * root.current.scale.x
+      entry.height = entry.width / label.aspect
+      entry.priority = hover || focused || pressed ? 100 : priority
+    }
+  }, -2)
+
+  useFrame((_, dt) => {
+    const mix = calm ? 1 : 1 - Math.exp(-dt / 0.15)
+    // Attention labels stay readable even if several attention targets compete.
+    const target = entry.visible || hover || focused || pressed ? 1 : 0
+    label.mat.opacity += (target - label.mat.opacity) * mix
+    if (labelMesh.current) {
+      labelMesh.current.visible = label.mat.opacity >= 0.02
+      const y = -entry.dy / Math.max(0.001, entry.pixelsPerUnit)
+      labelMesh.current.position.y += (y - labelMesh.current.position.y) * mix
+    }
+    if (stick.current) {
+      stick.current.visible = label.mat.opacity >= 0.02
+      stick.current.scale.setScalar(label.mat.opacity)
+    }
   })
 
   const base = TABLE_TOP_Y + 0.42
@@ -151,12 +198,12 @@ function Marker({ id, lon, lat, height, hex, title, sub, to, side, reduced, glow
             <primitive object={wireMat} attach="material" />
           </mesh>
         </group>
-        <mesh position={[0.3 * side, height, 0]}>
+        <mesh ref={stick} position={[0.3 * side, height, 0]}>
           <boxGeometry args={[0.6, 0.012, 0.012]} />
           <primitive object={wireMat} attach="material" />
         </mesh>
         <Billboard position={[(0.6 + 0.8) * side, height, 0]}>
-          <mesh renderOrder={10}>
+          <mesh ref={labelMesh} renderOrder={10}>
             <planeGeometry args={[1.6, 1.6 / label.aspect]} />
             <primitive object={label.mat} attach="material" />
           </mesh>
@@ -208,6 +255,34 @@ const unitShort = (label: string) => label.replace(/^Unit\s+\d+:\s*/, '')
 /** Case markers floating over the map, one per case (amber) plus the cold case (cyan). Mirrored as HTML buttons in the side panel. */
 export default function Markers({ reduced }: { reduced: boolean }) {
   const due = useReviewDue()
+  const registry = useMemo<LabelRegistry>(() => new Map(), [])
+  const solver = useMemo(createLabelDeclutter, [])
+  const projection = useMemo(() => ({
+    centre: new THREE.Vector3(), edge: new THREE.Vector3(),
+    right: new THREE.Vector3(), up: new THREE.Vector3(), items: [] as LabelItem[],
+  }), [])
+  useFrame(({ camera, size }) => {
+    const { centre, edge, right, up, items } = projection
+    right.setFromMatrixColumn(camera.matrixWorld, 0)
+    up.setFromMatrixColumn(camera.matrixWorld, 1)
+    items.length = 0
+    for (const entry of registry.values()) {
+      centre.copy(entry.world).project(camera)
+      entry.x = (centre.x + 1) * size.width / 2
+      entry.y = (1 - centre.y) * size.height / 2
+      edge.copy(entry.world).addScaledVector(right, entry.width).project(camera)
+      entry.w = Math.abs(edge.x - centre.x) * size.width / 2
+      edge.copy(entry.world).addScaledVector(up, entry.height).project(camera)
+      entry.h = Math.abs(edge.y - centre.y) * size.height / 2
+      entry.pixelsPerUnit = entry.h / (1.6 / (entry.width / entry.height))
+      items.push(entry)
+    }
+    const results = solver(items)
+    for (const entry of registry.values()) {
+      entry.visible = results[entry.id].visible
+      entry.dy = results[entry.id].dy
+    }
+  }, -1)
   const places = useMemo(() => layoutMarkers(content.cases.map((c) => ({ id: c.id, lon: c.marker.lon, lat: c.marker.lat })), [COLD_SPOT]), [])
   return (
     <>
@@ -215,6 +290,8 @@ export default function Markers({ reduced }: { reduced: boolean }) {
         const c = content.cases[i]
         return (
           <Marker
+            registry={registry}
+            priority={49 - i}
             key={c.id}
             id={c.id}
             lon={p.lon}
@@ -230,6 +307,8 @@ export default function Markers({ reduced }: { reduced: boolean }) {
         )
       })}
       <Marker
+        registry={registry}
+        priority={due ? 50 : 5}
         id="cold"
         lon={COLD_SPOT.lon}
         lat={COLD_SPOT.lat}
