@@ -1,3 +1,4 @@
+import { useRuntime } from '../state/runtime'
 import { prefersReducedMotion } from '../state/settings'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { STILL } from '../lib/flags'
@@ -12,7 +13,7 @@ export type Phase = 'idle' | 'cover' | 'reveal'
 /**
  * Route veil. The outgoing screen is covered, the hash swaps underneath, then the veil opens.
  * Reduced motion and ?still=1 swap with no veil. A tap during the cover skips to the new screen.
- * Cover is the only moment input is held, and it stays well under 600 ms.
+ * Hub cover also waits for shader warmup, capped at 1500 ms after scene mount.
  */
 export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string; phase: Phase; kind: VeilKind; dir: 'forward' | 'back'; mode: MotionMode } {
   const target = useHash()
@@ -46,7 +47,9 @@ export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string
     let swallow = true
     let t1 = 0
     let t2 = 0
+    let unsubscribe = () => {}
     const finish = () => {
+      unsubscribe()
       window.clearTimeout(t1)
       window.clearTimeout(t2)
       swallow = false
@@ -56,13 +59,21 @@ export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string
     t1 = window.setTimeout(() => {
       swallow = false
       setShown(target)
-      setPhase('reveal')
+      const open = () => {
+        if (to === 'hub' && !useRuntime.getState().hubReady) return
+        unsubscribe()
+        setPhase('reveal')
+        t2 = window.setTimeout(() => setPhase('idle'), reveal)
+      }
+      if (to === 'hub') unsubscribe = useRuntime.subscribe(open)
+      open()
     }, cover)
-    t2 = window.setTimeout(() => setPhase('idle'), cover + reveal)
     const onPointer = (e: Event) => {
+      if (to === 'hub' && parseHash(shownRef.current).name === 'hub' && !useRuntime.getState().hubReady) return
       if (swallow || phaseRef.current === 'cover') {
         e.preventDefault()
         e.stopPropagation()
+        if (to === 'hub') { setShown(target); return }
         finish()
         return
       }
@@ -72,6 +83,7 @@ export function useRouteTransition(reduced: boolean, tier: Tier): { hash: string
     return () => {
       window.clearTimeout(t1)
       window.clearTimeout(t2)
+      unsubscribe()
       window.removeEventListener('pointerdown', onPointer, true)
     }
   }, [target, mode])

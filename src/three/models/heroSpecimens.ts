@@ -24,7 +24,8 @@ import graphiteUrl from '../../assets/specimens/graphite.glb?url'
 import graniteUrl from '../../assets/specimens/granite.glb?url'
 import limestoneUrl from '../../assets/specimens/limestone.glb?url'
 import gneissUrl from '../../assets/specimens/gneiss.glb?url'
-import { meanProjectedArea, outlinePoints } from '../fit'
+import { meanProjectedArea } from '../fit'
+import { cachedOutline } from '../cachedOutline'
 import { DISPLAY_YAW, specimenArea, specimenSize } from './specimenBox'
 
 export { SPECIMEN_POSTERS } from './specimenPosters'
@@ -128,7 +129,7 @@ export function normalizeHero(
   // it inside the camera framing.
   let k = Infinity
   if (area) {
-    const pts = outlinePoints(geo.getAttribute('position').array as ArrayLike<number>, 128)
+    const pts = cachedOutline(geo, 128)
     k = Math.sqrt(area / Math.max(meanProjectedArea(pts, DISPLAY_YAW, 0.6, 0.24), 1e-9))
   }
   k = Math.min(
@@ -153,7 +154,12 @@ export function loadHero(id: string): Promise<HeroSpecimen | null> {
     loader ??= new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
     p = loader
       .loadAsync(def.url)
-      .then((gltf) => {
+      .then(async (gltf) => {
+        // Downloads can finish during a frame. Dequantization and silhouette scanning wait for idle too.
+        if (typeof window !== 'undefined') await new Promise<void>((resolve) => {
+          if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(() => resolve())
+          else window.setTimeout(resolve, 0)
+        })
         let mesh: THREE.Mesh | null = null
         gltf.scene.traverse((o) => {
           if (!mesh && (o as THREE.Mesh).isMesh) mesh = o as THREE.Mesh

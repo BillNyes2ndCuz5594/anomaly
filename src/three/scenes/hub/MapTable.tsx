@@ -1,8 +1,10 @@
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three/webgpu'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import {
   atan,
+  attribute,
   color,
   float,
   fract,
@@ -76,27 +78,43 @@ function RadarFace({ calm }: { calm: boolean }) {
 }
 
 /** Expanding ring ping on the map, one per city. Pure TSL, no per-frame JS. */
-function Ping({ x, z, seed, hot, calm }: { x: number; z: number; seed: number; hot?: boolean; calm: boolean }) {
+function Pings({ calm }: { calm: boolean }) {
+  const mesh = useRef<THREE.InstancedMesh>(null)
+  useEffect(() => {
+    const matrix = new THREE.Matrix4()
+    MAP_PINGS.forEach((city, i) => {
+      const [x, z] = lonLatToXZ(city.lon, city.lat)
+      const size = city.name === 'Fort Pierce' ? 0.9 : 0.6
+      matrix.makeRotationX(-Math.PI / 2).scale(new THREE.Vector3(size, size, 1))
+      matrix.setPosition(x, TABLE_TOP_Y + 0.3, z)
+      mesh.current!.setMatrixAt(i, matrix)
+    })
+    mesh.current!.instanceMatrix.needsUpdate = true
+  }, [])
   const mat = useMemo(() => {
     const d = length(uv().sub(0.5)).mul(2)
+    const seed = attribute('pingSeed', 'float')
     const t = calm ? float(0.28).add(seed) : fract(time.mul(0.35).add(seed))
     const ring = oneMinus(min(d.sub(t).abs().div(0.07), float(1))).mul(oneMinus(t))
     const dot = oneMinus(smoothstep(0.05, 0.12, d))
     const m = new THREE.MeshBasicNodeMaterial()
-    const c = color(hot ? '#ffb547' : HOLO_CYAN)
+    const c = mix(color(HOLO_CYAN), color('#ffb547'), attribute('pingHot', 'float'))
     m.colorNode = c.mul(ring.add(dot).mul(2))
     m.opacityNode = saturate(ring.add(dot))
     m.transparent = true
     m.blending = THREE.AdditiveBlending
     m.depthWrite = false
     return m
-  }, [seed, hot, calm])
+  }, [calm])
   useEffect(() => () => mat.dispose(), [mat])
   return (
-    <mesh position={[x, TABLE_TOP_Y + 0.3, z]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[hot ? 0.9 : 0.6, hot ? 0.9 : 0.6]} />
+    <instancedMesh ref={mesh} args={[undefined, undefined, MAP_PINGS.length]} frustumCulled={false}>
+      <planeGeometry>
+        <instancedBufferAttribute attach="attributes-pingSeed" args={[new Float32Array(MAP_PINGS.map((_, i) => i * 0.17)), 1]} />
+        <instancedBufferAttribute attach="attributes-pingHot" args={[new Float32Array(MAP_PINGS.map((c) => Number(c.name === 'Fort Pierce'))), 1]} />
+      </planeGeometry>
       <primitive object={mat} attach="material" />
-    </mesh>
+    </instancedMesh>
   )
 }
 
@@ -157,10 +175,7 @@ function Florida({ calm }: { calm: boolean }) {
         <primitive object={holo} attach="material" />
       </mesh>
       <primitive object={outlineLine} position={[0, 0.41, 0]} />
-      {MAP_PINGS.map((c, i) => {
-        const [x, z] = lonLatToXZ(c.lon, c.lat)
-        return <Ping key={c.name} x={x} z={z} seed={i * 0.17} hot={c.name === 'Fort Pierce'} calm={calm} />
-      })}
+      <Pings calm={calm} />
     </group>
   )
 }
@@ -279,6 +294,16 @@ export default function MapTable({ reduced, rich }: { reduced: boolean; rich: bo
     },
     [trim, amberTrim],
   )
+  const trimGeo = useMemo(() => {
+    const parts = [
+      new THREE.TorusGeometry(2.05, 0.03, 8, 96).rotateX(-Math.PI / 2).translate(0, 0.06, 0),
+      new THREE.TorusGeometry(TABLE_RADIUS + 0.05, 0.035, 8, 128).rotateX(-Math.PI / 2).translate(0, TABLE_TOP_Y + 0.012, 0),
+    ]
+    const merged = mergeGeometries(parts)!
+    parts.forEach((g) => g.dispose())
+    return merged
+  }, [])
+  useEffect(() => () => trimGeo.dispose(), [trimGeo])
   return (
     <group>
       {/* pedestal */}
@@ -286,10 +311,7 @@ export default function MapTable({ reduced, rich }: { reduced: boolean; rich: bo
         <cylinderGeometry args={[1.5, 2.0, 1.0, 48]} />
         <meshStandardMaterial color="#0f1c33" roughness={0.45} metalness={0.7} />
       </mesh>
-      <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[2.05, 0.03, 8, 96]} />
-        <primitive object={trim} attach="material" />
-      </mesh>
+      <mesh geometry={trimGeo} material={trim} />
       <mesh position={[0, 0.55, 0]}>
         <cylinderGeometry args={[1.62, 1.62, 0.05, 48]} />
         <primitive object={amberTrim} attach="material" />
@@ -302,10 +324,6 @@ export default function MapTable({ reduced, rich }: { reduced: boolean; rich: bo
       <mesh position={[0, TABLE_TOP_Y + 0.004, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[TABLE_RADIUS, 96]} />
         <meshStandardMaterial color="#071426" roughness={0.3} metalness={0.5} />
-      </mesh>
-      <mesh position={[0, TABLE_TOP_Y + 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[TABLE_RADIUS + 0.05, 0.035, 8, 128]} />
-        <primitive object={trim} attach="material" />
       </mesh>
       <RadarFace calm={reduced} />
       <Florida calm={reduced} />

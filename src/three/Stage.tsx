@@ -95,6 +95,7 @@ function Runtime() {
         textures: gl.info.memory.textures,
       }
 
+      if (new URLSearchParams(window.location.search).get('fps') === '1') console.info('ANOMALY draw calls:', stats.current.calls)
       if (!isAutoActive(quality) || document.hidden || now < graceUntil.current || fps === 0) return
       const rt = useRuntime.getState()
       const next = stepAdaptive({ ...auto.current, tier: rt.autoTier, dprStep: rt.dprStep }, fps, SAMPLE_MS)
@@ -224,12 +225,16 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       const { caseDef, items } = useSession.getState()
       void prefetchCaseHeroes(caseDef, items)
     }
-    selected()
     const unsubscribe = useSession.subscribe((state, previous) => {
       if (state.items !== previous.items) selected()
     })
-    const cancelIdle = idlePrefetchHeroes()
+    let cancelIdle = () => {}
+    const start = () => { selected(); cancelIdle = idlePrefetchHeroes() }
+    const idle = typeof window.requestIdleCallback === 'function'
+    const handle = idle ? window.requestIdleCallback(start) : window.setTimeout(start, 500)
     return () => {
+      if (idle) window.cancelIdleCallback(handle)
+      else window.clearTimeout(handle)
       unsubscribe()
       cancelIdle()
     }
