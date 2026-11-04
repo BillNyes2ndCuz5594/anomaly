@@ -1,0 +1,10 @@
+.gold-screen { overflow-y: auto; pointer-events: auto; padding: var(--sp-5); }
+.gold-body { width: min(100%, 850px); margin: auto; display: grid; gap: var(--sp-4); }
+.gold-body header { background: var(--navy-1); padding: var(--sp-4); border: 1px solid var(--amber); }
+.gold-body h1 { color: var(--amber); }
+.gold-board { display: flex; flex-wrap: wrap; gap: var(--sp-5); margin: 0; padding-left: var(--sp-5); }
+.gold-crates { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+.gold-body .btn { min-height: 44px; white-space: normal; }
+.gold-crates .btn { min-height: 88px; border-color: var(--amber); }
+.gold-body *, .gold-body *::before, .gold-body *::after { animation: none !important; transition: none !important; }
+@media (max-width: 550px) { .gold-screen { padding: var(--sp-3); } .gold-crates { grid-template-columns: 1fr; } }
