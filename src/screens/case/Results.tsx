@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Burst from '../../ui/Burst'
+import Confetti from '../../ui/Confetti'
 import { STILL } from '../../lib/flags'
 import { content } from '../../content'
 import { navigate } from '../../lib/router'
@@ -86,6 +87,7 @@ export default function Results() {
   return (
     <div className="screen case-screen results-screen rd-screen" data-testid="results">
       <CaseTop step="results" />
+      {closed ? <Confetti /> : null}
       {cold ? <FrostThaw open={!closed} /> : null}
       <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
         <section className="panel brackets rd-hero" aria-label="Case result">
