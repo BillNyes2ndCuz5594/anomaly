@@ -7,8 +7,9 @@ import { tintedHolo } from '../../materials/tinted'
 import { useRuntime } from '../../../state/runtime'
 import { useSession } from '../../../state/session'
 import { useMotionMode } from '../../../ui/useMotionMode'
-import { makeRadialTexture } from '../common'
-import { CameraRig, LabEnvironment, Pedestal, useReduced, useTier } from './common'
+import { makeRadialTexture } from '../radialTexture'
+import { CameraRig, LabEnvironment, Pedestal } from './common'
+import { useReduced, useTier } from './sceneHelpers'
 
 // Evidence locker: a wall of cubbies, each holding a hologram canister with a sample floating inside.
 // A scan beam sweeps across the wall. Canisters flare as it passes. Okabe-Ito tints, one per theme.

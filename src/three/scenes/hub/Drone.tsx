@@ -8,7 +8,7 @@ import { useGame } from '../../../state/store'
 import { useMotionMode } from '../../../ui/useMotionMode'
 import { claimFlourish, FLOURISH_DELAY_MS, FLOURISH_MS, glowAmount, rollAngle, type Flourish } from './paintFlourish'
 import { sceneCalm } from './markerMotion'
-import { useTier } from '../case/common'
+import { useTier } from '../case/sceneHelpers'
 
 type Part = {
   geo: THREE.BufferGeometry

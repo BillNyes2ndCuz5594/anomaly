@@ -43,6 +43,7 @@ function loadPack(url: string, inPlace = false): Promise<Pack> {
           geo.translate(-c.x, -c.y, -c.z)
           out.set(m.name || o.parent?.name || '', geo)
         })
+        if (url === bodyUrl && !body) body = bodyFromPack(out)
         done.set(url, out)
         return out
       })
@@ -260,12 +261,7 @@ export function useBodyScan(low: boolean): BodyScan | null {
       live = false
     }
   }, [low])
-  if (low) return null
-  if (!body) {
-    const pack = done.get(bodyUrl)
-    if (pack) body = bodyFromPack(pack)
-  }
-  return body
+  return low ? null : body
 }
 
 // ---------- oak ----------

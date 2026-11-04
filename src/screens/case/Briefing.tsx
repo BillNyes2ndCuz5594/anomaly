@@ -23,7 +23,8 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
   const layout = useMemo(() => {
     const starts: number[] = []
     let offset = 0
-    const lines = c.briefing.map((line) => {
+    const lines = []
+    for (const line of c.briefing) {
       const words = line.split(' ').map((w, i, arr) => {
         const start = offset
         starts.push(start)
@@ -31,8 +32,8 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
         return { w, i: starts.length - 1 }
       })
       offset += 1
-      return words
-    })
+      lines.push(words)
+    }
     return { lines, starts }
   }, [c.briefing])
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1

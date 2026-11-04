@@ -256,7 +256,7 @@ const unitShort = (label: string) => label.replace(/^Unit\s+\d+:\s*/, '')
 export default function Markers({ reduced }: { reduced: boolean }) {
   const due = useReviewDue()
   const registry = useMemo<LabelRegistry>(() => new Map(), [])
-  const solver = useMemo(createLabelDeclutter, [])
+  const solver = useMemo(() => createLabelDeclutter(), [])
   const projection = useMemo(() => ({
     centre: new THREE.Vector3(), edge: new THREE.Vector3(),
     right: new THREE.Vector3(), up: new THREE.Vector3(), items: [] as LabelItem[],

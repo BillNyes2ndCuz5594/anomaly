@@ -12,20 +12,18 @@ export default function Presence({ show, children }: { show: boolean; children: 
   const reduced = useGame((s) => s.settings.reducedMotion)
   const skip = reduced || STILL
   const [mounted, setMounted] = useState(show)
-  const [phase, setPhase] = useState<'in' | 'out'>(show ? 'in' : 'out')
+  const [previousShow, setPreviousShow] = useState(show)
+  if (show !== previousShow) {
+    setPreviousShow(show)
+    if (show) setMounted(true)
+    else if (skip) setMounted(false)
+  }
+  if (!show && skip && mounted) setMounted(false)
+  const phase = show ? 'in' : 'out'
 
   useEffect(() => {
-    if (show) {
-      setMounted(true)
-      setPhase('in')
-      return
-    }
-    if (!mounted) return
-    if (skip) {
-      setMounted(false)
-      return
-    }
-    setPhase('out')
+    if (show || !mounted) return
+    if (skip) return
     let done = false
     const finish = () => {
       if (done) return
@@ -43,7 +41,7 @@ export default function Presence({ show, children }: { show: boolean; children: 
     }
   }, [show, skip, mounted])
 
-  if (!mounted) return null
+  if (!mounted || (!show && skip)) return null
   return (
     <div className="presence" data-presence={phase}>
       {children}

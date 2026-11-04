@@ -6,7 +6,7 @@ import { hasHero, heroIfReady, loadHero, onHeroReady } from '../../models/heroSp
 import { STILL, STILL_YAW } from '../../../lib/flags'
 import { specimenGeo } from '../../models/creatures'
 import { SPECIMEN_LOOK } from '../../materials/detailMaps'
-import { useTier } from './common'
+import { useTier } from './sceneHelpers'
 import { specimenScale } from '../../models/specimenBox'
 import { useFx } from '../../../state/session'
 import { AQUATIC, idPhase } from './specimenLife'

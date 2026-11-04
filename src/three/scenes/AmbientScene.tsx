@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { resolveTier } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
-import type { LoopClip } from './LoopSky'
+import type { LoopClip } from './loopClips'
 import { Backdrop, ConsoleRing, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 
 /** Quiet backdrop for Settings and placeholder screens: dark deck, grid, dust, slow drift. `frost` is the cold case run: the frost sky loop. `clip` picks another loop (the debrief room). */

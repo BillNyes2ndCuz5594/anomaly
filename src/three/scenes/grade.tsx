@@ -21,7 +21,7 @@ import {
   vec3,
 } from 'three/tsl'
 import { iceGiantTexture } from '../materials/planetTextures'
-import { makeRadialTexture } from './common'
+import { makeRadialTexture } from './radialTexture'
 
 /**
  * Key from the upper front, cool rim from behind. Sits on top of the shared deck fill
