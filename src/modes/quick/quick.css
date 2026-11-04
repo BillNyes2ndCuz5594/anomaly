@@ -23,3 +23,25 @@
 .quick-panel .visual-3d {
   max-height: min(34vh, 260px);
 }
+
+.quick-panel .quick-option {
+  text-transform: none;
+  letter-spacing: normal;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.quick-panel .quick-option.correct,
+.quick-panel .quick-option.quick-correct {
+  border: 2px solid var(--ok, #009e73);
+  background: rgba(0, 158, 115, 0.2);
+  color: #fff;
+}
+
+.quick-panel .quick-option.picked-wrong,
+.quick-panel .quick-option.quick-wrong {
+  border: 2px solid var(--bad, #d55e00);
+  background: rgba(213, 94, 0, 0.15);
+  color: #fff;
+}
+

@@ -4,14 +4,27 @@
 .gold-body { width: min(100%, 850px); margin: auto; display: grid; gap: var(--sp-4); }
 .gold-body header { background: var(--navy-1); padding: var(--sp-4); border: 1px solid var(--amber); }
 .gold-body h1 { color: var(--amber); }
-.gold-board { display: flex; flex-wrap: wrap; gap: var(--sp-5); margin: 0; padding-left: var(--sp-5); }
+.gold-board { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
+.gold-board li { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-radius: 4px; }
+.gold-board li.gold-you { font-weight: 700; color: var(--amber); border: 1px solid var(--amber); background: rgba(255, 181, 71, 0.12); }
+.gold-rank { opacity: 0.8; font-family: var(--font-mono); }
 .gold-crates { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
 .gold-body .btn { min-height: 44px; white-space: normal; }
 .gold-crates .btn { min-height: 88px; border-color: var(--amber); }
+.gold-end-actions { display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-3); }
 @media (max-width: 550px) { .gold-screen { padding: var(--sp-3); } .gold-crates { grid-template-columns: 1fr; } }
 
-.gold-delta { display: inline-block; color: var(--amber); }
+.gold-delta { display: inline-block; margin-left: 0.35rem; color: var(--amber); }
 .gold-crates .gold-revealed { opacity: 1; color: var(--amber); }
+@media (max-width: 900px) {
+  .hub-screen .gold-rush-btn {
+    position: fixed;
+    top: calc(var(--bar-h, 76px) + 12px);
+    right: 16px;
+    z-index: 30;
+    box-shadow: 0 0 12px rgba(255, 181, 71, 0.4);
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .gold-screen[data-motion='full'] .gold-revealed { animation: gold-reveal 420ms var(--ease-out); }
   .gold-screen[data-motion='full'] .gold-outcome { animation: gold-pop 280ms var(--ease-out); }
