@@ -1,5 +1,6 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three/webgpu'
 import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
@@ -9,7 +10,7 @@ import { FloorPool, SubjectLights, VolumeColumn } from './grade'
 import { useWidthFit } from './case/sceneHelpers'
 import Drone from './hub/Drone'
 import MapTable, { TABLE_RADIUS, TABLE_TOP_Y } from './hub/MapTable'
-import { sceneCalm } from './hub/markerMotion'
+import { markerNeedsPan, markerWorldPositions, panOffsetStep, PAN_FRACTION, sceneCalm } from './hub/markerMotion'
 import Markers from './hub/Markers'
 
 const FINAL = { x: 0, y: 8.2, z: 9.2 }
@@ -53,22 +54,52 @@ export default function HubScene() {
   // Keep the whole map table in view on a tall narrow screen (phone held upright).
   const fit = useWidthFit(TABLE_RADIUS + 0.7, 11.2, 66, 0.04)
 
+  const pan = useRef({ x: 0, y: 0, z: 0 })
+  const targetPan = useRef({ x: 0, y: 0, z: 0 })
+  const panningId = useRef<string | null>(null)
+  const tmpProj = useRef(new THREE.Vector3())
+
   useFrame((state, dt) => {
     const cam = state.camera
+    const focused = useRuntime.getState().focusedMarker
+    const markerPos = focused ? markerWorldPositions.get(focused) : null
+    if (!markerPos || !focused) {
+      panningId.current = null
+      targetPan.current.x = 0
+      targetPan.current.y = 0
+      targetPan.current.z = 0
+    } else if (panningId.current !== focused) {
+      tmpProj.current.copy(markerPos).project(cam)
+      if (markerNeedsPan(tmpProj.current.x, tmpProj.current.y)) {
+        panningId.current = focused
+        targetPan.current.x = (markerPos.x - LOOK.x) * PAN_FRACTION
+        targetPan.current.y = (markerPos.y - LOOK.y) * PAN_FRACTION
+        targetPan.current.z = (markerPos.z - LOOK.z) * PAN_FRACTION
+      } else {
+        panningId.current = null
+        targetPan.current.x = 0
+        targetPan.current.y = 0
+        targetPan.current.z = 0
+      }
+    }
+
     const t = (performance.now() - start.current) / 1000
     const k = calm ? 1 : easeOutCubic(Math.min(1, t / 2.4))
     // Gentle pointer parallax once the intro has settled.
     const px = calm ? 0 : state.pointer.x * 0.35 * k
     const py = calm ? 0 : state.pointer.y * 0.18 * k
     const back = fit.current
-    const x = LOOK.x + (START.x + (FINAL.x - START.x) * k + px - LOOK.x) * back
-    const y = LOOK.y + (START.y + (FINAL.y - START.y) * k + py - LOOK.y) * back
-    const z = LOOK.z + (START.z + (FINAL.z - START.z) * k - LOOK.z) * back
+    const targetX = LOOK.x + (START.x + (FINAL.x - START.x) * k + px - LOOK.x) * back + targetPan.current.x
+    const targetY = LOOK.y + (START.y + (FINAL.y - START.y) * k + py - LOOK.y) * back + targetPan.current.y
+    const targetZ = LOOK.z + (START.z + (FINAL.z - START.z) * k - LOOK.z) * back + targetPan.current.z
     const follow = calm ? 1 : 1 - Math.exp(-dt * 7)
-    cam.position.x += (x - cam.position.x) * follow
-    cam.position.y += (y - cam.position.y) * follow
-    cam.position.z += (z - cam.position.z) * follow
-    cam.lookAt(LOOK.x, LOOK.y, LOOK.z)
+    cam.position.x += (targetX - cam.position.x) * follow
+    cam.position.y += (targetY - cam.position.y) * follow
+    cam.position.z += (targetZ - cam.position.z) * follow
+    pan.current.x = panOffsetStep(pan.current.x, targetPan.current.x, dt, calm)
+    pan.current.y = panOffsetStep(pan.current.y, targetPan.current.y, dt, calm)
+    pan.current.z = panOffsetStep(pan.current.z, targetPan.current.z, dt, calm)
+    cam.lookAt(LOOK.x + pan.current.x, LOOK.y + pan.current.y, LOOK.z + pan.current.z)
     const fog = state.scene.fog as { density: number } | null
     if (fog) fog.density = 0.02 / back
   })

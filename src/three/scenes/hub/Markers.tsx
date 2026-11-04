@@ -12,7 +12,7 @@ import { lonLatToXZ } from '../../data/florida'
 import { makeLabelTexture } from '../../labels'
 import { createLabelDeclutter, type LabelItem } from './labelDeclutter'
 import { TABLE_TOP_Y } from './MapTable'
-import { layoutMarkers, markerGlowMul, markerHitRadius, markerPressed, markerScale, sceneCalm, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from './markerMotion'
+import { layoutMarkers, markerGlowMul, markerHitRadius, markerPressed, markerScale, markerWorldPositions, sceneCalm, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from './markerMotion'
 
 const tmpScale = new THREE.Vector3()
 const tmpHit = new THREE.Vector3()
@@ -108,12 +108,16 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
   }, [hex, title, sub, glowU, calm])
 
   const entry = useMemo<LabelEntry>(() => ({
-    id, x: 0, y: 0, w: 0, h: 0, priority: 0, world: new THREE.Vector3(),
+    id, x: 0, y: 0, w: 0, h: 0, priority: 0, world: new THREE.Vector3(x + 1.4 * side, TABLE_TOP_Y + 0.42 + height, z),
     width: 1.6, height: 1.6 / label.aspect, pixelsPerUnit: 1, visible: true, dy: 0,
-  }), [id, label.aspect])
+  }), [id, label.aspect, x, z, side, height])
   useEffect(() => {
     registry.set(id, entry)
-    return () => { registry.delete(id) }
+    markerWorldPositions.set(id, entry.world)
+    return () => {
+      registry.delete(id)
+      markerWorldPositions.delete(id)
+    }
   }, [registry, id, entry])
 
   useEffect(

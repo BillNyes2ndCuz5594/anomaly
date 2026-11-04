@@ -9,6 +9,7 @@ import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announceBus'
 import { INTEL, codexIdsFor } from './itemPlayerRules'
+import { nextWordIndex } from './rovingWords'
 import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import { CoreVignette } from '../../ui/FrostOverlay'
@@ -48,6 +49,12 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const [struckEver, setStruckEver] = useState<Set<number>>(new Set())
   const [attemptedStrike, setAttempted] = useState(false)
   const [readUsed, setReadUsed] = useState(false)
+  const [prevItemId, setPrevItemId] = useState(item.id)
+  const [activeWord, setActiveWord] = useState(0)
+  if (item.id !== prevItemId) {
+    setPrevItemId(item.id)
+    setActiveWord(0)
+  }
   const [result, setResult] = useState<AnswerRecord | null>(null)
   const submitted = useRef(false)
   const admit = useTapGuard()
@@ -175,7 +182,10 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (e.repeat && ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'x', ' ', 'enter'].includes(e.key.toLowerCase())) { e.preventDefault(); return }
       const tid = el?.dataset?.testid ?? ''
       const onOption = tid.startsWith('option-')
+      const onWord = el?.classList?.contains('word') ?? false
       const onButton = tag === 'BUTTON'
+      const k = e.key.toLowerCase()
+      if (onWord && (k.startsWith('arrow') || k === 'home' || k === 'end')) return
       if (L.locked) {
         if (e.key === 'Enter' && !onButton) {
           e.preventDefault()
@@ -183,7 +193,6 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         }
         return
       }
-      const k = e.key.toLowerCase()
       const digit = '1234'.indexOf(k)
       const letter = 'abcd'.indexOf(k)
       const opt = k.length === 1 ? (digit >= 0 ? digit : letter) : -1
@@ -238,6 +247,16 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     { k: 'A', label: 'Answer', on: selected !== null || locked },
   ]
 
+  const onStemKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return
+    if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'].includes(e.key)) return
+    const next = nextWordIndex(activeWord, e.key, tokens.length)
+    e.preventDefault()
+    setActiveWord(next)
+    const btn = e.currentTarget.querySelector<HTMLButtonElement>(`[data-testid="word-${next}"]`)
+    btn?.focus()
+  }
+
   return (
     <>
         <div className="item-head">
@@ -257,7 +276,13 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         </div>
 
         <div className="panel brackets stem-panel">
-          <p className="stem" data-testid="stem">
+          <p
+            className="stem"
+            data-testid="stem"
+            role="group"
+            aria-label={'Key word tagger: ' + tokens.join(' ')}
+            onKeyDown={onStemKeyDown}
+          >
             {segments.map((seg, si) => {
               const words = seg.idx.map((t) => (
                 <span key={t} className="word-wrap">
@@ -267,7 +292,12 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                     data-testid={`word-${t}`}
                     aria-pressed={tagged.has(t)}
                     disabled={locked}
-                    onClick={() => toggleWord(t)}
+                    tabIndex={activeWord === t ? 0 : -1}
+                    onClick={() => {
+                      setActiveWord(t)
+                      toggleWord(t)
+                    }}
+                    onFocus={() => setActiveWord(t)}
                   >
                     {tokens[t]}
                   </button>{' '}

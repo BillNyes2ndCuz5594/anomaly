@@ -3,8 +3,10 @@ import {
   markerAttention,
   markerGlowMul,
   markerHitRadius,
+  markerNeedsPan,
   markerPressed,
   markerScale,
+  panOffsetStep,
   sceneCalm,
   setMarkerPressed,
   subscribeMarkerPressed,
@@ -77,5 +79,49 @@ describe('marker press store', () => {
     setMarkerPressed('case', true)
     expect(calls).toBe(2)
     setMarkerPressed('case', false)
+  })
+})
+
+describe('markerNeedsPan', () => {
+  it('returns false for points inside the safe NDC view margin', () => {
+    expect(markerNeedsPan(0, 0)).toBe(false)
+    expect(markerNeedsPan(0.5, 0.3)).toBe(false)
+    expect(markerNeedsPan(-0.7, -0.5)).toBe(false)
+  })
+
+  it('returns true when horizontal coordinate exceeds margin |x| > 0.8', () => {
+    expect(markerNeedsPan(0.85, 0)).toBe(true)
+    expect(markerNeedsPan(-0.85, 0)).toBe(true)
+    expect(markerNeedsPan(0.8, 0)).toBe(false)
+    expect(markerNeedsPan(-0.8, 0)).toBe(false)
+  })
+
+  it('returns true when vertical coordinate exceeds upper margin y > 0.7', () => {
+    expect(markerNeedsPan(0, 0.75)).toBe(true)
+    expect(markerNeedsPan(0, 0.7)).toBe(false)
+  })
+
+  it('returns true when vertical coordinate drops below bottom margin y < -0.85', () => {
+    expect(markerNeedsPan(0, -0.9)).toBe(true)
+    expect(markerNeedsPan(0, -0.85)).toBe(false)
+  })
+})
+
+describe('panOffsetStep', () => {
+  it('snaps immediately to target when calm is true', () => {
+    expect(panOffsetStep(0, 2.5, 0.016, true)).toBe(2.5)
+    expect(panOffsetStep(1.2, 0, 0.016, true)).toBe(0)
+  })
+
+  it('eases toward target with exponential follow when calm is false', () => {
+    const next = panOffsetStep(0, 2, 0.1, false, 7)
+    expect(next).toBeGreaterThan(0)
+    expect(next).toBeLessThan(2)
+    // follow factor: 1 - exp(-0.7) approx 0.5034
+    expect(next).toBeCloseTo(2 * (1 - Math.exp(-0.7)), 4)
+  })
+
+  it('remains unchanged when already at target', () => {
+    expect(panOffsetStep(1.5, 1.5, 0.016, false)).toBe(1.5)
   })
 })
