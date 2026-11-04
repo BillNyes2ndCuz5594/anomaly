@@ -1,3 +1,4 @@
+import { LAB_CARD_ART } from '../../ui/labCardArt'
 import { useTapGuard } from '../../ui/useTapGuard'
 import { useEffect, useRef, useState } from 'react'
 import { codexById } from '../../content'
@@ -124,7 +125,7 @@ export default function LabGeneric() {
         <p className="intro strong">{lab.intro}</p>
         <ReadAloudButton text={readText} testId="read-aloud-lab" />
 
-        <div className="spec-card lab-card" data-testid="lab-card">
+        <div className="spec-card lab-card" data-testid="lab-card" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 11, 22, 0.94), rgba(5, 11, 22, 0.78)), url("${LAB_CARD_ART[def.category]}")` }}>
           {order ? (
             <>
               <span className="mono label amber">{slot ? `STEP ${slot} OF ${total}` : 'ALL STEPS PLACED'}</span>

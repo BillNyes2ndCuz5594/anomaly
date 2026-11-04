@@ -1,3 +1,4 @@
+import { content } from '../content'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -25,9 +26,21 @@ describe('case preview media by motion mode', () => {
 })
 
 describe('case preview targets', () => {
-  it('maps the hub cards to their loops', () => {
-    expect(PREVIEW_TARGETS['case-marker-03-1']).toBe('cells')
-    expect(PREVIEW_TARGETS['case-marker-02-2']).toBe('creek')
+  it('uses every content pack category with static art in every motion mode', () => {
+    for (const def of content.cases) {
+      const clip = PREVIEW_TARGETS[`case-marker-${def.id}`]
+      expect(clip).toBe(def.category)
+      for (const mode of ['full', 'fade', 'still'] as const) {
+        const html = renderToStaticMarkup(createElement(PreviewMedia, { clip, mode }))
+        expect(html).toContain(`lab-card-${def.category}`)
+        expect(html).not.toContain('<video')
+      }
+    }
+  })
+
+  it('maps the hub cards to their strand art and the cold loop', () => {
+    expect(PREVIEW_TARGETS['case-marker-03-1']).toBe('life')
+    expect(PREVIEW_TARGETS['case-marker-02-2']).toBe('earth')
     expect(PREVIEW_TARGETS['cold-marker']).toBe('frost')
     expect(isPreviewTarget('cold-marker')).toBe(true)
     expect(isPreviewTarget('case-marker-02-2')).toBe(true)

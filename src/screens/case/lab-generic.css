@@ -18,6 +18,8 @@
 
 [data-testid='lab-generic'] .spec-card {
   box-shadow: inset 3px 0 0 var(--amber);
+  background-size: cover;
+  background-position: center;
 }
 
 [data-testid='lab-generic'] .spec-card li {

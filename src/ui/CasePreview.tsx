@@ -13,15 +13,17 @@ import { activeTarget, isPreviewTarget, mediaKind, placePreview, PREVIEW_TARGETS
 import type { MotionMode } from './motionMode'
 import { useMotionMode } from './useMotionMode'
 import './casePreview.css'
+import { LAB_CARD_ART } from './labCardArt'
 
-const CLIP_MEDIA: Record<PreviewClip, { webm: string; mp4: string; poster: string }> = {
+const CLIP_MEDIA: Record<'cells' | 'creek' | 'frost', { webm: string; mp4: string; poster: string }> = {
   cells: { webm: cellsWebm, mp4: cellsMp4, poster: cellsPoster },
   creek: { webm: creekWebm, mp4: creekMp4, poster: creekPoster },
   frost: { webm: frostWebm, mp4: frostMp4, poster: frostPoster },
 }
 
-/** The crop itself. A video only in full motion; every other mode gets the poster image. */
+/** Strand art stays static. Legacy clips play only in full motion. */
 export function PreviewMedia({ clip, mode }: { clip: PreviewClip; mode: MotionMode }) {
+  if (clip !== 'cells' && clip !== 'creek' && clip !== 'frost') return <img src={LAB_CARD_ART[clip]} alt="" aria-hidden="true" draggable={false} />
   const m = CLIP_MEDIA[clip]
   if (mediaKind(mode) === 'poster') return <img src={m.poster} alt="" aria-hidden="true" draggable={false} />
   return (
@@ -40,7 +42,7 @@ function targetOf(node: EventTarget | null): { id: PreviewTarget; el: HTMLElemen
 }
 
 /**
- * Hover or keyboard focus on a hub case card shows a small preview of that case's loop.
+ * Hover or keyboard focus on a hub case card shows its strand art, or the cold case loop.
  * It attaches to the existing buttons by data-testid with delegated listeners and draws into a portal, so the card
  * markup and layout are untouched. Mounted only on the hub route; it unmounts the media the moment the pointer or
  * focus leaves, so nothing plays while nothing is hovered.
@@ -110,8 +112,9 @@ export default function CasePreview() {
 
   if (!active || !pos) return null
   const clip = PREVIEW_TARGETS[active]
+  const staticArt = clip !== 'cells' && clip !== 'creek' && clip !== 'frost'
   return createPortal(
-    <div className="case-preview" data-testid="case-preview" data-clip={clip} data-for={active} data-media={mediaKind(mode)} style={{ left: pos.left, top: pos.top }} aria-hidden="true">
+    <div className="case-preview" data-testid="case-preview" data-clip={clip} data-for={active} data-media={staticArt ? 'poster' : mediaKind(mode)} style={{ left: pos.left, top: pos.top }} aria-hidden="true">
       <PreviewMedia clip={clip} mode={mode} />
     </div>,
     document.body,

@@ -59,7 +59,8 @@ export const HERO_SPECIMENS: Record<string, HeroDef> = {
   'bull-shark': { url: sharkUrl, yaw: 0, rough: 0.5 },
   'gopher-tortoise': { url: tortoiseUrl, yaw: 0, rough: 0.8 },
   grasshopper: { url: grasshopperUrl, yaw: 0, rough: 0.6 },
-  manatee: { url: manateeUrl, yaw: 0, rough: 0.75 },
+  // Front three-quarter pose at the pinned display yaw (-0.62 radians).
+  manatee: { url: manateeUrl, yaw: -0.6, rough: 0.75 },
   quartz: { url: quartzUrl, yaw: 0, rough: 0.3 },
   pyrite: { url: pyriteUrl, yaw: 0, rough: 0.35, metalness: 0.85 },
   feldspar: { url: feldsparUrl, yaw: 0, rough: 0.6 },
