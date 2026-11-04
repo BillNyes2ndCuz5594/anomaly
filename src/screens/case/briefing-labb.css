@@ -198,7 +198,7 @@
 }
 
 .labb-screen .match-btn.tried {
-  opacity: 0.78;
+  color: var(--muted);
   text-decoration: line-through;
   background:
     linear-gradient(var(--bad), var(--bad)) left / 4px 100% no-repeat,

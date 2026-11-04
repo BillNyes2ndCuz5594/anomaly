@@ -1189,10 +1189,6 @@ html[data-reduced-motion='true'] *::after {
     border-color: var(--cyan);
   }
 }
-.organ-btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
 .swatch {
   flex: none;
   width: 12px;
@@ -1232,10 +1228,6 @@ html[data-reduced-motion='true'] *::after {
   border-width: 2px;
   background: rgba(0, 158, 115, 0.14);
   opacity: 1;
-}
-.match-btn.tried {
-  text-decoration: line-through;
-  opacity: 0.5;
 }
 .choice-col {
   display: flex;
@@ -1285,9 +1277,6 @@ html[data-reduced-motion='true'] *::after {
   overflow-wrap: normal;
   word-break: normal;
   hyphens: none;
-}
-.sort-step[aria-disabled='true'] {
-  opacity: 0.6;
 }
 .tray {
   display: flex;
@@ -1609,7 +1598,7 @@ html[data-reduced-motion='true'] *::after {
 }
 .opt.struck .opt-text {
   text-decoration: line-through;
-  opacity: 0.6;
+  color: var(--muted);
 }
 .opt.speaking {
   box-shadow: 0 0 0 2px var(--amber);

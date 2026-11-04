@@ -53,10 +53,6 @@
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 0 8px var(--tint);
 }
 
-[data-testid='lab-a'] .organ-btn:disabled {
-  opacity: 0.72;
-}
-
 [data-testid='lab-a'] .organ-btn.is-lit {
   opacity: 1;
   border-color: var(--tint);
@@ -133,10 +129,6 @@
   font-size: 0.75rem;
   letter-spacing: 0.02em;
   padding: 0 4px;
-}
-
-[data-testid='lab-c'] .sort-step[aria-disabled='true'] {
-  opacity: 1;
 }
 
 [data-testid='lab-c'] .sort-step[aria-disabled='true'] .btn {

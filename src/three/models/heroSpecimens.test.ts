@@ -2,18 +2,18 @@ import { existsSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three/webgpu'
 import { HERO_SPECIMENS, hasHero, normalizeHero, toFloat } from './heroSpecimens'
-import { specimenGeo } from './creatures'
+import { SPECIMEN_SHAPES } from './specimenShapes'
 
 describe('hero specimen scans', () => {
   it('every hero has a procedural fallback and a shipped scan file', () => {
     for (const id of Object.keys(HERO_SPECIMENS)) {
       expect(hasHero(id)).toBe(true)
-      expect(specimenGeo(id).size[0]).toBeGreaterThan(0)
+      for (const size of SPECIMEN_SHAPES[id].size) expect(size).toBeGreaterThan(0)
       expect(existsSync(new URL(`../../assets/specimens/${id}.glb`, import.meta.url))).toBe(true)
     }
     expect(hasHero('manatee')).toBe(true)
     expect(hasHero('not-a-scan')).toBe(false)
-  }, 20_000)
+  })
 
   it('dequantizes normalized attributes before transforming', () => {
     const g = new THREE.BufferGeometry()
