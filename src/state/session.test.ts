@@ -60,6 +60,8 @@ describe('case steps', () => {
 
   it('has no case on the cold case', async () => {
     const { useSession } = await import('./session')
+    const { loadAllPacks } = await import('../content')
+    await loadAllPacks()
     useSession.getState().start('cold-1', 'cold')
     expect(useSession.getState().caseDef).toBeNull()
     expect(useSession.getState().items.every((i) => i.pool === 'cold')).toBe(true)

@@ -1,7 +1,9 @@
 import { Component, lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
 import { STILL } from './lib/flags'
 import { navigate, parseHash, type Route } from './lib/router'
-import HubScreen, { HUB_PANEL_WIDTH } from './screens/HubScreen'
+import { HUB_PANEL_WIDTH } from './screens/hubLayout'
+const loadHub = () => import('./screens/HubScreen')
+const HubScreen = lazy(loadHub)
 import { caseInset } from './screens/case/layout'
 import TitleScreen from './screens/TitleScreen'
 
@@ -78,7 +80,7 @@ function ScreenFor({ route }: { route: Route }) {
     case 'title':
       return <TitleScreen />
     case 'hub':
-      return <HubScreen />
+      return <Suspense fallback={null}><HubScreen /></Suspense>
     case 'settings':
       return (
         <Suspense fallback={null}>
@@ -117,6 +119,25 @@ function useResultCountUps(routeName: string, step: string, reduced: boolean) {
 
 export default function App() {
   useApplySettings()
+  useEffect(() => {
+    // Two frames let the title paint before idle prefetch begins.
+    let idle = 0
+    let timer = 0
+    let second = 0
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => {
+        const prefetch = () => { void loadHub().catch(() => {}) }
+        if (typeof window.requestIdleCallback === 'function') idle = window.requestIdleCallback(prefetch)
+        else timer = window.setTimeout(prefetch, 200)
+      })
+    })
+    return () => {
+      cancelAnimationFrame(first)
+      cancelAnimationFrame(second)
+      if (idle) window.cancelIdleCallback(idle)
+      window.clearTimeout(timer)
+    }
+  }, [])
   const reducedMotion = useGame((s) => s.settings.reducedMotion)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)

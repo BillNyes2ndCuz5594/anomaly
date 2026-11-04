@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { usePack } from '../content/usePack'
 import { content } from '../content'
 import { navigate } from '../lib/router'
 import ItemVisual from './case/ItemVisual'
@@ -34,6 +35,8 @@ const pickIds = (): { ids: string[]; title: string }[] | null => {
 }
 
 export default function VisualsScreen({ view }: { view: 'scenes' | 'models' | 'juice' }) {
+  const loaded = usePack('all')
+  if (!loaded) return null
   const seen = new Set<string>()
   const scenes = content.items.filter((it) => {
     if (it.visual.kind !== 'scene') return false

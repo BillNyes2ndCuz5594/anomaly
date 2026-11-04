@@ -181,5 +181,5 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop()
     process.exit(1)
   }
   const n = files.length
-  console.log(`check-pack: ok, ${n} pack${n === 1 ? '' : 's'}`)
+  console.log(`check-pack: ok, ${n} pack${n === 1 ? '' : 's'}. After editing packs, run npm run manifest.`)
 }
