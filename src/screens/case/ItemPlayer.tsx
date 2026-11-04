@@ -2,7 +2,7 @@ import { useTapGuard } from '../../ui/useTapGuard'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Item } from '../../content/schema'
-import { findKeyPhrases, tokenizeStem } from '../../lib/rkea'
+import { findKeyPhrases, gradeChoice, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
@@ -149,7 +149,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       return
     }
     submitted.current = true
-    const correct = selected === item.key
+    const correct = gradeChoice(item, selected)
     const keyTagged = phrases.filter((p) => p.tokens.every((t) => tagged.has(t))).length
     const intel = keyTagged * INTEL.keyWord + struckEver.size * INTEL.eliminate + (correct ? INTEL.correct : 0)
     const rec: AnswerRecord = { itemId: item.id, picked: selected, correct, keyTagged, eliminated: struckEver.size, hintsUsed: hints, intel }

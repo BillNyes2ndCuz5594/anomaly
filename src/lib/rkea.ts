@@ -1,6 +1,11 @@
 // RKEA helpers: stem tokens, key phrase matching, and evidence item selection.
 import type { Item } from '../content/schema'
 
+/** Shared single-choice grading for evidence and quick questions. */
+export function gradeChoice(item: Item, picked: number): boolean {
+  return picked === item.key
+}
+
 /** Stem split on whitespace. Each token is one tappable word button. */
 export function tokenizeStem(stem: string): string[] {
   return stem.split(/\s+/).filter(Boolean)
