@@ -4,7 +4,7 @@ import type { Item } from '../../content/schema'
 import { parseHash, routeNeedsProfile } from '../../lib/router'
 import { buildQuickPool } from '../quick/quickPool'
 import { createQuickAnswer } from '../quick/quickAnswer'
-import { answerGold, applyCrate, cratesFor, nextGold, pickCrate, resolveGoldFocusTarget, standings, startGold } from './goldRush'
+import { answerGold, applyCrate, clearGoldSession, cratesFor, loadGoldSession, nextGold, pickCrate, rankOf, resolveGoldFocusTarget, saveGoldSession, standings, startGold } from './goldRush'
 
 function play(seed: string) {
   let s = startGold(seed)
@@ -65,7 +65,7 @@ describe('Gold Rush', () => {
     expect(applyCrate(s, 40).intel).toBe(61)
     expect(applyCrate(s, 'double').intel).toBe(42)
     expect(applyCrate(s, 'glitch').intel).toBe(16)
-    expect(applyCrate({ ...s, intel: 0 }, 'glitch').intel).toBe(0)
+    expect([10, 20, 40]).toContain(applyCrate({ ...s, intel: 0 }, 'glitch').intel)
   })
   it('swaps only with a leading bot and steals ten percent from the leader', () => {
     const s = { ...answerGold(startGold('rules'), true), intel: 20,
@@ -119,5 +119,82 @@ describe('Gold Rush', () => {
     expect(calls).toEqual(['firstCrate', 'nextBtn', 'results'])
     // question phase delegates to stem ref
     expect(resolveGoldFocusTarget('question', refs)).toBeNull()
+  })
+  it('makes steal always give at least 1 intel and never take bots below zero', () => {
+    const s = { ...answerGold(startGold('steal-rules'), true), intel: 0,
+      bots: [{ name: 'A', intel: 0 }, { name: 'B', intel: 5 }, { name: 'C', intel: 0 }] }
+    // Victim B (5 intel) -> gives 1 intel (not 0), B drops to 4
+    const resB = applyCrate(s, 'steal')
+    expect(resB.intel).toBe(1)
+    expect(resB.bots.find((b) => b.name === 'B')?.intel).toBe(4)
+    expect(resB.outcome).toBe('Intel intercept! Collected 1 from B.')
+
+    // All bots have 0 intel: gives at least 1 intel, bots remain at 0 (never negative)
+    const zeroBots = { ...s, bots: [{ name: 'A', intel: 0 }, { name: 'B', intel: 0 }, { name: 'C', intel: 0 }] }
+    const resZero = applyCrate(zeroBots, 'steal')
+    expect(resZero.intel).toBe(1)
+    expect(resZero.bots.every((b) => b.intel >= 0)).toBe(true)
+  })
+  it('prevents glitch when intel is zero both when offered and applied', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const s = answerGold(startGold(String(seed)), true)
+      const zeroCrates = cratesFor(s)
+      expect(zeroCrates).not.toContain('glitch')
+      const res = applyCrate(s, 'glitch')
+      expect([10, 20, 40]).toContain(res.intel)
+      expect(res.outcome).toMatch(/Found (10|20|40) intel!/)
+    }
+  })
+  it('calculates shared rank for standings ties', () => {
+    const board = [
+      { name: 'Quartz Scout', intel: 100 },
+      { name: 'Photon Pilot', intel: 80 },
+      { name: 'You', intel: 80 },
+      { name: 'Fossil Finder', intel: 50 },
+    ]
+    expect(rankOf(board, 'Quartz Scout')).toBe(1)
+    expect(rankOf(board, 'Photon Pilot')).toBe(2)
+    expect(rankOf(board, 'You')).toBe(2)
+    expect(rankOf(board, 'Fossil Finder')).toBe(4)
+
+    // Tied for 1st
+    const tiedFirst = [
+      { name: 'You', intel: 100 },
+      { name: 'Quartz Scout', intel: 100 },
+      { name: 'Photon Pilot', intel: 20 },
+      { name: 'Fossil Finder', intel: 10 },
+    ]
+    expect(rankOf(tiedFirst, 'You')).toBe(1)
+    expect(rankOf(tiedFirst, 'Quartz Scout')).toBe(1)
+
+    // Missing rival
+    expect(rankOf(board, 'Unknown')).toBe(5)
+  })
+  it('persists in-progress session per caseId and guards parse errors', () => {
+    const map = new Map<string, string>()
+    const storage = {
+      getItem: (k: string) => map.get(k) ?? null,
+      setItem: (k: string, v: string) => { map.set(k, v) },
+      removeItem: (k: string) => { map.delete(k) },
+    }
+    const session = {
+      game: startGold('seed-1'),
+      reveal: { index: 0, contents: '20', delta: 20 },
+    }
+    expect(loadGoldSession(storage, '02-2')).toBeNull()
+
+    saveGoldSession(storage, '02-2', session)
+    expect(loadGoldSession(storage, '02-2')).toEqual(session)
+    expect(loadGoldSession(storage, '02-3')).toBeNull()
+
+    clearGoldSession(storage, '02-2')
+    expect(loadGoldSession(storage, '02-2')).toBeNull()
+
+    // Corrupted / invalid data handling
+    map.set('anomaly:gold:02-2', '{invalid json')
+    expect(loadGoldSession(storage, '02-2')).toBeNull()
+
+    map.set('anomaly:gold:02-2', JSON.stringify({ game: 'not an object' }))
+    expect(loadGoldSession(storage, '02-2')).toBeNull()
   })
 })

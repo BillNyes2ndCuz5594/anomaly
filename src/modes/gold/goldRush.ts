@@ -8,6 +8,15 @@ export interface GoldRush {
   seed: string; question: number; intel: number; bots: Rival[]
   phase: 'question' | 'crate' | 'next' | 'done'; outcome: string
 }
+export interface GoldReveal {
+  index: number
+  contents: string
+  delta: number
+}
+export interface GoldSession {
+  game: GoldRush
+  reveal: GoldReveal | null
+}
 const table: readonly Crate[] = [10, 20, 40, 'double', 'glitch', 'swap', 'steal']
 export function startGold(seed: string): GoldRush {
   return { seed, question: 0, intel: 0, phase: 'question', outcome: '', bots:
@@ -22,7 +31,7 @@ export function cratesFor(s: GoldRush): Crate[] {
   const choices = table.filter((crate) => crate !== 'swap' || s.bots.some((b) => b.intel > s.intel))
   return Array.from({ length: 3 }, (_, i) => {
     const crate = choices[Math.floor(seeded(s.seed, `crate:${s.question}:${i}`) * choices.length)]
-    return crate === 'double' && s.intel === 0
+    return (crate === 'double' || crate === 'glitch') && s.intel === 0
       ? ([10, 20, 40] as const)[Math.floor(seeded(s.seed, `number:${s.question}:${i}`) * 3)] : crate
   })
 }
@@ -36,15 +45,23 @@ export function applyCrate(s: GoldRush, crate: Crate): GoldRush {
   let intel = s.intel
   const bots = s.bots.map((b) => ({ ...b }))
   const rival = bots.reduce((a, b) => b.intel > a.intel ? b : a)
+  let resolvedCrate = crate
+  if (resolvedCrate === 'glitch' && intel === 0) {
+    resolvedCrate = ([10, 20, 40] as const)[Math.floor(seeded(s.seed, `glitch:${s.question}`) * 3)]
+  }
   let outcome: string
-  if (typeof crate === 'number') { intel += crate; outcome = `Found ${crate} intel!` }
-  else if (crate === 'double') { intel *= 2; outcome = 'Double intel! Your stash just grew.' }
-  else if (crate === 'glitch') { intel -= Math.floor(intel * 0.25); outcome = 'Vault glitch! Lost 25% of your intel. Keep exploring.' }
-  else if (crate === 'swap' && rival.intel > intel) {
+  if (typeof resolvedCrate === 'number') { intel += resolvedCrate; outcome = `Found ${resolvedCrate} intel!` }
+  else if (resolvedCrate === 'double') { intel *= 2; outcome = 'Double intel! Your stash just grew.' }
+  else if (resolvedCrate === 'glitch') { intel -= Math.floor(intel * 0.25); outcome = 'Vault glitch! Lost 25% of your intel. Keep exploring.' }
+  else if (resolvedCrate === 'swap' && rival.intel > intel) {
     [intel, rival.intel] = [rival.intel, intel]; outcome = `Stash swap with ${rival.name}!`
-  } else if (crate === 'steal') {
-    const taken = Math.floor(rival.intel * 0.1)
-    intel += taken; rival.intel -= taken; outcome = `Intel intercept! Collected ${taken} from ${rival.name}.`
+  } else if (resolvedCrate === 'steal') {
+    const eligible = bots.filter((b) => b.intel > 0)
+    const victim = (eligible.length > 0 ? eligible : bots).reduce((a, b) => b.intel > a.intel ? b : a)
+    const taken = Math.max(1, Math.floor(victim.intel * 0.1))
+    intel += taken
+    victim.intel = Math.max(0, victim.intel - taken)
+    outcome = `Intel intercept! Collected ${taken} from ${victim.name}.`
   } else outcome = 'You already lead the rivals. Keep your stash!'
   return { ...s, intel, bots, phase: 'next', outcome }
 }
@@ -54,6 +71,73 @@ export function nextGold(s: GoldRush): GoldRush {
 }
 export function standings(s: GoldRush): Rival[] {
   return [{ name: 'You', intel: s.intel }, ...s.bots].sort((a, b) => b.intel - a.intel)
+}
+export function rankOf(board: readonly Rival[], name: string): number {
+  const target = board.find((r) => r.name === name)
+  if (!target) return board.length + 1
+  return board.filter((r) => r.intel > target.intel).length + 1
+}
+
+export function goldStorageKey(caseId: string): string {
+  return `anomaly:gold:${caseId}`
+}
+
+export function loadGoldSession(
+  storage: { getItem(k: string): string | null },
+  caseId: string,
+): GoldSession | null {
+  try {
+    const raw = storage.getItem(goldStorageKey(caseId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    const g = parsed.game
+    if (
+      !g ||
+      typeof g !== 'object' ||
+      typeof g.seed !== 'string' ||
+      typeof g.question !== 'number' ||
+      typeof g.intel !== 'number' ||
+      typeof g.phase !== 'string' ||
+      !Array.isArray(g.bots)
+    ) {
+      return null
+    }
+    const reveal =
+      parsed.reveal &&
+      typeof parsed.reveal === 'object' &&
+      typeof parsed.reveal.index === 'number' &&
+      typeof parsed.reveal.contents === 'string' &&
+      typeof parsed.reveal.delta === 'number'
+        ? (parsed.reveal as GoldReveal)
+        : null
+    return { game: g as GoldRush, reveal }
+  } catch {
+    return null
+  }
+}
+
+export function saveGoldSession(
+  storage: { setItem(k: string, v: string): void },
+  caseId: string,
+  session: GoldSession,
+): void {
+  try {
+    storage.setItem(goldStorageKey(caseId), JSON.stringify(session))
+  } catch {
+    // Ignore storage quota or disabled errors
+  }
+}
+
+export function clearGoldSession(
+  storage: { removeItem(k: string): void },
+  caseId: string,
+): void {
+  try {
+    storage.removeItem(goldStorageKey(caseId))
+  } catch {
+    // Ignore errors
+  }
 }
 
 export function resolveGoldFocusTarget(
