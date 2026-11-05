@@ -49,7 +49,7 @@ export function WeatheringErosion() {
         preserveAspectRatio="xMidYMid slice"
         clipPath="url(#sd-plate-we)"
         aria-hidden="true"
-        opacity="0.4"
+        display="none"
       />
       <path d={cliff} fill="#6b5a4a" fillOpacity="0.65" />
       <path d="M -800 60 L 150 60 L 166 88 L 158 118 L 180 148 L 192 174" fill="none" stroke={CY} strokeOpacity="0.5" strokeWidth="2" />
@@ -103,7 +103,7 @@ export function MineralStreak() {
         preserveAspectRatio="xMidYMid slice"
         clipPath="url(#sd-plate-ms)"
         aria-hidden="true"
-        opacity="0.4"
+        display="none"
       />
       <Ground y={180} fill="#3a2f2a" edge={AM} />
       <path d="M 104 138 H 326 L 348 180 H 84 Z" fill="#e9eef4" fillOpacity="0.75" stroke={STEEL} strokeWidth="2.5" strokeLinejoin="round" />
@@ -144,7 +144,7 @@ export function RockTypes() {
         preserveAspectRatio="xMidYMid slice"
         clipPath="url(#sd-plate-rt)"
         aria-hidden="true"
-        opacity="0.4"
+        display="none"
       />
       <Ground y={166} fill="#3a2f2a" edge={AM} />
       {[75, 200, 325].map((x) => (
@@ -200,53 +200,55 @@ export function FloridaResources() {
     <>
       <Florida />
       {/* resource plate framed insets: spring next to well, quarry next to quarry, solar next to solar */}
-      <clipPath id="sd-plate-spring">
-        <rect x="320" y="26" width="48" height="48" rx="6" />
-      </clipPath>
-      <rect x="320" y="26" width="48" height="48" rx="6" fill="#0b2a4a" />
-      <image
-        href={resourceSpringPlate}
-        x="320"
-        y="26"
-        width="48"
-        height="48"
-        preserveAspectRatio="xMidYMid slice"
-        clipPath="url(#sd-plate-spring)"
-        aria-hidden="true"
-      />
-      <rect x="320" y="26" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+      <g display="none">
+        <clipPath id="sd-plate-spring">
+          <rect x="320" y="26" width="48" height="48" rx="6" />
+        </clipPath>
+        <rect x="320" y="26" width="48" height="48" rx="6" fill="#0b2a4a" />
+        <image
+          href={resourceSpringPlate}
+          x="320"
+          y="26"
+          width="48"
+          height="48"
+          preserveAspectRatio="xMidYMid slice"
+          clipPath="url(#sd-plate-spring)"
+          aria-hidden="true"
+        />
+        <rect x="320" y="26" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
 
-      <clipPath id="sd-plate-quarry">
-        <rect x="320" y="86" width="48" height="48" rx="6" />
-      </clipPath>
-      <rect x="320" y="86" width="48" height="48" rx="6" fill="#0b2a4a" />
-      <image
-        href={resourceQuarryPlate}
-        x="320"
-        y="86"
-        width="48"
-        height="48"
-        preserveAspectRatio="xMidYMid slice"
-        clipPath="url(#sd-plate-quarry)"
-        aria-hidden="true"
-      />
-      <rect x="320" y="86" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+        <clipPath id="sd-plate-quarry">
+          <rect x="320" y="86" width="48" height="48" rx="6" />
+        </clipPath>
+        <rect x="320" y="86" width="48" height="48" rx="6" fill="#0b2a4a" />
+        <image
+          href={resourceQuarryPlate}
+          x="320"
+          y="86"
+          width="48"
+          height="48"
+          preserveAspectRatio="xMidYMid slice"
+          clipPath="url(#sd-plate-quarry)"
+          aria-hidden="true"
+        />
+        <rect x="320" y="86" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
 
-      <clipPath id="sd-plate-solar">
-        <rect x="320" y="146" width="48" height="48" rx="6" />
-      </clipPath>
-      <rect x="320" y="146" width="48" height="48" rx="6" fill="#0b2a4a" />
-      <image
-        href={resourceSolarPlate}
-        x="320"
-        y="146"
-        width="48"
-        height="48"
-        preserveAspectRatio="xMidYMid slice"
-        clipPath="url(#sd-plate-solar)"
-        aria-hidden="true"
-      />
-      <rect x="320" y="146" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+        <clipPath id="sd-plate-solar">
+          <rect x="320" y="146" width="48" height="48" rx="6" />
+        </clipPath>
+        <rect x="320" y="146" width="48" height="48" rx="6" fill="#0b2a4a" />
+        <image
+          href={resourceSolarPlate}
+          x="320"
+          y="146"
+          width="48"
+          height="48"
+          preserveAspectRatio="xMidYMid slice"
+          clipPath="url(#sd-plate-solar)"
+          aria-hidden="true"
+        />
+        <rect x="320" y="146" width="48" height="48" rx="6" fill="none" stroke={CY} strokeOpacity="0.6" strokeWidth="1.5" />
+      </g>
 
       {/* well */}
       <g transform={`translate(${well.x} ${well.y})`}>
