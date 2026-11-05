@@ -101,4 +101,13 @@ describe('Reactor Stabilizer rules', () => {
       expect(validateReactorSession(bad)).toBeNull()
     }
   })
+
+  it('calculates accuracy as 0 when no questions have been answered', () => {
+    const s = startReactor('stats-test')
+    const stats = getReactorStats(s)
+    expect(stats.accuracy).toBe(0)
+    expect(stats.questionsAnswered).toBe(0)
+    expect(stats.score).toBe(0)
+    expect(stats.overload).toBe(false)
+  })
 })
