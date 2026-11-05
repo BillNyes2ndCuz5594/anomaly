@@ -39,7 +39,7 @@ export default function ResumeModal({ onClose, onDone }: { onClose: () => void; 
   return (
     <Modal title="Resume with code" onClose={onClose} testId="resume-modal">
       <form onSubmit={submit} className="form">
-        <p className="muted">Paste the report code you saved. Your progress is added to this device. Nothing is erased.</p>
+        <p className="muted">Paste your saved report code to bring your progress over to this device. Your clues and badges will be safe!</p>
         <div className="field">
           <label htmlFor="resume-code">Report code</label>
           <textarea
@@ -80,7 +80,7 @@ export default function ResumeModal({ onClose, onDone }: { onClose: () => void; 
             <input type="checkbox" checked={confirmSwitch} onChange={(e) => setConfirmSwitch(e.target.checked)} data-testid="resume-confirm" />
             <span>
               This device is signed in as <strong className="mono">{profile?.codename}</strong>, and this code belongs to a different agent.
-              Switching clears the progress saved on this device first. Tick the box to switch.
+              Switching will replace the clues saved on this device with the new agent file. Check the box if you want to switch agents!
             </span>
           </label>
         ) : null}

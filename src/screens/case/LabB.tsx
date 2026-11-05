@@ -87,7 +87,7 @@ export default function LabB() {
       } else {
         useFx.getState().flashPart(plantId, false)
         fireReact(`bad:p-${pairId},a-${armed}`)
-        setSay({ ok: false, word: 'Not a match.', text: 'Think about the job each part does, then try another plant part.' })
+        setSay({ ok: false, word: 'Not a match.', text: 'Think about what job each part does, then try another plant part!' })
       }
     },
     [armed, matched, pairs, phase, syncFx, fireReact, admit],
@@ -228,7 +228,7 @@ export default function LabB() {
                 })}
               </div>
             </div>
-            <p className="muted hint-line">Tap or click a part on the hologram, or use these buttons. Animal first, then plant.</p>
+            <p className="muted hint-line">Tap a glowing part on the hologram, or pick from the buttons below. Choose the animal part first, then find the matching plant part!</p>
           </>
         ) : (
           <div className="contrast" data-testid="contrast-card">

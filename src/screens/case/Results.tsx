@@ -184,7 +184,7 @@ export default function Results() {
                   <span aria-hidden="true">{'\u2605'}</span> Unlocked: <strong>{paint}</strong>
                 </p>
               ) : (
-                <p className="muted">No new paint this time. A paint unlocks when a benchmark moves up a stage.</p>
+                <p className="muted">No new drone paint yet! Move any science skill up a stage on your next mission to unlock a fresh color.</p>
               )}
             </div>
             <div className="reward">
@@ -194,7 +194,7 @@ export default function Results() {
               </p>
               <span className="muted tiny">Codex entries: {codexCount}</span>
             </div>
-            <ReportCodePanel intro="Copy this into your Canvas assignment. It also resumes your progress on another laptop." />
+            <ReportCodePanel intro="Copy this code into Canvas for your teacher. It also lets you resume your mission on another laptop!" />
             {!cold && <GoldRushButton caseId={caseId} />}
           </div>
           <footer className="results-side-footer">

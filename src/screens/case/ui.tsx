@@ -90,7 +90,7 @@ export function ReadAloudButton({ text, testId = 'read-aloud', label = 'Read alo
       </button>
       {ra.unavailable ? (
         <span className="ra-note muted" role="status" data-testid="read-aloud-unavailable">
-          Read aloud is not available on this device.
+          Read aloud is not available on this device right now.
         </span>
       ) : null}
     </span>

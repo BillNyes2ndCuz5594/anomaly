@@ -118,7 +118,7 @@ export default function Debrief() {
               {total}
               {' CORRECT'}
             </p>
-            <p className="debrief-line">Compare each locked answer against the field evidence before filing your shift report.</p>
+            <p className="debrief-line">Let's look over your clues together before we wrap up this mission!</p>
           </div>
           <button type="button" className="btn primary big" data-testid="debrief-continue" onClick={() => go('results')}>
             See results
@@ -146,7 +146,7 @@ export default function Debrief() {
                   {!a.correct ? (
                     <>
                       {' '}
-                      <span className="mono muted">Key</span> {LETTERS[it.key]}. {it.options[it.key]}
+                      <span className="mono muted">Best match</span> {LETTERS[it.key]}. {it.options[it.key]}
                     </>
                   ) : null}
                 </p>

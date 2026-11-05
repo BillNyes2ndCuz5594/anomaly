@@ -97,7 +97,7 @@ export function debriefLine(closed: boolean, cold: boolean, closedText: string, 
 /** Strips leading 'Correct.' or 'Decoy:' markers and capitalizes the first character. */
 export function cleanWhy(raw: string): string {
   if (!raw) return ''
-  const trimmed = raw.replace(/^(?:Correct[.:]|Decoy:)\s*/i, '').trim()
+  const trimmed = raw.replace(/^(?:Correct[.:]|Decoy[.:]|Key[.:])\s*/i, '').trim()
   if (!trimmed) return ''
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
 }

@@ -147,7 +147,7 @@ function judge(lab: GenericLab, state: LabState, target: string): { ok: boolean;
       const pair = lab.pairs.find((p) => p.left === left.id)
       return pair?.right === right.id
         ? { ok: true, card: left.id, text: pair.why }
-        : { ok: false, card: left.id, text: `${left.name} and ${right.name} do not go together. Read both cards again.` }
+        : { ok: false, card: left.id, text: `Hmm, ${left.name} and ${right.name} do different jobs. Peek at both cards and try another match!` }
     }
     case 'order': {
       const slot = nextSlot(lab, state)

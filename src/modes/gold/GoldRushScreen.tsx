@@ -87,7 +87,7 @@ function GoldGame({ caseId }: { caseId: string }) {
         })}
       </ol></aside>
       {done ? <section className="panel brackets"><h2 ref={resultsRef} tabIndex={-1}>You placed {rankOf(board, 'You')} of 4!</h2>
-        <p>Shift complete. Every cache on the grid is cleared.</p>
+        <p>Mission complete, Agent! You cleared every cache on the grid.</p>
         <div className="gold-end-actions">
           <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); setReveal(null); setGame(startGold(String(Date.now()))) }}>Play again</button>
           <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); navigate('/hub') }}>Back to hub</button>

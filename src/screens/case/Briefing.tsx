@@ -136,12 +136,12 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             </button>
             {ra.unavailable ? (
               <span className="muted ra-note" role="status" data-testid="read-aloud-unavailable">
-                Read aloud is not available on this device.
+                Read aloud is not available on this device right now.
               </span>
             ) : null}
           </div>
           <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} {...press('next')} onClick={proceed}>
-            {cold ? 'Open the evidence' : 'Start field lab'}
+            {cold ? 'Open the evidence' : 'Enter the Field Lab'}
           </button>
         </div>
       </aside>
