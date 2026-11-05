@@ -1,5 +1,7 @@
 import { clampAgentNumber, sanitizeClassCode } from '../lib/codename'
 import type { AnswerRecord, CaseKind, CaseStep } from './session'
+import type { Item } from '../content/schema'
+import { initLab, labReduce, type GenericLab, type LabState } from '../screens/case/labGenericData'
 import { useGame } from './store'
 
 export interface CaseResume {
@@ -17,6 +19,8 @@ export interface CaseResume {
   stagesBefore: Record<string, string>
   stageUps: number
   paint: string | null
+  lab?: { step: 'lab'; placed: Record<string, string>; current: string | null } | null
+  pendingFeedback?: { itemId: string; picked: number } | null
 }
 
 export function caseResumeKey(kind: string, caseId: string): string {
@@ -81,3 +85,32 @@ export function clearCaseResume(storage: { removeItem(k: string): void }, kind: 
     // Ignore errors
   }
 }
+
+/** Tab recovery only. Reuse the lab rules so changed data cannot restore invalid pairs. */
+export function restoreLab(lab: GenericLab, saved: unknown, seed: string): LabState {
+  const fresh = initLab(lab, seed)
+  if (!saved || typeof saved !== 'object') return fresh
+  const s = saved as NonNullable<CaseResume['lab']>
+  if (s.step !== 'lab' || !s.placed || typeof s.placed !== 'object' || Array.isArray(s.placed)) return fresh
+  let state = fresh
+  for (const [card, target] of Object.entries(s.placed)) {
+    if (typeof target !== 'string' || !fresh.cards.includes(card)) return fresh
+    state = labReduce(lab, state, { type: 'select', id: card })
+    state = labReduce(lab, state, { type: 'place', target: lab.kind === 'order' ? card : target })
+    if (!state.feedback?.ok || state.placed[card] !== target) return fresh
+  }
+  if (s.current !== null && (typeof s.current !== 'string' || !fresh.cards.includes(s.current) || s.current in state.placed)) return fresh
+  if (lab.kind === 'order' ? s.current !== null : s.current === null && Object.keys(state.placed).length < fresh.cards.length) return fresh
+  return { ...state, current: s.current, feedback: null, tries: 0, misses: 0 }
+}
+
+/** Return the existing submission, never grade or score during recovery. */
+export function resumeFeedback(saved: CaseResume, items: Item[]): AnswerRecord | null {
+  const marker = saved.pendingFeedback
+  if (saved.step !== 'items' || !marker || typeof marker !== 'object') return null
+  const item = items[saved.itemIndex]
+  if (!item || marker.itemId !== item.id || !Number.isInteger(marker.picked) || marker.picked < 0 || marker.picked >= item.options.length) return null
+  return saved.answers.find((a) => a.itemId === marker.itemId && a.picked === marker.picked) ?? null
+}
+
+export const clearCaseCheckpoint = clearCaseResume

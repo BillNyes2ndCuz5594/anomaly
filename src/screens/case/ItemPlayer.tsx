@@ -26,11 +26,12 @@ interface BodyProps {
   item: Item
   index: number
   total: number
+  restored: AnswerRecord | null
   onLocked: (a: AnswerRecord) => void
   onNext: () => void
 }
 
-function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & { sideEl: HTMLElement }) {
+function ItemBody({ item, index, total, onLocked, onNext, restored, sideEl }: BodyProps & { sideEl: HTMLElement }) {
   useEffect(() => clearFlyChips, [])
   const tokens = useMemo(() => tokenizeStem(item.stem), [item.stem])
   const phrases = useMemo(() => findKeyPhrases(item.stem, item.keyWords), [item.stem, item.keyWords])
@@ -45,7 +46,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const [rules] = useState(() => helpRules(helpLevel, item.key))
   const [tagged, setTagged] = useState<Set<number>>(new Set())
   const [earnedPhrases, setEarned] = useState<Set<number>>(new Set())
-  const [selected, setSelected] = useState<number | null>(null)
+  const [selected, setSelected] = useState<number | null>(restored?.picked ?? null)
   const [struck, setStruck] = useState<Set<number>>(() => (rules.autoStruck !== null ? new Set([rules.autoStruck]) : new Set()))
   const [elim, setElim] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -60,8 +61,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     setPrevItemId(item.id)
     setActiveWord(0)
   }
-  const [result, setResult] = useState<AnswerRecord | null>(null)
-  const submitted = useRef(false)
+  const [result, setResult] = useState<AnswerRecord | null>(restored)
+  const submitted = useRef(restored !== null)
   const admit = useTapGuard()
   const locked = result !== null
   useAnnounce(
@@ -466,6 +467,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
 }
 
 export default function ItemPlayer() {
+  const restored = useSession((s) => s.pendingFeedback)
   const items = useSession((s) => s.items)
   const go = useSession((s) => s.go)
   const addAnswer = useSession((s) => s.addAnswer)
@@ -481,6 +483,7 @@ export default function ItemPlayer() {
 
   const onLocked = useCallback(
     (a: AnswerRecord) => {
+      if (useSession.getState().answers.some((answer) => answer.itemId === a.itemId)) return
       const st = useGame.getState()
       const out = st.recordItem(item.benchmark, item.id, a.correct)
       if (a.intel) st.addIntel(a.intel)
@@ -506,7 +509,7 @@ export default function ItemPlayer() {
       {/* The 3D visual stays mounted across items. Keying it would rebuild the canvas, and fading the grid would blank that canvas mid-glide. */}
       <div className={`item-grid${stage3d ? ' stage-3d' : ''}${stageMany ? ' stage-many' : ''}`} data-dir={dir}>
         <section className="item-main">
-          {sideEl ? <ItemBody key={item.id} sideEl={sideEl} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} /> : null}
+          {sideEl ? <ItemBody restored={restored} key={item.id} sideEl={sideEl} item={item} index={idx} total={items.length} onLocked={onLocked} onNext={onNext} /> : null}
           <ItemVisual item={item} upcoming={items[idx + 1] && isStageVisual(items[idx + 1].visual) ? items[idx + 1].visual : null} />
         </section>
         <section className="item-side" ref={setSideEl} />

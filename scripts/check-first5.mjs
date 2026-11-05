@@ -3,7 +3,7 @@
 // Usage: timeout 400 node scripts/check-first5.mjs
 import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
-import { freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
+import { CONTENT, freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
 
 const SHOTS_DIR = 'artifacts/first5'
 mkdirSync(SHOTS_DIR, { recursive: true })
@@ -1013,6 +1013,9 @@ try {
   check('keyboard completes a mixture match', (await labPage.$eval('[data-testid="lab-feedback"]', (el) => el.getAttribute('data-ok'))) === 'yes')
 
   await labPage.evaluate(() => {
+    const key = 'anomaly.case.case.04-1'
+    const checkpoint = JSON.parse(sessionStorage.getItem(key))
+    sessionStorage.setItem(key, JSON.stringify({ ...checkpoint, lab: null }))
     const raw = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')
     if (raw?.state) {
       raw.state.settings = { ...raw.state.settings, reducedMotion: true }
@@ -1043,6 +1046,63 @@ try {
   const exitCancel = await labPage.evaluate((before) => (window.__labSpeechCalls || []).slice(before).some((call) => call.type === 'cancel'), beforeExit)
   check('leaving the lab cancels active speech', exitCancel)
   await labPage.close()
+
+  // PR 5: keyboard recovery on the same tab and device, never from a Results code.
+  for (const width of [1366, 1024]) {
+    for (const reducedMotion of [false, true]) {
+      const recovery = await profilePage(browser, base, '?tier=low', { width, height: 768 }, errors)
+      await recovery.evaluate((reducedMotion) => {
+        const raw = JSON.parse(localStorage.getItem('anomaly.v1'))
+        raw.state.settings.reducedMotion = reducedMotion
+        localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+      }, reducedMotion)
+      await recovery.reload({ waitUntil: 'load' })
+      await openSolventLab(recovery)
+      const label = `${width}x768, reduced motion ${reducedMotion}`
+      const activate = async (id) => {
+        await recovery.focus(`[data-testid="${id}"]`)
+        await recovery.keyboard.press('Enter')
+      }
+      await activate('lab-right-magnet')
+      await recovery.waitForFunction(() => document.body.textContent.includes('PLACED 1 OF 5'))
+      await recovery.reload({ waitUntil: 'load' })
+      await recovery.waitForSelector('[data-testid="lab-generic"]')
+      check(`reload keeps PLACED 1 OF 5: ${label}`, await recovery.evaluate(() => document.body.textContent.includes('PLACED 1 OF 5')))
+      const lab = CONTENT.cases.find((c) => c.id === '04-1').lab
+      for (const pair of lab.pairs.slice(1)) {
+        await sleep(450)
+        await activate(`lab-right-${pair.right}`)
+      }
+      await recovery.waitForSelector('[data-testid="lab-next"]')
+      check(`finished lab clears placements: ${label}`, await recovery.evaluate(() => !JSON.parse(sessionStorage.getItem('anomaly.case.case.04-1')).lab))
+      await activate('lab-next')
+      await recovery.waitForSelector('[data-testid="item-player"]')
+      const before = await recovery.$eval('[data-testid="stem"]', (el) => el.textContent)
+      await activate('option-0')
+      await activate('lock-in')
+      await recovery.waitForSelector('[data-testid="item-result"]')
+      const feedback = await recovery.$eval('[data-testid="item-result"]', (el) => el.textContent)
+      const score = () => recovery.evaluate(() => {
+        const { progress, itemHistory, intel } = JSON.parse(localStorage.getItem('anomaly.v1')).state
+        return JSON.stringify({ progress, itemHistory, intel })
+      })
+      const scored = await score()
+      await recovery.reload({ waitUntil: 'load' })
+      await recovery.waitForSelector('[data-testid="item-result"]')
+      check(`reload keeps the selected answer and feedback: ${label}`,
+        await recovery.$eval('[data-testid="option-0"]', (el) => el.getAttribute('aria-pressed') === 'true') &&
+        await recovery.$eval('[data-testid="stem"]', (el) => el.textContent) === before &&
+        await recovery.$eval('[data-testid="item-result"]', (el) => el.textContent) === feedback)
+      check(`reload adds no attempts or Intel: ${label}`, await score() === scored)
+      const nextId = await recovery.evaluate(() => JSON.parse(sessionStorage.getItem('anomaly.case.case.04-1')).itemIds[1])
+      await activate('next-item')
+      await recovery.waitForSelector('[data-testid="lock-in"]')
+      check(`continue reaches the correct next question: ${label}`,
+        await recovery.$eval('[data-testid="stem"]', (el) => el.textContent.trim()) === CONTENT.items.find((it) => it.id === nextId).stem &&
+        await recovery.evaluate(() => !JSON.parse(sessionStorage.getItem('anomaly.case.case.04-1')).pendingFeedback))
+      await recovery.close()
+    }
+  }
 } finally {
   await browser.close()
   proc.kill()

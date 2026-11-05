@@ -1,3 +1,4 @@
+import { restoreLab } from '../../state/caseResume'
 import { LAB_CARD_ART } from '../../ui/labCardArt'
 import { useTapGuard } from '../../ui/useTapGuard'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -10,7 +11,6 @@ import { useMotionMode } from '../../ui/useMotionMode'
 import './lab-generic.css'
 import {
   codexFor,
-  initLab,
   isComplete,
   labCards,
   labReduce,
@@ -81,7 +81,7 @@ export default function LabGeneric() {
   const lab = def.lab as GenericLab
   const next = useSession((s) => s.next)
   const unlock = useGame((s) => s.unlockCodex)
-  const [st, setSt] = useState<LabState>(() => initLab(lab, `${def.id}|${newSeed()}`))
+  const [st, setSt] = useState<LabState>(() => restoreLab(lab, useSession.getState().lab, `${def.id}|${newSeed()}`))
   const toolListRef = useRef<HTMLDivElement>(null)
   const [moreTools, setMoreTools] = useState(false)
   const motion = useMotionMode()
@@ -107,8 +107,8 @@ export default function LabGeneric() {
     const pedestal = order ? `slot-${slot}` : fb.target
     fx.flashPart(pedestal, fb.ok)
     if (!fb.ok) return
+    useSession.getState().saveLab(isComplete(lab, after) ? null : { step: 'lab', placed: after.placed, current: after.current })
     admit('feedback', 400)
-    fx.setLit(Object.keys(after.placed).map((c) => pedestalFor(lab, after, c) as string))
     const codex = codexFor(def.id, fb.card, codexById)
     if (codex.length) unlock(codex)
     if (motion === 'full') {
@@ -137,6 +137,9 @@ export default function LabGeneric() {
       document.body.style.cursor = ''
     }
   }, [lab.kind])
+  useEffect(() => {
+    useFx.getState().setLit(Object.keys(st.placed).map((c) => pedestalFor(lab, st, c) as string))
+  }, [lab, st])
   // What the 3D slab stands for: the current card, or the slot being filled in an order lab. Null hides it.
   const onDais = order ? (slot ? `slot-${slot}` : null) : st.current
   useEffect(() => {
