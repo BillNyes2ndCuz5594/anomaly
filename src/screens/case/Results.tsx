@@ -194,7 +194,7 @@ export default function Results() {
               </p>
               <span className="muted tiny">Science notebook entries: {codexCount}</span>
             </div>
-            <ReportCodePanel intro="Copy this code into Canvas for your teacher. It also lets you resume your mission on another laptop!" />
+            <ReportCodePanel intro="This code moves your science progress. Use the same class code if you used one. Canvas is needed only if your teacher asks for it." />
             {!cold && <GoldRushButton caseId={caseId} />}
           </div>
           <footer className="results-side-footer">

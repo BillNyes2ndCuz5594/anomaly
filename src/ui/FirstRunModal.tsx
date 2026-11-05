@@ -28,7 +28,7 @@ export default function FirstRunModal({ onConfirm, onCancel, playIntent, topic }
   return (
     <Modal title="Quick check-in" onClose={onCancel} testId="firstrun-modal">
       <form onSubmit={submit} className="form">
-        <p className="muted">Type your class number. No names needed.</p>
+        <p className="muted">Use your roster number. Practicing at home? You can keep 1 and leave the class code blank.</p>
 
         <div className="field">
           <label htmlFor="agent-number">Your class number (1 to {MAX_AGENT})</label>

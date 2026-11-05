@@ -39,7 +39,7 @@ export default function ResumeModal({ onClose, onDone }: { onClose: () => void; 
   return (
     <Modal title="Resume with code" onClose={onClose} testId="resume-modal">
       <form onSubmit={submit} className="form">
-        <p className="muted">Paste your saved report code to bring your progress over to this device. Your clues and badges will be safe!</p>
+        <p className="muted">Paste your saved Results code to bring science progress to this device. Codes do not carry notebook entries, Intel, or an unfinished lab.</p>
         <div className="field">
           <label htmlFor="resume-code">Report code</label>
           <textarea
