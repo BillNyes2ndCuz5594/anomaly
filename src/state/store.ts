@@ -13,6 +13,7 @@ import {
 } from './mastery'
 import { defaultSettings, GAME_STORAGE_KEY, type Settings } from './settings'
 import { normalizeHelpLevel } from './helpLevel'
+import { clearOpenCheckpoints, migrateActiveAgentSlot, saveCurrentAgent, switchToAgent } from './agentSlots'
 
 export { MASTERY_STAGES }
 export type { MasteryStage }
@@ -151,11 +152,26 @@ export const useGame = create<GameState>()(
       setCaseStatus: (id, status) => set((s) => ({ cases: { ...s.cases, [id]: status } })),
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
       createProfile: (agentNumber, classCode) => {
-        const profile = makeProfile(agentNumber, classCode)
-        set({ profile })
-        return profile
+        return switchToAgent(agentNumber, classCode)
       },
-      clearProfile: () => set({ profile: null }),
+      clearProfile: () => {
+        const st = get()
+        if (st.profile) {
+          saveCurrentAgent()
+        }
+        clearOpenCheckpoints()
+        set({
+          profile: null,
+          mastery: {},
+          progress: {},
+          itemHistory: [],
+          codex: [],
+          intel: 0,
+          paints: [],
+          cases: {},
+          lastCaseId: null,
+        })
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -173,6 +189,11 @@ export const useGame = create<GameState>()(
         cases: s.cases,
         lastCaseId: s.lastCaseId,
       }),
+      onRehydrateStorage: () => (state, error) => {
+        if (!error && state) {
+          migrateActiveAgentSlot(state)
+        }
+      },
       // Fill any setting added in a later version with its default.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GameState>

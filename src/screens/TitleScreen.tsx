@@ -4,6 +4,7 @@ import { navigate } from '../lib/router'
 import { validCaseId } from '../state/startChoice'
 import { useGame } from '../state/store'
 import { armCodenameDecode } from '../ui/decode'
+import AgentSwitchModal from '../ui/AgentSwitchModal'
 import FirstRunModal from '../ui/FirstRunModal'
 import Presence from '../ui/Presence'
 import ResumeModal from '../ui/ResumeModal'
@@ -28,7 +29,7 @@ export default function TitleScreen() {
   const profile = useGame((s) => s.profile)
   const createProfile = useGame((s) => s.createProfile)
   const lastCaseId = useGame((s) => s.lastCaseId)
-  const [modal, setModal] = useState<'firstrun' | 'resume' | null>(null)
+  const [modal, setModal] = useState<'firstrun' | 'resume' | 'switch-confirm' | null>(null)
   const [intent, setIntent] = useState<StartIntent>('play')
   const quickPress = usePressed()
   const browsePress = usePressed()
@@ -41,18 +42,42 @@ export default function TitleScreen() {
   const [charging, setCharging] = useState(false)
   const timer = useRef<number | undefined>(undefined)
   const busy = useRef(false)
-  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const navSeq = useRef(0)
+
+  function cancelPendingNavigation() {
+    window.clearTimeout(timer.current)
+    setCharging(false)
+    navSeq.current++
+    busy.current = false
+  }
+
+  useEffect(() => () => {
+    cancelPendingNavigation()
+  }, [])
 
   async function openCase() {
     if (busy.current) return
+    const seq = ++navSeq.current
+    const initialProfile = useGame.getState().profile
     busy.current = true
     try {
       await loadPack(chosen)
+      if (seq !== navSeq.current) return
+      const currentProfile = useGame.getState().profile
+      if (
+        currentProfile?.agentNumber !== initialProfile?.agentNumber ||
+        currentProfile?.classCode !== initialProfile?.classCode
+      ) {
+        return
+      }
       navigate(startDestination('play', chosen))
     } catch {
+      if (seq !== navSeq.current) return
       navigate('/hub')
     } finally {
-      busy.current = false
+      if (seq === navSeq.current) {
+        busy.current = false
+      }
     }
   }
 
@@ -65,6 +90,7 @@ export default function TitleScreen() {
         navigate('/hub')
       }
     } else {
+      cancelPendingNavigation()
       setIntent(targetIntent)
       setModal('firstrun')
     }
@@ -119,8 +145,7 @@ export default function TitleScreen() {
             data-testid="resume-code"
             data-pressed={resumePress.pressed ? 'yes' : 'no'}
             onClick={() => {
-              window.clearTimeout(timer.current)
-              setCharging(false)
+              cancelPendingNavigation()
               setModal('resume')
             }}
             {...resumePress.bind}
@@ -130,16 +155,43 @@ export default function TitleScreen() {
         </div>
         {profile ? (
           <p className="muted small-print" data-testid="title-agent">
-            Playing as {profile.codename}
+            Playing as {profile.codename}{' '}
+            <button
+              type="button"
+              className="link-btn"
+              data-testid="new-agent"
+              onClick={() => {
+                cancelPendingNavigation()
+                setModal('switch-confirm')
+              }}
+            >
+              New agent
+            </button>
           </p>
         ) : null}
       </div>
 
+      <Presence show={modal === 'switch-confirm'}>
+        <AgentSwitchModal
+          onCancel={() => {
+            cancelPendingNavigation()
+            setModal(null)
+          }}
+          onConfirm={() => {
+            cancelPendingNavigation()
+            setIntent('browse')
+            setModal('firstrun')
+          }}
+        />
+      </Presence>
       <Presence show={modal === 'firstrun'}>
         <FirstRunModal
           playIntent={intent === 'play'}
           topic={shortTopic(chosenCase.unitLabel)}
-          onCancel={() => setModal(null)}
+          onCancel={() => {
+            cancelPendingNavigation()
+            setModal(null)
+          }}
           onConfirm={async (n, code) => {
             createProfile(n, code)
             armCodenameDecode()

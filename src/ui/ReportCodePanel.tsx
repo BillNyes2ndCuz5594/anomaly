@@ -24,7 +24,9 @@ async function copyText(text: string, node: HTMLElement | null): Promise<'copied
   return 'selected'
 }
 
-export default function ReportCodePanel({ intro }: { intro?: string }) {
+const DEFAULT_INTRO = 'This code moves your science progress. Use the same class code if you used one. Canvas is needed only if your teacher asks for it.'
+
+export default function ReportCodePanel({ intro = DEFAULT_INTRO }: { intro?: string }) {
   const code = useReportCode()
   const node = useRef<HTMLElement>(null)
   const [state, setState] = useState<'idle' | 'copied' | 'selected'>('idle')

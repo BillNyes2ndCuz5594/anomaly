@@ -7,19 +7,37 @@ interface ModalProps {
   onClose: () => void
   children: ReactNode
   testId?: string
+  restoreFocus?: boolean
 }
 
 /** Accessible modal: labelled dialog, focus moves in, Tab is trapped, Escape closes, focus returns. */
-export default function Modal({ title, onClose, children, testId }: ModalProps) {
+export default function Modal({ title, onClose, children, testId, restoreFocus = true }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null)
   const titleId = useId()
+  const restoreFocusRef = useRef(restoreFocus)
+
+  useEffect(() => {
+    restoreFocusRef.current = restoreFocus
+  }, [restoreFocus])
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     const root = ref.current
     const first = root?.querySelector<HTMLElement>('[data-autofocus]') ?? root?.querySelector<HTMLElement>(FOCUSABLE)
     first?.focus()
-    return () => previous?.focus?.()
+    return () => {
+      if (!restoreFocusRef.current) return
+      const active = document.activeElement
+      if (
+        active &&
+        active !== document.body &&
+        !root?.contains(active) &&
+        active.closest('[role="dialog"], [aria-modal="true"]')
+      ) {
+        return
+      }
+      previous?.focus?.()
+    }
   }, [])
 
   function onKeyDown(e: React.KeyboardEvent) {
