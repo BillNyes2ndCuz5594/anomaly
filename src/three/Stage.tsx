@@ -14,6 +14,7 @@ import {
   type Tier,
   isAutoActive,
   isPostTier,
+  urlForceWebGL,
 } from '../state/quality'
 import { PCFShadowMap } from 'three/webgpu'
 import type * as THREE from 'three/webgpu'
@@ -23,7 +24,7 @@ import { useSession } from '../state/session'
 import PostFX from './PostFX'
 import { idlePrefetchHeroes, prefetchCaseHeroes } from './models/heroSpecimens'
 import { createRenderer } from './renderer'
-import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
+import { canInitializeRenderer, noteGpuLoss, REMOUNT_DELAY_MS, runtimeForceWebGL } from './recovery'
 import { InsetsContext, NO_INSETS, type Insets } from './insets'
 import { hudInsets } from '../screens/case/layout'
 
@@ -273,6 +274,10 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
   )
 
   const camera = useMemo(() => ({ fov: 40, near: 0.1, far: 200, position: [0, 3, 12] as [number, number, number] }), [])
+
+  if (!canInitializeRenderer(urlForceWebGL() || runtimeForceWebGL())) {
+    return <div className="stage-fallback" aria-hidden="true" />
+  }
 
   return (
     <Canvas

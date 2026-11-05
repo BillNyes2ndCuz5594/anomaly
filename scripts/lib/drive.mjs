@@ -1,3 +1,4 @@
+import { waitForNextItem } from './itemAdvance.mjs'
 // Small driving helpers shared by scripts/shot.mjs (quick targeted screenshots) and the proof run.
 // They reach a case step by playing the real UI with the content, only faster than the proof run.
 import puppeteer from 'puppeteer-core'
@@ -84,10 +85,14 @@ export async function profilePage(browser, base, qs, vp, errors = []) {
   return page
 }
 
-/** Plays case 03-1 from the hub up to the named step: briefing, lab-a, lab-b, lab-c, items. */
+/** Starts case 03-1 fresh from the hub and plays to: briefing, lab-a, lab-b, lab-c, items. */
 export async function toCaseStep(page, step) {
   const c = CONTENT.case
-  await page.evaluate(() => (location.hash = '#/case/03-1'))
+  await page.evaluate(() => {
+    // Re-entry resumes saved progress, but this helper always plays from the briefing.
+    sessionStorage.removeItem('anomaly.case.case.03-1')
+    location.hash = '#/case/03-1'
+  })
   await page.waitForSelector('[data-testid="briefing"]')
   if (step === 'briefing') return
   await sleep(600)
@@ -228,7 +233,7 @@ export async function finishItems(page) {
     await click(page, `option-${item.key}`)
     await click(page, 'lock-in')
     await page.waitForSelector('[data-testid="item-result"]')
-    await sleep(300)
+    await waitForNextItem(page)
     await click(page, 'next-item')
     await sleep(300)
   }

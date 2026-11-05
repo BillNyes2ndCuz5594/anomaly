@@ -1,3 +1,4 @@
+import { waitForNextItem } from './lib/itemAdvance.mjs'
 // S12 iteration helper: shoots evidence items at given viewports. Needs `npm run build` first.
 // Usage: node scripts/s12-shot.mjs --vp=780x360x2,1920x1080x1 --ids=L142-02,L315-03 [--tier=high] [--out=/tmp/s12]
 import { mkdirSync } from 'node:fs'
@@ -34,7 +35,7 @@ try {
       await page.screenshot({ path: `${OUT}/${id}-${vp.width}x${vp.height}.png` })
       await page.evaluate(() => document.querySelector('[data-testid="option-0"]')?.click())
       await page.evaluate(() => document.querySelector('[data-testid="lock-in"]')?.click())
-      await sleep(400)
+      await waitForNextItem(page)
       await page.evaluate(() => document.querySelector('[data-testid="next-item"]')?.click())
     }
     await page.close()

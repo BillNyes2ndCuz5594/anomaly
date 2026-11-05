@@ -35,6 +35,30 @@ export function isChunkLoadError(err: unknown): boolean {
   return /dynamically imported module|Importing a module script failed|error loading dynamically imported|ChunkLoadError|Unable to preload CSS/i.test(msg)
 }
 
+let webGL2Support: boolean | undefined
+
+/**
+ * Check before Three constructs its WebGL backend. Some headless and disabled-GPU browsers return
+ * null from getContext instead of throwing; Three cannot recover from that null context itself.
+ * Release the probe immediately so it does not consume one of the browser's live context slots.
+ */
+export function webGL2Supported(): boolean {
+  if (webGL2Support !== undefined) return webGL2Support
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2')
+    webGL2Support = gl !== null
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
+  } catch {
+    webGL2Support = false
+  }
+  return webGL2Support
+}
+
+/** WebGPU needs no WebGL probe; Three's forced or automatic WebGL fallback does. */
+export function canInitializeRenderer(forceWebGL: boolean): boolean {
+  return (!forceWebGL && typeof navigator !== 'undefined' && 'gpu' in navigator) || webGL2Supported()
+}
+
 const FALLBACK_KEY = 'anomaly.webglFallback'
 let forced = false
 

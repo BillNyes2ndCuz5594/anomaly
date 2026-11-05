@@ -143,6 +143,14 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     [elim, strike, struck, selected],
   )
 
+  // A lock replaces the button under the pointer. Do not let the rest of a rapid tap burst
+  // activate Next item before the player has seen the feedback.
+  const lockedAt = useRef<number | null>(null)
+  const next = useCallback(() => {
+    if (lockedAt.current !== null && performance.now() - lockedAt.current < 450) return
+    onNext()
+  }, [onNext])
+
   const lockIn = useCallback(() => {
     if (submitted.current) return
     if (selected === null) {
@@ -150,6 +158,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       return
     }
     submitted.current = true
+    lockedAt.current = performance.now()
     const correct = gradeChoice(item, selected)
     const keyTagged = phrases.filter((p) => p.tokens.every((t) => tagged.has(t))).length
     const intel = keyTagged * INTEL.keyWord + struckEver.size * INTEL.eliminate + (correct ? INTEL.correct : 0)
@@ -162,9 +171,9 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   }, [selected, item, phrases, tagged, struckEver, hints, ra, onLocked])
 
   // Keyboard: 1-4 or A-D choose, X eliminate mode, Space read aloud, Enter lock in (or next after).
-  const latest = useRef({ choose, lockIn, ra, onNext, selected, elim, locked })
+  const latest = useRef({ choose, lockIn, ra, onNext: next, selected, elim, locked })
   useLayoutEffect(() => {
-    latest.current = { choose, lockIn, ra, onNext, selected, elim, locked }
+    latest.current = { choose, lockIn, ra, onNext: next, selected, elim, locked }
   })
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -427,7 +436,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                 </button>
               </>
             ) : (
-              <button type="button" className="btn primary big" data-testid="next-item" onClick={onNext} autoFocus>
+              <button type="button" className="btn primary big" data-testid="next-item" onClick={next} autoFocus>
                 {index + 1 >= total ? 'See debrief' : 'Next item'}
               </button>
             )}

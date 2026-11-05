@@ -7,11 +7,11 @@ import { pointsBox, sweepYaw, unionBox, type Box } from './fit'
 import { DISPLAY_YAW, placeEvidence, shapeReach, specimenRing } from './models/specimenBox'
 import { heroIfReady, onHeroReady } from './models/heroSpecimens'
 import type { Visual } from '../content/schema'
-import { resolveTier, dprForTier } from '../state/quality'
+import { resolveTier, dprForTier, urlForceWebGL } from '../state/quality'
 import { useRuntime } from '../state/runtime'
 import { useGame } from '../state/store'
 import { createRenderer } from './renderer'
-import { noteGpuLoss, REMOUNT_DELAY_MS } from './recovery'
+import { canInitializeRenderer, noteGpuLoss, REMOUNT_DELAY_MS, runtimeForceWebGL } from './recovery'
 import { shouldRender, useDocumentHidden, useOnScreen } from './itemVisibility'
 import { hasHero, loadHero } from './models/heroSpecimens'
 import { visualToken, prepareNextHold } from './paintHold'
@@ -438,6 +438,10 @@ export default function ItemVisualCanvas({ visual, upcoming = null }: { visual: 
       delete document.documentElement.dataset.canvasReady
     }
   }, [])
+
+  if (!canInitializeRenderer(urlForceWebGL() || runtimeForceWebGL())) {
+    return <div ref={wrap} className="stage-fallback" aria-hidden="true" />
+  }
 
   return (
     <div ref={wrap} style={{ position: 'absolute', inset: 0 }}>
