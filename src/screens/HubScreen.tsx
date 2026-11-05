@@ -1,10 +1,10 @@
-import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { caseById, codexById, content, loadPack } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
-import { orderCasesForHub, validCaseId } from '../state/startChoice'
+import { orderCasesForHub, unitNumber, validCaseId } from '../state/startChoice'
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
 import GoldRushButton from '../ui/GoldRushButton'
@@ -18,6 +18,7 @@ import { clearCodenameDecode, peekCodenameDecode } from '../ui/decode'
 import { useDecode } from '../ui/useDecode'
 import { useMotionMode } from '../ui/useMotionMode'
 import foilBadge from '../assets/textures/agent-badge-foil.webp?url'
+import { CASE_ART } from './hubArt'
 import './title-hub.css'
 
 import { HUB_PANEL_WIDTH } from './hubLayout'
@@ -44,6 +45,7 @@ function CaseButton({
   code,
   sub,
   fx,
+  art,
 }: {
   id: MarkerId
   testId: string
@@ -54,6 +56,7 @@ function CaseButton({
   code: string
   sub: ReactNode
   fx?: ReactNode
+  art?: string
 }) {
   const setFocused = useRuntime((s) => s.setFocusedMarker)
   const pressed = useSyncExternalStore(subscribeMarkerPressed, () => markerPressed(id), () => false)
@@ -82,6 +85,7 @@ function CaseButton({
       onPointerCancel={() => setMarkerPressed(id, false)}
       onPointerLeave={() => setMarkerPressed(id, false)}
     >
+      {art ? <img className="case-art" src={art} alt="" aria-hidden="true" decoding="async" loading="lazy" width={160} height={100} /> : null}
       {fx}
       <span className="case-code">{code}</span>
       <span className="case-sub">{sub}</span>
@@ -151,6 +155,8 @@ export default function HubScreen() {
   useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
   const orderedCases = orderCasesForHub(content.cases)
+  const currentCases = orderedCases.filter((c) => unitNumber(c.unitLabel) === 4)
+  const otherCases = orderedCases.filter((c) => unitNumber(c.unitLabel) !== 4)
   const chosen = validCaseId(lastCaseId, content.cases.map((c) => c.id))
   const chosenCase = caseById(chosen) ?? content.cases[0]
   // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
@@ -201,31 +207,39 @@ export default function HubScreen() {
             <span className="qp-kicker">{lastCaseId === chosen ? 'Keep going' : 'Today in class'}</span>
             <span className="qp-title">{chosenCase.unitLabel}</span>
           </button>
+          {([['current-unit', 'Your unit right now: Unit 4', currentCases], ['other-units', 'Other units', otherCases]] as const).map(([testId, title, list]) => (
+          <div key={testId} data-testid={testId} className="case-group">
+            <h4 className="case-group-title">{title}</h4>
+            <div className="case-list case-grid">
+              {list.map((c) => {
+                const st = caseStatus(cases[c.id])
+                return (
+                  <div key={c.id} className="case-cell">
+                    <CaseButton
+                      id={c.id}
+                      testId={`case-marker-${c.id}`}
+                      className="case-btn amber"
+                      art={CASE_ART[c.id]}
+                      status={st.word.toLowerCase()}
+                      to={`/case/${c.id}`}
+                      code={c.unitLabel}
+                      sub={
+                        <>
+                          <span className="case-code">{c.codename} {'\u00B7'} Case {c.id}</span>
+                          <span className={`case-status ${st.word.toLowerCase()}`} data-testid={`case-status-${c.id}`}>
+                            <span aria-hidden="true">{st.word === 'Closed' ? '\u2714' : st.word === 'Open' ? '\u25CB' : '\u2605'}</span> {st.text}
+                          </span>
+                        </>
+                      }
+                    />
+                    {c.id === '02-2' ? <BedrockModes caseId={c.id} /> : <GoldRushButton caseId={c.id} />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
           <div className="case-list">
-            {orderedCases.map((c) => {
-              const st = caseStatus(cases[c.id])
-              return (
-                <Fragment key={c.id}>
-                <CaseButton
-                  id={c.id}
-                  testId={`case-marker-${c.id}`}
-                  className="case-btn amber"
-                  status={st.word.toLowerCase()}
-                  to={`/case/${c.id}`}
-                  code={`CASE ${c.id} ${c.codename}`}
-                  sub={
-                    <>
-                      {c.unitLabel}
-                      <span className={`case-status ${st.word.toLowerCase()}`} data-testid={`case-status-${c.id}`}>
-                        <span aria-hidden="true">{st.word === 'Closed' ? '\u2714' : st.word === 'Open' ? '\u25CB' : '\u2605'}</span> {st.text}
-                      </span>
-                    </>
-                  }
-                />
-                {c.id === '02-2' ? <BedrockModes caseId={c.id} /> : <GoldRushButton caseId={c.id} />}
-                </Fragment>
-              )
-            })}
             <CaseButton
               id="cold"
               testId="cold-marker"

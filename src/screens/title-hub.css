@@ -306,3 +306,73 @@
 .hub-screen .mastery-group > .mastery-list {
   padding-bottom: var(--sp-3);
 }
+
+/* PR2: readable hub board with unit art */
+.hub-screen .case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--sp-2);
+}
+
+.hub-screen .case-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hub-screen .case-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.hub-screen .case-group-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 12px 0 6px;
+  color: var(--text);
+}
+
+.hub-screen .case-code {
+  font-size: var(--fs-fine);
+  color: var(--text-muted);
+}
+
+.hub-screen [data-testid="bedrock-modes"] {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hub-screen [data-testid="bedrock-modes"] button,
+.hub-screen .case-cell .gold-rush-btn {
+  width: 100%;
+  min-height: 48px;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+@media (max-width: 480px) {
+  .hub-screen .case-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) and (orientation: portrait) {
+  .hub-screen .hub-panel {
+    left: 12px;
+    right: 12px !important;
+    width: auto !important;
+  }
+  .hub-screen .case-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
