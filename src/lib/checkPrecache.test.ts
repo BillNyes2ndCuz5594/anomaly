@@ -1,12 +1,18 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { runInNewContext } from 'node:vm'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 // @ts-expect-error plain mjs script without types
 import { BASELINE_PRECACHE_BYTES, checkPrecache, MAX_PRECACHE_GROWTH_BYTES, REQUIRED_MODE_ASSETS } from '../../scripts/check-precache.mjs'
 
 describe('checkPrecache and offline verification', () => {
+  beforeAll(() => {
+    if (!existsSync(resolve('dist/sw.js'))) {
+      execFileSync('node_modules/vite/bin/vite.js', ['build'], { stdio: 'pipe' })
+    }
+  }, 30000)
   it('reports missing runtime files and required mode assets', () => {
     const dir = mkdtempSync(join(tmpdir(), 'an-precache-'))
     try {
