@@ -137,4 +137,19 @@ describe('Containment Rush rules', () => {
     expect(getSpawnsForWave(-1)).toEqual([])
     expect(getSpawnsForWave(99)).toEqual([])
   })
+
+  it('clamps resources and bounds correctly during wave progression', () => {
+    let s = startContainment('bound-test')
+    // Answer correctly: 1 + 2 = 3 charge
+    s = answerContainment(s, true, s.turnToken)
+    expect(s.resources.charge).toBe(3)
+    // Deploy magnet (cost 1) -> 2 charge remaining
+    s = deployDefense(s, 0, 'magnet', s.turnToken)
+    expect(s.resources.charge).toBe(2)
+    s = resolveWave(s, s.turnToken)
+    s = nextContainment(s, s.turnToken)
+    // Next question: answer incorrect -> charge remains 2
+    s = answerContainment(s, false, s.turnToken)
+    expect(s.resources.charge).toBe(2)
+  })
 })
