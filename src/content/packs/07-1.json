@@ -11,27 +11,27 @@
       { "benchmark": "SC.4.L.16.4", "count": 2 }
     ],
     "marker": { "lon": -81.78, "lat": 26.64 },
-    "dispatchHook": "Fort Myers nursery logs say an orange tree grew pine cones. It did not.",
+    "dispatchHook": "Plant alert near Fort Myers! Nursery growth logs are completely scrambled.",
     "briefing": [
-      "Agent, a plant nursery outside Fort Myers just scrambled its growth records.",
-      "The log says a zebra longwing left its chrysalis as an egg. It says an orange tree grew pine cones.",
-      "Put the butterfly's life cycle back in order, then sort out the plant files.",
-      "The nursery would like its records to make sense again. So would I."
+      "Agent, a plant nursery outside Fort Myers just scrambled its growth records!",
+      "The log claims an orange tree grew pine cones and a butterfly hatched backward.",
+      "Put the zebra longwing's life cycle back in order, then check the plant clues.",
+      "Grab your field notebook, Agent. Let's get these living things sorted out!"
     ],
     "lab": {
       "kind": "order",
-      "intro": "The growth log for one zebra longwing came back shuffled. Put each stage back where it belongs.",
+      "intro": "A zebra longwing log got shuffled! Put each stage back in the right order.",
       "prompt": "Put the stages of the zebra longwing's life cycle in order, starting with the egg.",
       "steps": [
-        { "id": "egg", "name": "Egg", "card": "A tiny yellow dot laid on a passionflower leaf" },
-        { "id": "caterpillar", "name": "Caterpillar", "card": "Eats leaves and grows, shedding its skin as it gets bigger" },
-        { "id": "chrysalis", "name": "Chrysalis", "card": "Hangs still in a hard case while its body changes" },
-        { "id": "adult", "name": "Adult butterfly", "card": "Has wings, flies, and lays eggs to start the cycle again" }
+        { "id": "egg", "name": "Egg", "card": "A tiny yellow dot laid on a passionflower leaf." },
+        { "id": "caterpillar", "name": "Caterpillar", "card": "Hatches to munch leaves and grow, shedding its skin along the way." },
+        { "id": "chrysalis", "name": "Chrysalis", "card": "Hangs still in a protective case while its body transforms." },
+        { "id": "adult", "name": "Adult butterfly", "card": "Spreads striped wings, flies, and lays new eggs to begin the cycle." }
       ],
-      "why": "A butterfly goes through complete metamorphosis: egg, caterpillar, chrysalis, then adult, and the adult lays new eggs."
+      "why": "A butterfly goes through complete metamorphosis: egg, caterpillar, chrysalis, then adult. Next, the adult lays new eggs to begin the cycle again!"
     },
-    "debriefClosed": "Case closed. The nursery logs match the plants again, and the butterflies are back in order. Log it.",
-    "debriefOpen": "Case stays open for now. Keep an eye on the greenhouse; those chrysalises and saplings still need tracking."
+    "debriefClosed": "Awesome job, Agent! The nursery logs match the plants again, and the butterflies are flying in order.",
+    "debriefOpen": "This case stays open for now, Agent. Keep your eye on the greenhouse and come back soon to track those growing plants!"
   },
   "items": [
     {
@@ -41,14 +41,14 @@
       "category": "life",
       "complexity": "low",
       "pool": "case",
-      "stem": "A strong storm blows across a field near Fort Myers. A sunflower bends in the wind, but it stays in the ground. It also keeps getting water from the wet soil. Which plant part does both of these jobs?",
+      "stem": "Agent Maya checks a field near Fort Myers after a storm. A tall sunflower bends in the wind, but it stays in the ground. It also keeps getting water from the wet soil. Which plant part does both of these jobs?",
       "options": ["leaf", "root", "flower", "fruit"],
       "key": 1,
       "why": [
-        "Decoy: leaves make food using light, but they do not hold the plant in the soil.",
-        "Correct: roots hold the plant in the ground and take in water from the soil.",
-        "Decoy: the flower makes seeds, and it does not take in water from the soil.",
-        "Decoy: fruit holds and protects seeds, but it does not anchor the plant."
+        "Leaves make food for the plant using sunlight, but they do not hold it in the soil.",
+        "Spot on! Roots anchor the plant firmly in the soil and absorb water for it.",
+        "Flowers help make seeds, but they cannot take in water from the ground.",
+        "Fruit protects seeds inside, but it does not hold the plant in place."
       ],
       "keyWords": ["stays in the ground", "getting water from the wet soil", "both of these jobs"],
       "visual": { "kind": "scene", "id": "plant-parts", "labels": ["Root", "Stem", "Leaf", "Flower", "Fruit"] },
@@ -63,7 +63,7 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "Kai puts the cut stem of a white daisy into a cup of water mixed with blue food coloring. He checks the petals each day and records what he sees. What does this investigation show about the stem?",
+      "stem": "Agent Kai puts the cut stem of a white daisy into a cup of water mixed with blue food coloring. He checks the petals each day. What does this investigation show about the stem?",
       "options": [
         "The stem makes food for the flower using light.",
         "The stem holds the seeds until they are ready.",
@@ -72,10 +72,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: the leaves, not the stem, are the main place a plant makes food using light.",
-        "Decoy: seeds form in the flower and are held in the fruit, not in the stem.",
-        "Decoy: the blue came from the water in the cup, not from the air.",
-        "Correct: the blue water moved up through the stem to the petals, so the stem carries water."
+        "Leaves are the main plant parts that make food using sunlight, not the stem.",
+        "Seeds form in the flower and are protected by fruit, not stored in the stem.",
+        "Look at the cup! The blue dye came from the water, not out of the air.",
+        "You got it! The blue water traveled up through the stem into the petals. Stems carry water!"
       ],
       "keyWords": ["cut stem", "blue food coloring", "show about the stem"],
       "visual": {
@@ -95,7 +95,7 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "A live oak and a gopher tortoise both live in a sandy Florida field. Both need food for energy. Which statement correctly describes how each one gets food?",
+      "stem": "Agent Leo spots a live oak and a gopher tortoise in a sandy Florida field. Both need food for energy. Which statement correctly describes how each one gets food?",
       "options": [
         "The live oak makes its own food in its leaves using light. The tortoise eats plants.",
         "The live oak and the tortoise both make their own food using light.",
@@ -104,10 +104,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: plants such as the live oak make their own food in their leaves using light, and animals such as the tortoise must eat.",
-        "Decoy: a tortoise warms up in sunlight, but it cannot make its own food the way a plant can.",
-        "Decoy: roots take in water and nutrients, but the plant's food is made in the leaves.",
-        "Decoy: neither one gets food from the soil, because the oak makes its food and the tortoise eats plants."
+        "Spot on! The oak tree makes food in green leaves with sunlight, while the tortoise must eat plants.",
+        "A tortoise can warm its shell in the sun, but animals cannot make food from light.",
+        "Roots soak up water and minerals, but a plant makes its actual food in its leaves.",
+        "Neither living thing eats soil! The oak makes food with light, and the tortoise munches plants."
       ],
       "keyWords": ["live oak", "gopher tortoise", "how each one gets food"],
       "visual": { "kind": "specimen", "ids": ["gopher-tortoise"], "captions": ["Gopher tortoise: eats grasses and leaves"] },
@@ -122,7 +122,7 @@
       "category": "life",
       "complexity": "high",
       "pool": "case",
-      "stem": "Ms. Reyes set up two bean seedlings for one week. Pot 1 stood upright in a room with light coming only from a window on the left. Pot 2 was laid on its side in a dark closet. The table shows what happened. Which statement best explains both results?",
+      "stem": "Agent Sam and Ms. Reyes set up two bean seedlings for one week. Pot 1 stood upright in a room with light coming only from a window on the left. Pot 2 was laid on its side in a dark closet. The table shows what happened. Which statement best explains both results?",
       "options": [
         "Stems grow toward warm air, and roots grow toward wet soil.",
         "Stems grow down with gravity, and roots grow up toward light.",
@@ -131,10 +131,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: the results match light and gravity, and nothing in the setup tested warm air or wet soil.",
-        "Decoy: this is backward, because the stems grew toward the window and up while the roots grew down.",
-        "Correct: the stem in Pot 1 bent toward the light, and in Pot 2 the stem turned up while the roots turned down with gravity.",
-        "Decoy: the seedlings bent in a set direction, toward light and away from gravity, not because of their weight."
+        "Check the variables! The test compared light and gravity, not air temperature or soil wetness.",
+        "Check the directions again! Stems grow toward light and upward, while roots grow down.",
+        "You got it! The stem reached toward the sunny window, and gravity pulled the roots downward.",
+        "Plants bend in response to light and gravity, not simply because they are too heavy."
       ],
       "keyWords": ["light coming only from a window on the left", "laid on its side in a dark closet", "both results"],
       "visual": {
@@ -157,14 +157,14 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "Ava collected seeds from four plants that grow in Florida. She wrote down what each seed looks like. Which seed is most likely carried to new places by sticking to an animal's fur?",
+      "stem": "Agent Ava collected seeds from four plants that grow in Florida. She wrote down what each seed looks like. Which seed is most likely carried to new places by sticking to an animal's fur?",
       "options": ["coconut", "dandelion", "Spanish needle", "beautyberry"],
       "key": 2,
       "why": [
-        "Decoy: a coconut's husk is full of air, so it floats on water to new beaches.",
-        "Decoy: a dandelion seed has a fluffy top, so the wind carries it.",
-        "Correct: tiny hooks catch on fur and socks, so animals carry Spanish needle seeds to new places.",
-        "Decoy: beautyberry seeds sit inside berries that birds eat and drop somewhere else."
+        "A coconut husk is buoyant and filled with air, so ocean waves float it away.",
+        "A dandelion seed has fluffy parachutes that catch the wind and float through the air.",
+        "Spot on! Spanish needle seeds have tiny barbs that easily hook onto animal fur and socks.",
+        "Birds eat juicy beautyberries and drop the seeds later, so they do not cling to fur."
       ],
       "keyWords": ["sticking to an animal's fur", "new places"],
       "visual": {
@@ -189,7 +189,7 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "A farmer near Fort Myers grows watermelons. He covers some flowers with mesh bags that let in light, air, and water but keep bees out. He leaves other flowers uncovered. Which statement best explains the results in the table?",
+      "stem": "Farmer Diaz and Agent Jax inspect watermelons near Fort Myers. They cover some flowers with mesh bags that let in light, air, and water but keep bees out. Other flowers are uncovered. Which statement best explains the results in the table?",
       "options": [
         "Bees carry pollen between flowers, and the flowers need pollen to make fruit and seeds.",
         "The bags blocked the light, so the covered flowers could not make food.",
@@ -198,10 +198,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: without bees, pollen did not reach the covered flowers, so they could not make fruit and seeds.",
-        "Decoy: the stem says the bags let in light, and flowers are not where a plant makes most of its food.",
-        "Decoy: the bags let water in, and bees carry pollen, not water.",
-        "Decoy: fruit grows from the flower, which is why the covered flowers made almost no melons."
+        "Spot on! Bees transfer pollen between flowers so the plants can form fruit and seeds.",
+        "The mesh bags let sunlight through, and leaves make food for the plant anyway.",
+        "Rain and dew pass through the mesh bags, and bees carry pollen rather than water.",
+        "Melons develop directly from pollinated flowers, which is why the bagged flowers dropped off."
       ],
       "keyWords": ["keep bees out", "let in light, air, and water", "best explains the results"],
       "visual": {
@@ -224,14 +224,14 @@
       "category": "life",
       "complexity": "low",
       "pool": "case",
-      "stem": "The zebra longwing is Florida's state butterfly. The diagram shows its life cycle, but one stage is not named. Which stage belongs in the spot with the question mark?",
+      "stem": "Agent Rosa studies the zebra longwing, Florida's state butterfly. Her diagram shows its life cycle, but one stage is not named. Which stage belongs in the spot with the question mark?",
       "options": ["nymph", "chrysalis", "tadpole", "young butterfly with small wings"],
       "key": 1,
       "why": [
-        "Decoy: a nymph is the young stage of insects like grasshoppers, which have no resting stage.",
-        "Correct: after the caterpillar stage, a butterfly forms a chrysalis, and the adult comes out of it.",
-        "Decoy: a tadpole is the young stage of a frog, not a butterfly.",
-        "Decoy: butterflies do not grow from small-winged young, because their wings form inside the chrysalis."
+        "A nymph is the young stage of insects like grasshoppers that skip a resting pupa stage.",
+        "You got it! After the caterpillar stage, a butterfly rests inside a chrysalis before emerging.",
+        "A tadpole is the swimming young stage of a frog, not a flying butterfly!",
+        "Butterflies do not grow mini wings outdoors. Their wings develop fully inside the chrysalis."
       ],
       "keyWords": ["life cycle", "one stage is not named", "question mark"],
       "visual": { "kind": "scene", "id": "butterfly-cycle", "labels": ["Egg", "Caterpillar", "?", "Adult"] },
@@ -246,7 +246,7 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "An eastern lubber grasshopper and a zebra longwing butterfly both hatch from eggs in Florida. How is the grasshopper's life cycle different from the butterfly's?",
+      "stem": "Agent Maya spots an eastern lubber grasshopper and a zebra longwing butterfly in Florida. How is the grasshopper's life cycle different from the butterfly's?",
       "options": [
         "The young grasshopper looks like a small adult without wings, and it has no chrysalis stage.",
         "The grasshopper also rests inside a chrysalis before it becomes an adult.",
@@ -255,10 +255,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a grasshopper goes through incomplete metamorphosis, so its young look like small adults and there is no resting stage.",
-        "Decoy: only insects with complete metamorphosis, like butterflies, have a resting stage such as a chrysalis.",
-        "Decoy: this describes the young of some insects with complete metamorphosis, not a grasshopper.",
-        "Decoy: a grasshopper has a young stage, the nymph, which grows and sheds its skin before it becomes an adult."
+        "Spot on! Grasshoppers go through incomplete metamorphosis, so nymphs resemble tiny adults without resting in a chrysalis.",
+        "Only insects with complete metamorphosis, like butterflies and beetles, rest in a chrysalis or pupa.",
+        "A young grasshopper has six legs and looks like a tiny adult, not a legless worm.",
+        "Grasshoppers hatch into active young nymphs that molt their skin as they grow."
       ],
       "keyWords": ["eastern lubber grasshopper", "How is the grasshopper's life cycle different"],
       "visual": { "kind": "scene", "id": "grasshopper-cycle", "labels": ["Egg", "Young nymph", "Older nymph", "Adult"] },
@@ -273,14 +273,14 @@
       "category": "life",
       "complexity": "high",
       "pool": "case",
-      "stem": "A class kept a log of four insects found around their Florida school. Which insect goes through complete metamorphosis?",
+      "stem": "Agent Leo and his class tracked four insects around their Florida school. Which insect goes through complete metamorphosis?",
       "options": ["green darner dragonfly", "eastern lubber grasshopper", "lady beetle", "palmetto bug"],
       "key": 2,
       "why": [
-        "Decoy: young dragonflies live in water and look different, but they have no resting stage, so this is incomplete metamorphosis.",
-        "Decoy: young grasshoppers look like small adults and never rest, so this is incomplete metamorphosis.",
-        "Correct: the young look nothing like the adult and there is a resting stage, which means complete metamorphosis.",
-        "Decoy: young palmetto bugs look like small adults with no wings, so this is incomplete metamorphosis."
+        "Young dragonflies grow underwater without any resting stage, so their metamorphosis is incomplete.",
+        "Young grasshoppers look like tiny adults and do not rest in a pupa stage.",
+        "You got it! A lady beetle larva looks completely different from the adult and rests in a pupa stage.",
+        "Young palmetto bugs look just like small adults without wings, so their change is incomplete."
       ],
       "keyWords": ["complete metamorphosis", "four insects"],
       "visual": {
@@ -305,7 +305,7 @@
       "category": "life",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "A slash pine and an orange tree both grow in Florida. Both make seeds. Use the table to compare them. Which statement correctly groups the two plants?",
+      "stem": "Agent Elena examines a slash pine and an orange tree in Florida. Both make seeds. Use the table to compare them. Which statement correctly groups the two plants?",
       "options": [
         "Both are flowering plants, because both make seeds.",
         "The orange tree is a nonflowering plant, and the slash pine is a flowering plant.",
@@ -314,10 +314,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: making seeds does not make a plant a flowering plant, because pines make seeds without flowers.",
-        "Decoy: this is backward, because the orange tree has flowers and the pine does not.",
-        "Decoy: a pine is a seed plant, and its seeds form on cones instead of inside fruit.",
-        "Correct: the orange tree makes flowers and fruit with seeds, while the pine makes seeds on cones with no flowers."
+        "Making seeds does not mean a plant has flowers. Conifers make seeds on cone scales!",
+        "Check the table! Orange trees produce fragrant flowers, while slash pines do not make blossoms.",
+        "Pine trees are indeed seed plants. Their seeds develop on cone scales rather than inside fruit.",
+        "Spot on! Orange trees make flowers and fruit, while slash pines make seeds on cones without flowers."
       ],
       "keyWords": ["slash pine", "orange tree", "Both make seeds", "correctly groups"],
       "visual": {
@@ -337,7 +337,7 @@
       "category": "life",
       "complexity": "low",
       "pool": "cold",
-      "stem": "A green tree frog lays its eggs in a pond in Florida. Which list shows the stages of its life cycle in order?",
+      "stem": "Agent Sam spots a green tree frog that lays its eggs in a pond in Florida. Which list shows the stages of its life cycle in order?",
       "options": [
         "tadpole, egg, tadpole with legs, adult frog",
         "egg, adult frog, tadpole, tadpole with legs",
@@ -346,10 +346,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: the life cycle starts with the egg, and a tadpole hatches from it.",
-        "Decoy: the adult frog is the last stage, not the second.",
-        "Decoy: a tadpole grows legs as it changes, so the tadpole without legs comes first.",
-        "Correct: a tadpole hatches from the egg, grows legs, and then becomes an adult frog."
+        "The frog's life cycle begins when an egg is laid. The swimming tadpole hatches out next.",
+        "The fully grown adult frog comes at the end of the life cycle, not near the start.",
+        "A newly hatched tadpole swims without legs first, then sprouts legs as it develops.",
+        "You got it! The egg hatches into a swimming tadpole, it grows legs, and finally becomes an adult frog."
       ],
       "keyWords": ["lays its eggs in a pond", "stages of its life cycle in order"],
       "visual": { "kind": "specimen", "ids": ["green-tree-frog"], "captions": ["Adult green tree frog"] },
@@ -364,14 +364,14 @@
       "category": "life",
       "complexity": "high",
       "pool": "cold",
-      "stem": "A student wrote four cards about the life cycle of a live oak, a flowering tree. The cards are out of order. Starting with the acorn in the soil, which order is correct?",
+      "stem": "Agent Kai wrote four cards about the life cycle of a live oak, a flowering tree. The cards are out of order. Starting with the acorn in the soil, which order is correct?",
       "options": ["W, X, Y, Z", "W, Y, X, Z", "Y, W, Z, X", "W, Y, Z, X"],
       "key": 1,
       "why": [
-        "Decoy: pollen moves between the flowers of a grown tree, so a seedling must grow first.",
-        "Correct: the acorn sprouts, the seedling grows leaves, the grown tree's flowers get pollen, and then it makes new acorns.",
-        "Decoy: a seedling grows from a sprouted acorn, so the sprouting card comes first.",
-        "Decoy: a tree makes acorns only after its flowers get pollen, so card X comes before card Z."
+        "Flowers only appear on a grown tree. The young seedling has to sprout and grow leaves first.",
+        "Spot on! The acorn sprouts (W), grows leaves (Y), gets pollinated (X), and makes new acorns (Z).",
+        "A seedling cannot grow until an acorn takes in water and sprouts its first root.",
+        "Flowers need pollination before acorns can form, so card X must happen before card Z."
       ],
       "keyWords": ["live oak", "flowering tree", "out of order", "acorn in the soil"],
       "visual": {
