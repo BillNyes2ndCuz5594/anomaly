@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { clampAgentNumber, generateCodename, sanitizeClassCode } from '../lib/codename'
 import {
   applyResult,
+  DRONE_PAINTS,
   emptyRecord,
   MASTERY_STAGES,
   paintForPoints,
@@ -15,8 +16,79 @@ import { defaultSettings, GAME_STORAGE_KEY, type Settings } from './settings'
 import { normalizeHelpLevel } from './helpLevel'
 import { clearOpenCheckpoints, migrateActiveAgentSlot, saveCurrentAgent, switchToAgent } from './agentSlots'
 
-export { MASTERY_STAGES }
+export { DRONE_PAINTS, MASTERY_STAGES }
 export type { MasteryStage }
+
+export type DronePaintName = (typeof DRONE_PAINTS)[number]
+
+export interface DronePaintOption {
+  id: string
+  label: DronePaintName
+  color: string
+}
+
+export const DEFAULT_DRONE_PAINT_COLOR = '#738193'
+
+export const DRONE_PAINT_OPTIONS: readonly DronePaintOption[] = [
+  { id: 'sky', label: 'Sky', color: '#56b4e9' },
+  { id: 'orange', label: 'Orange', color: '#e69f00' },
+  { id: 'bluish-green', label: 'Bluish green', color: '#009e73' },
+  { id: 'vermillion', label: 'Vermillion', color: '#d55e00' },
+  { id: 'reddish-purple', label: 'Reddish purple', color: '#cc79a7' },
+  { id: 'yellow', label: 'Yellow', color: '#f0e442' },
+  { id: 'blue', label: 'Blue', color: '#0072b2' },
+  { id: 'cyan-glow', label: 'Cyan glow', color: '#3ee6ff' },
+]
+
+export const DRONE_PAINT_COLORS: Readonly<Record<DronePaintName, string>> = {
+  Sky: '#56b4e9',
+  Orange: '#e69f00',
+  'Bluish green': '#009e73',
+  Vermillion: '#d55e00',
+  'Reddish purple': '#cc79a7',
+  Yellow: '#f0e442',
+  Blue: '#0072b2',
+  'Cyan glow': '#3ee6ff',
+}
+
+export function dronePaintId(paint: string): string {
+  return paint.trim().toLowerCase().replace(/\s+/g, '-')
+}
+
+export function findDronePaint(paint: string | null | undefined): DronePaintOption | null {
+  if (typeof paint !== 'string' || !paint.trim()) return null
+  const slug = dronePaintId(paint)
+  return DRONE_PAINT_OPTIONS.find((opt) => opt.label === paint || opt.id === slug) ?? null
+}
+
+export function resolveUnlockedPaint(paint: string | null | undefined, unlockedPaints: readonly string[]): DronePaintName | null {
+  const def = findDronePaint(paint)
+  if (!def) return null
+  const isUnlocked = unlockedPaints.some((p) => findDronePaint(p)?.id === def.id)
+  return isUnlocked ? def.label : null
+}
+
+export function unlockedDronePaintOptions(unlockedPaints: readonly string[]): DronePaintOption[] {
+  const seen = new Set<string>()
+  const out: DronePaintOption[] = []
+  for (const p of unlockedPaints) {
+    const def = findDronePaint(p)
+    if (def && !seen.has(def.id)) {
+      seen.add(def.id)
+      out.push(def)
+    }
+  }
+  return out
+}
+
+export function dronePaintColor(activePaint: string | null | undefined, unlockedPaints?: readonly string[]): string {
+  const def = findDronePaint(activePaint)
+  if (!def) return DEFAULT_DRONE_PAINT_COLOR
+  if (unlockedPaints && !unlockedPaints.some((p) => findDronePaint(p)?.id === def.id)) {
+    return DEFAULT_DRONE_PAINT_COLOR
+  }
+  return def.color
+}
 
 export const STORAGE_KEY = GAME_STORAGE_KEY
 
@@ -68,8 +140,10 @@ export interface GameState {
   codex: string[]
   intel: number
   paints: string[]
+  activePaint: string | null
   cases: Record<string, CaseStatus>
   lastCaseId: string | null
+  setActivePaint: (paint: string | null) => boolean
   setLastCaseId: (id: string) => void
   recordItem: (benchmark: string, itemId: string, correct: boolean, date?: string) => RecordOutcome
   unlockCodex: (ids: string[]) => string[]
@@ -123,8 +197,18 @@ export const useGame = create<GameState>()(
       codex: [],
       intel: 0,
       paints: [],
+      activePaint: null,
       cases: {},
       lastCaseId: null,
+      setActivePaint: (paint) => {
+        const st = get()
+        const resolved = resolveUnlockedPaint(paint, st.paints)
+        if (!resolved) return false
+        const next = typeof paint === 'string' && st.paints.includes(paint) ? paint : resolved
+        set({ activePaint: next })
+        if (st.profile) saveCurrentAgent()
+        return true
+      },
       setLastCaseId: (id) => set({ lastCaseId: id }),
       recordItem: (benchmark, itemId, correct, date = toISODate()) => {
         const st = get()
@@ -168,6 +252,7 @@ export const useGame = create<GameState>()(
           codex: [],
           intel: 0,
           paints: [],
+          activePaint: null,
           cases: {},
           lastCaseId: null,
         })
@@ -186,6 +271,7 @@ export const useGame = create<GameState>()(
         codex: s.codex,
         intel: s.intel,
         paints: s.paints,
+        activePaint: s.activePaint,
         cases: s.cases,
         lastCaseId: s.lastCaseId,
       }),
@@ -200,9 +286,16 @@ export const useGame = create<GameState>()(
         const savedSettings = (p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings))
           ? (p.settings as Partial<Settings>)
           : {}
+        const paints = Array.isArray(p.paints) ? p.paints : current.paints
+        const resolvedPaint = typeof p.activePaint === 'string' ? resolveUnlockedPaint(p.activePaint, paints) : null
+        const activePaint = resolvedPaint
+          ? (typeof p.activePaint === 'string' && paints.includes(p.activePaint) ? p.activePaint : resolvedPaint)
+          : null
         return {
           ...current,
           ...p,
+          paints,
+          activePaint,
           lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
           settings: {
             ...current.settings,
