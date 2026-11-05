@@ -234,6 +234,16 @@ export default function HubScreen() {
                         </>
                       }
                     />
+                    <details className="case-standards" data-testid={`case-standards-${c.id}`}>
+                      <summary>Standards</summary>
+                      <ul>
+                        {c.benchmarks.map((code) => (
+                          <li key={code}>
+                            <span className="mono">{code}</span> {labelOf(code)}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
                     {c.id === '02-2' ? <BedrockModes caseId={c.id} /> : <GoldRushButton caseId={c.id} />}
                   </div>
                 )
@@ -267,7 +277,7 @@ export default function HubScreen() {
 
         <section aria-labelledby="mastery-h" className="mastery">
           <h3 id="mastery-h" className="section-title">
-            Benchmark mastery
+            Your science progress
           </h3>
           <div className="mastery-groups" data-testid="mastery-list">
             {groups.map((g) => {
@@ -314,10 +324,10 @@ export default function HubScreen() {
 
       <details className="panel brackets codex-panel" data-testid="codex-panel">
         <summary>
-          CODEX <span className="muted" data-testid="codex-count">{codex.length} unlocked</span>
+          Science notebook <span className="muted" data-testid="codex-count">{codex.length} unlocked</span>
         </summary>
         {codex.length === 0 ? (
-          <p className="muted">Your Codex is waiting for its first clue! Solve questions and finish Field Labs to unlock entries here.</p>
+          <p className="muted">Your science notebook is waiting for its first clue! Solve questions and finish Field Labs to unlock entries here.</p>
         ) : (
           <ul className="codex-list">
             {codex.map((id) => {
