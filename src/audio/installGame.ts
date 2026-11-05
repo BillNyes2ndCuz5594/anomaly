@@ -37,6 +37,7 @@ export function cueForControl(el: HTMLElement): { cue: OneShotId; up?: boolean }
   }
   if (test.startsWith('word-') || test.startsWith('specimen-chip-')) return { cue: 'pickup' }
   if (test.startsWith('organ-') || test.startsWith('sort-') || test === 'lock-in') return null
+  if (el.closest?.('.containment-lane-btn, .reactor-shield-btn')) return null
   if (el.matches('button, [role="button"]') && el.hasAttribute('aria-pressed')) {
     return { cue: 'toggle', up: el.getAttribute('aria-pressed') !== 'true' }
   }

@@ -4,6 +4,7 @@ import * as THREE from 'three/webgpu'
 import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
+import { prefersReducedMotion } from '../../state/settings'
 import { useGame } from '../../state/store'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { FloorPool, SubjectLights, VolumeColumn } from './grade'
@@ -43,7 +44,7 @@ export default function HubScene() {
       useRuntime.getState().setHubReady(false)
     }
   }, [gl, scene, camera])
-  const calm = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
+  const calm = sceneCalm(useGame((s) => s.settings.reducedMotion) || prefersReducedMotion(), STILL)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
