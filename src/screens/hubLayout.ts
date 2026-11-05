@@ -1,1 +1,1 @@
-export const HUB_PANEL_WIDTH = 360
+export const HUB_PANEL_WIDTH = 520
