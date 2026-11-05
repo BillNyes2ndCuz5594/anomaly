@@ -231,7 +231,7 @@
    }
   },
   "debriefClosed": "Case closed. The scanner works, and the manatee is a mammal again. Log it.",
-  "debriefOpen": "Case stays open for now. It comes back as a cold case soon, and you will know more by then."
+  "debriefOpen": "Case stays open for now. Keep studying the scanner files; that manatee needs its full field check completed."
  },
  "coldCase": {
   "id": "cold-1",
@@ -304,7 +304,7 @@
     "Correct. The pancreas makes digestive juices and helps control blood sugar.",
     "Decoy: the stomach makes juices that break down food, but it does not control blood sugar.",
     "Decoy: the heart moves blood that carries sugar, but it does not control how much sugar is in it.",
-    "Decoy: the brain controls many actions, so it seems like a safe guess, but the pancreas controls blood sugar."
+    "Decoy: the brain sends signals through the body, but the pancreas controls blood sugar."
    ],
    "keyWords": [
     "help digest food",

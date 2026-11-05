@@ -76,7 +76,7 @@ function GoldGame({ caseId }: { caseId: string }) {
         <button type="button" className="btn" onClick={() => navigate('/hub')} aria-label="Exit to hub">Exit to hub</button>
         <h1>Anomaly Gold Rush</h1><p>{def.codename} | {def.unitLabel}</p>
         <p>{done ? 'Expedition complete' : `Question ${game.question + 1}/10`} | <strong key={game.intel} className={reveal?.delta ? "gold-intel-changed" : undefined}>{game.intel} intel</strong></p></header>
-      <aside className="panel" aria-label="Live standings"><ol className="gold-board">
+      <aside className="panel brackets" aria-label="Live standings"><ol className="gold-board">
         {board.map((rival) => {
           const isYou = rival.name === 'You'
           return (
@@ -86,8 +86,8 @@ function GoldGame({ caseId }: { caseId: string }) {
           )
         })}
       </ol></aside>
-      {done ? <section className="panel"><h2 ref={resultsRef} tabIndex={-1}>You placed {rankOf(board, 'You')} of 4!</h2>
-        <p>Science collected. Vaults explored. Ready for another expedition?</p>
+      {done ? <section className="panel brackets"><h2 ref={resultsRef} tabIndex={-1}>You placed {rankOf(board, 'You')} of 4!</h2>
+        <p>Shift complete. Every cache on the grid is cleared.</p>
         <div className="gold-end-actions">
           <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); setReveal(null); setGame(startGold(String(Date.now()))) }}>Play again</button>
           <button className="btn" onClick={() => { if (typeof sessionStorage !== 'undefined') clearGoldSession(sessionStorage, caseId); navigate('/hub') }}>Back to hub</button>
@@ -95,7 +95,7 @@ function GoldGame({ caseId }: { caseId: string }) {
       </section> : <>
         <QuickQuestion key={`${game.seed}:${game.question}`} item={pool[game.question]} ariaLive={false}
           onAnswer={(answer) => setGame((s) => answerGold(s, answer.correct))} />
-        <section className="panel" aria-label="Vault controls">
+        <section className="panel brackets" aria-label="Vault controls">
           <p role="status" key={`${game.question}:${game.phase}`} className={reveal ? 'gold-outcome' : undefined}>
             {game.outcome}{reveal && <> <strong className="gold-delta">{reveal.delta >= 0 ? '+' : ''}{reveal.delta} intel</strong></>}
           </p>

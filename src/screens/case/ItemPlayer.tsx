@@ -9,6 +9,7 @@ import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
 import { useAnnounce } from '../../ui/announceBus'
 import { INTEL, codexIdsFor } from './itemPlayerRules'
+import { cleanWhy } from './resultsDebrief'
 import { nextWordIndex } from './rovingWords'
 import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
@@ -351,7 +352,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                     </span>
                     {locked ? (
                       <span className="opt-mark mono" data-testid={`mark-${i}`}>
-                        <span aria-hidden="true">{isKey ? '\u2714' : '\u2716'}</span> {isKey ? 'Correct' : picked ? 'Your pick' : 'Decoy'}
+                        <span aria-hidden="true">{isKey ? '\u2714' : '\u2716'}</span> {isKey ? 'Correct' : picked ? 'Your pick' : 'Rule out'}
                         {isKey && picked ? ' (your pick)' : ''}
                       </span>
                     ) : isSel ? (
@@ -361,7 +362,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                     ) : null}
                   </button>
                   <div id={`why-${i}`} className="opt-why" data-testid={`why-${i}`} hidden={!(locked || isStruck)}>
-                    {locked || isStruck ? item.why[i] : null}
+                    {locked || isStruck ? cleanWhy(item.why[i]) : null}
                   </div>
                 </div>
               )

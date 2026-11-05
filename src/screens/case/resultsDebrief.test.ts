@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   STAMP_MIN_FONT,
   STAMP_PHRASES,
+  cleanWhy,
   debriefLine,
   fitStampFont,
   rotatedOverhang,
@@ -75,6 +76,15 @@ describe('verdict copy', () => {
     expect(debriefLine(true, false, 'Closed line.', 'Open line.')).toBe('Closed line.')
     expect(debriefLine(false, true, 'Closed line.', 'Open line.')).toBe('Open line.')
     expect(debriefLine(false, false, 'Closed line.', 'Open line.')).toBe('CASE STILL OPEN. It returns as a cold case soon.')
+  })
+
+  it('cleans why text by stripping leading Correct/Decoy and uppercasing first char', () => {
+    expect(cleanWhy('Correct. The liver makes bile.')).toBe('The liver makes bile.')
+    expect(cleanWhy('Correct: the kidneys filter wastes.')).toBe('The kidneys filter wastes.')
+    expect(cleanWhy('Decoy: the stomach breaks down food.')).toBe('The stomach breaks down food.')
+    expect(cleanWhy('Decoy: cold places slow melting.')).toBe('Cold places slow melting.')
+    expect(cleanWhy('Plain explanation.')).toBe('Plain explanation.')
+    expect(cleanWhy('')).toBe('')
   })
 })
 

@@ -1,12 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, type CSSProperties } from 'react'
-import { content } from '../../content'
 import { STILL } from '../../lib/flags'
 import { useSession } from '../../state/session'
 import { useGame } from '../../state/store'
 import Burst from '../../ui/Burst'
 import { countUpElement } from '../../ui/countUp'
 import { useMotionMode } from '../../ui/useMotionMode'
-import { debriefLine, fitStampFont, verdictPhrase } from './resultsDebrief'
+import { cleanWhy, fitStampFont, verdictPhrase } from './resultsDebrief'
 import { CaseTop } from './ui'
 import { useCaseDef } from './useCaseDef'
 import './results-debrief.css'
@@ -76,7 +75,6 @@ export default function Debrief() {
   const kind = useSession((s) => s.kind)
   const caseDef = useCaseDef()
   const caseId = useSession((s) => s.caseId) ?? caseDef.id
-  const def = kind === 'cold' ? content.coldCase : caseDef
   const setCaseStatus = useGame((s) => s.setCaseStatus)
   const reduced = useGame((s) => s.settings.reducedMotion)
   const motion = useMotionMode()
@@ -120,7 +118,7 @@ export default function Debrief() {
               {total}
               {' CORRECT'}
             </p>
-            <p className="debrief-line">{debriefLine(closed, cold, def.debriefClosed, def.debriefOpen)}</p>
+            <p className="debrief-line">Compare each locked answer against the field evidence before filing your shift report.</p>
           </div>
           <button type="button" className="btn primary big" data-testid="debrief-continue" onClick={() => go('results')}>
             See results
@@ -154,20 +152,22 @@ export default function Debrief() {
                 </p>
                 <div className="rd-take">
                   <p className="label rd-block-label">What this shows</p>
-                  <p className="rd-learned-line">{it.why[it.key]}</p>
+                  <p className="rd-learned-line">{cleanWhy(it.why[it.key])}</p>
                 </div>
                 <ul className="why-list">
-                  {it.options.map((o, i) => (
-                    <li key={i} className={i === it.key ? 'key' : ''}>
-                      <span className="why-letter">
-                        <span aria-hidden="true">{i === it.key ? '\u2714' : '\u2716'}</span> {LETTERS[i]}
-                      </span>
-                      <span>
-                        <strong className="why-opt">{o}</strong>
-                        {it.why[i]}
-                      </span>
-                    </li>
-                  ))}
+                  {it.options.map((o, i) =>
+                    i === it.key ? null : (
+                      <li key={i}>
+                        <span className="why-letter">
+                          <span aria-hidden="true">{'\u2716'}</span> {LETTERS[i]}
+                        </span>
+                        <span>
+                          <strong className="why-opt">{o}</strong>
+                          {cleanWhy(it.why[i])}
+                        </span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </article>
             )
