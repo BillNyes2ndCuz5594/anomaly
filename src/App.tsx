@@ -10,6 +10,8 @@ import TitleScreen from './screens/TitleScreen'
 const CaseScreen = lazy(() => import('./screens/CaseScreen'))
 const SettingsScreen = lazy(() => import('./screens/SettingsScreen'))
 const GoldRushScreen = lazy(() => import('./modes/gold/GoldRushScreen'))
+const ContainmentScreen = lazy(() => import('./modes/containment/ContainmentScreen'))
+const ReactorScreen = lazy(() => import('./modes/reactor/ReactorScreen'))
 const VisualsScreen = lazy(() => import('./screens/VisualsScreen'))
 import { resolveTier } from './state/quality'
 import { useRuntime } from './state/runtime'
@@ -90,6 +92,10 @@ function ScreenFor({ route }: { route: Route }) {
       )
     case 'gold':
       return <Suspense fallback={null}><GoldRushScreen key={route.id} caseId={route.id} /></Suspense>
+    case 'containment':
+      return <Suspense fallback={null}><ContainmentScreen key={route.id} caseId={route.id} /></Suspense>
+    case 'reactor':
+      return <Suspense fallback={null}><ReactorScreen key={route.id} caseId={route.id} /></Suspense>
     case 'visuals':
       return (
         <Suspense fallback={null}>

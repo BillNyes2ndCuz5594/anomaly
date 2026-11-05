@@ -7,6 +7,7 @@ import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } fr
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
 import GoldRushButton from '../ui/GoldRushButton'
+import BedrockModes, { resolveBedrockReturnTarget, setLastBedrockMode } from '../ui/BedrockModes'
 import ResidueAlert from '../ui/ResidueAlert'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
@@ -111,6 +112,40 @@ export default function HubScreen() {
   useEffect(() => {
     if (decode) clearCodenameDecode()
   }, [decode])
+  useEffect(() => {
+    let cancelled = false
+    let frameId = 0
+    let retryTimer = 0
+    const attemptFocus = (remaining: number) => {
+      if (cancelled) return
+      const host = document.querySelector<HTMLElement>('.screen-host')
+      if (host?.inert) {
+        if (remaining > 0) {
+          retryTimer = window.setTimeout(() => {
+            frameId = requestAnimationFrame(() => attemptFocus(remaining - 1))
+          }, 30)
+        }
+        return
+      }
+      const target = resolveBedrockReturnTarget()
+      if (!target) return
+      target.scrollIntoView?.({ block: 'nearest' })
+      target.focus?.()
+      if (document.activeElement === target) {
+        setLastBedrockMode(null)
+      } else if (remaining > 0) {
+        retryTimer = window.setTimeout(() => {
+          frameId = requestAnimationFrame(() => attemptFocus(remaining - 1))
+        }, 30)
+      }
+    }
+    frameId = requestAnimationFrame(() => attemptFocus(15))
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frameId)
+      window.clearTimeout(retryTimer)
+    }
+  }, [])
   useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
   // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
@@ -170,7 +205,7 @@ export default function HubScreen() {
                     </>
                   }
                 />
-                <GoldRushButton caseId={c.id} />
+                {c.id === '02-2' ? <BedrockModes caseId={c.id} /> : <GoldRushButton caseId={c.id} />}
                 </Fragment>
               )
             })}

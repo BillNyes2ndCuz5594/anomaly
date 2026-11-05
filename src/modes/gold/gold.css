@@ -17,7 +17,7 @@
 .gold-delta { display: inline-block; margin-left: 0.35rem; color: var(--amber); }
 .gold-crates .gold-revealed { opacity: 1; color: var(--amber); }
 @media (max-width: 900px) {
-  .hub-screen .gold-rush-btn {
+  .hub-screen .gold-rush-btn:not(.bedrock-modes-group *) {
     position: fixed;
     top: calc(var(--bar-h, 76px) + 12px);
     right: 16px;
