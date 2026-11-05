@@ -178,7 +178,7 @@ export const useGame = create<GameState>()(
         return {
           ...current,
           ...p,
-          lastCaseId: p.lastCaseId ?? null,
+          lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
           settings: { ...current.settings, ...(p.settings ?? {}) },
         }
       },
