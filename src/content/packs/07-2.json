@@ -23,48 +23,48 @@
    "lon": -80.8,
    "lat": 25.3
   },
-  "dispatchHook": "Everglades energy monitor says a heron feeds the sawgrass. Fix the arrows.",
+  "dispatchHook": "Everglades energy alert! Station monitors show food chain arrows pointing backward.",
   "briefing": [
-   "Agent, the energy monitor at an Everglades field station has its arrows pointing backward.",
-   "According to the screen, a heron feeds the sawgrass and the Sun runs on frogs.",
-   "Rebuild the food chain, then check the adaptation files the same glitch touched.",
-   "The herons are fine. The monitor is not."
+   "Agent, the energy monitor at an Everglades field station has its arrows pointing backward!",
+   "According to the glitchy screen, a heron feeds the sawgrass and the Sun runs on frogs.",
+   "Rebuild the food chain in the lab, then inspect the adaptation clues in your files.",
+   "Grab your field gear, Agent. Let's get the swamp's energy flowing the right way!"
   ],
   "lab": {
    "kind": "order",
-   "intro": "The energy log for one Everglades food chain came back shuffled. Put the links back in the order energy moves.",
+   "intro": "The energy log for an Everglades food chain got shuffled! Put each link back in the order energy moves.",
    "prompt": "Put the food chain in order, starting where the energy comes from.",
    "steps": [
     {
      "id": "sun",
      "name": "Sun",
-     "card": "Gives off the light that starts the chain"
+     "card": "Gives off the warm light that starts the whole chain."
     },
     {
      "id": "sawgrass",
      "name": "Sawgrass",
-     "card": "Uses sunlight to make its own food"
+     "card": "Uses sunlight to make its own food as a producer."
     },
     {
      "id": "grasshopper",
      "name": "Grasshopper",
-     "card": "Chews on sawgrass blades"
+     "card": "Munches on green sawgrass blades in the swamp."
     },
     {
      "id": "frog",
      "name": "Frog",
-     "card": "Catches and eats grasshoppers"
+     "card": "Snaps up grasshoppers and other insects for food."
     },
     {
      "id": "heron",
      "name": "Heron",
-     "card": "Wades in the marsh and eats frogs"
+     "card": "Wades through shallow water to catch frogs and fish."
     }
    ],
-   "why": "Energy starts with the Sun, goes to sawgrass (the producer), and then moves to each consumer that eats the one before it."
+   "why": "Energy begins with the Sun, flows to sawgrass (the producer), and moves along to each consumer that eats it!"
   },
-  "debriefClosed": "Case closed. Energy flows from the Sun again, at least on the monitor. Log it.",
-  "debriefOpen": "Case stays open for now. Keep your field binoculars ready; the swamp predators are still on the hunt."
+  "debriefClosed": "Awesome job, Agent! The station monitor is fixed, and energy flows from the Sun through the Everglades again.",
+  "debriefOpen": "This case stays open for now, Agent. Keep your binoculars ready and head back out to track those Everglades food chains!"
  },
  "items": [
   {
