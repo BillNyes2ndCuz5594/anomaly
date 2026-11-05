@@ -1,3 +1,4 @@
+import { waitForNextItem } from './lib/itemAdvance.mjs'
 // Proof (SPEC section 12). One run walks the whole product at 1366x768 and 1920x1080:
 // title, first run, hub, settings, case 03-1 (briefing, labs, RKEA items, debrief, results with report code),
 // cold case RESIDUE, resume with code, Teacher HQ (sample class and a real decoded code),
@@ -538,6 +539,7 @@ async function playItems(page, w, kind, total) {
       check(`all four why lines shown after lock-in (${w})`, whys === 4, `${whys}`)
       await sleep(800)
       await shot(page, 'item-result', w)
+      await waitForNextItem(page)
       await click(page, 'next-item')
     } else if (kind === 'cold' && n === 0) {
       // Cold item: tag a key word so the shot shows the same RKEA player in use.
@@ -548,6 +550,7 @@ async function playItems(page, w, kind, total) {
       await click(page, `option-${key}`)
       await click(page, 'lock-in')
       await page.waitForSelector('[data-testid="item-result"]')
+      await waitForNextItem(page)
       await click(page, 'next-item')
     } else if (kind === 'case' && n === 1) {
       // Keyboard only: digit picks, Enter locks in, Enter again moves on.
@@ -555,12 +558,14 @@ async function playItems(page, w, kind, total) {
       await page.keyboard.press('Enter')
       await page.waitForSelector('[data-testid="item-result"]')
       check(`keyboard play works (${w})`, (await attr(page, 'item-result', 'data-ok')) === 'yes')
+      await waitForNextItem(page)
       await page.keyboard.press('Enter')
       await sleep(300)
     } else {
       await click(page, `option-${key}`)
       await click(page, 'lock-in')
       await page.waitForSelector('[data-testid="item-result"]')
+      await waitForNextItem(page)
       await click(page, 'next-item')
     }
     await sleep(300)
@@ -952,6 +957,7 @@ try {
       await click(page, `option-${it.key}`)
       await click(page, 'lock-in')
       await page.waitForSelector('[data-testid="item-result"]')
+      await waitForNextItem(page)
       await click(page, 'next-item')
       await page.waitForSelector('[data-testid="stem"]')
       await sleep(600)
@@ -1110,7 +1116,7 @@ try {
       await click(page, `option-${item.key}`)
       await click(page, 'lock-in')
       await page.waitForSelector('[data-testid="item-result"]')
-      await sleep(300)
+      await waitForNextItem(page)
       await click(page, 'next-item')
       await sleep(400)
     }
@@ -1235,6 +1241,7 @@ try {
       const c = document.querySelector('.visual-3d canvas')
       if (c) c.dataset.keep = '1'
     })
+    await waitForNextItem(page)
     await page.click('[data-testid="next-item"]')
     await sleep(180)
     const mid = await page.evaluate(() => {

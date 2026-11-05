@@ -1,3 +1,4 @@
+import { waitForNextItem } from './lib/itemAdvance.mjs'
 // Proof extras (ledger #28). Small and self-contained.
 //   a) Results with ?still=1: data-motion is still and no <video> is mounted (SealSting poster only).
 //   b) Every step runs through a hardened runner: a detached frame, "Target closed" or a page crash relaunches the
@@ -193,7 +194,7 @@ async function playToResults(page) {
     await click(page, `option-${item.key}`)
     await click(page, 'lock-in')
     await page.waitForSelector('[data-testid="item-result"]')
-    await sleep(300)
+    await waitForNextItem(page)
     await click(page, 'next-item')
     await sleep(300)
   }

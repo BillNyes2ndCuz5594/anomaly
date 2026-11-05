@@ -1,3 +1,4 @@
+import { waitForNextItem } from './lib/itemAdvance.mjs'
 // Mobile and tablet proof (S8). Plays the whole loop by touch only (page.tap / touchscreen.tap) on four emulated
 // devices, one headless Chrome at a time, against a local `vite preview` of the build:
 //   s23-portrait 360x780 dpr3, s23-landscape 780x360 dpr3, tab-portrait 800x1280, tab-landscape 1280x800.
@@ -392,6 +393,7 @@ async function runDevice(dev, base) {
         await tapId('lock-in')
         await page.waitForSelector(tid('item-result'))
         if (n === 0) await audit(`${kind}-item-result`, 1000)
+        await waitForNextItem(page)
         await tapId('next-item')
         await sleep(400)
       }

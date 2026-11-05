@@ -1,3 +1,4 @@
+import { waitForNextItem } from './itemAdvance.mjs'
 // Walks a case pack (any case but VITALS) through the real UI: hub marker, briefing, the generic Field Lab (every
 // card placed through the HUD buttons), the evidence items, debrief and results. Shared by proof.mjs and
 // smoke-cases.mjs. `check(name, ok, detail)` records a result; `shot(name)` takes a screenshot (both optional).
@@ -84,7 +85,7 @@ export async function playPackItems(page, items, total = 5) {
     await clickId(page, `option-${item.key}`)
     await clickId(page, 'lock-in')
     await page.waitForSelector(sel('item-result'))
-    await sleep(250)
+    await waitForNextItem(page)
     await clickId(page, 'next-item')
     await sleep(250)
   }

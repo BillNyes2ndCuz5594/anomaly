@@ -1,3 +1,4 @@
+import { waitForNextItem } from './lib/itemAdvance.mjs'
 // S17 iteration helper: debrief stamp frames and count up, then results. Writes /tmp/s17/<label>-debrief-*.png
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CONTENT, click, freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
@@ -18,6 +19,7 @@ try {
     await click(page, `option-${it.key}`)
     await click(page, 'lock-in')
     await page.waitForSelector('[data-testid="item-result"]')
+    await waitForNextItem(page)
     await click(page, 'next-item')
   }
   await page.waitForSelector('[data-testid="debrief"]')
