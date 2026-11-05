@@ -202,10 +202,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: the Sun looks large and bright because it is much closer to Earth than any other star.",
-        "Decoy: many stars are larger than the Sun, but they are so far away that they look tiny.",
-        "Decoy: every star gives off its own light.",
-        "Decoy: stars shine all the time, but in the day the Sun's light hides them."
+        "The Sun looks large and bright because it is much closer to Earth than any other star.",
+        "Many stars are larger than the Sun, but they are so far away that they look tiny.",
+        "Every star gives off its own light.",
+        "Stars shine all the time, but in the day the Sun's light hides them."
       ],
       "keyWords": [
         "larger and brighter",
@@ -240,10 +240,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: both are stars that give off light, and planets do not make their own light.",
-        "Correct: a star that is farther away looks dimmer, even when it gives off the same amount of light.",
-        "Decoy: a star that gave off no light could not be seen at all.",
-        "Decoy: stars are made of hot gases, not rock."
+        "Both are stars that give off light, and planets do not make their own light.",
+        "A star that is farther away looks dimmer, even when it gives off the same amount of light.",
+        "A star that gave off no light could not be seen at all.",
+        "Stars are made of hot gases, not rock."
       ],
       "keyWords": [
         "same amount of light",
@@ -278,10 +278,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: this list goes from largest to smallest.",
-        "Decoy: Earth is one planet inside the solar system, so the solar system cannot be smaller than Earth.",
-        "Correct: Earth is part of the solar system, and the solar system is a tiny part of the galaxy.",
-        "Decoy: the galaxy holds many stars, and our whole solar system is only one small part of it."
+        "This list goes from largest to smallest.",
+        "Earth is one planet inside the solar system, so the solar system cannot be smaller than Earth.",
+        "Earth is part of the solar system, and the solar system is a tiny part of the galaxy.",
+        "The galaxy holds many stars, and our whole solar system is only one small part of it."
       ],
       "keyWords": [
         "smallest to largest",
@@ -353,10 +353,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: stars give off light all the time, day and night.",
-        "Decoy: stars do not travel across the galaxy each day, so they are still there at noon.",
-        "Decoy: many days have clear skies, and the stars are still hidden.",
-        "Correct: the Sun is the closest star, and its bright light hides the dimmer stars that are much farther away."
+        "Stars give off light all the time, day and night.",
+        "Stars do not travel across the galaxy each day, so they are still there at noon.",
+        "Many days have clear skies, and the stars are still hidden.",
+        "The Sun is the closest star, and its bright light hides the dimmer stars that are much farther away."
       ],
       "keyWords": [
         "At noon",
@@ -391,10 +391,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: the first planet from the Sun is Mercury.",
-        "Decoy: the second planet from the Sun is Venus.",
-        "Correct: Earth is the third planet from the Sun, after Mercury and Venus.",
-        "Decoy: the fourth planet from the Sun is Mars."
+        "The first planet from the Sun is Mercury.",
+        "The second planet from the Sun is Venus.",
+        "Earth is the third planet from the Sun, after Mercury and Venus.",
+        "The fourth planet from the Sun is Mars."
       ],
       "keyWords": [
         "inner planets",
@@ -431,10 +431,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: this is backward, since the outer planets are the large gas planets with rings.",
-        "Decoy: inner planets are rocky and have no rings, so Planet B cannot be one.",
-        "Decoy: a planet does not become a star by being large, because stars give off their own light.",
-        "Correct: small and rocky fits the inner planets, and large, gassy, and ringed fits the outer planets."
+        "This is backward, since the outer planets are the large gas planets with rings.",
+        "Inner planets are rocky and have no rings, so Planet B cannot be one.",
+        "A planet does not become a star by being large, because stars give off their own light.",
+        "Small and rocky fits the inner planets, and large, gassy, and ringed fits the outer planets."
       ],
       "keyWords": [
         "two planets",
@@ -484,10 +484,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a moon travels around a planet, and Object 1 travels around Mars.",
-        "Decoy: Object 2 travels around the Sun and is made mostly of gas, so it is a planet.",
-        "Decoy: Object 3 sits at the center and gives off its own light, so it is the Sun, a star.",
-        "Decoy: Object 4 grows a tail near the Sun, so it is a comet."
+        "A moon travels around a planet, and Object 1 travels around Mars.",
+        "Object 2 travels around the Sun and is made mostly of gas, so it is a planet.",
+        "Object 3 sits at the center and gives off its own light, so it is the Sun, a star.",
+        "Object 4 grows a tail near the Sun, so it is a comet."
       ],
       "keyWords": [
         "four objects",
@@ -544,10 +544,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: this swaps them, since comets are icy with tails and asteroids are rock and metal.",
-        "Correct: asteroids are rock and metal in the belt between Mars and Jupiter, and comets are icy and form tails near the Sun.",
-        "Decoy: a moon travels around a planet, and being small does not make an object a moon.",
-        "Decoy: many objects travel around the Sun, but these small ones are not planets."
+        "This swaps them, since comets are icy with tails and asteroids are rock and metal.",
+        "Asteroids are rock and metal in the belt between Mars and Jupiter, and comets are icy and form tails near the Sun.",
+        "A moon travels around a planet, and being small does not make an object a moon.",
+        "Many objects travel around the Sun, but these small ones are not planets."
       ],
       "keyWords": [
         "rock and metal",
@@ -621,10 +621,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: Mars is the last of the inner planets, just before the asteroid belt.",
-        "Decoy: Venus is an inner planet close to the Sun.",
-        "Correct: Neptune is an outer planet, far beyond the asteroid belt.",
-        "Decoy: Mercury is the inner planet closest to the Sun."
+        "Mars is the last of the inner planets, just before the asteroid belt.",
+        "Venus is an inner planet close to the Sun.",
+        "Neptune is an outer planet, far beyond the asteroid belt.",
+        "Mercury is the inner planet closest to the Sun."
       ],
       "keyWords": [
         "outer planets",
@@ -659,10 +659,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: the Sun only seems to move because Earth spins.",
-        "Correct: as Earth spins, Miami turns toward the Sun for day and away from it for night.",
-        "Decoy: one trip around the Sun takes a year, not a day.",
-        "Decoy: the Moon does not block the Sun every night."
+        "The Sun only seems to move because Earth spins.",
+        "As Earth spins, Miami turns toward the Sun for day and away from it for night.",
+        "One trip around the Sun takes a year, not a day.",
+        "The Moon does not block the Sun every night."
       ],
       "keyWords": [
         "rises in the morning",
@@ -697,10 +697,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: the Sun does not travel around Earth; it only appears to move.",
-        "Decoy: Earth takes a whole year, not a day, to travel around the Sun.",
-        "Correct: as Earth spins, the Sun appears to rise in the east and set in the west.",
-        "Decoy: wind is moving air on Earth, and it cannot move the Sun."
+        "The Sun does not travel around Earth; it only appears to move.",
+        "Earth takes a whole year, not a day, to travel around the Sun.",
+        "As Earth spins, the Sun appears to rise in the east and set in the west.",
+        "Wind is moving air on Earth, and it cannot move the Sun."
       ],
       "keyWords": [
         "three times on one day",
@@ -748,10 +748,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: one day is how long Earth takes to spin once.",
-        "Decoy: in one week the Moon goes through only part of its changes.",
-        "Decoy: one year is how long Earth takes to travel around the Sun.",
-        "Correct: the Moon's shape goes through its whole pattern in about one month."
+        "One day is how long Earth takes to spin once.",
+        "In one week the Moon goes through only part of its changes.",
+        "One year is how long Earth takes to travel around the Sun.",
+        "The Moon's shape goes through its whole pattern in about one month."
       ],
       "keyWords": [
         "Moon's shape",
@@ -786,10 +786,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: as Earth moves around the Sun, the night side of Earth faces different stars, so star patterns change with the seasons.",
-        "Decoy: the stars in Orion shine all year long.",
-        "Decoy: Earth spins at the same speed all year.",
-        "Decoy: Florida has many clear summer nights, and Orion still is not seen."
+        "As Earth moves around the Sun, the night side of Earth faces different stars, so star patterns change with the seasons.",
+        "The stars in Orion shine all year long.",
+        "Earth spins at the same speed all year.",
+        "Florida has many clear summer nights, and Orion still is not seen."
       ],
       "keyWords": [
         "star pattern",
@@ -872,10 +872,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: a star does not move far enough in one night to cross our sky, so the motion comes from Earth.",
-        "Decoy: a trip around the Sun takes a year, so Earth moves only a tiny part of the way in four hours.",
-        "Correct: stars appear to rise in the east and cross the sky because Earth spins, just like the Sun does.",
-        "Decoy: the Moon does not move the stars."
+        "A star does not move far enough in one night to cross our sky, so the motion comes from Earth.",
+        "A trip around the Sun takes a year, so Earth moves only a tiny part of the way in four hours.",
+        "Stars appear to rise in the east and cross the sky because Earth spins, just like the Sun does.",
+        "The Moon does not move the stars."
       ],
       "keyWords": [
         "same star",

@@ -154,10 +154,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: this list goes from warmest to coldest, the opposite of the question.",
-        "Decoy: this list follows the cup numbers, not the temperatures.",
-        "Decoy: Cup 4 at 22°C (72°F) is warmer than Cup 2 at 5°C (41°F), so Cup 4 cannot come first.",
-        "Correct: Cup 2 is 5°C (41°F), Cup 4 is 22°C (72°F), Cup 1 is 37°C (99°F) and Cup 3 is 60°C (140°F)."
+        "This list goes from warmest to coldest, the opposite of the question.",
+        "This list follows the cup numbers, not the temperatures.",
+        "Cup 4 at 22°C (72°F) is warmer than Cup 2 at 5°C (41°F), so Cup 4 cannot come first.",
+        "Cup 2 is 5°C (41°F), Cup 4 is 22°C (72°F), Cup 1 is 37°C (99°F) and Cup 3 is 60°C (140°F)."
       ],
       "keyWords": ["thermometer", "coldest to warmest"],
       "visual": {
@@ -181,10 +181,10 @@
       "options": ["attraction to a magnet", "color", "texture", "mass"],
       "key": 0,
       "why": [
-        "Correct: the iron and steel objects in Group 1 are attracted to a magnet, and nothing in Group 2 is.",
-        "Decoy: the aluminum foil ball is shiny and gray like the steel objects, but it is in Group 2, so color did not decide the groups.",
-        "Decoy: each group mixes smooth and rough objects, so texture did not decide the groups.",
-        "Decoy: each group mixes light and heavier objects, such as a paper clip with a nail, so mass did not decide the groups."
+        "The iron and steel objects in Group 1 are attracted to a magnet, and nothing in Group 2 is.",
+        "The aluminum foil ball is shiny and gray like the steel objects, but it is in Group 2, so color did not decide the groups.",
+        "Each group mixes smooth and rough objects, so texture did not decide the groups.",
+        "Each group mixes light and heavier objects, such as a paper clip with a nail, so mass did not decide the groups."
       ],
       "keyWords": ["six objects", "two groups", "one property"],
       "visual": {
@@ -213,10 +213,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: the rubber is the same rubber, so the extra mass came from the air inside.",
-        "Correct: the mass went up when only air was added, so the air inside the ball has mass.",
-        "Decoy: the balance showed a change when air was added, and nothing in the data points to a mistake.",
-        "Decoy: air is a gas, and the data shows that a gas has mass too."
+        "The rubber is the same rubber, so the extra mass came from the air inside.",
+        "The mass went up when only air was added, so the air inside the ball has mass.",
+        "The balance showed a change when air was added, and nothing in the data points to a mistake.",
+        "Air is a gas, and the data shows that a gas has mass too."
       ],
       "keyWords": ["mass of a flat basketball", "pumps air into it", "mass again"],
       "visual": {
@@ -262,10 +262,10 @@
       "options": ["shape", "color", "magnetic attraction", "particle size"],
       "key": 3,
       "why": [
-        "Decoy: marbles and peas are both round, so shape cannot be what split them.",
-        "Decoy: a screen cannot sort by color, because it only lets through pieces that fit its holes.",
-        "Decoy: marbles, peas and sand are not attracted to a magnet, and the screen is not a magnet.",
-        "Correct: the marbles are too big to fit through the holes, while the smaller peas and sand fall through."
+        "Marbles and peas are both round, so shape cannot be what split them.",
+        "A screen cannot sort by color, because it only lets through pieces that fit its holes.",
+        "Marbles, peas and sand are not attracted to a magnet, and the screen is not a magnet.",
+        "The marbles are too big to fit through the holes, while the smaller peas and sand fall through."
       ],
       "keyWords": ["screen", "fall through the holes", "stay on top"],
       "visual": {
@@ -294,10 +294,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: sugar dissolves faster in warmer water than in colder water.",
-        "Decoy: cold water slows dissolving, so the sugar in the cold glass takes longer.",
-        "Decoy: the amount of water is the same, but the temperature is different, and temperature changes how fast sugar dissolves.",
-        "Decoy: the sugar dissolves into the water, and dissolving is not melting, since 60°C (140°F) is far too cool to melt sugar."
+        "Sugar dissolves faster in warmer water than in colder water.",
+        "Cold water slows dissolving, so the sugar in the cold glass takes longer.",
+        "The amount of water is the same, but the temperature is different, and temperature changes how fast sugar dissolves.",
+        "The sugar dissolves into the water, and dissolving is not melting, since 60°C (140°F) is far too cool to melt sugar."
       ],
       "keyWords": ["60°C (140°F)", "5°C (41°F)", "dissolve faster"],
       "visual": { "kind": "scene", "id": "dissolving-temperature", "labels": ["60°C (140°F)", "5°C (41°F)", "sugar"] },
@@ -321,10 +321,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: the cubes took longer than the loose grains every time, so this is backward.",
-        "Decoy: the loose grains dissolved faster than the cubes even without stirring, so grain size does matter.",
-        "Correct: stirring cut the time for both forms, and the loose grains, with more surface touching the water, dissolved faster than the cubes.",
-        "Decoy: every cup was at the same temperature, so this data cannot show anything about warm and cold water."
+        "The cubes took longer than the loose grains every time, so this is backward.",
+        "The loose grains dissolved faster than the cubes even without stirring, so grain size does matter.",
+        "Stirring cut the time for both forms, and the loose grains, with more surface touching the water, dissolved faster than the cubes.",
+        "Every cup was at the same temperature, so this data cannot show anything about warm and cold water."
       ],
       "keyWords": ["same temperature", "form of the sugar", "stirred", "supported by her data"],
       "visual": {
@@ -353,10 +353,10 @@
       "options": ["color", "magnetic attraction", "shape", "particle size"],
       "key": 2,
       "why": [
-        "Decoy: all the beads are blue, so color cannot tell them apart.",
-        "Decoy: plastic beads are not attracted to a magnet.",
-        "Correct: the beads differ only in shape, so Marco can sort the round ones from the star-shaped ones.",
-        "Decoy: the beads are about the same size, so a screen would not split them."
+        "All the beads are blue, so color cannot tell them apart.",
+        "Plastic beads are not attracted to a magnet.",
+        "The beads differ only in shape, so Marco can sort the round ones from the star-shaped ones.",
+        "The beads are about the same size, so a screen would not split them."
       ],
       "keyWords": ["round beads", "star-shaped beads", "same size"],
       "visual": {
@@ -385,10 +385,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: the salt broke into pieces too small to see, and if the water evaporated, the salt would be left behind.",
-        "Decoy: dissolving is not melting, because the salt mixed into the water without being heated into a liquid.",
-        "Decoy: the salt is too small to see, but it is still in the cup.",
-        "Decoy: dissolving salt is a physical change, so no new material forms."
+        "The salt broke into pieces too small to see, and if the water evaporated, the salt would be left behind.",
+        "Dissolving is not melting, because the salt mixed into the water without being heated into a liquid.",
+        "The salt is too small to see, but it is still in the cup.",
+        "Dissolving salt is a physical change, so no new material forms."
       ],
       "keyWords": ["cannot see the salt", "statement about the salt"],
       "visual": {
@@ -412,10 +412,10 @@
       "options": ["freezing", "condensation", "burning", "melting"],
       "key": 3,
       "why": [
-        "Decoy: freezing turns a liquid into a solid, the opposite of what happened.",
-        "Decoy: condensation turns water vapor into liquid water, and the ice was never a gas.",
-        "Decoy: burning makes new materials like smoke and ash, and the puddle is still water.",
-        "Correct: the warm kitchen heated the solid ice until it changed into liquid water."
+        "Freezing turns a liquid into a solid, the opposite of what happened.",
+        "Condensation turns water vapor into liquid water, and the ice was never a gas.",
+        "Burning makes new materials like smoke and ash, and the puddle is still water.",
+        "The warm kitchen heated the solid ice until it changed into liquid water."
       ],
       "keyWords": ["24°C (75°F)", "small puddle of water"],
       "visual": { "kind": "scene", "id": "physical-chemical-change", "labels": ["ice cube", ""] },
@@ -439,10 +439,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: this is backward, because melted ice is still water while burning wax makes new materials.",
-        "Correct: burning wax makes new materials such as smoke and gases, but melted ice is the same material in a new state.",
-        "Decoy: melting changes only the state of the water, so it does not make a new material.",
-        "Decoy: burning makes smoke and gases that were not there before, so it does make new materials."
+        "This is backward, because melted ice is still water while burning wax makes new materials.",
+        "Burning wax makes new materials such as smoke and gases, but melted ice is the same material in a new state.",
+        "Melting changes only the state of the water, so it does not make a new material.",
+        "Burning makes smoke and gases that were not there before, so it does make new materials."
       ],
       "keyWords": ["ice cube melting", "candle burning", "different"],
       "visual": { "kind": "scene", "id": "physical-chemical-change", "labels": ["melting ice", "burning candle"] },
@@ -466,10 +466,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: mold appeared soonest in the warm garage and latest in the cold refrigerator, so warmth sped up the decay.",
-        "Decoy: the coldest place, the refrigerator, took the longest, so this is backward.",
-        "Decoy: the days until mold changed a lot from place to place, so temperature did make a difference.",
-        "Decoy: the bread in the refrigerator did grow mold, just later, after 14 days."
+        "Mold appeared soonest in the warm garage and latest in the cold refrigerator, so warmth sped up the decay.",
+        "The coldest place, the refrigerator, took the longest, so this is backward.",
+        "The days until mold changed a lot from place to place, so temperature did make a difference.",
+        "The bread in the refrigerator did grow mold, just later, after 14 days."
       ],
       "keyWords": ["same bread", "three places", "supported by the data"],
       "visual": {
@@ -497,10 +497,10 @@
       "options": ["about 6 minutes", "about 12 minutes", "less than 3 minutes", "more than 12 minutes"],
       "key": 2,
       "why": [
-        "Decoy: 6 minutes matches the 25°C (77°F) water, and 50°C (122°F) water is much warmer.",
-        "Decoy: 12 minutes matches the coldest water, not the warmest.",
-        "Correct: each warmer cup melted the ice faster, so water warmer than 40°C (104°F) should take less than 3 minutes.",
-        "Decoy: this reverses the pattern, because warmer water melted the ice faster, not slower."
+        "6 minutes matches the 25°C (77°F) water, and 50°C (122°F) water is much warmer.",
+        "12 minutes matches the coldest water, not the warmest.",
+        "Each warmer cup melted the ice faster, so water warmer than 40°C (104°F) should take less than 3 minutes.",
+        "This reverses the pattern, because warmer water melted the ice faster, not slower."
       ],
       "keyWords": ["same size ice cube", "timed", "50°C (122°F)"],
       "visual": {
@@ -529,10 +529,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: glass does not have holes that lemonade can soak through.",
-        "Correct: water vapor in the warm air touched the cold glass, cooled and condensed into liquid drops.",
-        "Decoy: the melting ice stays inside the glass and cannot pass through it.",
-        "Decoy: the cold glass does not give off water vapor, because the water came from the air around it."
+        "Glass does not have holes that lemonade can soak through.",
+        "Water vapor in the warm air touched the cold glass, cooled and condensed into liquid drops.",
+        "The melting ice stays inside the glass and cannot pass through it.",
+        "The cold glass does not give off water vapor, because the water came from the air around it."
       ],
       "keyWords": ["33°C (91°F)", "outside of the glass", "drops of water"],
       "visual": {
@@ -561,10 +561,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: melting turns a solid into a liquid, but the batter went from a liquid to a solid.",
-        "Decoy: freezing happens when a liquid is cooled, but the batter turned solid while it was heated.",
-        "Decoy: more than the shape changed, because the pancake cannot turn back into batter.",
-        "Correct: cooking made a new material, the pancake, that cannot turn back into batter."
+        "Melting turns a solid into a liquid, but the batter went from a liquid to a solid.",
+        "Freezing happens when a liquid is cooled, but the batter turned solid while it was heated.",
+        "More than the shape changed, because the pancake cannot turn back into batter.",
+        "Cooking made a new material, the pancake, that cannot turn back into batter."
       ],
       "keyWords": ["hot griddle", "does not turn back into batter", "kind of change"],
       "visual": {
