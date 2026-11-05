@@ -1,4 +1,10 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import Modal from '../../ui/Modal'
+import HelpLevelPicker from '../../ui/HelpLevelPicker'
+import { useGame } from '../../state/store'
+import { clampSoundVolume, TEXT_SIZE_LABELS, LINE_SPACING_LABELS, type TextSize, type LineSpacing } from '../../state/settings'
+import '../../ui/caseOptions.css'
 import { navigate } from '../../lib/router'
 import { useReadAloud } from '../../lib/speech'
 import { stepsFor, useSession, type CaseKind, type CaseStep } from '../../state/session'
@@ -44,14 +50,63 @@ export function StepBar({ step, kind = 'case', caseDef = null }: { step: CaseSte
   )
 }
 
+function CaseOptions({ onClose }: { onClose: () => void }) {
+  const settings = useGame((s) => s.settings)
+  const set = useGame((s) => s.setSettings)
+  return createPortal(
+    <Modal title="Options" onClose={onClose} testId="case-options-dialog">
+      <p>Help changes start with the next question. Your place in this lab stays right here.</p>
+      <HelpLevelPicker />
+      <div className="case-options-reading">
+        <label>
+          Text size
+          <select className="input" data-testid="case-text-size" value={settings.textSize}
+            onChange={(e) => set({ textSize: Number(e.target.value) as TextSize })}>
+            {Object.entries(TEXT_SIZE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </label>
+        <label>
+          Line spacing
+          <select className="input" data-testid="case-line-spacing" value={settings.lineSpacing}
+            onChange={(e) => set({ lineSpacing: Number(e.target.value) as LineSpacing })}>
+            {Object.entries(LINE_SPACING_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </label>
+      </div>
+      <label className="toggle">
+        <input type="checkbox" data-testid="case-sound" checked={settings.sound}
+          onChange={(e) => set({ sound: e.target.checked })} />
+        <span className="toggle-box" aria-hidden="true" />
+        <span>Sound <strong className="toggle-state">{settings.sound ? 'ON' : 'OFF'}</strong></span>
+      </label>
+      <label className="case-options-volume">
+        Volume <strong>{Math.round(settings.soundVolume * 100)}%</strong>
+        <input className="range" type="range" min={0} max={100} step={5}
+          data-testid="case-volume" value={Math.round(settings.soundVolume * 100)}
+          onChange={(e) => set({ soundVolume: clampSoundVolume(Number(e.target.value) / 100) })} />
+      </label>
+      <div className="actions">
+        <button type="button" className="btn" data-autofocus data-testid="case-options-close" onClick={onClose}>Done</button>
+      </div>
+    </Modal>,
+    document.body,
+  )
+}
+
 export function CaseTop({ step }: { step: CaseStep }) {
   const kind = useSession((s) => s.kind)
   const def = useCaseDef()
+  const [optionsOpen, setOptionsOpen] = useState(false)
   return (
     <div className="topbar case-top">
-      <button type="button" className="btn small ghost" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
-        Hub
-      </button>
+      <div className="case-top-controls">
+        <button type="button" className="btn small ghost" data-testid="back-to-hub-top" onClick={() => navigate('/hub')}>
+          Hub
+        </button>
+        <button type="button" className="btn small ghost" data-testid="case-options" aria-haspopup="dialog"
+          aria-expanded={optionsOpen} onClick={() => setOptionsOpen(true)}>Options</button>
+      </div>
+      {optionsOpen ? <CaseOptions onClose={() => setOptionsOpen(false)} /> : null}
       <StepBar step={step} kind={kind} caseDef={kind === 'cold' ? null : def} />
       <span className="label case-tag">{kind === 'cold' ? `COLD CASE ${content.coldCase.codename}` : `CASE ${def.id} ${def.codename}`}</span>
     </div>

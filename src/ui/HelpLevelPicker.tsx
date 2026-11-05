@@ -18,12 +18,12 @@ const OPTIONS: readonly OptionDef[] = [
   {
     level: 'regular',
     title: 'Regular',
-    sub: 'The usual game.',
+    sub: 'Choose and cross out on your own.',
   },
   {
     level: 'challenge',
     title: 'Challenge',
-    sub: 'No crossing out. For case questions.',
+    sub: 'No crossing out in case questions.',
   },
 ]
 

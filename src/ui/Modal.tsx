@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { modalTabStops } from './modalFocus'
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
 
@@ -41,13 +42,14 @@ export default function Modal({ title, onClose, children, testId, restoreFocus =
   }, [])
 
   function onKeyDown(e: React.KeyboardEvent) {
+    // Keep question and other page shortcuts out of the dialog. Native controls still work.
+    e.stopPropagation()
     if (e.key === 'Escape') {
-      e.stopPropagation()
       onClose()
       return
     }
     if (e.key !== 'Tab' || !ref.current) return
-    const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => !el.hasAttribute('disabled'))
+    const items = modalTabStops([...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)])
     if (items.length === 0) return
     const first = items[0]
     const last = items[items.length - 1]
