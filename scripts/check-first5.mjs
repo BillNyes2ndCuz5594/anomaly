@@ -482,6 +482,54 @@ try {
     check(`reduced motion layout works at ${width}x768`, rmCheck.lockVisible && rmCheck.wrapHeightOk)
   }
 
+  // 9. Portrait tablet hub: the scroll cue is visible and the final mission controls can all be reached.
+  await page.setViewport({ width: 810, height: 1080, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')
+    if (raw?.state) {
+      raw.state.settings = { ...raw.state.settings, textSize: 0, lineSpacing: 0 }
+      localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+    }
+    location.hash = '#/hub'
+  })
+  await page.reload({ waitUntil: 'load' })
+  await page.waitForSelector('[data-testid="hub"]')
+  await sleep(500)
+  const fade = await page.evaluate(() => {
+    const panel = document.querySelector('.hub-panel')
+    const cue = document.querySelector('.hub-scroll-fade')
+    return panel?.getAttribute('data-more-below') === 'true' && cue && getComputedStyle(cue).display !== 'none'
+  })
+  check('portrait hub shows a fade when more missions are below', !!fade)
+  await page.screenshot({ path: `${SHOTS_DIR}/pr12-hub-810x1080.png` })
+  await page.evaluate(() => {
+    const cells = [...document.querySelectorAll('[data-testid="other-units"] .case-cell')]
+    cells.at(-1)?.scrollIntoView({ block: 'start' })
+  })
+  await sleep(200)
+  const hubReach = await page.evaluate(() => {
+    const panel = document.querySelector('.hub-panel')
+    const cells = [...document.querySelectorAll('[data-testid="other-units"] .case-cell')]
+    const last = cells.at(-1)
+    const card = last?.querySelector('.case-btn')
+    const standards = last?.querySelector('.case-standards summary')
+    const cold = document.querySelector('[data-testid="cold-marker"]')
+    const coldCode = cold?.querySelector('.case-code')
+    const p = panel?.getBoundingClientRect()
+    const inside = (el) => {
+      const r = el?.getBoundingClientRect()
+      return !!r && !!p && r.top >= p.top - 1 && r.bottom <= p.bottom + 1 && r.left >= p.left - 1 && r.right <= p.right + 1 && r.bottom <= innerHeight
+    }
+    return {
+      card: inside(card),
+      standards: inside(standards),
+      cold: inside(coldCode),
+      coldFits: !!cold && !!coldCode && cold.scrollWidth <= cold.clientWidth + 1 && coldCode.scrollWidth <= coldCode.clientWidth + 1,
+    }
+  })
+  check('last unit card, Standards and Cold Case label are fully reachable at 810x1080', Object.values(hubReach).every(Boolean), JSON.stringify(hubReach))
+  await page.screenshot({ path: `${SHOTS_DIR}/pr12-hub-810x1080-reached.png` })
+
   await page.close()
 
   // =========================================================================

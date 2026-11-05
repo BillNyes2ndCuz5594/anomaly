@@ -44,6 +44,10 @@ describe('hudInsets', () => {
     expect(hudInsets(780, 360, { panel: null, dock: null, bar: null }, true, 420).right).toBe(390)
     expect(hudInsets(1366, 768, { panel: null, dock: null, bar: null }, false, 360).right).toBe(360)
   })
+  it('tablet hub: extra portrait space keeps Saturn below the top bar', () => {
+    const ins = hudInsets(810, 1080, { panel: rect(12, 497, 798, 994), dock: null, bar: rect(28, 20, 782, 64) }, true, 520, 192)
+    expect(ins).toEqual({ right: 0, top: 192, bottom: 593 })
+  })
   it('hub: only the panel counts when not vertical', () => {
     const ins = hudInsets(360, 780, { panel: rect(8, 400, 352, 772), dock: rect(0, 100, 360, 200), bar: rect(0, 0, 360, 60) }, false, 360)
     expect(ins).toEqual({ right: 0, top: 0, bottom: 390 })

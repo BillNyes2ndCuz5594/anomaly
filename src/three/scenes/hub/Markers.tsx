@@ -1,5 +1,5 @@
 import { Billboard } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { content, loadPack, caseById } from '../../../content'
 import * as THREE from 'three/webgpu'
@@ -261,6 +261,7 @@ const unitShort = (label: string) => label.replace(/^Unit\s+\d+:\s*/, '')
 /** Case markers floating over the map, one per case (amber) plus the cold case (cyan). Mirrored as HTML buttons in the side panel. */
 export default function Markers({ reduced }: { reduced: boolean }) {
   const due = useReviewDue()
+  const stacked = useThree((s) => s.size.width <= 900)
   const registry = useMemo<LabelRegistry>(() => new Map(), [])
   const solver = useMemo(() => createLabelDeclutter(), [])
   const projection = useMemo(() => ({
@@ -323,7 +324,7 @@ export default function Markers({ reduced }: { reduced: boolean }) {
         title="COLD CASE RESIDUE"
         sub="Review"
         to="/cold/cold-1"
-        side={1}
+        side={stacked ? -1 : 1}
         reduced={reduced}
         glow={due ? 1.35 : 0.5}
       />

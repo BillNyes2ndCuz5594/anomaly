@@ -143,7 +143,7 @@ function ViewOffset({ insets }: { insets: Insets }) {
  * Reads how much of the screen the HUD covers: the right side panel, the top step bar and the bottom job dock.
  * Measured from the DOM so it follows the text size setting and any layout change. Polled, since panels mount per step.
  */
-function useHudInsets(fallbackRight: number, vertical: boolean): Insets {
+function useHudInsets(fallbackRight: number, vertical: boolean, portraitTopInset: number): Insets {
   const [ins, setIns] = useState<Insets>({ right: fallbackRight, top: 0, bottom: 0 })
   useEffect(() => {
     const read = () => {
@@ -156,6 +156,7 @@ function useHudInsets(fallbackRight: number, vertical: boolean): Insets {
         { panel: rectOf('.hud-layer .side-panel, .hud-layer .hub-panel'), dock: vertical ? rectOf('.hud-layer .dock') : null, bar: vertical ? rectOf('.hud-layer .topbar') : null },
         vertical,
         fallbackRight,
+        portraitTopInset,
       )
       setIns((p) => (Math.abs(p.right - right) > 3 || Math.abs(p.top - top) > 3 || Math.abs(p.bottom - bottom) > 3 ? { right, top, bottom } : p))
     }
@@ -166,7 +167,7 @@ function useHudInsets(fallbackRight: number, vertical: boolean): Insets {
       window.clearInterval(id)
       window.removeEventListener('resize', read)
     }
-  }, [fallbackRight, vertical])
+  }, [fallbackRight, vertical, portraitTopInset])
   return fallbackRight === 0 && !vertical ? NO_INSETS : ins
 }
 
@@ -180,6 +181,8 @@ export interface StageProps {
   rightInset?: number
   /** Also measure the top bar and bottom dock (case steps), so models fit between them. */
   verticalInsets?: boolean
+  /** Extra room below the top bar for the hub planet on portrait tablets. */
+  portraitTopInset?: number
 }
 
 /**
@@ -210,8 +213,8 @@ function useDocumentHidden(): boolean {
 }
 
 /** Persistent R3F canvas running on WebGPURenderer (WebGL2 fallback). */
-export default function Stage({ children, rightInset = 0, verticalInsets = false, prefetch = false }: StageProps) {
-  const insets = useHudInsets(rightInset, verticalInsets)
+export default function Stage({ children, rightInset = 0, verticalInsets = false, portraitTopInset = 0, prefetch = false }: StageProps) {
+  const insets = useHudInsets(rightInset, verticalInsets, portraitTopInset)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
