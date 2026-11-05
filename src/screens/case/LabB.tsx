@@ -7,6 +7,7 @@ import { useBlip } from '../../ui/useBlip'
 import VitalsStable from '../../ui/VitalsStable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { usePressed } from './usePressed'
+import { choiceArt } from './labToolArt'
 import './briefing-labb.css'
 
 /** "bark (plant covering)" to "bark": the 3D part id. */
@@ -221,6 +222,18 @@ export default function LabB() {
                       <span className="match-name">
                         {done ? <span aria-hidden="true">{'\u2714 '}</span> : null}
                         {cap(p.plant)}
+                        {choiceArt(p.id) ? (
+                          <img
+                            className="match-icon"
+                            src={choiceArt(p.id)}
+                            alt=""
+                            aria-hidden="true"
+                            width={48}
+                            height={48}
+                            draggable={false}
+                            style={{ marginLeft: 8, verticalAlign: 'middle', flex: 'none' }}
+                          />
+                        ) : null}
                       </span>
                       {done ? <span className="match-note">{p.job}</span> : null}
                     </button>

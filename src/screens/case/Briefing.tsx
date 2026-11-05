@@ -84,7 +84,9 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
           </span>
         </header>
         <h1 className="dispatch-title">{cold ? `COLD CASE ${c.codename}` : `CASE ${def.id} ${c.codename}`}</h1>
-        {cold ? null : poster ? (
+        {cold ? null : def.id === '04-1' ? (
+          <BriefingFeed variant="spill-04-1" />
+        ) : poster ? (
           <div className="briefing-poster" data-testid="briefing-poster" aria-hidden="true">
             <img src={poster} alt="" />
           </div>

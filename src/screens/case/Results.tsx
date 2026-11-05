@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import GoldRushButton from '../../ui/GoldRushButton'
 import Burst from '../../ui/Burst'
 import Confetti from '../../ui/Confetti'
+import CaseClosedClip from '../../ui/CaseClosedClip'
 import { STILL } from '../../lib/flags'
 import { content } from '../../content'
 import { navigate } from '../../lib/router'
@@ -88,6 +89,7 @@ export default function Results() {
   return (
     <div className="screen case-screen results-screen rd-screen" data-testid="results">
       <CaseTop step="results" />
+      {closed ? <CaseClosedClip /> : null}
       {closed ? <Confetti /> : null}
       {cold ? <FrostThaw open={!closed} /> : null}
       <main className="results-body" data-reveal={shown ? 'yes' : 'no'}>
