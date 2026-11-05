@@ -192,7 +192,7 @@ export default function Results() {
               <p>
                 Rank: <strong data-testid="results-rank">{rankFor(mastery)}</strong>
               </p>
-              <span className="muted tiny">Codex entries: {codexCount}</span>
+              <span className="muted tiny">Science notebook entries: {codexCount}</span>
             </div>
             <ReportCodePanel intro="Copy this code into Canvas for your teacher. It also lets you resume your mission on another laptop!" />
             {!cold && <GoldRushButton caseId={caseId} />}
