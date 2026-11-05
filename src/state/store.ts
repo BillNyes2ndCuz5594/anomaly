@@ -67,6 +67,8 @@ export interface GameState {
   intel: number
   paints: string[]
   cases: Record<string, CaseStatus>
+  lastCaseId: string | null
+  setLastCaseId: (id: string) => void
   recordItem: (benchmark: string, itemId: string, correct: boolean, date?: string) => RecordOutcome
   unlockCodex: (ids: string[]) => string[]
   addIntel: (n: number) => void
@@ -120,6 +122,8 @@ export const useGame = create<GameState>()(
       intel: 0,
       paints: [],
       cases: {},
+      lastCaseId: null,
+      setLastCaseId: (id) => set({ lastCaseId: id }),
       recordItem: (benchmark, itemId, correct, date = toISODate()) => {
         const st = get()
         const { record, stageUp } = applyResult(st.progress[benchmark] ?? emptyRecord(), correct, date)
@@ -166,11 +170,17 @@ export const useGame = create<GameState>()(
         intel: s.intel,
         paints: s.paints,
         cases: s.cases,
+        lastCaseId: s.lastCaseId,
       }),
       // Fill any setting added in a later version with its default.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GameState>
-        return { ...current, ...p, settings: { ...current.settings, ...(p.settings ?? {}) } }
+        return {
+          ...current,
+          ...p,
+          lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
+          settings: { ...current.settings, ...(p.settings ?? {}) },
+        }
       },
     },
   ),

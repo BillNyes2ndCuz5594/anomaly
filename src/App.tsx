@@ -6,6 +6,8 @@ const loadHub = () => import('./screens/HubScreen')
 const HubScreen = lazy(loadHub)
 import { caseInset } from './screens/case/layout'
 import TitleScreen from './screens/TitleScreen'
+import { caseById } from './content'
+import { caseIdFromRoute } from './state/startChoice'
 
 const CaseScreen = lazy(() => import('./screens/CaseScreen'))
 const SettingsScreen = lazy(() => import('./screens/SettingsScreen'))
@@ -174,6 +176,12 @@ export default function App() {
   }, [route.name, hubReady])
   const hubWaiting = route.name === 'hub' && !hubReady && mode !== 'still' && !hubBooted
   const profile = useGame((s) => s.profile)
+  useEffect(() => {
+    const id = caseIdFromRoute(route)
+    if (id && caseById(id) && profile) {
+      useGame.getState().setLastCaseId(id)
+    }
+  }, [hash, profile])
   const ready = useRuntime((s) => s.backend !== 'none')
   const step = useSession((s) => s.step)
   const caseKind = useSession((s) => s.kind)
