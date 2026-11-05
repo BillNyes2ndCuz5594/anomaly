@@ -14,6 +14,13 @@ import type { MotionMode } from './motionMode'
 import { useMotionMode } from './useMotionMode'
 import './casePreview.css'
 import { LAB_CARD_ART } from './labCardArt'
+import { CASE_ART } from '../screens/hubArt'
+
+/** Hub case markers that already render CASE_ART do not need a floating preview. */
+function hasCaseArt(id: string): boolean {
+  const m = /^case-marker-(.+)$/.exec(id)
+  return Boolean(m && CASE_ART[m[1]])
+}
 
 const CLIP_MEDIA: Record<'cells' | 'creek' | 'frost', { webm: string; mp4: string; poster: string }> = {
   cells: { webm: cellsWebm, mp4: cellsMp4, poster: cellsPoster },
@@ -38,7 +45,8 @@ function targetOf(node: EventTarget | null): { id: PreviewTarget; el: HTMLElemen
   if (!(node instanceof Element)) return null
   const el = node.closest<HTMLElement>('[data-testid]')
   const id = el?.dataset.testid
-  return el && isPreviewTarget(id) ? { id, el } : null
+  if (!el || !isPreviewTarget(id) || hasCaseArt(id)) return null
+  return { id, el }
 }
 
 /**

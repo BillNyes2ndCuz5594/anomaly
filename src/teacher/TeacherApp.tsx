@@ -17,6 +17,7 @@ import {
   type BenchmarkSort,
 } from './analysis'
 import { makeSampleCodes } from './sample'
+import shiftHero from '../assets/teacher/teacher-shift-hero.webp'
 
 // Teacher HQ entry. Must never import three, R3F, or anything from src/three or the game screens.
 // Shares only pure modules: reportCode, the generated catalog, and codename helpers.
@@ -405,6 +406,16 @@ export default function TeacherApp() {
 
   return (
     <main className="teacher" data-testid="teacher-hq">
+      <img
+        src={shiftHero}
+        alt=""
+        aria-hidden="true"
+        width={800}
+        height={240}
+        draggable={false}
+        data-testid="teacher-shift-hero"
+        style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+      />
       <header className="top">
         <div>
           <span className="mono label">ANOMALY // TEACHER HQ</span>

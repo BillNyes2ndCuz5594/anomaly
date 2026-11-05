@@ -10,7 +10,8 @@ import { BASELINE_PRECACHE_BYTES, checkPrecache, MAX_PRECACHE_GROWTH_BYTES, REQU
 describe('checkPrecache and offline verification', () => {
   beforeAll(() => {
     if (!existsSync(resolve('dist/sw.js'))) {
-      execFileSync('node_modules/vite/bin/vite.js', ['build'], { stdio: 'pipe' })
+      // Build as production: vitest sets NODE_ENV=test, which would measure a bigger, non-shipping bundle.
+      execFileSync('node_modules/vite/bin/vite.js', ['build'], { stdio: 'pipe', env: { ...process.env, NODE_ENV: 'production' } })
     }
   }, 30000)
   it('reports missing runtime files and required mode assets', () => {

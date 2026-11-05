@@ -26,6 +26,7 @@ import {
 import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { useCaseDef } from './useCaseDef'
+import { choiceArt } from './labToolArt'
 
 const TITLE: Record<GenericLab['kind'], string> = { sort: 'SORT', match: 'MATCH', order: 'ORDER' }
 const TARGETS_HEAD: Record<GenericLab['kind'], string> = { sort: 'Bins', match: 'Match it to', order: 'Pick the next step' }
@@ -162,6 +163,7 @@ export default function LabGeneric() {
               const count = lab.kind === 'sort' ? Object.values(st.placed).filter((b) => b === t.id).length : 0
               const used = !open
               const id = order ? `slot-${slot}` : t.id
+              const art = lab.kind === 'match' ? choiceArt(t.id) : undefined
               return (
                 <button
                   key={t.id}
@@ -177,9 +179,12 @@ export default function LabGeneric() {
                   onBlur={() => hoverTarget(null)}
                   {...press(t.id, disabled)}
                 >
-                  <span className="target-name">
-                    {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'\u2714 '}</span> : null}
-                    {t.name}
+                  <span className="target-name" style={art ? { display: 'inline-flex', alignItems: 'center', gap: 8 } : undefined}>
+                    {art ? <img className="match-icon" src={art} alt="" aria-hidden="true" width={48} height={48} draggable={false} /> : null}
+                    <span>
+                      {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'\u2714 '}</span> : null}
+                      {t.name}
+                    </span>
                   </span>
                   {t.sub ? <span className="target-sub">{t.sub}</span> : null}
                   {count > 0 ? (

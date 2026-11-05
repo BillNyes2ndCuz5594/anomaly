@@ -1,0 +1,39 @@
+/* Decorative motion clips for Briefing and Results */
+
+.case-closed-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.case-closed-clip img,
+.case-closed-clip video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.case-closed-clip video[data-live='no'] {
+  opacity: 0;
+}
+
+.case-closed-clip video[data-live='yes'] {
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.case-closed-clip video[data-ended='yes'] {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.results-screen .results-body {
+  position: relative;
+  z-index: 1;
+}
