@@ -50,6 +50,38 @@
   box-shadow: inset 0 2px 0 rgba(4, 16, 28, 0.38);
 }
 
+.title-screen .title-actions .title-quick-play {
+  min-width: 280px;
+  min-height: 64px;
+  font-size: 1.35rem;
+  letter-spacing: 0.12em;
+}
+
+.title-screen .title-actions .title-browse {
+  min-width: 280px;
+  min-height: 56px;
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  background: rgba(10, 25, 42, 0.72);
+  color: var(--text-dim);
+  border-color: rgba(62, 230, 255, 0.32);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.title-screen .title-actions .title-browse:hover,
+.title-screen .title-actions .title-browse:focus-visible {
+  background: rgba(14, 34, 56, 0.85);
+  color: var(--text);
+  border-color: rgba(62, 230, 255, 0.55);
+}
+
+.title-screen .title-actions .title-browse:active,
+.title-screen .title-actions .title-browse[data-pressed='yes'] {
+  background: rgba(8, 20, 32, 0.9);
+  color: var(--text);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
 .title-screen .link-btn:active,
 .title-screen .link-btn[data-pressed='yes'],
 .title-screen .link-btn:focus-visible {

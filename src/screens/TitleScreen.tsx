@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
+import { caseById, content, loadPack } from '../content'
 import { navigate } from '../lib/router'
+import { validCaseId } from '../state/startChoice'
 import { useGame } from '../state/store'
 import { armCodenameDecode } from '../ui/decode'
 import FirstRunModal from '../ui/FirstRunModal'
 import Presence from '../ui/Presence'
-import { useMotionMode } from '../ui/useMotionMode'
 import ResumeModal from '../ui/ResumeModal'
+import { useMotionMode } from '../ui/useMotionMode'
+import { playLabel, shortTopic, startDestination, type StartIntent } from './startFlow'
 import './title-hub.css'
 
 function usePressed() {
@@ -24,26 +27,55 @@ function usePressed() {
 export default function TitleScreen() {
   const profile = useGame((s) => s.profile)
   const createProfile = useGame((s) => s.createProfile)
+  const lastCaseId = useGame((s) => s.lastCaseId)
   const [modal, setModal] = useState<'firstrun' | 'resume' | null>(null)
-  const startPress = usePressed()
+  const [intent, setIntent] = useState<StartIntent>('play')
+  const quickPress = usePressed()
+  const browsePress = usePressed()
   const resumePress = usePressed()
+
+  const chosen = validCaseId(lastCaseId, content.cases.map((c) => c.id))
+  const chosenCase = caseById(chosen) ?? content.cases[0]
 
   const mode = useMotionMode()
   const [charging, setCharging] = useState(false)
   const timer = useRef<number | undefined>(undefined)
+  const busy = useRef(false)
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
-  function go() {
-    setCharging(false)
-    if (profile) navigate('/hub')
-    else setModal('firstrun')
+  async function openCase() {
+    if (busy.current) return
+    busy.current = true
+    try {
+      await loadPack(chosen)
+      navigate(startDestination('play', chosen))
+    } catch {
+      navigate('/hub')
+    } finally {
+      busy.current = false
+    }
   }
-  // The 250 ms charge ring finishes before the veil or modal opens (tap, click and keyboard alike). still opens at once.
-  function start() {
-    if (mode === 'still') return go()
+
+  async function go(targetIntent: StartIntent) {
+    setCharging(false)
+    if (profile) {
+      if (targetIntent === 'play') {
+        await openCase()
+      } else {
+        navigate('/hub')
+      }
+    } else {
+      setIntent(targetIntent)
+      setModal('firstrun')
+    }
+  }
+
+  function start(targetIntent: StartIntent) {
+    if (mode === 'still') return go(targetIntent)
     if (charging) return
+    setIntent(targetIntent)
     setCharging(true)
-    timer.current = window.setTimeout(go, 250)
+    timer.current = window.setTimeout(() => go(targetIntent), 250)
   }
 
   return (
@@ -57,45 +89,66 @@ export default function TitleScreen() {
 
       <div className="title-bottom">
         <h1 className="sr-only">ANOMALY</h1>
-        <p className="tagline">Science Response Unit</p>
+        <p className="tagline">Solve science mysteries.</p>
         <div className="title-actions">
           <button
             type="button"
-            className="btn primary big"
-            data-testid="start-shift"
-            data-pressed={startPress.pressed ? 'yes' : 'no'}
-            data-charging={charging ? 'yes' : 'no'}
-            onClick={start}
-            {...startPress.bind}
+            className="btn primary big title-quick-play"
+            data-testid="title-quick-play"
+            data-pressed={quickPress.pressed ? 'yes' : 'no'}
+            data-charging={charging && intent === 'play' ? 'yes' : 'no'}
+            onClick={() => start('play')}
+            {...quickPress.bind}
           >
-            Start shift
+            {playLabel(chosenCase)}
+          </button>
+          <button
+            type="button"
+            className="btn big title-browse"
+            data-testid="start-shift"
+            data-pressed={browsePress.pressed ? 'yes' : 'no'}
+            data-charging={charging && intent === 'browse' ? 'yes' : 'no'}
+            onClick={() => start('browse')}
+            {...browsePress.bind}
+          >
+            Choose a unit
           </button>
           <button
             type="button"
             className="link-btn"
             data-testid="resume-code"
             data-pressed={resumePress.pressed ? 'yes' : 'no'}
-            onClick={() => setModal('resume')}
+            onClick={() => {
+              window.clearTimeout(timer.current)
+              setCharging(false)
+              setModal('resume')
+            }}
             {...resumePress.bind}
           >
-            Resume with code
+            Use a saved code
           </button>
         </div>
         {profile ? (
           <p className="muted small-print" data-testid="title-agent">
-            Signed in as {profile.codename}
+            Playing as {profile.codename}
           </p>
         ) : null}
       </div>
 
       <Presence show={modal === 'firstrun'}>
         <FirstRunModal
+          playIntent={intent === 'play'}
+          topic={shortTopic(chosenCase.unitLabel)}
           onCancel={() => setModal(null)}
-          onConfirm={(n, code) => {
+          onConfirm={async (n, code) => {
             createProfile(n, code)
             armCodenameDecode()
             setModal(null)
-            navigate('/hub')
+            if (intent === 'play') {
+              await openCase()
+            } else {
+              navigate('/hub')
+            }
           }}
         />
       </Presence>
