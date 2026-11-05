@@ -59,6 +59,7 @@ describe('modeAssets', () => {
 
   it('checks mode asset existence correctly', () => {
     expect(checkModeAssetExists('art/modes/containment-title.webp')).toBe(true)
+    expect(checkModeAssetExists('art/modes/reactor-title.webp')).toBe(true)
     expect(checkModeAssetExists('art/modes/nonexistent-mode-asset-xyz.webp')).toBe(false)
     expect(checkModeAssetExists('fonts/AtkinsonHyperlegible-Regular.woff2')).toBe(true)
   })
