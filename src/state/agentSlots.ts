@@ -15,7 +15,6 @@ export interface AgentSlotSnapshot {
   paints: string[]
   cases: Record<string, CaseStatus>
   lastCaseId: string | null
-  activePaint?: string | null
 }
 
 export function agentSlotKey(agentNumber: number, classCode: string): string {
@@ -101,6 +100,19 @@ export function saveCurrentAgent(storage?: StorageLike | { setItem(k: string, v:
   }
 }
 
+/**
+ * sessionStorage key prefixes that hold one agent's in-flight work: case checkpoints and the practice
+ * mode sessions (Gold Rush, Containment, Reactor). All of them are cleared when the agent changes.
+ * Deploy recovery keys such as `anomaly.chunkReloadAt` must not match any of these.
+ */
+export const AGENT_SESSION_PREFIXES: readonly string[] = [
+  'anomaly.case.',
+  'anomaly.checkpoint.',
+  'anomaly:gold:',
+  'anomaly:containment:',
+  'anomaly:reactor:',
+]
+
 export function clearOpenCheckpoints(
   sessionStore?: { removeItem(k: string): void; length?: number; key?(i: number): string | null } | null,
 ): void {
@@ -111,7 +123,7 @@ export function clearOpenCheckpoints(
       const toRemove: string[] = []
       for (let i = 0; i < store.length; i++) {
         const k = store.key(i)
-        if (k && (k.startsWith('anomaly.case.') || k.startsWith('anomaly.checkpoint.'))) {
+        if (k && AGENT_SESSION_PREFIXES.some((prefix) => k.startsWith(prefix))) {
           toRemove.push(k)
         }
       }

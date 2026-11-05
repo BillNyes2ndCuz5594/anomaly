@@ -207,8 +207,14 @@ try {
         localStorage.setItem('anomaly.v1', JSON.stringify(raw))
       }
       const today = new Date().toDateString()
+      // Checkpoints are owned by an agent (see caseResumeOwner): stamp it the way the game does.
+      const prof = raw?.state?.profile
+      const owner = prof
+        ? `${String(prof.classCode).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)}|${Math.min(40, Math.max(1, Math.round(prof.agentNumber)))}`
+        : 'none'
       sessionStorage.setItem(`anomaly.case.case.${caseId}`, JSON.stringify({
         v: 1,
+        owner,
         day: today,
         kind: 'case',
         caseId,

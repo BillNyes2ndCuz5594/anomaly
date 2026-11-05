@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createJSONStorage } from 'zustand/middleware'
 import {
+  AGENT_SESSION_PREFIXES,
   agentSlotKey,
   clearOpenCheckpoints,
   loadAgentSlot,
@@ -9,6 +10,9 @@ import {
   switchToAgent,
   type AgentSlotSnapshot,
 } from './agentSlots'
+import { goldStorageKey } from '../modes/gold/goldRush'
+import { modeSessionKey } from '../modes/quick/modeSession'
+import { caseResumeKey } from './caseResume'
 import { applyReport } from './reportApply'
 import { emptyRecord } from './mastery'
 import { makeProfile, STORAGE_KEY, useGame } from './store'
@@ -187,6 +191,31 @@ describe('agentSlots', () => {
     expect(fakeSession.getItem('anomaly.case.case.03-1')).toBeNull()
     expect(fakeSession.getItem('anomaly.checkpoint.03-1')).toBeNull()
     expect(fakeSession.getItem('unrelated.key')).toBe('keep-me')
+  })
+
+  it('clears every session key family on an agent switch but keeps deploy recovery', () => {
+    useGame.getState().createProfile(14, 'DEMO')
+
+    const agentKeys = [
+      caseResumeKey('case', '03-1'),
+      caseResumeKey('cold', 'cold-1'),
+      'anomaly.checkpoint.03-1',
+      goldStorageKey('02-2'),
+      modeSessionKey('containment', '02-2'),
+      modeSessionKey('reactor', '02-2'),
+    ]
+    for (const k of agentKeys) {
+      expect(AGENT_SESSION_PREFIXES.some((p) => k.startsWith(p))).toBe(true)
+      sessionStorage.setItem(k, '{}')
+    }
+    sessionStorage.setItem('anomaly.chunkReloadAt', '12345')
+    sessionStorage.setItem('unrelated.key', 'keep-me')
+
+    switchToAgent(20, 'DEMO')
+
+    for (const k of agentKeys) expect(sessionStorage.getItem(k)).toBeNull()
+    expect(sessionStorage.getItem('anomaly.chunkReloadAt')).toBe('12345')
+    expect(sessionStorage.getItem('unrelated.key')).toBe('keep-me')
   })
 
   it('migrates existing stored player during initial store hydration and completes hasHydrated', async () => {

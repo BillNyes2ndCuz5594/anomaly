@@ -34,6 +34,7 @@ export default function TitleScreen() {
   const quickPress = usePressed()
   const browsePress = usePressed()
   const resumePress = usePressed()
+  const newAgentRef = useRef<HTMLButtonElement>(null)
 
   const chosen = validCaseId(lastCaseId, content.cases.map((c) => c.id))
   const chosenCase = caseById(chosen) ?? content.cases[0]
@@ -54,6 +55,11 @@ export default function TitleScreen() {
   useEffect(() => () => {
     cancelPendingNavigation()
   }, [])
+
+  function focusNewAgent() {
+    newAgentRef.current?.focus()
+    window.setTimeout(() => newAgentRef.current?.focus(), 0)
+  }
 
   async function openCase() {
     if (busy.current) return
@@ -158,7 +164,9 @@ export default function TitleScreen() {
             Playing as {profile.codename}{' '}
             <button
               type="button"
+              ref={newAgentRef}
               className="link-btn"
+              style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
               data-testid="new-agent"
               onClick={() => {
                 cancelPendingNavigation()
@@ -188,9 +196,11 @@ export default function TitleScreen() {
         <FirstRunModal
           playIntent={intent === 'play'}
           topic={shortTopic(chosenCase.unitLabel)}
+          startEmpty={profile !== null}
           onCancel={() => {
             cancelPendingNavigation()
             setModal(null)
+            focusNewAgent()
           }}
           onConfirm={async (n, code) => {
             createProfile(n, code)
