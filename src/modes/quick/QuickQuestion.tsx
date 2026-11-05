@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import type { Item } from '../../content/schema'
 import { useReadAloud } from '../../lib/speech'
 import ItemVisual from '../../screens/case/ItemVisual'
+import { cleanWhy } from '../../screens/case/resultsDebrief'
 import { cleanFeedback, createQuickAnswer, keyToOptionIndex, toSentenceCase, type QuickAnswer } from './quickAnswer'
 import './quick.css'
 
@@ -95,8 +96,8 @@ function QuestionBody({ item, onAnswer, ariaLive = true }: QuickQuestionProps) {
       </div>
       <p {...(ariaLive ? { role: 'status', 'aria-live': 'polite' } : { 'aria-live': 'off' })}>
         {result && cleanFeedback(result.correct
-          ? `✓ Correct. ${item.why[item.key]}`
-          : `Not quite. Correct answer: ${'ABCD'[item.key]}. ${toSentenceCase(item.options[item.key])}. ${item.why[item.key]}`
+          ? `✓ Correct. ${cleanWhy(item.why[item.key])}`
+          : `Good try, Agent! The right answer is ${'ABCD'[item.key]} (${toSentenceCase(item.options[item.key])}). ${cleanWhy(item.why[item.key])}`
         )}
       </p>
     </section>

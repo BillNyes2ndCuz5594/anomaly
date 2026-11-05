@@ -47,7 +47,7 @@ export default function ReportCodePanel({ intro }: { intro?: string }) {
         {code}
       </code>
       <span className="muted tiny copy-status" role="status" data-testid="copy-status">
-        {state === 'copied' ? 'Copied. Paste it into Canvas.' : state === 'selected' ? 'Selected. Press Ctrl+C.' : ''}
+        {state === 'copied' ? 'Copied! Paste it into Canvas for your teacher.' : state === 'selected' ? 'Selected! Press Ctrl+C to copy.' : ''}
       </span>
     </div>
   )

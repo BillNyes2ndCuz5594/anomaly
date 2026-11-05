@@ -220,10 +220,10 @@ export default function HubScreen() {
               sub={
                 due ? (
                   <>
-                    <span aria-hidden="true">{'\u25CF'}</span> <strong>Review due</strong> | earlier units
+                    <span aria-hidden="true">{'\u25CF'}</span> <strong>Review due</strong> | earlier missions
                   </>
                 ) : (
-                  'Review of earlier units'
+                  'Revisit clues from earlier missions'
                 )
               }
             />
@@ -284,7 +284,7 @@ export default function HubScreen() {
           CODEX <span className="muted" data-testid="codex-count">{codex.length} unlocked</span>
         </summary>
         {codex.length === 0 ? (
-          <p className="muted">Nothing logged yet. Correct answers and finished labs add entries.</p>
+          <p className="muted">Your Codex is waiting for its first clue! Solve questions and finish Field Labs to unlock entries here.</p>
         ) : (
           <ul className="codex-list">
             {codex.map((id) => {

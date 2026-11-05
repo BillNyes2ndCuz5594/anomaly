@@ -60,7 +60,11 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const submitted = useRef(false)
   const admit = useTapGuard()
   const locked = result !== null
-  useAnnounce(result ? `${result.correct ? 'Correct' : 'Not quite'}. ${result.correct ? 'Locked in.' : `The key was ${LETTERS[item.key]}.`} Intel earned: ${result.intel}` : '')
+  useAnnounce(
+    result
+      ? `${result.correct ? 'Correct' : 'Not quite'}. ${result.correct ? 'Nice catch, Agent!' : `Good try! The best match was ${LETTERS[item.key]}.`} You earned ${result.intel} Intel!`
+      : '',
+  )
 
   // Read aloud: stem first, then the four options.
   const spoken = useMemo(() => {
@@ -118,7 +122,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       setAttempted(true)
       if (i === item.key) {
         setHints((h) => h + 1)
-        setMsg('Careful. Check that one again.')
+        setMsg('Careful. Check that one again, Agent!')
         return
       }
       setMsg(null)
@@ -315,7 +319,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
             })}
           </p>
           <div className="stem-foot">
-            <span className="muted tiny">Tap words to tag key words. Real key words earn Intel.</span>
+            <span className="muted tiny">Tap words to tag key clues. Clue words earn bonus Intel!</span>
             {toast ? (
               <span className="intel-toast mono" role="status" data-testid="intel-toast">
                 {toast}
@@ -385,7 +389,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
               <div>
                 <strong className="mono verdict-word">{result.correct ? 'Correct' : 'Not quite'}</strong>
                 <p className="muted">
-                  {result.correct ? 'Locked in. ' : `The key was ${LETTERS[item.key]}. `}Intel earned: {result.intel}
+                  {result.correct ? 'Nice catch, Agent! ' : `Good try! The best match was ${LETTERS[item.key]}. `}You earned {result.intel} Intel!
                 </p>
               </div>
             </div>
