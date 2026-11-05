@@ -73,7 +73,7 @@ function SkySun({ x, y, r }: { x: number; y: number; r: number }) {
 }
 
 /** The painted coast (ocean, beach, lake, river, glacier) shared by the two water scenes. */
-function Plate() {
+export function Plate() {
   return <image href={coastUrl} x={PLATE.x} y={PLATE.y} width={PLATE.w} height={PLATE.h} preserveAspectRatio="none" />
 }
 
@@ -166,7 +166,7 @@ function Rain({ xs, y, h }: { xs: number[]; y: number; h: number }) {
 }
 
 /** Painted water cycle: evaporation off the sea, condensation into the cloud, rain on the hills, runoff back. */
-function WaterCycleArt() {
+export function WaterCycleArt() {
   return (
     <>
       <Plate />
@@ -187,7 +187,7 @@ function WaterCycleArt() {
 }
 
 /** Painted coast for evaporation: vapor rises off the sea and the lake in the Sun. */
-function OceanEvaporationArt() {
+export function OceanEvaporationArt() {
   return (
     <>
       <Plate />
@@ -297,7 +297,7 @@ const INNER = [
 ]
 const OUTER = [
   { x: 244, r: 27, fill: '#d8b07a', bands: true, ring: false },
-  { x: 298, r: 22, fill: '#e6d29a', bands: false, ring: true },
+  { x: 298, r: 17, fill: '#e6d29a', bands: false, ring: true },
   { x: 342, r: 16, fill: '#8ad0e6', bands: false, ring: false },
   { x: 380, r: 15, fill: '#3b5fd0', bands: false, ring: false },
 ]
@@ -316,7 +316,7 @@ function InnerOuter({ art }: { art: boolean }) {
         </>
       )}
       {INNER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} art={art} />)}
-      {OUTER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} ring={p.ring} bands={p.bands} art={art} />)}
+      {OUTER.map((p) => <Planet key={p.x} x={p.x} y={104} r={p.r} fill={p.fill} ring={p.ring} bands={p.bands} art={art && !p.ring} />)}
       <path d="M86 148 v8 h116 v-8" fill="none" stroke={CY} strokeWidth="2" />
       <path d="M216 148 v8 h176 v-8" fill="none" stroke={AM} strokeWidth="2" />
     </>
@@ -427,7 +427,7 @@ function AsteroidBelt({ art }: { art: boolean }) {
         ? dots.map((d, i) => <path key={i} d={rock(d.x, d.y, d.r * 1.15, i)} fill={i % 3 ? '#a89f94' : '#7f776e'} stroke="#3b362f" strokeWidth="0.5" />)
         : dots.map((d, i) => <circle key={i} cx={d.x} cy={d.y} r={d.r} fill={i % 3 ? '#b5aca2' : '#8f877e'} />)}
       <Planet x={286} y={110} r={24} fill="#d8b07a" bands art={art} />
-      <Planet x={346} y={110} r={19} fill="#e6d29a" ring art={art} />
+      <Planet x={346} y={110} r={17} fill="#e6d29a" ring art={false} />
       <Planet x={388} y={110} r={11} fill="#8ad0e6" art={art} />
     </>
   )
@@ -437,7 +437,7 @@ function AsteroidBelt({ art }: { art: boolean }) {
 const POT = { w: 78, h: 78 * (595 / 300), top: 22 }
 const POT_SOIL = POT.top + POT.h * (330 / 595)
 
-function PlantPotsArt({ labels }: { labels: Labels }) {
+export function PlantPotsArt({ labels }: { labels: Labels }) {
   const pot = (cx: number, deco: 'warm' | 'cool' | null, extra: { food: boolean; water: boolean }, flip: boolean) => (
     <g key={cx}>
       <image
@@ -576,10 +576,10 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
   let body: ReactNode
   switch (id) {
     case 'water-cycle':
-      body = art ? <WaterCycleArt /> : <WaterCycle />
+      body = <WaterCycle />
       break
     case 'ocean-evaporation':
-      body = art ? <OceanEvaporationArt /> : <OceanEvaporation />
+      body = <OceanEvaporation />
       break
     case 'solar-system':
       body = <SolarRow labels={labels} art={art} />
@@ -594,7 +594,7 @@ export default function SceneDiagram({ id, labels }: { id: string; labels: strin
       body = <AsteroidBelt art={art} />
       break
     case 'plant-pots':
-      body = art ? <PlantPotsArt labels={labels} /> : <PlantPots labels={labels} />
+      body = <PlantPots labels={labels} />
       break
     default: {
       const Body = S7_DIAGRAMS[id]

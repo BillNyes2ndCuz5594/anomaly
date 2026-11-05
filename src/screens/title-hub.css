@@ -208,6 +208,20 @@
   color: #2fe3b0;
 }
 
+/* Replaced agent-badge-foil.webp with clean CSS hologram sheen */
+.hub-screen .agent-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(62, 230, 255, 0.16) 0%, rgba(255, 181, 71, 0.12) 48%, rgba(62, 230, 255, 0.04) 100%);
+}
+
+.hub-screen .agent-head .agent-foil {
+  display: none;
+}
+
 .hub-screen .mastery-groups {
   display: flex;
   flex-direction: column;
