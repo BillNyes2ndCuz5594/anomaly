@@ -11,7 +11,7 @@ function fakeStorage() {
 }
 
 const sampleState: CaseResume = {
-  v: 1, day: new Date().toDateString(), kind: 'case', caseId: '03-1', step: 'items',
+  v: 1, owner: 'none', day: new Date().toDateString(), kind: 'case', caseId: '03-1', step: 'items',
   itemIds: ['item-1', 'item-2'], itemIndex: 1,
   answers: [{ itemId: 'item-1', picked: 0, correct: true, keyTagged: 0, eliminated: 0, hintsUsed: 0, intel: 10 }],
   benchmarks: ['SC.5.L.14.1'], stagesBefore: { 'SC.5.L.14.1': 'unseen' }, stageUps: 1, paint: null,
@@ -27,6 +27,17 @@ describe('caseResume', () => {
     const storage = fakeStorage()
     saveCaseResume(storage, sampleState)
     expect(loadCaseResume(storage, 'case', '03-1')).toEqual(sampleState)
+  })
+
+  it('ignores a checkpoint written by a different agent or with no owner', () => {
+    const storage = fakeStorage()
+    saveCaseResume(storage, { ...sampleState, owner: 'ROOM7|3' })
+    expect(loadCaseResume(storage, 'case', '03-1', 'ROOM7|4')).toBeNull()
+    expect(loadCaseResume(storage, 'case', '03-1', 'ROOM7|3')).not.toBeNull()
+    const { owner: _owner, ...legacy } = sampleState
+    void _owner
+    storage.setItem(caseResumeKey('case', '03-1'), JSON.stringify(legacy))
+    expect(loadCaseResume(storage, 'case', '03-1')).toBeNull()
   })
 
   it('rejects bad JSON, wrong day, and mismatched case/kind', () => {

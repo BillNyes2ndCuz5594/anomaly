@@ -1,7 +1,11 @@
+import { clampAgentNumber, sanitizeClassCode } from '../lib/codename'
 import type { AnswerRecord, CaseKind, CaseStep } from './session'
+import { useGame } from './store'
 
 export interface CaseResume {
   v: 1
+  /** Which agent wrote this checkpoint (see caseResumeOwner). Checkpoints without a matching owner are ignored. */
+  owner: string
   day: string
   kind: CaseKind
   caseId: string
@@ -19,6 +23,14 @@ export function caseResumeKey(kind: string, caseId: string): string {
   return `anomaly.case.${kind}.${caseId}`
 }
 
+/** Owner stamp from the sanitized class code and agent number. Defaults to the profile in the game store. */
+export function caseResumeOwner(
+  profile: { classCode: string; agentNumber: number } | null = useGame.getState().profile,
+): string {
+  if (!profile) return 'none'
+  return `${sanitizeClassCode(profile.classCode)}|${clampAgentNumber(profile.agentNumber)}`
+}
+
 function isAnswerRecord(a: unknown): a is AnswerRecord {
   if (!a || typeof a !== 'object') return false
   const r = a as Record<string, unknown>
@@ -28,13 +40,19 @@ function isAnswerRecord(a: unknown): a is AnswerRecord {
   )
 }
 
-export function loadCaseResume(storage: { getItem(k: string): string | null }, kind: CaseKind, caseId: string): CaseResume | null {
+export function loadCaseResume(
+  storage: { getItem(k: string): string | null },
+  kind: CaseKind,
+  caseId: string,
+  owner: string = caseResumeOwner(),
+): CaseResume | null {
   try {
     const raw = storage.getItem(caseResumeKey(kind, caseId))
     if (!raw) return null
     const s = JSON.parse(raw)
     if (!s || typeof s !== 'object' || Array.isArray(s)) return null
     if (s.v !== 1 || s.day !== new Date().toDateString() || s.kind !== kind || s.caseId !== caseId) return null
+    if (typeof s.owner !== 'string' || s.owner !== owner) return null
     if (typeof s.step !== 'string' || typeof s.stageUps !== 'number' || (s.paint !== null && typeof s.paint !== 'string')) return null
     if (typeof s.itemIndex !== 'number' || !Number.isInteger(s.itemIndex) || s.itemIndex < 0) return null
     if (!Array.isArray(s.itemIds) || !s.itemIds.every((id: unknown) => typeof id === 'string')) return null

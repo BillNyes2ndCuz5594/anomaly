@@ -214,3 +214,30 @@ export const useGame = create<GameState>()(
     },
   ),
 )
+
+/** True when a stored game blob names a different agent than `current`. Unreadable blobs never differ. */
+export function storedProfileDiffers(raw: string, current: Profile | null): boolean {
+  let stored: unknown
+  try {
+    stored = JSON.parse(raw)?.state?.profile
+  } catch {
+    return false
+  }
+  if (stored === null) return current !== null
+  if (!stored || typeof stored !== 'object') return false
+  const p = stored as Partial<Profile>
+  if (typeof p.agentNumber !== 'number' || typeof p.classCode !== 'string') return false
+  return !current || current.agentNumber !== p.agentNumber || current.classCode !== p.classCode
+}
+
+/**
+ * Another tab changed the saved game. If it switched agents, adopt that agent here so this
+ * (stale) tab never writes the old agent over the newer one.
+ */
+export function handleGameStorageEvent(
+  e: { key: string | null; newValue: string | null },
+  adopt: () => void = () => void useGame.persist.rehydrate(),
+): void {
+  if (e.key !== STORAGE_KEY || e.newValue === null) return
+  if (storedProfileDiffers(e.newValue, useGame.getState().profile)) adopt()
+}

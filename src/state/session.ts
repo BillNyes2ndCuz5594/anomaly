@@ -5,7 +5,7 @@ import { caseById, content, packLoaded, PACK_ORDER, vitalsCase } from '../conten
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
-import { clearCaseResume as clearStorageResume, loadCaseResume, saveCaseResume } from './caseResume'
+import { caseResumeOwner, clearCaseResume as clearStorageResume, loadCaseResume, saveCaseResume } from './caseResume'
 import { toISODate } from './mastery'
 import { useGame } from './store'
 
@@ -108,6 +108,7 @@ function persist(s: SessionState) {
   if (s.step === 'briefing' && s.answers.length === 0) return
   saveCaseResume(sessionStorage, {
     v: 1,
+    owner: caseResumeOwner(),
     day: new Date().toDateString(),
     kind: s.kind,
     caseId: s.caseId,

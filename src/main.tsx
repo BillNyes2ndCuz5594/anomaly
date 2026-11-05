@@ -4,6 +4,7 @@ import { installGameAudio } from './audio/installGame'
 import './index.css'
 import './ui/motion.css'
 import App from './App.tsx'
+import { installStorageSync } from './state/storageSync'
 import { reloadForNewDeploy } from './three/recovery'
 
 installGameAudio()
@@ -13,6 +14,7 @@ window.addEventListener('vite:preloadError', (e) => {
   if (reloadForNewDeploy()) e.preventDefault()
 })
 
+installStorageSync()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
