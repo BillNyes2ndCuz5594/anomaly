@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import type { Item } from '../../content/schema'
 import { findKeyPhrases, gradeChoice, tokenizeStem } from '../../lib/rkea'
 import { wordAt, useReadAloud } from '../../lib/speech'
+import { buildQuestionSpeech } from './questionAccess'
 import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
@@ -69,24 +70,8 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       : '',
   )
 
-  // Read aloud: stem first, then the four options.
-  const spoken = useMemo(() => {
-    const stemText = tokens.join(' ')
-    const stemStarts: number[] = []
-    let off = 0
-    tokens.forEach((t) => {
-      stemStarts.push(off)
-      off += t.length + 1
-    })
-    let text = stemText
-    const optStarts: number[] = []
-    item.options.forEach((o, i) => {
-      text += ' '
-      optStarts.push(text.length)
-      text += `${LETTERS[i]}. ${o}.`
-    })
-    return { text, stemStarts, optStarts, stemLen: stemText.length }
-  }, [tokens, item.options])
+  // Read aloud: stem first, visual data / alt text, then answer options.
+  const spoken = useMemo(() => buildQuestionSpeech(item, tokens), [item, tokens])
   const ra = useReadAloud(spoken.text, () => setReadUsed(true))
   const at = ra.speaking && ra.charIndex >= 0 ? ra.charIndex : -1
   const speakingWord = at >= 0 && at < spoken.stemLen + 1 ? wordAt(spoken.stemStarts, at) : -1
@@ -194,7 +179,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       const onWord = el?.classList?.contains('word') ?? false
       const onButton = tag === 'BUTTON'
       const k = e.key.toLowerCase()
-      if (onWord && (k.startsWith('arrow') || k === 'home' || k === 'end')) return
+      if (onWord && (k.startsWith('arrow') || k === 'home' || k === 'end' || k === ' ' || k === 'enter')) return
       if (L.locked) {
         if (e.key === 'Enter' && !onButton) {
           e.preventDefault()
@@ -211,7 +196,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       } else if (k === 'x' && rules.canEliminate) {
         e.preventDefault()
         setElim((v) => !v)
-      } else if (k === ' ' && (!onButton || onOption)) {
+      } else if (k === ' ' && !onButton) {
         e.preventDefault()
         if (L.ra.speaking) L.ra.stop()
         else L.ra.start()
@@ -219,8 +204,13 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         if (onOption) {
           e.preventDefault()
           const i = Number(tid.slice(7))
-          if (L.selected === i) L.lockIn()
-          else L.choose(i)
+          if (L.elim) {
+            L.choose(i)
+          } else if (L.selected === i) {
+            L.lockIn()
+          } else {
+            L.choose(i)
+          }
         } else if (!onButton) {
           e.preventDefault()
           L.lockIn()
@@ -248,10 +238,9 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     return out
   }, [tokens, phrases, phraseOf])
 
-  const anyTagged = tagged.size > 0
   const chips = [
     { k: 'R', label: 'Read', on: readUsed },
-    { k: 'K', label: 'Key words', on: anyTagged },
+    { k: 'K', label: 'Key words', on: earnedPhrases.size > 0 },
     ...(rules.canEliminate ? [{ k: 'E', label: 'Eliminate', on: attemptedStrike }] : []),
     { k: 'A', label: 'Answer', on: selected !== null || locked },
   ]
@@ -283,6 +272,14 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
             ))}
           </ol>
         </div>
+
+        {index === 0 ? (
+          <aside className="panel first-question-guide" data-testid="first-question-guide" aria-label="First question guide">
+            <p>Read the question. Tap clue words if they help. Choose an answer, then Lock in.</p>
+            <p>Intel is bonus points for finding evidence.</p>
+            <p className="tiny muted">Keyboard: Tab to an answer and press Enter. On a clue word, Space or Enter marks it.</p>
+          </aside>
+        ) : null}
 
         <div className="panel brackets stem-panel">
           <p
@@ -333,6 +330,11 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
         </div>
       {createPortal(
         <div className="panel brackets options-panel">
+          {elim && rules.canEliminate ? (
+            <div className="crossout-status mono tiny amber" data-testid="crossout-status" role="status">
+              Tap an answer to cross it out.
+            </div>
+          ) : null}
           <div role="group" aria-label="Answer options" className="options" data-verdict={result ? (result.correct ? 'ok' : 'bad') : undefined}>
             {item.options.map((o, i) => {
               const isStruck = struck.has(i)
@@ -362,6 +364,10 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                       <span className="opt-mark mono" data-testid={`mark-${i}`}>
                         <span aria-hidden="true">{isKey ? '\u2714' : '\u2716'}</span> {isKey ? 'Correct' : picked ? 'Your pick' : 'Rule out'}
                         {isKey && picked ? ' (your pick)' : ''}
+                      </span>
+                    ) : isStruck ? (
+                      <span className="opt-mark mono" data-testid={`struck-mark-${i}`}>
+                        <span aria-hidden="true">{'\u2716'}</span> Crossed out
                       </span>
                     ) : isSel ? (
                       <span className="opt-mark mono">
@@ -406,11 +412,11 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
                   <button
                     type="button"
                     className={`btn${elim ? ' on' : ''}`}
-                    data-testid="eliminate-toggle"
+                    data-testid="crossout-toggle"
                     aria-pressed={elim}
                     onClick={() => setElim((v) => !v)}
                   >
-                    <span aria-hidden="true">{'\u2716'}</span> Eliminate {elim ? 'on' : 'off'}
+                    <span aria-hidden="true">{'\u2716'}</span> {elim ? 'Done crossing out' : 'Cross out an answer'}
                   </button>
                 ) : null}
                 <button type="button" className="btn" data-testid="read-aloud" aria-pressed={ra.speaking} onClick={() => (ra.speaking ? ra.stop() : ra.start())}>
@@ -439,7 +445,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
           {!locked ? (
             <p className="muted tiny kbd-hint">
               {rules.canEliminate
-                ? 'Keys: 1-4 or A-D choose, X eliminate, Space read aloud, Enter lock in.'
+                ? 'Keys: 1-4 or A-D choose, X cross out, Space read aloud, Enter lock in.'
                 : 'Keys: 1-4 or A-D choose, Space read aloud, Enter lock in.'}
             </p>
           ) : null}
