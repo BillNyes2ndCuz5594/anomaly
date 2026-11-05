@@ -121,10 +121,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: water vapor is a gas, snow is a solid, and melted snow in the river is a liquid.",
-        "Decoy: the water starts as water vapor, which is a gas, not a liquid.",
-        "Decoy: the snow comes second in the story, after the water vapor.",
-        "Decoy: snow is frozen water, so one of the states must be a solid."
+        "Water vapor is a gas, snow is a solid, and melted snow in the river is a liquid.",
+        "The water starts as water vapor, which is a gas, not a liquid.",
+        "The snow comes second in the story, after the water vapor.",
+        "Snow is frozen water, so one of the states must be a solid."
       ],
       "keyWords": [
         "water vapor",
@@ -196,10 +196,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: rivers flow downhill toward the ocean, not away from it.",
-        "Correct: most water vapor comes from the ocean, and winds carry the clouds over land where the rain falls.",
-        "Decoy: lakes add some water vapor, but the ocean gives far more.",
-        "Decoy: Earth's water is used over and over, and the ocean does not make new water."
+        "Rivers flow downhill toward the ocean, not away from it.",
+        "Most water vapor comes from the ocean, and winds carry the clouds over land where the rain falls.",
+        "Lakes add some water vapor, but the ocean gives far more.",
+        "Earth's water is used over and over, and the ocean does not make new water."
       ],
       "keyWords": [
         "far from any beach",
@@ -234,10 +234,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: the Sun heats the water, and the heat changes liquid water into water vapor.",
-        "Decoy: the Moon's pull moves the tides, but it does not make water evaporate.",
-        "Decoy: cold air slows evaporation instead of causing it.",
-        "Decoy: salt stays behind in the ocean and does not give water the energy to evaporate."
+        "The Sun heats the water, and the heat changes liquid water into water vapor.",
+        "The Moon's pull moves the tides, but it does not make water evaporate.",
+        "Cold air slows evaporation instead of causing it.",
+        "Salt stays behind in the ocean and does not give water the energy to evaporate."
       ],
       "keyWords": [
         "water vapor",
@@ -420,10 +420,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: tropical places near the equator are warm all year and often get heavy rain.",
-        "Decoy: very cold temperatures all year describe the polar zone.",
-        "Decoy: warm summers and cold winters describe the temperate zone.",
-        "Decoy: many tropical places, such as rainforests, get a lot of rain."
+        "Tropical places near the equator are warm all year and often get heavy rain.",
+        "Very cold temperatures all year describe the polar zone.",
+        "Warm summers and cold winters describe the temperate zone.",
+        "Many tropical places, such as rainforests, get a lot of rain."
       ],
       "keyWords": [
         "temperatures and rainfall",
@@ -519,10 +519,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: rain is liquid water, not lumps of ice.",
-        "Decoy: snow is soft ice crystals that fall when the air is cold all the way down.",
-        "Decoy: sleet is small ice pellets that fall in cold weather, not big lumps in a summer storm.",
-        "Correct: hail is lumps of ice that grow inside tall thunderstorm clouds and can fall even in summer."
+        "Rain is liquid water, not lumps of ice.",
+        "Snow is soft ice crystals that fall when the air is cold all the way down.",
+        "Sleet is small ice pellets that fall in cold weather, not big lumps in a summer storm.",
+        "Hail is lumps of ice that grow inside tall thunderstorm clouds and can fall even in summer."
       ],
       "keyWords": [
         "strong summer thunderstorm",
@@ -558,10 +558,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: snow could form in Monday's cold cloud, but 10°C (50°F) air near the ground would melt it into rain.",
-        "Correct: the air was below freezing both in the cloud and near the ground, so snow could fall without melting.",
-        "Decoy: Wednesday's air was above freezing everywhere, so the precipitation was rain.",
-        "Decoy: Thursday's air was warm everywhere, so the precipitation was rain."
+        "Snow could form in Monday's cold cloud, but 10°C (50°F) air near the ground would melt it into rain.",
+        "The air was below freezing both in the cloud and near the ground, so snow could fall without melting.",
+        "Wednesday's air was above freezing everywhere, so the precipitation was rain.",
+        "Thursday's air was warm everywhere, so the precipitation was rain."
       ],
       "keyWords": [
         "inside a cloud",

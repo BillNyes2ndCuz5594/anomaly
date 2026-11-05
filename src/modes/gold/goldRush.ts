@@ -24,7 +24,7 @@ export function startGold(seed: string): GoldRush {
 }
 export function answerGold(s: GoldRush, correct: boolean): GoldRush {
   if (s.phase !== 'question') return s
-  return { ...s, phase: correct ? 'crate' : 'next', outcome: correct ? 'Nice catch, Agent! The vault is open. Pick a crate!' : 'So close! That crate stayed locked. Let us try the next question!',
+  return { ...s, phase: correct ? 'crate' : 'next', outcome: correct ? 'Nice catch, Agent! The vault is open. Pick a crate!' : "So close! That crate stayed locked. Let's try the next question!",
     bots: s.bots.map((bot, i) => ({ ...bot, intel: bot.intel + Math.floor(seeded(s.seed, `bot:${s.question}:${i}`) * 9) + 2 })) }
 }
 export function cratesFor(s: GoldRush): Crate[] {

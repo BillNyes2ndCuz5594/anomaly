@@ -346,10 +346,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: each time the ramp went higher the car rolled farther, so a 40 cm ramp should send it past 150 cm.",
-        "Decoy: this goes against the pattern, since higher ramps gave longer distances.",
-        "Decoy: the distance changed every time the height changed, so it is unlikely to stay the same.",
-        "Decoy: a higher ramp gives the car a faster start, so it will still roll."
+        "Each time the ramp went higher the car rolled farther, so a 40 cm ramp should send it past 150 cm.",
+        "This goes against the pattern, since higher ramps gave longer distances.",
+        "The distance changed every time the height changed, so it is unlikely to stay the same.",
+        "A higher ramp gives the car a faster start, so it will still roll."
       ],
       "keyWords": [
         "40 cm",
@@ -398,10 +398,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: testing two brands is fine; the problem is how the test was set up.",
-        "Correct: Brand B got more water and more time, so Dev cannot tell if the brand made the difference.",
-        "Decoy: how popular a brand is has nothing to do with how much water it soaks up.",
-        "Decoy: changing the liquid would not fix the test, since the other conditions would still be different."
+        "Testing two brands is fine; the problem is how the test was set up.",
+        "Brand B got more water and more time, so Dev cannot tell if the brand made the difference.",
+        "How popular a brand is has nothing to do with how much water it soaks up.",
+        "Changing the liquid would not fix the test, since the other conditions would still be different."
       ],
       "keyWords": [
         "50 mL of water for 5 seconds",
@@ -452,10 +452,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: cutest is a feeling, and another person could disagree.",
-        "Correct: a count at a set time is something anyone can check, so it is an observation.",
-        "Decoy: no one can see a manatee's feelings, so happy is a guess, not an observation.",
-        "Decoy: more interesting is an opinion, not something that can be measured."
+        "Cutest is a feeling, and another person could disagree.",
+        "A count at a set time is something anyone can check, so it is an observation.",
+        "No one can see a manatee's feelings, so happy is a guess, not an observation.",
+        "More interesting is an opinion, not something that can be measured."
       ],
       "keyWords": [
         "writes notes",
@@ -490,10 +490,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: a vote shows what people think, not what the soil does.",
-        "Decoy: sounding sure is not evidence.",
-        "Correct: a fair test gives measurements both students can check, and an explanation must be linked to evidence.",
-        "Decoy: color is a guess about the soil, not a test of how much water it holds."
+        "A vote shows what people think, not what the soil does.",
+        "Sounding sure is not evidence.",
+        "A fair test gives measurements both students can check, and an explanation must be linked to evidence.",
+        "Color is a guess about the soil, not a test of how much water it holds."
       ],
       "keyWords": [
         "best way",
@@ -537,10 +537,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: this was Ella's idea, but 9 seeds sprouted in the dark, so the evidence does not support it.",
-        "Decoy: both groups got the same water, so water does not explain the result.",
-        "Decoy: an idea is not right just because someone had it first, since it must match the evidence.",
-        "Correct: 9 of the 10 seeds in the dark box sprouted, so the evidence shows light was not needed."
+        "This was Ella's idea, but 9 seeds sprouted in the dark, so the evidence does not support it.",
+        "Both groups got the same water, so water does not explain the result.",
+        "An idea is not right just because someone had it first, since it must match the evidence.",
+        "9 of the 10 seeds in the dark box sprouted, so the evidence shows light was not needed."
       ],
       "keyWords": [
         "need light to sprout",
@@ -587,10 +587,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: thermometer readings are measurements that anyone can check, so they are evidence.",
-        "Decoy: how the water feels to one person is not a measurement.",
-        "Decoy: a poster about springs says nothing about this pond this spring.",
-        "Decoy: a feeling about fish is a guess, not evidence about the water."
+        "Thermometer readings are measurements that anyone can check, so they are evidence.",
+        "How the water feels to one person is not a measurement.",
+        "A poster about springs says nothing about this pond this spring.",
+        "A feeling about fish is a guess, not evidence about the water."
       ],
       "keyWords": [
         "getting warmer each week",
@@ -627,10 +627,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: most beautiful is an opinion, and others could disagree.",
-        "Decoy: old and special are guesses that a hand lens cannot check.",
-        "Correct: anyone who looks can see the shiny flakes, so this note is an observation.",
-        "Decoy: best kind is an opinion, not something you can see."
+        "Most beautiful is an opinion, and others could disagree.",
+        "Old and special are guesses that a hand lens cannot check.",
+        "Anyone who looks can see the shiny flakes, so this note is an observation.",
+        "Best kind is an opinion, not something you can see."
       ],
       "keyWords": [
         "hand lens",
@@ -667,10 +667,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: years on the job do not make an explanation right, but evidence does.",
-        "Decoy: the first explanation is not always the right one.",
-        "Decoy: how many people agree is not evidence.",
-        "Correct: the widths shrink from 40 m to 31 m, so Scientist A's explanation is backed by evidence."
+        "Years on the job do not make an explanation right, but evidence does.",
+        "The first explanation is not always the right one.",
+        "How many people agree is not evidence.",
+        "The widths shrink from 40 m to 31 m, so Scientist A's explanation is backed by evidence."
       ],
       "keyWords": [
         "measured the beach width",
@@ -723,10 +723,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: repeating a trial does not change how the helicopter falls.",
-        "Decoy: trials are repeated to check a result, not to change it.",
-        "Correct: three close times like 2.2, 2.3, and 2.2 seconds show the result can be trusted.",
-        "Decoy: short and long experiments both need repeated trials."
+        "Repeating a trial does not change how the helicopter falls.",
+        "Trials are repeated to check a result, not to change it.",
+        "Three close times like 2.2, 2.3, and 2.2 seconds show the result can be trusted.",
+        "Short and long experiments both need repeated trials."
       ],
       "keyWords": [
         "three trials",
@@ -775,10 +775,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: one odd result should be checked, not reported alone.",
-        "Decoy: changing the ramp height would start a new test instead of checking this one.",
-        "Decoy: three of the four trials agree, so the investigation can go on.",
-        "Correct: checking what went wrong and repeating the trial shows if 40 cm was a mistake."
+        "One odd result should be checked, not reported alone.",
+        "Changing the ramp height would start a new test instead of checking this one.",
+        "Three of the four trials agree, so the investigation can go on.",
+        "Checking what went wrong and repeating the trial shows if 40 cm was a mistake."
       ],
       "keyWords": [
         "same ramp four times",
@@ -831,10 +831,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a thermometer needs time to settle, so a reading after 3 seconds still shows the warmer room.",
-        "Decoy: both groups measured at the same time, so the water did not change between readings.",
-        "Decoy: nothing shows the thermometer is broken, and 2°C (36°F) makes sense for ice water.",
-        "Decoy: the same water has one temperature, so the difference comes from how it was measured."
+        "A thermometer needs time to settle, so a reading after 3 seconds still shows the warmer room.",
+        "Both groups measured at the same time, so the water did not change between readings.",
+        "Nothing shows the thermometer is broken, and 2°C (36°F) makes sense for ice water.",
+        "The same water has one temperature, so the difference comes from how it was measured."
       ],
       "keyWords": [
         "same cup of ice water",
@@ -882,10 +882,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: an answer alone does not let anyone repeat the test.",
-        "Correct: other scientists need the same steps and conditions to see if they get the same results.",
-        "Decoy: who had the idea does not help anyone repeat the investigation.",
-        "Decoy: feelings about a project are not part of the evidence."
+        "An answer alone does not let anyone repeat the test.",
+        "Other scientists need the same steps and conditions to see if they get the same results.",
+        "Who had the idea does not help anyone repeat the investigation.",
+        "Feelings about a project are not part of the evidence."
       ],
       "keyWords": [
         "repeat the investigation",
@@ -919,10 +919,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: results can be compared only when groups use the same materials, and Group 3 used a different magnet.",
-        "Decoy: nothing in the data shows a counting mistake, but the magnet was clearly different.",
-        "Decoy: a magnet does not lose its pull after one use.",
-        "Decoy: every group held some paper clips, so magnets do pull them."
+        "Results can be compared only when groups use the same materials, and Group 3 used a different magnet.",
+        "Nothing in the data shows a counting mistake, but the magnet was clearly different.",
+        "A magnet does not lose its pull after one use.",
+        "Every group held some paper clips, so magnets do pull them."
       ],
       "keyWords": [
         "same bar magnet",
@@ -975,10 +975,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: being first does not make a result true if others cannot repeat it.",
-        "Correct: evidence must be repeatable by others, and three labs did not get the same result.",
-        "Decoy: three labs that agree with each other give strong evidence, not a mistake.",
-        "Decoy: when results disagree, scientists test more to find out why."
+        "Being first does not make a result true if others cannot repeat it.",
+        "Evidence must be repeatable by others, and three labs did not get the same result.",
+        "Three labs that agree with each other give strong evidence, not a mistake.",
+        "When results disagree, scientists test more to find out why."
       ],
       "keyWords": [
         "follow her steps exactly",
