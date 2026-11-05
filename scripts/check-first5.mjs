@@ -231,7 +231,7 @@ async function checkTitleAttract() {
         const r = brand.getBoundingClientRect()
         const video = document.querySelector('.title-backdrop video')
         return brand.textContent === 'ANOMALY' && r.width > 100 && r.height > 20 &&
-          getComputedStyle(brand).clip !== 'inset(50%)' &&
+          getComputedStyle(brand).clipPath === 'none' &&
           document.querySelector('.title-backdrop img').naturalWidth === 960 &&
           getComputedStyle(document.querySelector('.stage-fallback')).backgroundImage === 'none' &&
           !document.querySelector('.stage-layer canvas') && video && !video.paused

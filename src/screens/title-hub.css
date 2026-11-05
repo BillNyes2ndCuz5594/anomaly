@@ -51,6 +51,7 @@
   max-width: calc(100% - 32px);
   overflow: visible;
   clip: auto;
+  clip-path: none;
   white-space: nowrap;
   transform: translateX(-50%);
   margin: 0;
