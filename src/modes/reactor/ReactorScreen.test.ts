@@ -159,7 +159,7 @@ describe('Reactor Stabilizer game logic and screen components', () => {
     const s = {
       ...startReactor('restore-resolved'), phase: 'resolved',
       questionsAnswered: 1, correctAnswers: 1,
-      feedback: { itemId: 'E6.1-01', correct: true, explanation: 'Core nominal.' },
+      feedback: { itemId: 'E6.1-01', correct: true, explanation: 'Core stable.' },
       outcome: 'Shield activated: pulse blocked, core stabilized.',
     }
     saveModeSession(sessionStorage, 'reactor', '02-2', s)
@@ -174,5 +174,21 @@ describe('Reactor Stabilizer game logic and screen components', () => {
     const kdListeners = (globalThis as any).window._l?.keydown || []
     expect(kdListeners).toHaveLength(0)
     dom.unmount()
+  })
+
+  it('renders compact rules and stable meter label', () => {
+    const dom = setupMockDom()
+    act(() => { dom.root.render(createElement(ReactorMeter, { instability: 3 })) })
+    expect(dom.container.textContent).toContain('Stable')
+    expect(dom.container.textContent).not.toContain('Nominal')
+    dom.unmount()
+
+    const domGame = setupMockDom()
+    act(() => { domGame.root.render(createElement(ReactorGame, { caseId: '02-2' })) })
+    const rules = findByClass(domGame.container, 'reactor-rules-panel')
+    expect(rules).not.toBeNull()
+    expect(rules.textContent).toContain('Correct answer lowers instability by 2')
+    expect(rules.textContent).toContain('Three consecutive correct answers earn a shield')
+    domGame.unmount()
   })
 })
