@@ -18,6 +18,7 @@ import {
 } from './analysis'
 import { makeSampleCodes } from './sample'
 import shiftHero from '../assets/teacher/teacher-shift-hero.webp'
+import './launch-guide.css'
 
 // Teacher HQ entry. Must never import three, R3F, or anything from src/three or the game screens.
 // Shares only pure modules: reportCode, the generated catalog, and codename helpers.
@@ -211,7 +212,7 @@ function Results({ a, csv }: { a: Analysis; csv: () => void }) {
         <Stat testid="stat-students" label="Students" value={String(sum.students)} note="report codes decoded" />
         <Stat
           testid="stat-average"
-          label="Average mastery"
+          label="Practice accuracy"
           value={sum.average === null ? '-' : `${sum.average}% ${masteryLevel(sum.average).glyph}`}
           note={sum.average === null ? 'no answers yet' : `${masteryLevel(sum.average).label} level, all answers`}
         />
@@ -426,6 +427,25 @@ export default function TeacherApp() {
           <span aria-hidden="true">{'\u25CF'} </span>Decoded in this browser. Nothing is uploaded. No names.
         </p>
       </header>
+
+      <section className="card launch-guide no-print" data-testid="launch-guide" aria-labelledby="h-launch">
+        <div data-testid="shift-explainer">
+          <h2 id="h-launch">Your first 10 to 15 minute shift</h2>
+          <ol>
+            <li>Give the class one class code. Give each student a different roster number.</li>
+            <li>Tell students the exact unit and case they will play.</li>
+            <li>Show one lab match and one question. Then let them play.</li>
+            <li>At the end, collect each student's Results code.</li>
+          </ol>
+          <p>At home: students can practice without Canvas. Use a class code only if your class already uses one.</p>
+        </div>
+        <a className="btn primary" href="./" data-testid="play-game">Play the game</a>
+      </section>
+
+      <section className="card" aria-labelledby="h-accuracy">
+        <h2 id="h-accuracy">Practice accuracy</h2>
+        <p>Percent of practice answers correct. It is not a diagnostic score or a daily mastery rating. Science stages grow as students revisit cases across days.</p>
+      </section>
 
       <section className="card no-print" aria-labelledby="h-in">
         <h2 id="h-in">Add report codes</h2>

@@ -8,10 +8,12 @@ export default function GoldRushButton({ caseId }: { caseId: string }) {
     <button
       type="button"
       className="btn primary gold-rush-btn"
+      style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center' }}
       data-testid="gold-rush-launch"
       onClick={() => navigate(`/gold/${caseId}`)}
     >
-      Gold Rush
+      <span>Gold Rush</span>
+      <span className="small-print">Optional question practice with a different play style.</span>
     </button>
   )
 }

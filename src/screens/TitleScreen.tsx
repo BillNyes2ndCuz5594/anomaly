@@ -159,6 +159,9 @@ export default function TitleScreen() {
             Use a saved code
           </button>
         </div>
+        <a className="link-btn" href="./teacher.html" data-testid="teacher-link">
+          Teachers and parents
+        </a>
         {profile ? (
           <p className="muted small-print" data-testid="title-agent">
             Playing as {profile.codename}{' '}

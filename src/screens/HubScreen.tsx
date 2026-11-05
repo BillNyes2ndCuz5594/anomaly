@@ -230,7 +230,7 @@ export default function HubScreen() {
               navigate(`/case/${chosen}`)
             }}
           >
-            <span className="qp-kicker">{lastCaseId === chosen ? 'Keep going' : 'Today in class'}</span>
+            <span className="qp-kicker">Start case</span>
             <span className="qp-title">{chosenCase.unitLabel}</span>
           </button>
           <HelpLevelPicker />
