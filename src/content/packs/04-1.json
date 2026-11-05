@@ -12,16 +12,16 @@
       { "benchmark": "SC.5.P.9.1", "count": 1 }
     ],
     "marker": { "lon": -81.38, "lat": 28.54 },
-    "dispatchHook": "Orlando warehouse spill. Everything mixed, nothing labeled.",
+    "dispatchHook": "Spill alert in Orlando! The warehouse supplies are jumbled together.",
     "briefing": [
-      "Agent, a supply truck tipped over outside a warehouse in Orlando.",
-      "Sand, iron filings, beads and salt landed in the same bins. The cleanup crew wants to use a broom.",
-      "Match each mixture to the way that separates it, then check what heat does to the rest.",
-      "Brooms are not on the list."
+      "Agent, a supply truck tipped over outside an Orlando warehouse!",
+      "Sand, iron filings, beads, and salt all spilled into the same bins.",
+      "Match each mixture to the tool that separates it, then check what heat does to the rest.",
+      "Grab your magnets and filters, Agent. Let's get these supplies sorted out!"
     ],
     "lab": {
       "kind": "match",
-      "intro": "Each bin holds a mixture of solids. Match it to the way that separates it, using one property of its parts.",
+      "intro": "The warehouse bins are all mixed up! Match each mixture to the best tool or step to separate it.",
       "left": [
         { "id": "iron-sand", "name": "Iron filings and sand", "card": "Gray metal bits mixed into beach sand" },
         { "id": "gravel-sand", "name": "Gravel and sand", "card": "Small rocks mixed with fine grains" },
@@ -37,15 +37,15 @@
         { "id": "water-filter", "name": "Add water, then pour through a filter", "card": "One part dissolves and flows through" }
       ],
       "pairs": [
-        { "left": "iron-sand", "right": "magnet", "why": "Iron is attracted to a magnet and sand is not, so the magnet lifts the iron out." },
-        { "left": "gravel-sand", "right": "screen", "why": "The screen holes are bigger than the sand and smaller than the gravel, so particle size splits them." },
-        { "left": "red-blue", "right": "by-color", "why": "The beads match in size and shape, so color is the only property that tells them apart." },
-        { "left": "marble-cube", "right": "tilt", "why": "Round marbles roll down a slope while cubes with flat sides stay put, so shape splits them." },
-        { "left": "salt-sand", "right": "water-filter", "why": "Salt dissolves in water and passes through the filter, but sand does not dissolve and stays behind." }
+        { "left": "iron-sand", "right": "magnet", "why": "A magnet attracts the iron bits right out of the sand because iron is magnetic!" },
+        { "left": "gravel-sand", "right": "screen", "why": "The small sand grains fall through the mesh screen while the gravel stays behind!" },
+        { "left": "red-blue", "right": "by-color", "why": "The beads are the same size and shape, so color is the clue that tells them apart!" },
+        { "left": "marble-cube", "right": "tilt", "why": "Round marbles roll right down a tilted tray while flat wooden cubes slide to a stop!" },
+        { "left": "salt-sand", "right": "water-filter", "why": "Salt dissolves in water and slips through the filter paper, leaving the sand behind!" }
       ]
     },
-    "debriefClosed": "Case closed. Every bin is sorted, and the broom stays in the closet.",
-    "debriefOpen": "Case stays open for now. Keep the filter screens handy; those mixed-up lab beakers are not done dissolving."
+    "debriefClosed": "Awesome job, Agent! Every bin is sorted cleanly, and the warehouse supplies are back in order.",
+    "debriefOpen": "This case stays open for now, Agent. Keep your filters handy and come back soon to finish sorting!"
   },
   "items": [
     {
@@ -59,10 +59,10 @@
       "options": ["thermometer", "graduated cylinder", "balance", "ruler"],
       "key": 2,
       "why": [
-        "Decoy: a thermometer measures temperature, not mass.",
-        "Decoy: a graduated cylinder measures the volume of a liquid, not mass.",
-        "Correct: a balance measures mass, and it can show the mass in grams.",
-        "Decoy: a ruler measures length, which tells how long the shell is, not its mass."
+        "A thermometer measures temperature, not mass.",
+        "A graduated cylinder measures liquid volume, not mass.",
+        "Spot on! A balance measures mass, and it shows the weight in grams.",
+        "A ruler measures length, not mass."
       ],
       "keyWords": ["mass of the shell", "grams"],
       "visual": { "kind": "scene", "id": "lab-tools", "labels": ["ruler", "balance", "thermometer", "graduated cylinder", "hand lens"] },
@@ -86,10 +86,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: a wider container changes the shape of the water, not the amount of water.",
-        "Correct: a liquid takes the shape of its container, but its volume stays the same unless water is added or taken away.",
-        "Decoy: the water is shorter in the bowl because it is spread wider, but none of it was lost.",
-        "Decoy: the water could be poured back into a graduated cylinder, and it would still measure 200 mL."
+        "A wider bowl changes the shape of the water, not the amount.",
+        "Spot on! A liquid changes shape to fit its container, but its volume stays the same.",
+        "The water looks shallower because the bowl is wider, but the volume is unchanged.",
+        "If Leo poured it back into a graduated cylinder, it would still measure 200 mL."
       ],
       "keyWords": ["200 mL", "changes shape", "volume of the water"],
       "visual": {
@@ -109,7 +109,7 @@
       "category": "physical",
       "complexity": "high",
       "pool": "case",
-      "stem": "An agent moves three mystery samples into new, larger containers. She records what happens to the shape and the volume of each one. Which list matches the samples to solid, liquid and gas?",
+      "stem": "Agent Maya moves three mystery samples into new, larger containers. She records what happens to the shape and the volume of each one. Which list matches the samples to solid, liquid and gas?",
       "options": [
         "P is a solid, Q is a liquid, R is a gas.",
         "P is a liquid, Q is a solid, R is a gas.",
@@ -118,10 +118,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a solid keeps its shape and volume, a liquid takes the container's shape but keeps its volume, and a gas spreads out to fill the whole container.",
-        "Decoy: P kept its own shape, and a liquid does not keep its own shape, so P cannot be the liquid.",
-        "Decoy: Q kept its volume and R spread out to fill the container, so the liquid and the gas are switched.",
-        "Decoy: a gas never keeps its own shape, so P cannot be the gas."
+        "Spot on! A solid keeps its shape and volume, a liquid changes shape but keeps volume, and a gas fills everything.",
+        "Sample P kept its shape, so it cannot be a liquid.",
+        "Sample Q kept its volume while R spread out, so liquid and gas are swapped here.",
+        "A gas expands to fill its container, so sample P cannot be a gas."
       ],
       "keyWords": ["shape and the volume", "solid, liquid and gas"],
       "visual": {
@@ -177,7 +177,7 @@
       "category": "physical",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "An agent sorted six objects into two groups by one property. Which property did she use?",
+      "stem": "Agent Sam sorted six objects into two groups by one property. Which property did he use?",
       "options": ["attraction to a magnet", "color", "texture", "mass"],
       "key": 0,
       "why": [
@@ -204,7 +204,7 @@
       "category": "physical",
       "complexity": "high",
       "pool": "cold",
-      "stem": "An agent finds the mass of a flat basketball on a balance. Then she pumps air into it and finds the mass again. What do her results show?",
+      "stem": "Agent Elena finds the mass of a flat basketball on a balance. Then she pumps air into it and finds the mass again. What do her results show?",
       "options": [
         "Pumping air makes the rubber of the ball heavier.",
         "Air has mass.",
@@ -236,14 +236,14 @@
       "category": "physical",
       "complexity": "low",
       "pool": "case",
-      "stem": "A tray holds a mixture of sand, pebbles and iron filings. Which tool will pull out only the iron filings?",
+      "stem": "Agent Kai examines a tray with a mixture of sand, pebbles and iron filings. Which tool will pull out only the iron filings?",
       "options": ["a sieve", "a magnet", "a hand lens", "filter paper"],
       "key": 1,
       "why": [
-        "Decoy: a sieve sorts by size, and tiny iron filings would fall through with the sand.",
-        "Correct: iron is attracted to a magnet and sand and pebbles are not, so the magnet lifts out only the iron filings.",
-        "Decoy: a hand lens makes the pieces look bigger, but it does not separate them.",
-        "Decoy: filter paper holds back solids from a liquid, and this mixture has no liquid."
+        "A sieve sorts by size, so tiny iron filings would slip through with the sand.",
+        "Spot on! A magnet attracts iron filings while leaving sand and pebbles behind.",
+        "A hand lens helps you see tiny objects, but cannot separate them.",
+        "Filter paper separates solids from liquids, but this mixture contains no liquid."
       ],
       "keyWords": ["iron filings", "pull out only"],
       "visual": { "kind": "scene", "id": "mixture-separation", "labels": ["mixture", "", ""] },
@@ -312,7 +312,7 @@
       "category": "physical",
       "complexity": "high",
       "pool": "case",
-      "stem": "An agent put the same amount of sugar into four cups of water at the same temperature. She changed the form of the sugar and whether she stirred. Which conclusion is supported by her data?",
+      "stem": "Agent Rosa put the same amount of sugar into four cups of water at the same temperature. She changed the form of the sugar and whether she stirred. Which conclusion is supported by her data?",
       "options": [
         "Sugar cubes dissolve faster than loose grains.",
         "Stirring makes sugar dissolve faster, but grain size does not matter.",
