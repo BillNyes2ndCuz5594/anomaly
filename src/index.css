@@ -2790,11 +2790,15 @@ html[data-reduced-motion='true'] .results-panel::after {
 
 /* S5: a table panel is only as tall as its table, so it never shows empty bands above and below */
 .visual-panel.kind-table {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
+  overflow: clip;
 }
+/* The whole table stays reachable: the panel never shrinks below its rows, and .item-main scrolls instead.
+   overflow: clip (not auto) keeps the sticky column headings anchored to that real scroller. */
 .visual-panel.kind-table .table-wrap {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
+  overflow: clip;
   align-content: start;
 }
 

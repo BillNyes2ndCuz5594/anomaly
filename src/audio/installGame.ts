@@ -32,7 +32,7 @@ export function cueForControl(el: HTMLElement): { cue: OneShotId; up?: boolean }
   }
   const test = el.dataset.testid ?? ''
   if (test.startsWith('option-')) {
-    const eliminating = document.querySelector('[data-testid="eliminate-toggle"][aria-pressed="true"]')
+    const eliminating = document.querySelector('[data-testid="crossout-toggle"][aria-pressed="true"]')
     return eliminating ? { cue: 'toggle', up: false } : { cue: 'pickup' }
   }
   if (test.startsWith('word-') || test.startsWith('specimen-chip-')) return { cue: 'pickup' }

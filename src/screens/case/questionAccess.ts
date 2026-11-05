@@ -14,7 +14,9 @@ export function formatVisualDescription(item: Item): string {
       parts.push(v.title.trim().replace(/\.+$/, ''))
     }
     for (const row of v.rows) {
-      parts.push(row.join(', ').replace(/\.+$/, ''))
+      // Pair each cell with its column heading so a listener knows what each value means.
+      const cells = row.map((cell, j) => (v.columns[j] ? `${v.columns[j]}: ${cell}` : cell))
+      parts.push(cells.join(', ').replace(/\.+$/, ''))
     }
   } else if (v.kind === 'specimen') {
     if (v.captions?.length) {

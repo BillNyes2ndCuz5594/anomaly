@@ -124,7 +124,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (!struckEver.has(i)) {
         setStruckEver((s) => new Set(s).add(i))
         setToast(`Intel +${INTEL.eliminate}: decoy ruled out`)
-        flyChip(`+${INTEL.eliminate}`, document.querySelector(`[data-testid="option-${i}"]`), document.querySelector('[data-testid="rkea-eliminate"]'), motion)
+        flyChip(`+${INTEL.eliminate}`, document.querySelector(`[data-testid="option-${i}"]`), document.querySelector('[data-testid="rkea-cross-out"]'), motion)
       }
       setSelected((s) => (s === i ? null : s))
     },
@@ -241,7 +241,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const chips = [
     { k: 'R', label: 'Read', on: readUsed },
     { k: 'K', label: 'Key words', on: earnedPhrases.size > 0 },
-    ...(rules.canEliminate ? [{ k: 'E', label: 'Eliminate', on: attemptedStrike }] : []),
+    ...(rules.canEliminate ? [{ k: 'E', label: 'Cross out', on: attemptedStrike }] : []),
     { k: 'A', label: 'Answer', on: selected !== null || locked },
   ]
 

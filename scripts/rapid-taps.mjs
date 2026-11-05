@@ -168,9 +168,9 @@ try {
   const word = await page.$$eval('[data-testid^="word-"]', (els, key) => els.find(e => e.textContent.toLowerCase().replace(/[^a-z0-9]/g, '') === key)?.dataset.testid, item.keyWords[0].split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g, ''))
   if (!word) throw new Error('Keyword button not found')
   await burst(page, 'RKEA keyword', word)
-  await click(page, 'eliminate-toggle')
+  await click(page, 'crossout-toggle')
   await burst(page, 'RKEA eliminate', `option-${(item.key + 1) % 4}`)
-  await click(page, 'eliminate-toggle')
+  await click(page, 'crossout-toggle')
   await burst(page, 'RKEA click lock', `option-${item.key}`, 'click')
   for (const mode of ['touch', 'keyboard']) {
     await click(page, 'next-item')

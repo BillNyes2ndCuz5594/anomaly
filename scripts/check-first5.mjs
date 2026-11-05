@@ -440,6 +440,26 @@ try {
 
   await page.screenshot({ path: `${SHOTS_DIR}/pr2-question2-table-1024x768-xl.png` })
 
+  // 7b. Real input: wheel the evidence column until the last table row is fully on screen, then check headings follow.
+  const mainBox = await page.$eval('.item-main', (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 40 } })
+  await page.mouse.move(mainBox.x, mainBox.y)
+  for (let i = 0; i < 30; i++) {
+    await page.mouse.wheel({ deltaY: 120 })
+    await new Promise((r) => setTimeout(r, 30))
+  }
+  const lastRow = await page.evaluate(() => {
+    const main = document.querySelector('.item-main')?.getBoundingClientRect()
+    const rows = document.querySelectorAll('.data-table tbody tr')
+    const r = rows[rows.length - 1]?.getBoundingClientRect()
+    const th = document.querySelector('.data-table th')?.getBoundingClientRect()
+    if (!main || !r) return { ok: false, detail: 'missing table' }
+    const top = Math.max(main.top, 0)
+    const bottom = Math.min(main.bottom, window.innerHeight)
+    return { ok: r.top >= top - 1 && r.bottom <= bottom + 1, headOk: !!th && th.bottom > top && th.top < bottom, detail: `row=${Math.round(r.top)}..${Math.round(r.bottom)} clip=${Math.round(top)}..${Math.round(bottom)}` }
+  })
+  check('wheel scrolling reaches the whole last table row inside its clipping ancestors', lastRow.ok, lastRow.detail)
+  check('table column headings stay on screen after wheel scrolling', lastRow.headOk)
+
   // 8. Reduced motion at 1366x768 and 1024x768
   for (const width of [1366, 1024]) {
     await page.setViewport({ width, height: 768, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
