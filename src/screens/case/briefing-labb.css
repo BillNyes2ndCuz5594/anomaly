@@ -13,15 +13,41 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: calc(100dvh - var(--bar-h) - 24px);
+  max-height: calc(100dvh - var(--bar-h) - 24px);
+  bottom: 24px;
 }
 
-.briefing-screen .side-panel.dispatch-card > :not(.dispatch-lines) {
+.briefing-screen .side-panel.dispatch-card > :not(.briefing-story):not(.briefing-poster):not(.briefing-feed) {
   flex-shrink: 0;
+}
+
+.briefing-screen .briefing-story {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(62, 230, 255, 0.4) transparent;
+}
+
+.briefing-screen .briefing-story:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 1px rgba(62, 230, 255, 0.4), 0 0 12px rgba(62, 230, 255, 0.25);
+  border-radius: 4px;
+}
+
+.briefing-screen .briefing-story .dispatch-lines {
+  overflow-y: visible;
+  padding-bottom: 0;
+  min-height: 0;
 }
 
 .briefing-screen .dispatch-lines,
 .dispatch-lines {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   padding-bottom: 4px;
@@ -29,9 +55,21 @@
   scrollbar-color: rgba(62, 230, 255, 0.4) transparent;
 }
 
+.briefing-screen .side-panel.dispatch-card .briefing-actions,
 .briefing-screen .side-panel.dispatch-card .panel-actions {
   flex: none;
+  flex-shrink: 0;
   margin-top: auto;
+  background: #0b1220;
+  border-top: 1px solid rgba(62, 230, 255, 0.25);
+  padding-top: 10px;
+  z-index: 2;
+}
+
+.briefing-screen .briefing-actions .btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(62, 230, 255, 0.55);
 }
 
 .briefing-screen .dispatch-title,
@@ -316,7 +354,7 @@
   }
 
   .briefing-screen .side-panel.dispatch-card {
-    height: auto;
+    height: 64dvh;
     max-height: 64dvh;
   }
 
@@ -326,9 +364,10 @@
 
   .briefing-screen .side-panel .panel-actions.col {
     position: static;
-    margin-top: 4px;
-    padding-top: 0;
-    background: none;
+    margin-top: auto;
+    padding-top: 8px;
+    background: #0b1220;
+    border-top: 1px solid rgba(62, 230, 255, 0.25);
   }
 
   .labb-screen {
@@ -390,9 +429,10 @@
 
   .briefing-screen .side-panel .panel-actions.col {
     position: static;
-    margin-top: 2px;
-    padding: 0;
-    background: none;
+    margin-top: auto;
+    padding: 6px 0 0;
+    background: #0b1220;
+    border-top: 1px solid rgba(62, 230, 255, 0.25);
   }
 
   .labb-screen .side-panel {
@@ -466,13 +506,20 @@
 .briefing-poster {
   position: relative;
   width: 100%;
-  max-height: 168px;
+  max-height: clamp(60px, 16vh, 168px);
   aspect-ratio: 16 / 9;
-  flex: none;
+  flex-shrink: 1;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid rgba(62, 230, 255, 0.4);
   border-radius: 4px;
   background: #050b16;
+}
+
+.briefing-feed {
+  max-height: clamp(60px, 16vh, 168px);
+  flex-shrink: 1;
+  min-height: 0;
 }
 
 .briefing-poster img {
@@ -491,6 +538,71 @@
 
 @media (max-height: 800px) {
   .briefing-poster {
-    max-height: 168px;
+    max-height: clamp(56px, 14vh, 120px);
+  }
+
+  .briefing-feed {
+    max-height: clamp(56px, 14vh, 120px);
+  }
+
+  .briefing-screen .side-panel.dispatch-card {
+    gap: 8px;
+    padding: 14px 18px;
+  }
+
+  .briefing-screen .dispatch-lines {
+    gap: 8px;
+  }
+
+  .briefing-screen .dispatch-key {
+    gap: 4px 12px;
+  }
+}
+
+@media (max-height: 700px) {
+  .briefing-screen .side-panel.dispatch-card {
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  .briefing-poster {
+    max-height: clamp(48px, 12vh, 90px);
+  }
+
+  .briefing-feed {
+    max-height: clamp(48px, 12vh, 90px);
+  }
+
+  .briefing-screen .dispatch-key {
+    display: none;
+  }
+}
+
+@media (max-height: 600px) {
+  .briefing-screen .side-panel.dispatch-card {
+    gap: 4px;
+    padding: 8px 12px;
+  }
+
+  .briefing-poster {
+    max-height: clamp(32px, 10vh, 60px);
+  }
+
+  .briefing-feed {
+    max-height: clamp(32px, 10vh, 60px);
+  }
+
+  .briefing-screen .briefing-story {
+    min-height: 52px;
+  }
+}
+
+@media (max-height: 540px) {
+  .briefing-poster {
+    max-height: clamp(24px, 6vh, 36px);
+  }
+
+  .briefing-feed {
+    max-height: clamp(24px, 6vh, 36px);
   }
 }
