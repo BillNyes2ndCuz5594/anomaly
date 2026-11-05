@@ -15,7 +15,6 @@ import {
   time,
   uniform,
 } from 'three/tsl'
-import { STILL } from '../../lib/flags'
 import { resolveTier, TIER_CONFIG } from '../../state/quality'
 import { useRuntime } from '../../state/runtime'
 import { useGame } from '../../state/store'
@@ -24,7 +23,6 @@ import { glintProgress, revealProgress, takeReveal } from './titleFx'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
-import { sceneCalm } from './hub/markerMotion'
 import { useWidthFit } from './case/sceneHelpers'
 import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { makeRadialTexture } from './radialTexture'
@@ -158,7 +156,7 @@ function LogoGlow({ y }: { y: number }) {
 function HoloRings() {
   const a = useRef<THREE.Mesh>(null)
   const b = useRef<THREE.Mesh>(null)
-  const reduced = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
+  const reduced = useMotionMode() !== 'full'
   const mats = useMemo(
     () => [
       createHologramMaterial({ opacity: 0.8, intensity: 1.2, scanDensity: 10, fresnelPower: 1.4, scanSpeed: reduced ? 0 : 0.35, sweep: reduced ? 0 : 1 }),
@@ -187,7 +185,7 @@ function HoloRings() {
 }
 
 export default function TitleScene() {
-  const calm = sceneCalm(useGame((s) => s.settings.reducedMotion), STILL)
+  const calm = useMotionMode() !== 'full'
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
   const tier = resolveTier(quality, autoTier)
@@ -220,6 +218,7 @@ export default function TitleScene() {
       <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights />
       <SubjectLights strength={rich ? 1 : 0.8} />
+      {/* TitleScreen owns the poster and loop, including the 2D fallback. */}
       <Backdrop clip="title" />
       {rich ? <SkyBand calm={calm} /> : null}
       <NightBody position={[-12.2, 9.2, -17]} calm={calm} rich={rich} />

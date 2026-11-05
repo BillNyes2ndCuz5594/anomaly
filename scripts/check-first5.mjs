@@ -111,6 +111,110 @@ async function tabTo(page, selector) {
   return false
 }
 
+// PR 10: Media never gates the first title action. Disable SW here to measure
+// page media requests separately from the required offline precache of every asset.
+async function checkTitleAttract() {
+  const play = '[data-testid="title-quick-play"]'
+  const hook = '[data-testid="title-hook"]'
+  for (const vp of VIEWPORTS) {
+    const page = await browser.newPage()
+    await page.setBypassServiceWorker(true)
+    await page.setViewport({ width: vp.width, height: vp.height, hasTouch: vp.mobile })
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+    page.on('pageerror', (e) => errors.push(e.message))
+    page.on('request', (r) => {
+      if (!r.url().startsWith(base) && !/^(data:|blob:)/.test(r.url())) errors.push(`External request: ${r.url()}`)
+    })
+    // Keep responses pending until after the first real activation.
+    let release
+    const held = new Promise((resolve) => { release = resolve })
+    let videoRequests = 0
+    await page.setRequestInterception(true)
+    page.on('request', async (r) => {
+      if (r.resourceType() === 'media' && /backdrop-title.*\.(webm|mp4)/.test(r.url())) { videoRequests++; await held }
+      if (!r.isInterceptResolutionHandled()) await r.continue()
+    })
+    await page.goto(base + '?tier=high&backend=webgl2#/', { waitUntil: 'domcontentloaded' })
+    await page.waitForSelector(hook)
+    await page.waitForFunction(() => document.querySelector('.title-backdrop img')?.naturalWidth > 0)
+    const visible = () => page.evaluate(() => {
+      const nodes = [document.querySelector('[data-testid="title-hook"]'), ...document.querySelectorAll('.title-actions button'), document.querySelector('.topbar button')]
+      return nodes.every((el) => {
+        const r = el.getBoundingClientRect()
+        return r.width > 0 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth
+      })
+    })
+    check(`title first paint fits ${vp.name}`, await visible())
+    await page.screenshot({ path: `${SHOTS_DIR}/title-${vp.name}-first.png` })
+    await page.waitForSelector('.title-backdrop video')
+    check(`title poster stays under delayed video ${vp.name}`, await page.$eval('.title-backdrop video', (v) =>
+      v.muted && v.loop && v.playsInline && v.dataset.live === 'no' && v.previousElementSibling.complete && v.previousElementSibling.naturalWidth === 960))
+    await page.keyboard.press('Tab')
+    check(`title Settings stays first in tab order ${vp.name}`, await page.$eval('.topbar button', (el) => el === document.activeElement))
+    await page.keyboard.press('Tab')
+    check(`title Play stays second with focus ring ${vp.name}`, await page.$eval(play, (el) => el === document.activeElement && el.matches(':focus-visible') && getComputedStyle(el).outlineStyle !== 'none'))
+    if (vp.mobile) await page.tap(play)
+    else if (vp.width === 1024) await page.keyboard.press('Enter')
+    else await page.click(play)
+    await page.waitForSelector('[data-testid="firstrun-modal"]')
+    check(`first title activation works before canplay ${vp.name}`, await page.$eval('.title-backdrop video', (v) => v.readyState === 0))
+    release()
+    // Reload without an agent: record the complete loop independently of navigation.
+    await page.reload({ waitUntil: 'load' })
+    await page.waitForSelector('.title-backdrop video[data-live="yes"]')
+    check(`title video plays after poster ${vp.name}`, await page.$eval('.title-backdrop video', (v) => !v.paused && v.muted && v.loop && v.previousElementSibling.naturalWidth > 0))
+    await sleep(4200)
+    check(`title after loop fits ${vp.name}`, await visible())
+    await page.screenshot({ path: `${SHOTS_DIR}/title-${vp.name}-loop.png` })
+    check(`title decorations stay out of access and hit targets ${vp.name}`, await page.evaluate(() =>
+      document.querySelector('.title-backdrop').getAttribute('aria-hidden') === 'true' &&
+      document.querySelector('.title-scan').getAttribute('aria-hidden') === 'true' &&
+      getComputedStyle(document.querySelector('.title-backdrop')).pointerEvents === 'none'))
+    check(`title video requested in full motion ${vp.name}`, videoRequests > 0)
+    await page.close()
+  }
+  for (const mode of ['os', 'saved', 'fade', 'still', '2d', 'blocked']) {
+    const page = await browser.newPage()
+    await page.setBypassServiceWorker(true)
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+    page.on('pageerror', (e) => errors.push(e.message))
+    if (mode === 'os') await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
+    await page.evaluateOnNewDocument((mode) => {
+      localStorage.setItem('anomaly.v1', JSON.stringify({ state: { settings: { reducedMotion: mode === 'saved' } }, version: 1 }))
+      if (mode === '2d') {
+        const get = HTMLCanvasElement.prototype.getContext
+        HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
+          return /webgl|webgpu/.test(kind) ? null : get.call(this, kind, ...args)
+        }
+      }
+      if (mode === 'blocked') {
+        window.__titlePlayCalls = 0
+        HTMLMediaElement.prototype.play = () => {
+          window.__titlePlayCalls++
+          return Promise.reject(new DOMException('Autoplay blocked', 'NotAllowedError'))
+        }
+      }
+    }, mode)
+    const media = []
+    page.on('request', (r) => { if (r.resourceType() === 'media' && /\.(webm|mp4)(\?|$)/.test(r.url())) media.push(r.url()) })
+    await page.goto(base + `?backend=webgl2&tier=${mode === 'fade' ? 'low' : 'high'}${mode === 'still' ? '&still=1' : ''}#/`, { waitUntil: 'load' })
+    await page.waitForSelector(hook)
+    await sleep(600)
+    if (!['2d', 'blocked'].includes(mode)) {
+      check(`title poster only, no video request: ${mode}`, media.length === 0 && !(await page.$('.title-backdrop video')))
+      check(`title static scan: ${mode}`, await page.$eval('.title-scan', (el) => getComputedStyle(el).animationName === 'none'))
+    }
+    if (mode === 'blocked') {
+      check('autoplay override was called', await page.evaluate(() => window.__titlePlayCalls > 0))
+      check('autoplay rejection retains poster', !(await page.$('.title-backdrop video')) && await page.$eval('.title-backdrop img', (el) => el.naturalWidth > 0))
+    }
+    await page.click(play)
+    await page.waitForSelector('[data-testid="firstrun-modal"]')
+    check(`title usable: ${mode}`, true)
+    await page.close()
+  }
+}
+
 async function checkLaunchGuide() {
   for (const width of [1366, 1024]) {
     const page = await browser.newPage()
@@ -203,6 +307,10 @@ async function checkLaunchGuide() {
 }
 
 try {
+  await checkTitleAttract()
+  if (process.argv.includes('--title-only')) {
+    // The focused proof stops here; the finally block still closes the browser.
+  } else {
   await checkLaunchGuide()
   const initialVp = VIEWPORTS[0]
   const page = await profilePage(browser, base, '?tier=low', { width: initialVp.width, height: initialVp.height }, errors)
@@ -1132,6 +1240,7 @@ try {
         await recovery.evaluate(() => !JSON.parse(sessionStorage.getItem('anomaly.case.case.04-1')).pendingFeedback))
       await recovery.close()
     }
+  }
   }
 } finally {
   await browser.close()

@@ -10,7 +10,55 @@ import Presence from '../ui/Presence'
 import ResumeModal from '../ui/ResumeModal'
 import { useMotionMode } from '../ui/useMotionMode'
 import { playLabel, shortTopic, startDestination, type StartIntent } from './startFlow'
+import { CLIPS } from '../three/scenes/loopClips'
 import './title-hub.css'
+
+// The title owns its media so a missing 3D layer never leaves an empty backdrop.
+function TitleVideo() {
+  const [failed, setFailed] = useState(false)
+  const [live, setLive] = useState(false)
+  const ref = useRef<HTMLVideoElement>(null)
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    let dead = false
+    let frame: number | undefined
+    const ready = () => { if (!dead) setLive(true) }
+    const playing = () => {
+      if (video.requestVideoFrameCallback) frame = video.requestVideoFrameCallback(ready)
+      else if (video.readyState >= 2) ready()
+    }
+    video.addEventListener('playing', playing)
+    void video.play().catch(() => { if (!dead) setFailed(true) })
+    return () => {
+      dead = true
+      video.removeEventListener('playing', playing)
+      if (frame !== undefined) video.cancelVideoFrameCallback(frame)
+      video.pause()
+    }
+  }, [])
+  if (failed) return null
+  return (
+    <video ref={ref} width="960" height="540" muted loop playsInline preload="auto"
+      poster={CLIPS.title.poster} tabIndex={-1} aria-hidden="true" data-live={live ? 'yes' : 'no'}
+      onError={() => setFailed(true)}>
+      <source src={CLIPS.title.webm} type="video/webm" />
+      <source src={CLIPS.title.mp4} type="video/mp4" />
+    </video>
+  )
+}
+
+function TitleBackdrop() {
+  const mode = useMotionMode()
+  const [posterReady, setPosterReady] = useState(false)
+  return (
+    <div className="title-backdrop" aria-hidden="true">
+      <img src={CLIPS.title.poster} width="960" height="540" alt="" draggable={false}
+        onLoad={() => setPosterReady(true)} />
+      {mode === 'full' && posterReady ? <TitleVideo /> : null}
+    </div>
+  )
+}
 
 function usePressed() {
   const [pressed, setPressed] = useState(false)
@@ -112,6 +160,7 @@ export default function TitleScreen() {
 
   return (
     <div className="screen title-screen" data-testid="title">
+      <TitleBackdrop />
       <div className="topbar">
         <span className="label">FIELD UNIT // FLORIDA</span>
         <button type="button" className="btn small ghost" onClick={() => navigate('/settings')}>
@@ -122,6 +171,10 @@ export default function TitleScreen() {
       <div className="title-bottom">
         <h1 className="sr-only">ANOMALY</h1>
         <p className="tagline">Solve science mysteries.</p>
+        <p className="title-hook" data-testid="title-hook">
+          Weird clues are popping up across Florida. Your science team needs you.
+          <span className="title-scan" aria-hidden="true" />
+        </p>
         <div className="title-actions">
           <button
             type="button"

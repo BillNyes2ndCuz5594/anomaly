@@ -20,6 +20,77 @@
   background: radial-gradient(ellipse 78% 68% at 50% 44%, transparent 42%, rgba(3, 7, 14, 0.42) 100%);
 }
 
+.title-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The HUD is not a stacking context, so this also sits behind the Three canvas. */
+  z-index: -1;
+  overflow: hidden;
+}
+.title-backdrop img,
+.title-backdrop video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.title-backdrop video { opacity: 0; }
+.title-backdrop video[data-live='yes'] { opacity: 1; }
+
+.title-screen .title-bottom {
+  gap: 12px;
+  padding: 16px 12px max(3vh, 16px);
+  border-radius: 18px;
+  background: rgba(4, 12, 28, 0.94);
+  color: #f5fbff;
+  text-shadow: 0 1px 2px #020914;
+}
+.title-screen .topbar {
+  background: rgba(4, 12, 28, 0.94);
+  border-radius: 8px;
+}
+.title-hook {
+  position: relative;
+  max-width: 46ch;
+  margin: 0 0 6px;
+  padding-bottom: 12px;
+  text-align: center;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.4;
+  color: #f5fbff;
+}
+.title-scan {
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  background: #3ee6ff;
+  pointer-events: none;
+}
+.title-scan::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffb547;
+}
+@keyframes title-scan-drift {
+  from { transform: translateX(-6px); }
+  to { transform: translateX(6px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion='full'] .title-scan {
+    animation: title-scan-drift 8s ease-in-out infinite alternate;
+  }
+}
+
 .title-screen .tagline {
   font-size: clamp(0.875rem, 0.8rem + 0.35vw, var(--fs-lead));
   letter-spacing: 0.16em;
