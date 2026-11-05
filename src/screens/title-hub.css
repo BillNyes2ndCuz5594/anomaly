@@ -453,6 +453,16 @@ html[data-tier='low'] .hub-screen .codex-panel {
   }
 }
 
+.hub-scroll-fade {
+  display: none;
+}
+
+.hub-screen .case-btn > .case-code,
+.hub-screen .case-sub .case-code {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
 @media (max-width: 900px) and (orientation: portrait) {
   .hub-screen .hub-panel {
     left: 12px;
@@ -461,6 +471,20 @@ html[data-tier='low'] .hub-screen .codex-panel {
   }
   .hub-screen .case-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+@media (min-width: 601px) and (max-width: 900px) and (orientation: portrait) {
+  .hub-screen .hub-panel[data-more-below='true'] + .hub-scroll-fade {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    left: 13px;
+    right: 13px;
+    bottom: 87px;
+    height: 56px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(11, 18, 32, 0), rgba(11, 18, 32, 0.98));
   }
 }
 

@@ -43,7 +43,7 @@ export function layoutMode(w: number, h: number): LayoutMode {
  * a panel on the side becomes a right inset, a bottom sheet becomes a bottom inset, and so does the dock.
  * `vertical` (case steps) also reserves the top bar and the dock. `fallbackRight` is used until a side panel is mounted.
  */
-export function hudInsets(w: number, h: number, r: HudRects, vertical: boolean, fallbackRight: number): { right: number; top: number; bottom: number } {
+export function hudInsets(w: number, h: number, r: HudRects, vertical: boolean, fallbackRight: number, portraitTopInset = 0): { right: number; top: number; bottom: number } {
   const mode = layoutMode(w, h)
   let right = mode === 'stack' ? 0 : Math.min(fallbackRight, Math.round(w * 0.5))
   let bottom = 0
@@ -56,5 +56,5 @@ export function hudInsets(w: number, h: number, r: HudRects, vertical: boolean, 
   }
   if (vertical && r.dock) bottom = Math.max(bottom, Math.max(0, Math.round(h - r.dock.top + 10)))
   const top = vertical && r.bar ? Math.max(0, Math.round(r.bar.bottom + 6)) : 0
-  return { right, top, bottom }
+  return { right, top: mode === 'stack' ? Math.max(top, portraitTopInset) : top, bottom }
 }

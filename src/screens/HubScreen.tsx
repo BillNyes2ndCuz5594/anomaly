@@ -14,7 +14,7 @@ import HelpLevelPicker from '../ui/HelpLevelPicker'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
-import { caseStatus, hubBenchmarkGroups } from './hubList'
+import { caseStatus, hubBenchmarkGroups, unitTopic } from './hubList'
 import { clearCodenameDecode, peekCodenameDecode } from '../ui/decode'
 import { useDecode } from '../ui/useDecode'
 import { useMotionMode } from '../ui/useMotionMode'
@@ -103,6 +103,10 @@ function phoneLike(): boolean {
   return window.matchMedia('(max-width: 600px), (max-height: 500px)').matches
 }
 
+function updatePanelScrollCue(panel: HTMLElement) {
+  panel.dataset.moreBelow = String(panel.scrollHeight - panel.clientHeight - panel.scrollTop > 8)
+}
+
 export default function HubScreen() {
   const profile = useGame((s) => s.profile)
   const mastery = useGame((s) => s.mastery)
@@ -115,10 +119,25 @@ export default function HubScreen() {
   const [startOpen] = useState(() => !phoneLike())
   const mode = useMotionMode()
   const codenameRef = useRef<HTMLHeadingElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
   const [decode] = useState(peekCodenameDecode)
   useEffect(() => {
     if (decode) clearCodenameDecode()
   }, [decode])
+  useEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+    const update = () => updatePanelScrollCue(panel)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(panel)
+    for (const child of panel.children) observer.observe(child)
+    window.addEventListener('resize', update)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', update)
+    }
+  }, [profile])
   useEffect(() => {
     let cancelled = false
     let frameId = 0
@@ -177,7 +196,13 @@ export default function HubScreen() {
         <span className="label">AGENT HUB</span>
       </div>
 
-      <aside className="panel brackets hub-panel" aria-label="Agent panel" style={{ width: HUB_PANEL_WIDTH }}>
+      <aside
+        ref={panelRef}
+        className="panel brackets hub-panel"
+        aria-label="Agent panel"
+        style={{ width: HUB_PANEL_WIDTH }}
+        onScroll={(e) => updatePanelScrollCue(e.currentTarget)}
+      >
         <header className="agent-head">
           <img className="agent-foil" src={foilBadge} alt="" aria-hidden="true" decoding="async" />
           <span className="label">Field agent</span>
@@ -224,10 +249,10 @@ export default function HubScreen() {
                       art={CASE_ART[c.id]}
                       status={st.word.toLowerCase()}
                       to={`/case/${c.id}`}
-                      code={c.unitLabel}
+                      code={unitTopic(c.unitLabel)}
                       sub={
                         <>
-                          <span className="case-code">{c.codename} {'\u00B7'} Case {c.id}</span>{' '}
+                          <span className="case-code">{c.unitLabel.split(':')[0]} {'\u00B7'} {c.codename} {'\u00B7'} Case {c.id}</span>{' '}
                           <span className={`case-status ${st.word.toLowerCase()}`} data-testid={`case-status-${c.id}`}>
                             <span aria-hidden="true">{st.word === 'Closed' ? '\u2714' : st.word === 'Open' ? '\u25CB' : '\u2605'}</span> {st.text}
                           </span>
@@ -321,6 +346,7 @@ export default function HubScreen() {
         </section>
 
       </aside>
+      <div className="hub-scroll-fade" aria-hidden="true" />
 
       <details className="panel brackets codex-panel" data-testid="codex-panel">
         <summary>

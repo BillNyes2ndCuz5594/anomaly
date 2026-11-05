@@ -9,6 +9,11 @@ export interface CaseRecord {
 
 export type CaseStatusWord = 'New' | 'Open' | 'Closed'
 
+/** Put the science topic first on hub cards while keeping the unit number in the details. */
+export function unitTopic(label: string): string {
+  return label.replace(/^Unit\s+\d+:\s*/, '') || label
+}
+
 /** New (never played), Open (played, not closed) or Closed with the date it closed. */
 export function caseStatus(rec: CaseRecord | undefined): { word: CaseStatusWord; date: string | null; text: string } {
   if (!rec) return { word: 'New', date: null, text: 'New' }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { content } from '../content'
 import { CASE_ART } from './hubArt'
+import { unitTopic } from './hubList'
 import { orderCasesForHub, unitNumber } from '../state/startChoice'
 
 describe('hub opening and art', () => {
@@ -12,6 +13,13 @@ describe('hub opening and art', () => {
       expect(typeof CASE_ART[id]).toBe('string')
       expect(CASE_ART[id].length).toBeGreaterThan(0)
     }
+  })
+
+  it('makes same unit cards distinct with prominent topic names', () => {
+    const current = content.cases.filter((c) => unitNumber(c.unitLabel) === 4)
+    expect(current.map((c) => unitTopic(c.unitLabel))).toEqual(["Earth's Processes and Resources", 'Matter'])
+    expect(unitTopic('Unit 3: Living Things')).toBe('Living Things')
+    expect(unitTopic('Science')).toBe('Science')
   })
 
   it('splits orderCasesForHub by unit 4 gives 02-2, 04-1 first and all 10 ids exactly once', () => {
