@@ -1,0 +1,71 @@
+.help-level-picker {
+  border: 1px solid var(--line);
+  background: var(--navy-1);
+  padding: var(--sp-3);
+  margin: var(--sp-2) 0 var(--sp-3);
+}
+
+.help-level-legend {
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  letter-spacing: var(--track-head);
+  color: var(--cyan);
+  padding: 0 var(--sp-1);
+}
+
+.help-level-options {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.help-level-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--navy-2);
+  border: 1px solid var(--slate);
+  cursor: pointer;
+  color: var(--text);
+  user-select: none;
+  flex: 1 1 140px;
+}
+
+.help-level-option.on {
+  border-color: var(--cyan);
+  background: rgba(62, 230, 255, 0.12);
+}
+
+.help-level-option:focus-within {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.help-level-radio {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--cyan);
+  flex-shrink: 0;
+}
+
+.help-level-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.help-level-title {
+  font-weight: 700;
+  font-size: var(--fs-body);
+}
+
+.help-level-sub {
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}

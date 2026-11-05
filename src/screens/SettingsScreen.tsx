@@ -9,6 +9,7 @@ import {
   type TextSize,
 } from '../state/settings'
 import { useGame } from '../state/store'
+import HelpLevelPicker from '../ui/HelpLevelPicker'
 import { useBlip } from '../ui/useBlip'
 import './settings-sound.css'
 import './settings.css'
@@ -99,6 +100,7 @@ export default function SettingsScreen() {
       <main className="panel brackets settings-panel">
         <h1 className="screen-title">Settings</h1>
         <div className="settings-scroll-area">
+          <HelpLevelPicker />
           <div className="settings-grid">
             <section className="settings-section">
               <h2 className="settings-section-title">Reading</h2>

@@ -1,4 +1,5 @@
 import type { QualitySetting } from './quality'
+import type { HelpLevel } from './helpLevel'
 
 export type TextSize = 0 | 1 | 2
 export type LineSpacing = 0 | 1 | 2
@@ -15,6 +16,7 @@ export interface Settings {
   /** Master level, 0 to 1. 0.55 is the modest classroom default. */
   soundVolume: number
   showFps: boolean
+  helpLevel: HelpLevel
 }
 
 export const TEXT_SCALE: Record<TextSize, number> = { 0: 1, 1: 1.15, 2: 1.3 }
@@ -68,5 +70,6 @@ export function defaultSettings(prefersReduced: boolean = prefersReducedMotion()
     sound: true,
     soundVolume: DEFAULT_SOUND_VOLUME,
     showFps: false,
+    helpLevel: 'regular',
   }
 }

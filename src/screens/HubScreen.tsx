@@ -10,6 +10,7 @@ import { resolveTier } from '../state/quality'
 import GoldRushButton from '../ui/GoldRushButton'
 import BedrockModes, { resolveBedrockReturnTarget, setLastBedrockMode } from '../ui/BedrockModes'
 import ResidueAlert from '../ui/ResidueAlert'
+import HelpLevelPicker from '../ui/HelpLevelPicker'
 import { useReviewDue } from '../state/due'
 import ReportCodePanel from '../ui/ReportCodePanel'
 import { markerPressed, setMarkerPressed, subscribeMarkerPressed, type MarkerId } from '../three/scenes/hub/markerMotion'
@@ -207,6 +208,7 @@ export default function HubScreen() {
             <span className="qp-kicker">{lastCaseId === chosen ? 'Keep going' : 'Today in class'}</span>
             <span className="qp-title">{chosenCase.unitLabel}</span>
           </button>
+          <HelpLevelPicker />
           {([['current-unit', 'Your unit right now: Unit 4', currentCases], ['other-units', 'Other units', otherCases]] as const).map(([testId, title, list]) => (
           <div key={testId} data-testid={testId} className="case-group">
             <h4 className="case-group-title">{title}</h4>

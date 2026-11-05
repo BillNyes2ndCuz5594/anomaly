@@ -13,6 +13,7 @@ describe('settings defaults', () => {
       sound: true,
       soundVolume: DEFAULT_SOUND_VOLUME,
       showFps: false,
+      helpLevel: 'regular',
     })
   })
 
@@ -108,6 +109,41 @@ describe('store', () => {
     expect(useGame.getState().settings.sound).toBe(false)
     expect(useGame.getState().settings.soundVolume).toBe(DEFAULT_SOUND_VOLUME)
     expect(useGame.getState().settings.textSize).toBe(2)
+  })
+
+  it('hydrates helpLevel correctly across legacy, valid, invalid, and malformed settings', async () => {
+    const cases = [
+      { raw: { version: 1, state: { settings: { textSize: 1 } } }, expected: 'regular' },
+      { raw: { version: 1, state: { settings: { helpLevel: 'extra', textSize: 1 } } }, expected: 'extra' },
+      { raw: { version: 1, state: { settings: { helpLevel: 'regular', textSize: 1 } } }, expected: 'regular' },
+      { raw: { version: 1, state: { settings: { helpLevel: 'challenge', textSize: 1 } } }, expected: 'challenge' },
+      { raw: { version: 1, state: { settings: { helpLevel: 'invalid', textSize: 1 } } }, expected: 'regular' },
+      { raw: { version: 1, state: { settings: null } }, expected: 'regular' },
+      { raw: { version: 1, state: { settings: [] } }, expected: 'regular' },
+    ]
+
+    for (const { raw, expected } of cases) {
+      vi.resetModules()
+      const storage = fakeStorage()
+      storage.setItem('anomaly.v1', JSON.stringify(raw))
+      vi.stubGlobal('localStorage', storage)
+      const { useGame } = await import('./store')
+      await useGame.persist.rehydrate()
+      expect(useGame.getState().settings.helpLevel).toBe(expected)
+      if (raw.state.settings && typeof raw.state.settings === 'object' && !Array.isArray(raw.state.settings) && 'textSize' in raw.state.settings) {
+        expect(useGame.getState().settings.textSize).toBe(1)
+      }
+    }
+  })
+
+  it('persists help level under version 1', async () => {
+    const storage = fakeStorage()
+    vi.stubGlobal('localStorage', storage)
+    const { useGame } = await import('./store')
+    useGame.getState().setSettings({ helpLevel: 'challenge' })
+    const saved = JSON.parse(storage.data.get('anomaly.v1')!)
+    expect(saved.state.settings.helpLevel).toBe('challenge')
+    expect(saved.version).toBe(1)
   })
 
   it('creates a profile with a codename and no free text', async () => {
