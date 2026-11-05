@@ -8,35 +8,35 @@
     "benchmarks": ["SC.5.P.13.1"],
     "evidencePlan": [{ "benchmark": "SC.5.P.13.1", "count": 5 }],
     "marker": { "lon": -82.64, "lat": 27.77 },
-    "dispatchHook": "St. Petersburg pier. Things moving, nobody admits pushing.",
+    "dispatchHook": "Motion alert at the St. Petersburg pier! Mystery forces are moving things around.",
     "briefing": [
-      "Agent, reports came in from the St. Petersburg pier. A cart rolled away, a bike did not stop, and a coconut fell.",
-      "Every report blames the same thing: something pushed it.",
-      "Sort each event by the force behind it, then read the speed logs.",
-      "A ghost is not on the list of forces. Check anyway."
+      "Agent, strange motion reports are rolling in from the St. Petersburg pier!",
+      "A snack cart rolled away, a runaway bike zoomed past, and a coconut dropped.",
+      "Sort each motion card by the force behind it, then track down the speed logs.",
+      "Grab your force sensor and let's find out what got everything moving!"
     ],
     "lab": {
       "kind": "sort",
-      "intro": "Every card is something that moved or stopped moving. Put it with the force that did it.",
+      "intro": "Mystery motions are happening all over the pier! Sort each card into the bin for the force that caused it.",
       "bins": [
-        { "id": "push-pull", "name": "Push or pull", "hint": "Something touches the object and moves it away or toward itself." },
-        { "id": "gravity", "name": "Gravity", "hint": "Earth pulls objects down toward the ground without touching them." },
-        { "id": "friction", "name": "Friction", "hint": "Two surfaces rub together and slow the motion." },
-        { "id": "magnetic", "name": "Magnetic force", "hint": "A magnet pulls on iron or steel, or pushes or pulls another magnet, without touching." }
+        { "id": "push-pull", "name": "Push or pull", "hint": "Something touches an object to push it away or pull it closer." },
+        { "id": "gravity", "name": "Gravity", "hint": "Earth pulls objects straight down toward the ground without touching them." },
+        { "id": "friction", "name": "Friction", "hint": "Surfaces rub together and resist motion to slow things down." },
+        { "id": "magnetic", "name": "Magnetic force", "hint": "A magnet pushes or pulls another magnet, or pulls on iron or steel, without touching." }
       ],
       "cards": [
-        { "id": "kick", "name": "Soccer kick", "card": ["A foot hits a soccer ball.", "The ball flies across the field."], "bin": "push-pull", "why": "The foot touches the ball and pushes it away." },
-        { "id": "wagon", "name": "Wagon of oranges", "card": ["An agent grabs the handle.", "She walks forward and the wagon follows."], "bin": "push-pull", "why": "Holding the handle and drawing the wagon along behind her is a pull." },
-        { "id": "coconut", "name": "Coconut drop", "card": ["A coconut comes loose from a palm.", "Nothing touches it on the way down to the sand."], "bin": "gravity", "why": "Earth pulls the coconut down to the ground without touching it." },
-        { "id": "rain", "name": "Afternoon storm", "card": ["Raindrops form in a cloud.", "They fall to the street below."], "bin": "gravity", "why": "Gravity pulls the raindrops down from the cloud to the ground." },
-        { "id": "brakes", "name": "Bike brakes", "card": ["Rubber pads squeeze the spinning wheel.", "The bike slows and stops."], "bin": "friction", "why": "The pads rub on the wheel and resist its motion, so the bike slows." },
-        { "id": "book", "name": "Book on carpet", "card": ["A book slides across a carpet.", "It stops after a short way."], "bin": "friction", "why": "The rough carpet rubs on the book and resists its motion." },
-        { "id": "train", "name": "Toy train cars", "card": ["The end of one car comes near the next car.", "They snap together before they touch."], "bin": "magnetic", "why": "Magnets on the ends of the cars pull them together without touching." },
-        { "id": "pins", "name": "Spilled pins", "card": ["A gray bar is held over steel pins and wooden beads.", "The pins jump up to it. The beads stay put."], "bin": "magnetic", "why": "A magnet pulls on steel without touching it, but it does not pull on wood." }
+        { "id": "kick", "name": "Soccer kick", "card": ["A foot hits a soccer ball.", "The ball flies across the field."], "bin": "push-pull", "why": "Spot on! The foot makes contact with the ball and pushes it across the field." },
+        { "id": "wagon", "name": "Wagon of oranges", "card": ["Agent Rosa grabs the wagon handle.", "She walks forward and the wagon rolls behind her."], "bin": "push-pull", "why": "You got it! Pulling the wagon handle moves the wagon forward behind Rosa." },
+        { "id": "coconut", "name": "Coconut drop", "card": ["A coconut comes loose from a palm tree.", "Nothing touches it on the way down to the sand."], "bin": "gravity", "why": "Spot on! Gravity pulls the coconut down toward Earth without touching it." },
+        { "id": "rain", "name": "Afternoon storm", "card": ["Raindrops form in a Florida cloud.", "They fall to the street below."], "bin": "gravity", "why": "You got it! Gravity pulls the raindrops straight down from the sky to the ground." },
+        { "id": "brakes", "name": "Bike brakes", "card": ["Rubber pads squeeze the spinning bike wheel.", "The bike slows down and stops."], "bin": "friction", "why": "Spot on! The brake pads rub against the spinning wheel, creating friction that slows the bike down." },
+        { "id": "book", "name": "Book on carpet", "card": ["Agent Kai slides a book across the carpet.", "The book slows and stops after a short slide."], "bin": "friction", "why": "You got it! Friction between the rough carpet and the sliding book slows the book down." },
+        { "id": "train", "name": "Toy train cars", "card": ["The front of a toy train car comes near another car.", "They snap together before they even touch."], "bin": "magnetic", "why": "Spot on! Magnetic force pulls the train cars together without needing to touch first." },
+        { "id": "pins", "name": "Spilled pins", "card": ["Agent Sam holds a gray bar magnet over steel pins and wooden beads.", "The steel pins jump right up, but the wooden beads stay put."], "bin": "magnetic", "why": "You got it! The magnet pulls on steel objects without touching them, but it does not pull on wood." }
       ]
     },
-    "debriefClosed": "Case closed. Every motion on the pier has a force behind it, and none of them are ghosts.",
-    "debriefOpen": "Case stays open for now. Check the pier crane scales; we still have heavy cargo shifting under mystery forces."
+    "debriefClosed": "Awesome job, Agent! Every mystery motion on the pier is solved, and each force is logged correctly.",
+    "debriefOpen": "This case stays open for now, Agent. Check the pier cargo scales and come back soon to test more forces!"
   },
   "items": [
     {
@@ -46,14 +46,14 @@
       "category": "physical",
       "complexity": "low",
       "pool": "case",
-      "stem": "An apple breaks off a branch and falls to the ground. A ball thrown straight up slows, stops and comes back down. Which force pulls both objects down?",
+      "stem": "Agent Maya watches a ripe apple break from a tree branch. The apple falls to the ground. Next, a ball thrown straight up slows, stops, and comes back down. Which force pulls both objects down?",
       "options": ["friction", "magnetic force", "gravity", "a push from the air"],
       "key": 2,
       "why": [
-        "Decoy: friction resists motion when surfaces rub, and it does not pull things down.",
-        "Decoy: magnetic force pulls on iron and steel, and apples and balls are not attracted to magnets.",
-        "Correct: gravity pulls objects toward Earth without touching them.",
-        "Decoy: air pushes back on falling objects a little, which slows them instead of pulling them down."
+        "Friction happens when surfaces rub together to resist motion. It does not pull objects down.",
+        "Magnetic force pulls on metals like iron and steel. It does not pull apples or rubber balls.",
+        "Spot on! Earth's gravity pulls objects straight toward the ground without even touching them.",
+        "Air can resist falling objects and slow them down, but air does not pull objects down toward Earth."
       ],
       "keyWords": ["falls to the ground", "comes back down", "pulls both objects down"],
       "visual": { "kind": "scene", "id": "falling-apple", "labels": ["apple", "ball", ""] },
@@ -68,14 +68,14 @@
       "category": "physical",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "Four remote-control boats each crossed the same 20 m pool. An agent timed each one. Which boat was the fastest?",
+      "stem": "Four remote-control boats each crossed the same 20 m pool. Agent Leo timed each boat with a stopwatch. Which boat was the fastest?",
       "options": ["Boat 1", "Boat 2", "Boat 3", "Boat 4"],
       "key": 3,
       "why": [
-        "Decoy: Boat 1 took 8 seconds, which is longer than Boat 4's 5 seconds.",
-        "Decoy: Boat 2 has the biggest number, 12 seconds, which means it took the longest and was the slowest.",
-        "Decoy: Boat 3 took 10 seconds, which is longer than Boat 4's 5 seconds.",
-        "Correct: every boat went the same distance, so the boat with the least time, 5 seconds, was the fastest."
+        "Check the timer column! Boat 1 took 8 seconds, which is longer than Boat 4's 5 seconds.",
+        "Watch out for big numbers! A time of 12 seconds means Boat 2 took the longest to finish, making it the slowest boat.",
+        "Take another look at the times! Boat 3 took 10 seconds, which is slower than Boat 4.",
+        "Spot on! Every boat crossed the same 20 meters. The boat with the shortest time, 5 seconds, was the fastest!"
       ],
       "keyWords": ["same 20 m pool", "timed", "fastest"],
       "visual": {
@@ -95,7 +95,7 @@
       "category": "physical",
       "complexity": "high",
       "pool": "case",
-      "stem": "The graph shows how far Jo and Sam walked along the St. Petersburg pier over the same amount of time. Jo's line is steeper than Sam's line. Which statement is supported by the graph?",
+      "stem": "Agent Kai tracks how far Jo and Sam walked along the St. Petersburg pier over the same amount of time. Jo's line is steeper than Sam's line. Which statement is supported by the graph?",
       "options": [
         "Jo walked faster, because Jo covered more distance in the same time.",
         "Sam walked faster, because Sam's line is less steep.",
@@ -104,10 +104,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a steeper line on a distance and time graph means more distance in each unit of time, so Jo was faster.",
-        "Decoy: a less steep line means less distance in the same time, so Sam was slower.",
-        "Decoy: walking for the same time does not mean walking at the same speed, because Jo went farther.",
-        "Decoy: the graph shows distance and time, not hills, so a steep line means fast, not uphill."
+        "Spot on! On a distance and time graph, a steeper line means covering more distance in the same time. Jo walked faster!",
+        "Check the slope again! A flatter, less steep line means Sam covered less distance in that time, so Sam was slower.",
+        "Look at the distance axis! Even though both walked for the same time, Jo traveled much farther down the pier.",
+        "Keep in mind what the graph tracks! The graph compares distance and time, not hills. A steep line means higher speed."
       ],
       "keyWords": ["how far", "same amount of time", "steeper"],
       "visual": { "kind": "scene", "id": "speed-graph", "labels": ["Jo", "Sam", "time"] },
@@ -122,7 +122,7 @@
       "category": "physical",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "Agents give the same empty cart a light push, a medium push and a hard push on the same smooth floor. They measure how far the cart rolls each time. Which statement is supported by the data?",
+      "stem": "Agent Elena and Agent Marcus give the same empty cart a light push, a medium push, and a hard push on the same smooth floor. They measure how far the cart rolls each time. Which statement is supported by the data?",
       "options": [
         "A lighter push makes the cart roll farther.",
         "A harder push makes the cart roll farther.",
@@ -131,10 +131,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: the light push moved the cart the shortest distance, so this is backward.",
-        "Correct: the harder the push, the farther the cart rolled, because a bigger push causes a bigger change in motion.",
-        "Decoy: the distances in the table are different for each push.",
-        "Decoy: the floor was the same for every push, so the floor cannot explain the different distances."
+        "Check the table row for the light push! It only moved the cart 1 meter, which was the shortest distance of all.",
+        "Spot on! A bigger push causes a bigger change in motion. The hard push sent the cart rolling 6 meters!",
+        "Look at the distance column! The cart rolled 1 meter, 3 meters, and 6 meters, so the distances were different.",
+        "Remember what stayed the same! The floor was smooth for every push, so the force of each push made the difference."
       ],
       "keyWords": ["same empty cart", "same smooth floor", "how far the cart rolls"],
       "visual": {
@@ -154,7 +154,7 @@
       "category": "physical",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "An agent gives the same toy car the same push on two tracks. The car rolls far on the smooth tile track. It stops much sooner on the carpet track. Why does the car stop sooner on the carpet?",
+      "stem": "Agent Maya gives the same toy car the same push on two tracks. The car rolls far on the smooth tile track. It stops much sooner on the carpet track. Why does the car stop sooner on the carpet?",
       "options": [
         "The carpet has more friction, which resists the car's motion.",
         "The carpet has less friction, which slows the car down.",
@@ -163,10 +163,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: a rough surface like carpet has more friction, and friction resists motion, so the car stops sooner.",
-        "Decoy: less friction would let the car roll farther, not stop sooner.",
-        "Decoy: gravity pulls the same on both tracks.",
-        "Decoy: the tile does not push the car, it just has less friction to slow it."
+        "Spot on! Rough surfaces like carpet produce more friction, which resists the rolling wheels and stops the car sooner.",
+        "Think about sliding surfaces! Less friction lets objects glide farther. More friction is what brings things to a stop.",
+        "Gravity pulls downward with the exact same strength on both tracks. Surface texture is what changed here.",
+        "Surfaces do not push rolling cars forward. The smooth tile simply has very little friction to slow the car down."
       ],
       "keyWords": ["same push", "smooth tile track", "stops much sooner"],
       "visual": { "kind": "scene", "id": "friction-surfaces", "labels": ["tile", "carpet"] },
@@ -181,7 +181,7 @@
       "category": "physical",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "An agent holds two bar magnets. When the north pole of one faces the south pole of the other, they pull together. When two north poles face each other, they push apart. What will happen when she turns the magnets so two south poles face each other?",
+      "stem": "Agent Rosa tests two bar magnets in her lab kit. When the north pole of one faces the south pole of the other, they pull together. When two north poles face each other, they push apart. What will happen when she turns the magnets so two south poles face each other?",
       "options": [
         "They pull together, because all magnet ends attract each other.",
         "Nothing happens, because the magnets are not touching.",
@@ -190,10 +190,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: the two north poles pushed apart, so magnet ends do not always attract.",
-        "Decoy: magnetic force works without touching, as the north poles showed when they pushed apart.",
-        "Decoy: magnets attract iron and steel, but two like poles of magnets push apart.",
-        "Correct: two south poles are like poles, and like poles repel, just as the two north poles did."
+        "Check the north poles rule! Two north poles pushed apart, so magnet ends do not always attract each other.",
+        "Remember how magnets work! Magnetic force acts across space without touching, just like the north poles did.",
+        "Look closely at the poles! While magnets attract iron and steel, two matching magnet poles push away from each other.",
+        "You got it! Two south poles are like poles. Just like two north poles, like poles push apart and repel!"
       ],
       "keyWords": ["north pole of one faces the south pole", "two south poles face each other"],
       "visual": { "kind": "scene", "id": "magnet-poles", "labels": ["N facing S", "N facing N"] },
@@ -208,7 +208,7 @@
       "category": "physical",
       "complexity": "low",
       "pool": "cold",
-      "stem": "Two teams play tug-of-war on the beach. The table shows how many agents are on each team and how hard each team pulls. Which way will the rope move?",
+      "stem": "Two field teams play tug-of-war on the beach at Fort De Soto. The table shows how many agents are on each team and how hard each team pulls. Which way will the rope move?",
       "options": [
         "toward the right team, because it has more agents",
         "toward the left team, because it pulls harder",
@@ -217,10 +217,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: the number of agents does not decide it, because the left team pulls harder.",
-        "Correct: the pulls are not equal, so the rope moves toward the stronger pull.",
-        "Decoy: the rope stays still only when both pulls are equal, and these pulls are not.",
-        "Decoy: an object moves toward the stronger pull, not away from it."
+        "Look at how hard each team pulls! Player count does not decide it because the left team pulls with more force.",
+        "Spot on! When two pulls are unequal, an object moves toward the stronger pull. The left team pulls harder!",
+        "Check the balance of forces! The rope only stays still if both pulls are equal. Here, one team pulls much harder.",
+        "Think about how pulling works! When a team pulls an object with greater force, the object moves toward them, not away."
       ],
       "keyWords": ["how hard each team pulls", "Which way will the rope move"],
       "visual": {
@@ -240,7 +240,7 @@
       "category": "physical",
       "complexity": "high",
       "pool": "cold",
-      "stem": "Agents tracked a manatee swimming in Tampa Bay. The table shows how far it was from the dock each minute. Which statement describes the manatee's motion?",
+      "stem": "Agent Sam tracked a gentle manatee swimming in Tampa Bay. The table shows how far it was from the dock each minute. Which statement describes the manatee's motion?",
       "options": [
         "It sped up, because the numbers get bigger each minute.",
         "It slowed down each minute.",
@@ -249,10 +249,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: the numbers grow because the distances add up, but each minute adds the same 50 m, so the manatee did not speed up.",
-        "Decoy: each minute adds the same 50 m, so the manatee did not slow down.",
-        "Correct: the distance from the dock grew by the same amount each minute, so the manatee kept the same speed.",
-        "Decoy: 150 m is how far the manatee was after 3 minutes, not how far it swam in each minute."
+        "Look at how much distance was added each minute! The total grew, but it moved exactly 50 meters every single minute.",
+        "Check the rate of change! The manatee traveled 50 meters between minutes 1 and 2, and another 50 meters in minute 3.",
+        "Spot on! The manatee swam exactly 50 meters during each single minute, so its speed stayed the same.",
+        "Check the total time! The manatee was 150 meters out after 3 full minutes, not in one single minute."
       ],
       "keyWords": ["how far it was from the dock each minute", "manatee's motion"],
       "visual": {
