@@ -16,14 +16,9 @@
 
 .gold-delta { display: inline-block; margin-left: 0.35rem; color: var(--amber); }
 .gold-crates .gold-revealed { opacity: 1; color: var(--amber); }
-@media (max-width: 900px) {
-  .hub-screen .gold-rush-btn:not(.bedrock-modes-group *) {
-    position: fixed;
-    top: calc(var(--bar-h, 76px) + 12px);
-    right: 16px;
-    z-index: 30;
-    box-shadow: 0 0 12px rgba(255, 181, 71, 0.4);
-  }
+.hub-screen .gold-rush-btn {
+  width: 100%;
+  margin: 6px 0 0;
 }
 @media (prefers-reduced-motion: no-preference) {
   .gold-screen[data-motion='full'] .gold-revealed { animation: gold-reveal 420ms var(--ease-out); }

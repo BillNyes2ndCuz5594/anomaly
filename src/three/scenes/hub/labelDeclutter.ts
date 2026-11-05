@@ -13,7 +13,7 @@ export function createLabelDeclutter() {
   const ordered: LabelItem[] = []
   const accepted: LabelItem[] = []
   const result: Record<string, Placement> = Object.create(null)
-  return (items: LabelItem[], pad = 4): Record<string, Placement> => {
+  return (items: LabelItem[], pad = 20): Record<string, Placement> => {
     ordered.length = 0
     accepted.length = 0
     for (const item of items) {

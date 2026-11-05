@@ -1050,7 +1050,8 @@ html[data-reduced-motion='true'] *::after {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  padding: 10px 14px;
+  margin-top: 6px;
+  padding: 8px 10px;
   border-left: 4px solid var(--ok);
   background: rgba(0, 158, 115, 0.12);
 }
@@ -1635,6 +1636,17 @@ html[data-reduced-motion='true'] *::after {
   gap: 8px;
   flex-wrap: wrap;
   margin-top: auto;
+}
+.options-panel .item-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding-top: 8px;
+  background: linear-gradient(180deg, rgba(10, 20, 38, 0), rgba(10, 20, 38, 0.96) 28%);
+}
+.options[data-verdict] .opt-btn,
+.options[data-verdict] .option {
+  padding: 8px 12px;
 }
 .item-actions .primary {
   margin-left: auto;
@@ -2788,6 +2800,8 @@ html[data-reduced-motion='true'] .results-panel::after {
   }
   .results-panel {
     gap: var(--sp-4);
+    overflow-y: auto;
+    min-height: 0;
   }
   .bars {
     flex: 1;
@@ -2805,6 +2819,8 @@ html[data-reduced-motion='true'] .results-panel::after {
   }
   .results-side {
     justify-content: space-between;
+    overflow-y: auto;
+    min-height: 0;
   }
 }
 @media (min-width: 901px) and (max-height: 820px) {

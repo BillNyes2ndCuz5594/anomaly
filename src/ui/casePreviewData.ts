@@ -41,8 +41,10 @@ export function placePreview(rect: Box, vw: number, vh: number): { left: number;
   if (rect.left - GAP - PREVIEW_W >= EDGE) {
     return { left: rect.left - GAP - PREVIEW_W, top: clamp(midY, EDGE, Math.max(EDGE, vh - PREVIEW_H - EDGE)) }
   }
+  const minTop = vw <= 900 ? 140 : EDGE
+  const targetTop = vw <= 900 && rect.top - GAP - PREVIEW_H < 140 ? Math.max(rect.bottom + GAP, 140) : rect.top - GAP - PREVIEW_H
   return {
     left: clamp(rect.left, EDGE, Math.max(EDGE, vw - PREVIEW_W - EDGE)),
-    top: clamp(rect.top - GAP - PREVIEW_H, EDGE, Math.max(EDGE, vh - PREVIEW_H - EDGE)),
+    top: clamp(targetTop, minTop, Math.max(minTop, vh - PREVIEW_H - EDGE)),
   }
 }

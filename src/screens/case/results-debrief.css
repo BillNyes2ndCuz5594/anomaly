@@ -266,9 +266,21 @@ html[data-reduced-motion='true'] .rd-screen .stamp {
 }
 
 .rd-screen .results-panel,
-.rd-screen .results-side {
+.rd-screen .results-side,
+.results-panel,
+.results-side {
   min-width: 0;
   min-height: 0;
+  overflow-y: auto;
+}
+
+.stat-tile,
+.rd-screen .bar-row {
+  padding: 8px 10px;
+}
+
+.mastery-list li {
+  padding: 7px 10px;
 }
 
 .rd-screen .results-panel,

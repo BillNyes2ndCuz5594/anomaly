@@ -71,4 +71,9 @@ describe('case preview placement', () => {
     const top = placePreview({ left: 12, top: 20, right: 360, bottom: 68 }, 375, 700)
     expect(top.top).toBeGreaterThanOrEqual(8)
   })
+
+  it('clamps below the header when vw <= 900', () => {
+    const p = placePreview({ left: 12, top: 100, right: 360, bottom: 148 }, 834, 1194)
+    expect(p.top).toBeGreaterThanOrEqual(140)
+  })
 })
