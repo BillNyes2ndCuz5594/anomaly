@@ -87,7 +87,7 @@ function CaseButton({
     >
       {art ? <img className="case-art" src={art} alt="" aria-hidden="true" decoding="async" loading="lazy" width={160} height={100} /> : null}
       {fx}
-      <span className="case-code">{code}</span>
+      <span className="case-code">{code}</span>{' '}
       <span className="case-sub">{sub}</span>
     </button>
   )
@@ -225,7 +225,7 @@ export default function HubScreen() {
                       code={c.unitLabel}
                       sub={
                         <>
-                          <span className="case-code">{c.codename} {'\u00B7'} Case {c.id}</span>
+                          <span className="case-code">{c.codename} {'\u00B7'} Case {c.id}</span>{' '}
                           <span className={`case-status ${st.word.toLowerCase()}`} data-testid={`case-status-${c.id}`}>
                             <span aria-hidden="true">{st.word === 'Closed' ? '\u2714' : st.word === 'Open' ? '\u25CB' : '\u2605'}</span> {st.text}
                           </span>
