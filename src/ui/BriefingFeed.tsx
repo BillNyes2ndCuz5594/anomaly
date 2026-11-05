@@ -3,20 +3,30 @@ import { useMotionMode } from './useMotionMode'
 import feedWebm from '../assets/video/briefing-feed.webm?url'
 import feedMp4 from '../assets/video/briefing-feed.mp4?url'
 import feedPoster from '../assets/video/briefing-feed.webp?url'
+import spillWebm from '../assets/video/spill-04-1.webm?url'
+import spillMp4 from '../assets/video/spill-04-1.mp4?url'
+import spillPoster from '../assets/video/spill-04-1.webp?url'
+
+export type BriefingFeedVariant = 'default' | 'spill-04-1'
 
 /**
- * B1: the incoming transmission monitor in the Briefing panel. The clip is a 4 s one-shot on pure black, so it
+ * B1: the incoming transmission monitor in the Briefing panel. The clip is a one-shot on pure black, so it
  * composites with mix-blend-mode: screen. full shows the poster, crossfades to the clip after its first decoded
  * frame, then holds the poster (the clean last frame). fade and still show the poster only and never mount a
  * <video> element.
  */
-export default function BriefingFeed() {
+export default function BriefingFeed({ variant = 'default' }: { variant?: BriefingFeedVariant }) {
   const mode = useMotionMode()
   const ref = useRef<HTMLVideoElement | null>(null)
   const [live, setLive] = useState(false)
   const [ended, setEnded] = useState(false)
   const [done, setDone] = useState(false)
   const playing = mode === 'full'
+
+  const isSpill = variant === 'spill-04-1'
+  const webm = isSpill ? spillWebm : feedWebm
+  const mp4 = isSpill ? spillMp4 : feedMp4
+  const poster = isSpill ? spillPoster : feedPoster
 
   useEffect(() => {
     if (!ended) return
@@ -46,8 +56,14 @@ export default function BriefingFeed() {
     }
   }, [playing])
   return (
-    <div className="briefing-feed" data-mode={mode} data-testid="briefing-feed" aria-hidden="true">
-      <img className="feed-poster" src={feedPoster} alt="" decoding="async" />
+    <div
+      className={`briefing-feed${isSpill ? ' briefing-feed-spill' : ''}`}
+      data-variant={variant}
+      data-mode={mode}
+      data-testid="briefing-feed"
+      aria-hidden="true"
+    >
+      <img className="feed-poster" src={poster} alt="" decoding="async" />
       {playing && !done ? (
         <video
           ref={ref}
@@ -60,8 +76,8 @@ export default function BriefingFeed() {
           tabIndex={-1}
           onEnded={() => setEnded(true)}
         >
-          <source src={feedWebm} type="video/webm" />
-          <source src={feedMp4} type="video/mp4" />
+          <source src={webm} type="video/webm" />
+          <source src={mp4} type="video/mp4" />
         </video>
       ) : null}
       <span className="feed-tag mono">INCOMING</span>
