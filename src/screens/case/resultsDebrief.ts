@@ -93,3 +93,11 @@ export function debriefLine(closed: boolean, cold: boolean, closedText: string, 
   if (closed) return closedText
   return cold ? openText : 'CASE STILL OPEN. It returns as a cold case soon.'
 }
+
+/** Strips leading 'Correct.' or 'Decoy:' markers and capitalizes the first character. */
+export function cleanWhy(raw: string): string {
+  if (!raw) return ''
+  const trimmed = raw.replace(/^(?:Correct[.:]|Decoy:)\s*/i, '').trim()
+  if (!trimmed) return ''
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+}

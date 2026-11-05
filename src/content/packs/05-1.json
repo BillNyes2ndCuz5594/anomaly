@@ -45,7 +45,7 @@
       ]
     },
     "debriefClosed": "Case closed. The riverfront is lit, quiet and only as warm as it should be.",
-    "debriefOpen": "Case stays open for now. The wiring comes back as a cold case soon, and you will trace it faster then."
+    "debriefOpen": "Case stays open for now. Check your test leads; that dark riverfront circuit still has a loose wire somewhere."
   },
   "items": [
     {

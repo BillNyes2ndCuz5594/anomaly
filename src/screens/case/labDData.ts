@@ -91,7 +91,7 @@ export const MINERALS: Record<MineralId, MineralDef> = {
   calcite: {
     id: 'calcite',
     name: 'Calcite',
-    alt: 'Clear to whitish rhombohedral calcite mineral specimen.',
+    alt: 'Clear to whitish blocky, slanted calcite mineral specimen.',
     hardnessDesc: 'Hardness 3',
     tests: {
       streak: 'Leaves a white streak on porcelain.',
@@ -153,7 +153,7 @@ export const MINERALS: Record<MineralId, MineralDef> = {
       luster: 'Metallic gold and brassy shine.',
       peel: 'Does not peel; it forms chunky cubes.',
     },
-    why: 'Pyrite (fool gold) has hardness 6 to 6.5, steel does not scratch it, and it leaves a greenish black streak.',
+    why: 'Pyrite (fool\'s gold) has hardness 6 to 6.5, steel does not scratch it, and it leaves a greenish black streak.',
     summary: 'Hardness 6 to 6.5, steel does not scratch, greenish black streak, metallic gold shine.',
   },
 }
@@ -193,7 +193,7 @@ export const ROCKS: Record<RockId, RockDef> = {
   granite: {
     id: 'granite',
     name: 'Granite',
-    alt: 'Speckled granite rock specimen showing interlocking quartz, feldspar, and mica grains.',
+    alt: 'Speckled granite rock specimen showing tightly fitted quartz, feldspar, and mica grains.',
     rockType: 'igneous',
     rockTypeLabel: 'Igneous',
     features: {
@@ -202,7 +202,7 @@ export const ROCKS: Record<RockId, RockDef> = {
       bands: 'No ribbon-like bands; the mineral crystals are speckled evenly throughout.',
     },
     why: 'Granite is an igneous rock formed when magma cooled slowly deep underground, leaving large visible mineral grains.',
-    hint: 'Notice the coarse, interlocking mineral grains with no layers or ribbon bands.',
+    hint: 'Notice the coarse, tightly fitted mineral grains with no layers or ribbon bands.',
   },
   limestone: {
     id: 'limestone',
@@ -213,7 +213,7 @@ export const ROCKS: Record<RockId, RockDef> = {
     features: {
       grains: 'Fine calcite particles and tiny shell bits cemented together.',
       layers: 'Visible shell fragments, fossil prints, and shallow sea sediment layers.',
-      bands: 'No metamorphic ribbon bands.',
+      bands: 'No wavy light and dark ribbon bands.',
     },
     why: 'Limestone is a sedimentary rock formed from cemented shells, fossils, and calcite in shallow Florida ocean waters.',
     hint: 'Look for the cemented shell fragments and ocean sediment layers.',
@@ -225,8 +225,8 @@ export const ROCKS: Record<RockId, RockDef> = {
     rockType: 'metamorphic',
     rockTypeLabel: 'Metamorphic',
     features: {
-      grains: 'Recrystallized mineral grains flattened into wavy lines.',
-      layers: 'No fossils or shells; extreme heat and pressure erased any original layers.',
+      grains: 'Mineral grains pressed and flattened into wavy lines.',
+      layers: 'No shells or fossils; the mineral grains are folded into tight bands.',
       bands: 'Distinct alternating bands of light and dark minerals folded under heat and pressure.',
     },
     why: 'Gneiss is a metamorphic rock formed when high heat and intense pressure squeezed and banded the minerals.',

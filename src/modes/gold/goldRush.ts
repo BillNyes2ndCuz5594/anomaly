@@ -24,7 +24,7 @@ export function startGold(seed: string): GoldRush {
 }
 export function answerGold(s: GoldRush, correct: boolean): GoldRush {
   if (s.phase !== 'question') return s
-  return { ...s, phase: correct ? 'crate' : 'next', outcome: correct ? 'Vault unlocked. Pick a crate!' : 'Keep exploring. Another question awaits.',
+  return { ...s, phase: correct ? 'crate' : 'next', outcome: correct ? 'Vault unlocked. Pick a crate!' : 'Empty cache. Pick another signal on the grid.',
     bots: s.bots.map((bot, i) => ({ ...bot, intel: bot.intel + Math.floor(seeded(s.seed, `bot:${s.question}:${i}`) * 9) + 2 })) }
 }
 export function cratesFor(s: GoldRush): Crate[] {
@@ -52,7 +52,7 @@ export function applyCrate(s: GoldRush, crate: Crate): GoldRush {
   let outcome: string
   if (typeof resolvedCrate === 'number') { intel += resolvedCrate; outcome = `Found ${resolvedCrate} intel!` }
   else if (resolvedCrate === 'double') { intel *= 2; outcome = 'Double intel! Your stash just grew.' }
-  else if (resolvedCrate === 'glitch') { intel -= Math.floor(intel * 0.25); outcome = 'Vault glitch! Lost 25% of your intel. Keep exploring.' }
+  else if (resolvedCrate === 'glitch') { intel -= Math.floor(intel * 0.25); outcome = 'Cache trap! A surge drained 25% of your intel.' }
   else if (resolvedCrate === 'swap' && rival.intel > intel) {
     [intel, rival.intel] = [rival.intel, intel]; outcome = `Stash swap with ${rival.name}!`
   } else if (resolvedCrate === 'steal') {

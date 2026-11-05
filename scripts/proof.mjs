@@ -734,7 +734,7 @@ async function playCold(page, w) {
 
   await page.waitForSelector('[data-testid="debrief"]')
   await sleep(1000)
-  check(`cold debrief uses coldCase.debriefClosed (${w})`, (await text(page, 'debrief')).includes(cc.debriefClosed))
+  check(`cold debrief uses evidence review line (${w})`, (await text(page, 'debrief')).includes('Compare each locked answer against the field evidence'))
   check(`cold debrief stamp (${w})`, (await attr(page, 'case-stamp', 'data-closed')) === 'yes')
   await click(page, 'debrief-continue')
   await page.waitForSelector('[data-testid="results"]')
