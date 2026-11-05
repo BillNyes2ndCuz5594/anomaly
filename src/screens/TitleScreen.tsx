@@ -161,6 +161,7 @@ export default function TitleScreen() {
   return (
     <div className="screen title-screen" data-testid="title">
       <TitleBackdrop />
+      <h1 className="sr-only title-brand">ANOMALY</h1>
       <div className="topbar">
         <span className="label">FIELD UNIT // FLORIDA</span>
         <button type="button" className="btn small ghost" onClick={() => navigate('/settings')}>
@@ -169,7 +170,6 @@ export default function TitleScreen() {
       </div>
 
       <div className="title-bottom">
-        <h1 className="sr-only">ANOMALY</h1>
         <p className="tagline">Solve science mysteries.</p>
         <p className="title-hook" data-testid="title-hook">
           Weird clues are popping up across Florida. Your science team needs you.

@@ -130,6 +130,15 @@ async function checkTitleAttract() {
     const held = new Promise((resolve) => { release = resolve })
     let videoRequests = 0
     await page.setRequestInterception(true)
+    await page.evaluateOnNewDocument(() => {
+      localStorage.setItem('anomaly.v1', JSON.stringify({ state: { settings: { reducedMotion: false } }, version: 1 }))
+      window.__titlePlayCalls = 0
+      const mediaPlay = HTMLMediaElement.prototype.play
+      HTMLMediaElement.prototype.play = function (...args) {
+        window.__titlePlayCalls++
+        return mediaPlay.apply(this, args)
+      }
+    })
     page.on('request', async (r) => {
       if (r.resourceType() === 'media' && /backdrop-title.*\.(webm|mp4)/.test(r.url())) { videoRequests++; await held }
       if (!r.isInterceptResolutionHandled()) await r.continue()
@@ -147,6 +156,16 @@ async function checkTitleAttract() {
     check(`title first paint fits ${vp.name}`, await visible())
     await page.screenshot({ path: `${SHOTS_DIR}/title-${vp.name}-first.png` })
     await page.waitForSelector('.title-backdrop video')
+    await page.waitForFunction(() => window.__titlePlayCalls === 1 && window.__anomaly?.backend === 'webgl2' && window.__anomaly.frame > 2 && window.__anomaly.triangles > 0)
+    check(`title 3D ANOMALY foreground and DOM media share one visible stack ${vp.name}`, await page.evaluate(() => {
+      const canvas = document.querySelector('.stage-layer canvas')
+      const gl = canvas?.getContext('webgl2')
+      const brand = document.querySelector('.title-brand')
+      const backdrop = document.querySelector('.title-backdrop')
+      return gl?.getContextAttributes().alpha === true && window.__anomaly.triangles > 0 &&
+        brand?.textContent === 'ANOMALY' && brand.getBoundingClientRect().width === 1 &&
+        getComputedStyle(backdrop).zIndex === '-1' && document.querySelectorAll('.title-backdrop video').length === 1
+    }))
     check(`title poster stays under delayed video ${vp.name}`, await page.$eval('.title-backdrop video', (v) =>
       v.muted && v.loop && v.playsInline && v.dataset.live === 'no' && v.previousElementSibling.complete && v.previousElementSibling.naturalWidth === 960))
     await page.keyboard.press('Tab')
@@ -163,6 +182,7 @@ async function checkTitleAttract() {
     await page.reload({ waitUntil: 'load' })
     await page.waitForSelector('.title-backdrop video[data-live="yes"]')
     check(`title video plays after poster ${vp.name}`, await page.$eval('.title-backdrop video', (v) => !v.paused && v.muted && v.loop && v.previousElementSibling.naturalWidth > 0))
+    check(`title has one playback owner after reload ${vp.name}`, await page.evaluate(() => window.__titlePlayCalls === 1))
     await sleep(4200)
     check(`title after loop fits ${vp.name}`, await visible())
     await page.screenshot({ path: `${SHOTS_DIR}/title-${vp.name}-loop.png` })
@@ -204,9 +224,25 @@ async function checkTitleAttract() {
       check(`title poster only, no video request: ${mode}`, media.length === 0 && !(await page.$('.title-backdrop video')))
       check(`title static scan: ${mode}`, await page.$eval('.title-scan', (el) => getComputedStyle(el).animationName === 'none'))
     }
+    if (mode === '2d') {
+      await page.waitForSelector('.title-backdrop video[data-live="yes"]')
+      check('2D fallback keeps visible ANOMALY branding and poster-owned media', await page.evaluate(() => {
+        const brand = document.querySelector('.title-brand')
+        const r = brand.getBoundingClientRect()
+        const video = document.querySelector('.title-backdrop video')
+        return brand.textContent === 'ANOMALY' && r.width > 100 && r.height > 20 &&
+          getComputedStyle(brand).clip !== 'inset(50%)' &&
+          document.querySelector('.title-backdrop img').naturalWidth === 960 &&
+          getComputedStyle(document.querySelector('.stage-fallback')).backgroundImage === 'none' &&
+          !document.querySelector('.stage-layer canvas') && video && !video.paused
+      }))
+    }
     if (mode === 'blocked') {
+      await page.waitForFunction(() => window.__anomaly?.backend === 'webgl2' && window.__anomaly.frame > 2)
       check('autoplay override was called', await page.evaluate(() => window.__titlePlayCalls > 0))
-      check('autoplay rejection retains poster', !(await page.$('.title-backdrop video')) && await page.$eval('.title-backdrop img', (el) => el.naturalWidth > 0))
+      check('autoplay rejection retains poster and live 3D foreground', !(await page.$('.title-backdrop video')) &&
+        await page.$eval('.title-backdrop img', (el) => el.naturalWidth > 0) &&
+        await page.evaluate(() => window.__anomaly?.backend === 'webgl2' && window.__anomaly.frame > 2))
     }
     await page.click(play)
     await page.waitForSelector('[data-testid="firstrun-modal"]')

@@ -24,7 +24,7 @@ import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
 import { useWidthFit } from './case/sceneHelpers'
-import { Backdrop, ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
+import { ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { makeRadialTexture } from './radialTexture'
 import { FloorPool, NightBody, SkyBand, SubjectLights } from './grade'
 
@@ -218,8 +218,7 @@ export default function TitleScene() {
       <fogExp2 attach="fog" args={['#070c17', 0.02]} />
       <DeckLights />
       <SubjectLights strength={rich ? 1 : 0.8} />
-      {/* TitleScreen owns the poster and loop, including the 2D fallback. */}
-      <Backdrop clip="title" />
+      {/* The transparent stage reveals the screen-owned poster and loop behind this foreground. */}
       {rich ? <SkyBand calm={calm} /> : null}
       <NightBody position={[-12.2, 9.2, -17]} calm={calm} rich={rich} />
       <DeckPlate />

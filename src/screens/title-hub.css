@@ -40,6 +40,28 @@
 .title-backdrop video { opacity: 0; }
 .title-backdrop video[data-live='yes'] { opacity: 1; }
 
+/* A failed or unavailable renderer keeps the same poster and an accessible text brand. */
+.app[data-route='title'] .stage-fallback { background: transparent; }
+.stage-layer:has(.stage-fallback) + .hud-layer .title-screen .title-brand {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  width: max-content;
+  height: auto;
+  max-width: calc(100% - 32px);
+  overflow: visible;
+  clip: auto;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  margin: 0;
+  color: #d8fbff;
+  font-size: clamp(2rem, 10vw, 6rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 18px rgba(62, 230, 255, 0.65), 0 2px 2px #020914;
+  z-index: 1;
+}
+
 .title-screen .title-bottom {
   gap: 12px;
   padding: 16px 12px max(3vh, 16px);

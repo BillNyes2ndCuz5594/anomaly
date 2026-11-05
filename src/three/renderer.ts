@@ -26,12 +26,14 @@ export async function createRenderer(
   forceAntialias = false,
   /** Called once when the GPU device or WebGL context is lost. The caller remounts the canvas. */
   onLost?: (api: string) => void,
+  /** Clear to transparent so a DOM backdrop can sit behind this renderer. */
+  transparent = false,
 ): Promise<THREE.WebGPURenderer> {
   const renderer = new THREE.WebGPURenderer({
     ...props,
     canvas: props.canvas as HTMLCanvasElement,
     antialias: forceAntialias || TIER_CONFIG[tier].antialias,
-    alpha: false,
+    alpha: transparent,
     forceWebGL: urlForceWebGL() || runtimeForceWebGL(),
     powerPreference: 'high-performance',
   })

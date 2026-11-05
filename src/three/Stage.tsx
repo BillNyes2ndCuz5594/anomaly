@@ -177,6 +177,8 @@ const SHADOWS = { enabled: false, type: PCFShadowMap }
 export interface StageProps {
   children: ReactNode
   prefetch?: boolean
+  /** Let a screen-owned backdrop show through the decorative 3D foreground. */
+  transparent?: boolean
   /** Pixels reserved on the right for HUD panels when none is found in the DOM yet. */
   rightInset?: number
   /** Also measure the top bar and bottom dock (case steps), so models fit between them. */
@@ -213,7 +215,7 @@ function useDocumentHidden(): boolean {
 }
 
 /** Persistent R3F canvas running on WebGPURenderer (WebGL2 fallback). */
-export default function Stage({ children, rightInset = 0, verticalInsets = false, portraitTopInset = 0, prefetch = false }: StageProps) {
+export default function Stage({ children, rightInset = 0, verticalInsets = false, portraitTopInset = 0, prefetch = false, transparent = false }: StageProps) {
   const insets = useHudInsets(rightInset, verticalInsets, portraitTopInset)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
@@ -272,8 +274,9 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
         },
         false,
         onLost,
+        transparent,
       ),
-    [onLost],
+    [onLost, transparent],
   )
 
   const camera = useMemo(() => ({ fov: 40, near: 0.1, far: 200, position: [0, 3, 12] as [number, number, number] }), [])
@@ -294,10 +297,10 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       style={{ position: 'absolute', inset: 0 }}
     >
       <TextureLimitGuard wanted={dpr} />
-      <color attach="background" args={['#070c17']} />
+      {transparent ? null : <color attach="background" args={['#070c17']} />}
       <Runtime />
       <ViewOffset insets={insets} />
-      {isPostTier(tier) ? <PostFX tier={tier} /> : null}
+      {isPostTier(tier) ? <PostFX tier={tier} transparent={transparent} /> : null}
       <InsetsContext.Provider value={insets}>{children}</InsetsContext.Provider>
     </Canvas>
   )
