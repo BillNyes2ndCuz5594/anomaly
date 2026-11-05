@@ -81,12 +81,16 @@ describe('Containment Rush game logic and screen components', () => {
       const [board, setBoard] = useState<{ lane: number; position: number; type?: string }[]>([])
       return createElement(LaneBoard, {
         board, phase: 'action', selectedDefense: 'magnet', charge: 3,
-        onDeploy: (lane) => { deployed.push(lane); setBoard((b) => [...b, { lane, position: 0, type: 'magnet' }]) },
+        onDeploy: (lane) => {
+          deployed.push(lane)
+          setBoard((b) => [...b, { lane, position: 0, type: 'magnet' }])
+          return true
+        },
       })
     }
     const dom = setupMockDom()
     act(() => { dom.root.render(createElement(Harness)) })
-    const buttons = dom.container.children[0].children[0].children
+    const buttons = dom.container.children[0].children[1].children
     expect(buttons).toHaveLength(3)
     expect(buttons[0].getAttribute('tabindex')).toBe('0')
     expect(buttons[0].getAttribute('aria-disabled')).toBe('false')
@@ -144,13 +148,88 @@ describe('Containment Rush game logic and screen components', () => {
     dom.unmount()
   })
 
-  it('renders restored feedback for reloaded answered questions', () => {
-    const s = { ...startContainment('restore-seed'), phase: 'action', feedback: { itemId: 'E6.1-01', correct: true, explanation: 'Evidence observed.' } }
+  it('handles rapid deployment into two different lanes without dropping taps', () => {
+    const deployed: number[] = []
+    function MultiLaneHarness() {
+      const [board, setBoard] = useState<{ lane: number; position: number; type?: string }[]>([])
+      return createElement(LaneBoard, {
+        board, phase: 'action', selectedDefense: 'magnet', charge: 3,
+        onDeploy: (lane) => {
+          deployed.push(lane)
+          setBoard((b) => [...b, { lane, position: 0, type: 'magnet' }])
+          return true
+        },
+      })
+    }
+    const dom = setupMockDom()
+    act(() => { dom.root.render(createElement(MultiLaneHarness)) })
+    const buttons = dom.container.children[0].children[1].children
+    expect(buttons).toHaveLength(3)
+
+    // Rapid taps on lane 0 and lane 1
+    dom.fire('click', buttons[0])
+    dom.fire('click', buttons[1])
+    expect(deployed).toEqual([0, 1])
+    dom.unmount()
+  })
+
+  it('renders resolved sessions without question or deployment branches', () => {
+    const s = {
+      ...startContainment('restore-resolved-c'), phase: 'resolved',
+      questionsAnswered: 1, correctAnswers: 1,
+      feedback: { itemId: 'E6.1-01', correct: true, explanation: 'Evidence observed.' },
+      outcome: 'Wave 1 resolved: 1 anomaly contained.',
+    }
     saveModeSession(sessionStorage, 'containment', '02-2', s)
     const dom = setupMockDom()
     act(() => { dom.root.render(createElement(ContainmentGame, { caseId: '02-2' })) })
-    const panel = dom.container.children[0].children[0].children[1]
-    expect(panel.getAttribute('aria-label')).toBe('Restored question feedback')
+    expect(findByClass(dom.container, 'quick-panel')).toBeNull()
+    expect(findByClass(dom.container, 'containment-deploy-group')).toBeNull()
+    const outcome = findByClass(dom.container, 'containment-outcome')
+    expect(outcome.textContent).toContain('Wave 1 resolved')
     dom.unmount()
+  })
+
+  it('moves focus to Continue button after answering and ignores repeated Enter activation', () => {
+    const dom = setupMockDom()
+    act(() => { dom.root.render(createElement(ContainmentGame, { caseId: '02-2' })) })
+    const optionBtn = findByClass(dom.container, 'quick-option')
+    dom.fire('click', optionBtn)
+
+    const contBtn = findByClass(dom.container, 'containment-continue-btn')
+    expect(contBtn.textContent).toContain('Continue to deployment')
+    expect(globalThis.document.activeElement).toBe(contBtn)
+
+    // Verify holding Enter (repeat keydown) does not dismiss feedback to deployment
+    let prevented = false
+    dom.fire('keydown', contBtn, {
+      key: 'Enter',
+      repeat: true,
+      preventDefault() { prevented = true },
+    })
+    expect(prevented).toBe(true)
+    // Board deployment group must not have opened from repeated Enter
+    expect(findByClass(dom.container, 'containment-deploy-group')).toBeNull()
+
+    // Normal non-repeated Enter / click activates Continue
+    dom.fire('click', contBtn)
+    expect(findByClass(dom.container, 'containment-deploy-group')).not.toBeNull()
+    dom.unmount()
+
+    const s = { ...startContainment('restore-seed-focus'), phase: 'action', feedback: { itemId: 'E6.1-01', correct: true, explanation: 'Evidence observed.' } }
+    saveModeSession(sessionStorage, 'containment', '02-2', s)
+    const domRestored = setupMockDom()
+    act(() => { domRestored.root.render(createElement(ContainmentGame, { caseId: '02-2' })) })
+    const contBtnRestored = findByClass(domRestored.container, 'containment-continue-btn')
+    expect(globalThis.document.activeElement).toBe(contBtnRestored)
+
+    let restoredPrevented = false
+    domRestored.fire('keydown', contBtnRestored, {
+      key: 'Enter',
+      repeat: true,
+      preventDefault() { restoredPrevented = true },
+    })
+    expect(restoredPrevented).toBe(true)
+    domRestored.unmount()
   })
 })

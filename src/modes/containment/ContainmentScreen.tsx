@@ -41,14 +41,17 @@ export function dispatchTurn(state: ContainmentState, action: ContainmentAction)
 export function LaneBoard({
   board, phase, selectedDefense, charge, onDeploy,
 }: {
-  board: BoardEntity[]; phase: string; selectedDefense: DefenseType; charge: number; onDeploy: (lane: number) => void
+  board: BoardEntity[]; phase: string; selectedDefense: DefenseType; charge: number; onDeploy: (lane: number) => boolean
 }) {
   const [focusedLane, setFocusedLane] = useState(0), laneRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const canAfford = charge >= DEFENSE_COSTS[selectedDefense]
+  const cost = DEFENSE_COSTS[selectedDefense]
+  const canAfford = charge >= cost
   const handleDeploy = (lane: number) => {
-    onDeploy(lane)
-    const next = [0, 1, 2].find((l) => l !== lane && !board.some((b) => b.lane === l && b.type && b.type !== 'anomaly'))
-    if (next !== undefined) { setFocusedLane(next); laneRefs.current[next]?.focus() }
+    const accepted = onDeploy(lane)
+    if (accepted) {
+      const next = [0, 1, 2].find((l) => l !== lane && !board.some((b) => b.lane === l && b.type && b.type !== 'anomaly'))
+      if (next !== undefined) { setFocusedLane(next); laneRefs.current[next]?.focus() }
+    }
   }
   const onKey = (e: React.KeyboardEvent, i: number) => {
     if (e.repeat) return
@@ -63,15 +66,19 @@ export function LaneBoard({
 
   return (
     <section className="panel containment-lanes-panel" aria-label="Containment lanes">
+      <p className="containment-rules-note" style={{ margin: '0 0 8px 0', fontSize: '0.95rem' }}>
+        Defenses last one wave.
+      </p>
       <div className="containment-lanes" role="group" aria-label="Approach lanes">
         {[0, 1, 2].map((lane) => {
           const def = board.find((b) => b.lane === lane && b.type && b.type !== 'anomaly'), anoms = board.filter((b) => b.lane === lane && (!b.type || b.type === 'anomaly'))
           const isOccupied = Boolean(def), deployable = phase === 'action' && canAfford && !isOccupied, dt = def?.type as DefenseType | undefined
+          const statusText = def && dt ? DEFENSE_DESCRIPTIONS[dt].name : deployable ? `Deploy ${DEFENSE_DESCRIPTIONS[selectedDefense].name}` : canAfford ? 'Occupied' : `Need ${cost} charge`
           return (
             <button key={lane} ref={(el) => { laneRefs.current[lane] = el }} type="button" className={`btn containment-lane-btn${isOccupied ? ' has-defense' : ''}`} tabIndex={focusedLane === lane ? 0 : -1} aria-label={`Lane ${lane + 1}: ${def && dt ? DEFENSE_DESCRIPTIONS[dt].name : 'No defense'}, ${anoms.length} anomalies`} aria-disabled={!deployable} onClick={() => { if (deployable) handleDeploy(lane) }} onKeyDown={(e) => onKey(e, lane)}>
               <span className="lane-header">Lane {lane + 1}</span>
-              <span className="lane-status">{def && dt ? DEFENSE_DESCRIPTIONS[dt].name : deployable ? `Deploy ${DEFENSE_DESCRIPTIONS[selectedDefense].name}` : 'Open'}</span>
-              <span className="lane-pos">Pos 0: {anoms.filter((a) => a.position === 0).length} | Pos 1: {anoms.filter((a) => a.position === 1).length}</span>
+              <span className="lane-status">{statusText}</span>
+              <span className="lane-pos">Approaching: {anoms.filter((a) => a.position === 0).length} | At perimeter: {anoms.filter((a) => a.position === 1).length}</span>
             </button>
           )
         })}
@@ -80,7 +87,7 @@ export function LaneBoard({
         <ul className="containment-summary-list">
           {[0, 1, 2].map((l) => {
             const def = board.find((b) => b.lane === l && b.type && b.type !== 'anomaly'), anoms = board.filter((b) => b.lane === l && (!b.type || b.type === 'anomaly')), dt = def?.type as DefenseType | undefined
-            return <li key={l}>Lane {l + 1}: Pos 0 {anoms.some((a) => a.position === 0) ? 'anomaly' : 'clear'}, Pos 1 {anoms.some((a) => a.position === 1) ? 'anomaly' : 'clear'}. Defense: {dt ? DEFENSE_DESCRIPTIONS[dt].name : 'None'}.</li>
+            return <li key={l}>Lane {l + 1}: Approaching {anoms.some((a) => a.position === 0) ? 'anomaly' : 'clear'}, At perimeter {anoms.some((a) => a.position === 1) ? 'anomaly' : 'clear'}. Defense: {dt ? DEFENSE_DESCRIPTIONS[dt].name : 'None'}.</li>
           })}
         </ul>
       </div>
@@ -90,6 +97,10 @@ export function LaneBoard({
 
 function RestoredFeedback({ item, feedback, onContinue }: { item: Item; feedback: ModeAnswerFeedback; onContinue: () => void }) {
   const ra = useReadAloud(`${item.stem} ${feedback.explanation ?? ''}`)
+  const continueRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    continueRef.current?.focus()
+  }, [])
   return (
     <section className="panel quick-panel" aria-label="Restored question feedback" style={{ animation: 'none', transition: 'none' }}>
       <h2 tabIndex={-1} className="stem">{item.stem}</h2>
@@ -102,7 +113,21 @@ function RestoredFeedback({ item, feedback, onContinue }: { item: Item; feedback
         })}
       </div>
       <p role="status" aria-live="polite" className={`containment-explanation ${feedback.correct ? 'correct' : 'incorrect'}`}>{feedback.explanation}</p>
-      <div className="containment-actions"><button type="button" className="btn containment-continue-btn" onClick={onContinue}>Continue to deployment</button></div>
+      <div className="containment-actions">
+        <button
+          ref={continueRef}
+          type="button"
+          className="btn containment-continue-btn"
+          onKeyDown={(e) => {
+            if (e.repeat && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault()
+            }
+          }}
+          onClick={onContinue}
+        >
+          Continue to deployment
+        </button>
+      </div>
     </section>
   )
 }
@@ -121,25 +146,32 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
   const [selectedDefense, setSelectedDefense] = useState<DefenseType>('magnet'), admit = useRef(createTapGuard()), motion = useMotionMode()
   const pool = useMemo(() => buildQuickPool(content.items, { caseId, count: 10, seed: game.seed }), [caseId, game.seed])
   const def = caseById(caseId)!, done = game.phase === 'done', stats = getContainmentStats(game)
-  const deployGroupRef = useRef<HTMLDivElement>(null), summaryRef = useRef<HTMLDivElement>(null), resultsRef = useRef<HTMLHeadingElement>(null)
+  const deployGroupRef = useRef<HTMLDivElement>(null), summaryRef = useRef<HTMLDivElement>(null), resultsRef = useRef<HTMLHeadingElement>(null), continueBtnRef = useRef<HTMLButtonElement>(null)
 
-  const handleTurn = (action: ContainmentAction) => {
-    if (action.type !== 'answer' && !admit.current(action.type, 300)) return
+  const handleTurn = (action: ContainmentAction): boolean => {
+    const key = action.type === 'deploy' ? `deploy:${action.slot}` : action.type
+    if (action.type !== 'answer' && !admit.current(key, 300)) return false
     const current = stateRef.current, next = dispatchTurn(current, action)
-    if (next === current) return
+    if (next === current) return false
     stateRef.current = next
     const storage = getSafeStorage()
     if (next.phase === 'done') clearModeSession(storage, 'containment', caseId)
     else saveModeSession(storage, 'containment', caseId, next)
     setGame(next)
+    return true
   }
 
   useEffect(() => () => { const storage = getSafeStorage(); if (stateRef.current.phase === 'done') clearModeSession(storage, 'containment', caseId) }, [caseId])
   useEffect(() => {
-    if (game.phase === 'action' && readyToDeploy) deployGroupRef.current?.focus()
-    else if (game.phase === 'resolved') summaryRef.current?.focus()
-    else if (game.phase === 'done') resultsRef.current?.focus()
-  }, [game.phase, readyToDeploy])
+    if (game.phase === 'action') {
+      if (readyToDeploy) deployGroupRef.current?.focus()
+      else if (game.feedback) continueBtnRef.current?.focus()
+    } else if (game.phase === 'resolved') {
+      summaryRef.current?.focus()
+    } else if (game.phase === 'done') {
+      resultsRef.current?.focus()
+    }
+  }, [game.phase, game.feedback, readyToDeploy])
 
   const handleAnswer = (ans: { correct: boolean }) => {
     const item = pool[game.questionIndex]
@@ -173,6 +205,11 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
               <button type="button" className="btn" onClick={() => { clearModeSession(getSafeStorage(), 'containment', caseId); navigate('/hub') }}>Exit to hub</button>
             </div>
           </section>
+        ) : game.phase === 'resolved' ? (
+          <section className="panel containment-resolved-panel">
+            <div ref={summaryRef} tabIndex={-1} role="status" aria-live="polite" className="containment-outcome"><p>{game.outcome}</p></div>
+            <button type="button" className="btn containment-continue-btn" onClick={handleNext}>Continue</button>
+          </section>
         ) : (
           <>
             {!readyToDeploy ? (
@@ -183,7 +220,19 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
                   <QuickQuestion key={`${game.seed}:${game.questionIndex}`} item={pool[game.questionIndex]} ariaLive={true} onAnswer={handleAnswer} />
                   {game.feedback && (
                     <div className="containment-actions">
-                      <button type="button" className="btn containment-continue-btn" onClick={() => { setReadyToDeploy(true); deployGroupRef.current?.focus() }}>Continue to deployment</button>
+                      <button
+                        ref={continueBtnRef}
+                        type="button"
+                        className="btn containment-continue-btn"
+                        onKeyDown={(e) => {
+                          if (e.repeat && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault()
+                          }
+                        }}
+                        onClick={() => { setReadyToDeploy(true); deployGroupRef.current?.focus() }}
+                      >
+                        Continue to deployment
+                      </button>
                     </div>
                   )}
                 </>
@@ -200,7 +249,9 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
                       const info = DEFENSE_DESCRIPTIONS[type], affordable = game.resources.charge >= info.cost, isSel = selectedDefense === type
                       return (
                         <button key={type} type="button" className={`btn containment-defense-btn${isSel ? ' selected' : ''}`} aria-pressed={isSel} aria-label={`${info.name}, cost ${info.cost} charge. ${info.description}`} disabled={game.phase !== 'action' || !affordable} onClick={() => setSelectedDefense(type)}>
-                          <span className="defense-name">{info.name}</span><span className="defense-cost">Cost: {info.cost}</span>
+                          <span className="defense-name">{info.name}</span>
+                          <span className="defense-cost">Cost: {info.cost} charge</span>
+                          <span className="defense-desc" style={{ fontSize: '0.85rem' }}>{info.description}</span>
                         </button>
                       )
                     })}
@@ -211,12 +262,6 @@ export function ContainmentGame({ caseId }: { caseId: string }) {
                   )}
                 </div>
               </>
-            )}
-            {game.phase === 'resolved' && (
-              <section className="panel containment-resolved-panel">
-                <div ref={summaryRef} tabIndex={-1} role="status" aria-live="polite" className="containment-outcome"><p>{game.outcome}</p></div>
-                <button type="button" className="btn containment-continue-btn" onClick={handleNext}>Continue</button>
-              </section>
             )}
           </>
         )}

@@ -43,7 +43,7 @@ export function dispatchTurn(state: ReactorState, action: ReactorAction): Reacto
 }
 
 export function ReactorMeter({ instability }: { instability: number }) {
-  const label = instability >= 8 ? 'Critical' : instability >= 5 ? 'Elevated' : 'Nominal'
+  const label = instability >= 8 ? 'Critical' : instability >= 5 ? 'Elevated' : 'Stable'
   return (
     <section className="panel reactor-meter-panel" aria-label="Core instability meter">
       <div>
@@ -78,7 +78,21 @@ function RestoredFeedback({ item, feedback, onContinue }: { item: Item; feedback
         })}
       </div>
       <p role="status" aria-live="polite" className={`reactor-explanation ${feedback.correct ? 'correct' : 'incorrect'}`}>{feedback.explanation}</p>
-      <div className="reactor-actions"><button ref={continueRef} type="button" className="btn reactor-continue-btn" onClick={onContinue}>Continue to core controls</button></div>
+      <div className="reactor-actions">
+        <button
+          ref={continueRef}
+          type="button"
+          className="btn reactor-continue-btn"
+          onKeyDown={(e) => {
+            if (e.repeat && (e.key === 'Enter' || e.key === ' ')) {
+              e.preventDefault()
+            }
+          }}
+          onClick={onContinue}
+        >
+          Continue to core controls
+        </button>
+      </div>
     </section>
   )
 }
@@ -147,6 +161,11 @@ export function ReactorGame({ caseId }: { caseId: string }) {
         </header>
 
         <ReactorMeter instability={game.resources.instability} />
+        <section className="panel reactor-rules-panel" aria-label="Reactor rules">
+          <p>
+            Correct answer lowers instability by 2. Each pulse adds 1. Three consecutive correct answers earn a shield. A shield replaces the pulse.
+          </p>
+        </section>
         <div className="reactor-illustration" aria-hidden="true">[ Core Status: {game.resources.instability < 10 ? 'Active' : 'Overload'} ]</div>
 
         {done ? (
@@ -158,7 +177,7 @@ export function ReactorGame({ caseId }: { caseId: string }) {
               <p>Score: <strong>{stats.score}</strong></p>
               <p>Best score: <strong>{bestScore}</strong></p>
             </div>
-            <p className="reactor-debrief">{stats.overload ? 'Instability reached maximum critical threshold. Review reactor parameters and try again.' : 'Core containment sustained across all pulses. Facility secure.'}</p>
+            <p className="reactor-debrief">{stats.overload ? 'Core reached critical instability.' : 'Core containment sustained across all pulses. Facility secure.'}</p>
             <div className="reactor-end-actions">
               <button type="button" className="btn" onClick={() => { clearModeSession(getSafeSessionStorage(), 'reactor', caseId); setReadyToAction(false); setRestoredFeedback(false); handleTurn({ type: 'restart' }) }}>Play again</button>
               <button type="button" className="btn" onClick={() => { clearModeSession(getSafeSessionStorage(), 'reactor', caseId); navigate('/hub') }}>Exit to hub</button>
@@ -179,7 +198,19 @@ export function ReactorGame({ caseId }: { caseId: string }) {
                   <QuickQuestion key={`${game.seed}:${game.questionIndex}`} item={pool[game.questionIndex]} ariaLive={true} onAnswer={handleAnswer} />
                   {game.feedback && (
                     <div className="reactor-actions">
-                      <button ref={continueBtnRef} type="button" className="btn reactor-continue-btn" onClick={() => { setReadyToAction(true); actionGroupRef.current?.focus() }}>Continue to core controls</button>
+                      <button
+                        ref={continueBtnRef}
+                        type="button"
+                        className="btn reactor-continue-btn"
+                        onKeyDown={(e) => {
+                          if (e.repeat && (e.key === 'Enter' || e.key === ' ')) {
+                            e.preventDefault()
+                          }
+                        }}
+                        onClick={() => { setReadyToAction(true); actionGroupRef.current?.focus() }}
+                      >
+                        Continue to core controls
+                      </button>
                     </div>
                   )}
                 </>
