@@ -28,36 +28,36 @@
       "lon": -80.6,
       "lat": 28.39
     },
-    "dispatchHook": "Tracking glitch at the Cape. Stars, moons and comets filed in the wrong groups.",
+    "dispatchHook": "Tracking alert at Cape Canaveral! Stars, moons, and comets are mixed up.",
     "briefing": [
-      "Agent, the tracking room at Cape Canaveral lost its object catalog overnight.",
-      "The files list the Sun as a planet and two moons as comets. A launch is waiting on the fix.",
-      "Sort the objects back into their groups, then check what the sky is really doing.",
-      "The launch window will not move, so work carefully."
+      "Agent, the tracking room at Cape Canaveral scrambled its space object catalog overnight!",
+      "The files list the Sun as a planet and two moons as comets. A rocket launch is counting on us.",
+      "Sort the objects back into their cosmic groups, then check what the sky is really doing.",
+      "Our launch team is ready when you are, Agent. Let's get these objects sorted!"
     ],
     "lab": {
       "kind": "sort",
-      "intro": "The catalog lost its groups. Read each object card and send it to the group it belongs in.",
+      "intro": "Our space catalog lost its groups! Read each object card and sort it into the right cosmic family.",
       "bins": [
         {
           "id": "star",
           "name": "Star",
-          "hint": "A star is a huge ball of hot gases that gives off its own light."
+          "hint": "A star is a giant ball of hot, glowing gases that produces its own light."
         },
         {
           "id": "planet",
           "name": "Planet",
-          "hint": "A planet is a large, round object that travels around the Sun."
+          "hint": "A planet is a large, round object that orbits around the Sun."
         },
         {
           "id": "moon",
           "name": "Moon",
-          "hint": "A moon travels around a planet."
+          "hint": "A moon is a natural body that orbits around a planet."
         },
         {
           "id": "small-body",
           "name": "Small body",
-          "hint": "Asteroids and comets are small objects that travel around the Sun."
+          "hint": "Asteroids and comets are smaller objects that orbit around the Sun."
         }
       ],
       "cards": [
@@ -70,7 +70,7 @@
             "Sits at the center of the solar system"
           ],
           "bin": "star",
-          "why": "The Sun makes its own light from hot gases, so it is a star."
+          "why": "The Sun produces its own heat and light from glowing gases, so it is a star."
         },
         {
           "id": "sirius",
@@ -80,7 +80,7 @@
             "Looks like a tiny point because it is so far away"
           ],
           "bin": "star",
-          "why": "Sirius makes its own light and only looks small because it is very far away, so it is a star."
+          "why": "Sirius shines with its own light and looks small only because it is light-years away, so it is a star."
         },
         {
           "id": "earth",
@@ -91,7 +91,7 @@
             "Has liquid water on its surface"
           ],
           "bin": "planet",
-          "why": "Earth is a large, round object that travels around the Sun, so it is a planet."
+          "why": "Earth is a large, round world that orbits the Sun once a year, so it is a planet."
         },
         {
           "id": "jupiter",
@@ -101,7 +101,7 @@
             "Travels around the Sun beyond the asteroid belt"
           ],
           "bin": "planet",
-          "why": "Jupiter is a giant object that travels around the Sun, so it is a planet."
+          "why": "Jupiter is a giant world that orbits the Sun beyond the asteroid belt, so it is a planet."
         },
         {
           "id": "titan",
@@ -111,7 +111,7 @@
             "Has a thick, hazy sky"
           ],
           "bin": "moon",
-          "why": "Titan travels around the planet Saturn, so it is a moon."
+          "why": "Titan orbits around the planet Saturn, so it is a moon."
         },
         {
           "id": "phobos",
@@ -121,7 +121,7 @@
             "Small, lumpy and rocky"
           ],
           "bin": "moon",
-          "why": "Phobos travels around the planet Mars, so it is a moon."
+          "why": "Phobos orbits around the planet Mars, so it is a moon."
         },
         {
           "id": "vesta",
@@ -141,12 +141,12 @@
             "Grows a glowing tail near the Sun"
           ],
           "bin": "small-body",
-          "why": "Halley's Comet is an icy object that grows a tail near the Sun, so it is a comet, a small body."
+          "why": "Halley's Comet is an icy object that forms a glowing tail near the Sun, so it is a comet, a small body."
         }
       ]
     },
-    "debriefClosed": "Case closed. The catalog is sorted, and the launch is back on the board.",
-    "debriefOpen": "Case stays open for now. The tracking radar is still warm, and those wandering comets will need another sweep."
+    "debriefClosed": "Spectacular tracking, Agent! The catalog is sorted and our rocket is cleared for liftoff.",
+    "debriefOpen": "This case stays open for now, Agent. Check your star charts and team up for another pass soon!"
   },
   "items": [
     {
@@ -156,7 +156,7 @@
       "category": "earth",
       "complexity": "low",
       "pool": "case",
-      "stem": "A science museum on the Space Coast shows a model of a galaxy. A small arrow on the model marks where our Sun is. Which list best describes what a galaxy is made of?",
+      "stem": "Agent Maya visits a Space Coast museum displaying a model of a galaxy. A small arrow on the model marks where our Sun is. Which list best describes what a galaxy is made of?",
       "options": [
         "one star and the planets that travel around it",
         "only planets and their moons",
@@ -165,10 +165,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: one star with its planets is a solar system, which is only a tiny part of a galaxy.",
-        "Decoy: a galaxy is mostly stars, gas, and dust, not just planets and moons.",
-        "Decoy: water vapor and rain belong to Earth's weather, not to a galaxy.",
-        "Correct: a galaxy is a huge group of gas, dust, and many stars, and our Sun is one of those stars."
+        "One star with its planets is a solar system, which is only a tiny part of a galaxy.",
+        "A galaxy is mostly stars, gas, and dust, not just planets and moons.",
+        "Water vapor and rain belong to Earth's weather, not to what a galaxy is made of.",
+        "Spot on! A galaxy is a huge group of gas, dust, and many stars, including our Sun."
       ],
       "keyWords": [
         "model of a galaxy",
@@ -306,7 +306,7 @@
       "category": "earth",
       "complexity": "low",
       "pool": "cold",
-      "stem": "A student points to a star in the night sky and asks what it is made of. Which answer is correct?",
+      "stem": "Agent Leo looks up at a bright star in the night sky over Cape Canaveral. He wonders what it is made of. Which answer is correct?",
       "options": [
         "ice and rock",
         "hot gases",
@@ -315,10 +315,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: ice and rock make up comets and asteroids, not stars.",
-        "Correct: a star is a huge ball of hot gases that gives off its own light.",
-        "Decoy: liquid water could not last on something as hot as a star.",
-        "Decoy: a star is not a solid object."
+        "Ice and rock make up comets and asteroids, not stars.",
+        "Spot on! A star is a huge ball of hot gases that gives off its own light.",
+        "Liquid water could not last on something as hot as a star.",
+        "Stars are giant balls of glowing gas, not solid objects."
       ],
       "keyWords": [
         "star in the night sky",
@@ -572,7 +572,7 @@
       "category": "earth",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "A student lists ways the Sun is different from the planets. Which statement is correct?",
+      "stem": "Agent Sam lists ways the Sun is different from the planets. Which statement is correct?",
       "options": [
         "The Sun gives off its own light, and the planets do not.",
         "The Sun travels around Earth once a day.",
@@ -581,10 +581,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: the Sun is a star that makes its own light, and the planets only reflect sunlight.",
-        "Decoy: the Sun only seems to move across the sky each day because Earth spins.",
-        "Decoy: the Sun is a star made of hot gases, not a rocky planet.",
-        "Decoy: the Sun is much larger than Jupiter, the largest planet."
+        "Spot on! The Sun is a star that makes its own light, while planets reflect sunlight.",
+        "The Sun only seems to move across the sky each day because Earth spins.",
+        "The Sun is a star made of hot gases, not a rocky planet.",
+        "The Sun is vastly larger than Jupiter, the largest planet."
       ],
       "keyWords": [
         "different from the planets",
@@ -825,7 +825,7 @@
       "category": "earth",
       "complexity": "moderate",
       "pool": "cold",
-      "stem": "Earth and the Moon are always moving. Which of these takes about one year?",
+      "stem": "Agent Kai tracks orbits on his screen. Earth and the Moon are always moving. Which of these takes about one year?",
       "options": [
         "Earth spinning once on its axis",
         "the Moon traveling once around Earth",
@@ -834,10 +834,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: one spin of Earth takes about one day.",
-        "Decoy: the Moon travels around Earth in about one month.",
-        "Decoy: the Sun rises and sets once each day because Earth spins.",
-        "Correct: Earth takes about one year to travel once around the Sun."
+        "One spin of Earth takes about one day.",
+        "The Moon travels around Earth in about one month.",
+        "The Sun rises and sets once each day because Earth spins.",
+        "Spot on! Earth takes about one year to travel once around the Sun."
       ],
       "keyWords": [
         "always moving",

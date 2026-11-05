@@ -28,12 +28,12 @@
    "lon": -81.4,
    "lat": 28.5
   },
-  "dispatchHook": "Scanner glitch on the Space Coast. Organs and animals filed wrong.",
+  "dispatchHook": "Scanner alert on the Space Coast! Organs and lagoon animals got scrambled.",
   "briefing": [
-   "Agent, a medical scanner on the Space Coast just scrambled its body map.",
+   "Agent, a medical scanner on the Space Coast scrambled its body map!",
    "The lagoon wildlife database caught the same glitch and filed a manatee as a fish.",
-   "Route organs, match plant and animal parts, and re-sort the specimens.",
-   "Then clear the evidence check, preferably with fewer errors than the scanner."
+   "Route the organs, match plant and animal parts, and re-sort the specimens.",
+   "Next, check the lagoon evidence cards. You can spot what the scanner missed, Agent!"
   ],
   "lab": {
    "kind": "vitals"
@@ -41,13 +41,13 @@
   "labs": {
    "organOps": {
     "scenario": "A launch-pad technician's body scan lost every organ label, and the job cards are piling up.",
-    "intro": "Each card is a job. Find the organ that does it. The scanner is counting on you. So am I.",
+    "intro": "Each card shows an organ job. Match each job to the right organ to help our crew!",
     "tasks": [
      {
       "id": "t1",
       "text": "Pump blood out to the legs",
       "organ": "heart",
-      "hint": "Look for the organ that squeezes blood through tubes.",
+      "hint": "Look for the muscular pump that pushes blood through your blood vessels.",
       "why": "The heart pumps blood to every part of the body."
      },
      {
@@ -61,7 +61,7 @@
       "id": "t3",
       "text": "Send signals to move and to think",
       "organ": "brain",
-      "hint": "This organ is the control center.",
+      "hint": "This organ is your body's command center for thoughts and moves.",
       "why": "The brain controls the body and lets you think, learn, and remember."
      },
      {
@@ -82,14 +82,14 @@
       "id": "t6",
       "text": "Help control the sugar in the blood",
       "organ": "pancreas",
-      "hint": "A small organ tucked behind the stomach.",
+      "hint": "Look for the organ tucked behind the stomach that helps control blood sugar.",
       "why": "The pancreas helps control blood sugar and makes juices that help digest food."
      },
      {
       "id": "t7",
       "text": "Filter wastes out of the blood",
       "organ": "kidneys",
-      "hint": "There are two of these, shaped like beans, one on each side of the backbone, just below the ribs.",
+      "hint": "Look for a pair of bean-shaped organs that filter waste out of blood.",
       "why": "The kidneys filter wastes and extra water from the blood to make urine."
      },
      {
@@ -102,7 +102,7 @@
     ]
    },
    "structureMatch": {
-    "intro": "Plants and animals solve some of the same problems. Match the parts that do the same job.",
+    "intro": "Plants and animals share similar survival needs! Match the parts that do the same job.",
     "pairs": [
      {
       "id": "p1",
@@ -159,7 +159,7 @@
     ]
    },
    "specimenSort": {
-    "intro": "Six specimens, one scrambled database. Read the cards. First impressions are how the scanner got here.",
+    "intro": "Six animal cards got scrambled! Read each clue carefully to sort them into the right animal groups.",
     "specimens": [
      {
       "id": "manatee",
@@ -230,20 +230,20 @@
     ]
    }
   },
-  "debriefClosed": "Case closed. The scanner works, and the manatee is a mammal again. Log it.",
-  "debriefOpen": "Case stays open for now. Keep studying the scanner files; that manatee needs its full field check completed."
+  "debriefClosed": "Nice work, Agent! The medical scanner works again, and the manatee is back in the mammal file where it belongs.",
+  "debriefOpen": "This case stays open for now, Agent. Check the scanner clues and jump back in soon!"
  },
  "coldCase": {
   "id": "cold-1",
   "codename": "RESIDUE",
-  "dispatchHook": "Old evidence is acting up. Recheck it before it spreads.",
+  "dispatchHook": "Old case files need a quick review! Double-check the clues before they get mixed up.",
   "briefing": [
-   "Residue from old cases turned up in the evidence locker.",
+   "A few mystery clues from past cases showed up in our locker.",
    "Experiments, planets, and the water cycle all need a second look.",
-   "Four items, same rules as always."
+   "Answer four questions to clear the locker, Agent!"
   ],
-  "debriefClosed": "Residue cleared. The locker is quiet again, for now.",
-  "debriefOpen": "Some residue stuck. It goes back in the locker for another pass soon."
+  "debriefClosed": "Great detective work, Agent! The evidence locker is cleared and organized.",
+  "debriefOpen": "A few clues still need sorting, Agent. Review your notes and try this cold case again soon!"
  },
  "items": [
   {
@@ -262,10 +262,10 @@
    ],
    "key": 3,
    "why": [
-    "Decoy: the kidneys filter wastes from the blood. They do not make bile.",
-    "Decoy: the pancreas makes digestive juices and helps control blood sugar, but it does not make bile.",
-    "Decoy: the bladder stores urine. It has no job in breaking down food.",
-    "Correct. The liver makes bile, which helps break down fats. It also helps clean the blood."
+    "The kidneys filter wastes from the blood to make urine, not bile.",
+    "The pancreas makes digestive juices and balances sugar, but it does not make bile.",
+    "The bladder stores urine until it leaves the body. It does not break down food.",
+    "Spot on! The liver makes bile, which helps break down fats. It also cleans the blood."
    ],
    "keyWords": [
     "makes bile",
@@ -292,7 +292,7 @@
    "category": "Life Science",
    "complexity": "low",
    "pool": "case",
-   "stem": "One organ makes juices that help digest food. The same organ helps control the amount of sugar in the blood. Which organ is it?",
+   "stem": "Agent Rosa tests a mystery organ clue. One organ makes juices that help digest food. The same organ helps control the amount of sugar in the blood. Which organ is it?",
    "options": [
     "pancreas",
     "stomach",
@@ -301,10 +301,10 @@
    ],
    "key": 0,
    "why": [
-    "Correct. The pancreas makes digestive juices and helps control blood sugar.",
-    "Decoy: the stomach makes juices that break down food, but it does not control blood sugar.",
-    "Decoy: the heart moves blood that carries sugar, but it does not control how much sugar is in it.",
-    "Decoy: the brain sends signals through the body, but the pancreas controls blood sugar."
+    "Spot on! The pancreas makes digestive juices and helps control blood sugar.",
+    "The stomach makes juices to break down food, but it does not control blood sugar.",
+    "The heart moves blood that carries sugar, but it does not control sugar levels.",
+    "The brain sends signals through the body, while the pancreas controls blood sugar."
    ],
    "keyWords": [
     "help digest food",
@@ -331,7 +331,7 @@
    "category": "Life Science",
    "complexity": "low",
    "pool": "case",
-   "stem": "Blood picks up wastes as it moves through the body. Which organs filter these wastes out of the blood to make urine?",
+   "stem": "Agent Sam tracks how blood circulates through the body. Which organs filter these wastes out of the blood to make urine?",
    "options": [
     "lungs",
     "large intestine",
@@ -340,10 +340,10 @@
    ],
    "key": 2,
    "why": [
-    "Decoy: the lungs get rid of the gas carbon dioxide when you breathe out, but they do not make urine.",
-    "Decoy: the large intestine handles solid food waste, not wastes in the blood.",
-    "Correct. The kidneys filter wastes from the blood and make urine.",
-    "Decoy: the bladder stores urine after it is made. It does not filter blood."
+    "The lungs get rid of carbon dioxide when you exhale, but they do not make urine.",
+    "The large intestine handles solid food waste, not wastes in the blood.",
+    "Spot on! The kidneys filter wastes from the blood and make urine.",
+    "The bladder stores urine after it is made. It does not filter blood."
    ],
    "keyWords": [
     "filter",
@@ -371,7 +371,7 @@
    "category": "Life Science",
    "complexity": "low",
    "pool": "case",
-   "stem": "The kidneys make urine. Where is urine stored until it leaves the body?",
+   "stem": "Agent Maya checks the urinary system chart. The kidneys make urine. Where is urine stored until it leaves the body?",
    "options": [
     "stomach",
     "bladder",
@@ -380,10 +380,10 @@
    ],
    "key": 1,
    "why": [
-    "Decoy: the stomach holds and breaks down food, not urine.",
-    "Correct. The bladder stores urine until it leaves the body.",
-    "Decoy: the liver makes bile and helps clean the blood. It does not store urine.",
-    "Decoy: the kidneys make urine, but they send it on. They do not store it."
+    "The stomach holds and breaks down food, not urine.",
+    "Spot on! The bladder stores urine until it leaves the body.",
+    "The liver makes bile and helps clean the blood. It does not store urine.",
+    "The kidneys make urine, but they send it on. They do not store it."
    ],
    "keyWords": [
     "stored",
@@ -909,7 +909,7 @@
    "category": "Life Science",
    "complexity": "moderate",
    "pool": "case",
-   "stem": "An agent scans four animals near the Indian River Lagoon. Read each scan card. Which animal is an invertebrate?",
+   "stem": "Agent Jordan scans four animals near the Indian River Lagoon. Read each scan card. Which animal is an invertebrate?",
    "options": [
     "bull shark",
     "blue crab",
@@ -918,10 +918,10 @@
    ],
    "key": 1,
    "why": [
-    "Decoy: a shark's skeleton is cartilage, not bone, but it still has a backbone. It is a vertebrate.",
-    "Correct. A blue crab has no backbone. Its hard shell is an exoskeleton, so it is an invertebrate.",
-    "Decoy: a tortoise's shell is joined to its backbone. It is a vertebrate.",
-    "Decoy: a manatee has a backbone. It is a mammal, which is a vertebrate."
+    "A shark's skeleton is cartilage, not bone, but it still has a backbone, so it is a vertebrate.",
+    "Spot on! A blue crab has no backbone. Its hard shell is an exoskeleton, so it is an invertebrate.",
+    "A tortoise has a backbone joined to its hard protective shell, so it is a vertebrate.",
+    "A manatee has an internal backbone. It is a mammal, which is a vertebrate."
    ],
    "keyWords": [
     "scan card",

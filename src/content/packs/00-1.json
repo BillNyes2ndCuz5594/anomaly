@@ -28,12 +28,12 @@
       "lon": -82.46,
       "lat": 27.95
     },
-    "dispatchHook": "Science fair notes in Tampa came in mixed. Facts, feelings and guesses in one pile.",
+    "dispatchHook": "Science fair alert in Tampa! Student notes got mixed up into one giant pile.",
     "briefing": [
-      "Agent, a science fair in Tampa filed every student note in one pile.",
-      "The notes mix observations, opinions and predictions. The judges cannot tell which is which.",
-      "Sort the notes, then check the experiments behind them.",
-      "A conclusion is only as good as its evidence, so read the data before you trust anyone."
+      "Agent, a science fair in Tampa filed every project note in one mixed-up pile!",
+      "The notes jumble observations, opinions, and predictions together. The judges need our help.",
+      "Sort each note into the right bin, then check the evidence from the experiments.",
+      "A great conclusion always rests on solid evidence, so check the numbers carefully!"
     ],
     "lab": {
       "kind": "sort",
@@ -42,17 +42,17 @@
         {
           "id": "observation",
           "name": "Observation",
-          "hint": "An observation is something seen, heard, measured or counted that others can check."
+          "hint": "An observation is a fact you can see, hear, measure, or count that anyone can verify."
         },
         {
           "id": "opinion",
           "name": "Opinion",
-          "hint": "An opinion tells what someone feels or believes, and others may disagree."
+          "hint": "An opinion shares personal feelings or beliefs that people might disagree about."
         },
         {
           "id": "prediction",
           "name": "Prediction",
-          "hint": "A prediction says what someone expects to happen next, based on what they know."
+          "hint": "A prediction is a smart forecast of what will happen next, based on evidence you have."
         }
       ],
       "cards": [
@@ -63,7 +63,7 @@
             "Written right after using a ruler."
           ],
           "bin": "observation",
-          "why": "A ruler reading is something anyone can measure and check, so it is an observation."
+          "why": "A ruler measurement is a fact that anyone can check, so it is an observation."
         },
         {
           "id": "ice-time",
@@ -72,7 +72,7 @@
             "Timed with a stopwatch on a sunny table."
           ],
           "bin": "observation",
-          "why": "A stopwatch time can be checked by anyone watching, so it is an observation."
+          "why": "A stopwatch time is a real measurement that anyone can test, so it is an observation."
         },
         {
           "id": "clip-count",
@@ -81,7 +81,7 @@
             "Counted one clip at a time."
           ],
           "bin": "observation",
-          "why": "A count is something others can repeat and check, so it is an observation."
+          "why": "Counting the clips gives an exact number anyone can double-check, so it is an observation."
         },
         {
           "id": "coolest-project",
@@ -90,7 +90,7 @@
             "Written by a visitor walking past."
           ],
           "bin": "opinion",
-          "why": "Coolest is a feeling, and other visitors could disagree, so it is an opinion."
+          "why": "Calling a project coolest is a personal reaction, not a measurement, so it is an opinion."
         },
         {
           "id": "better-poster",
@@ -99,7 +99,7 @@
             "Written on a sticky note by a student."
           ],
           "bin": "opinion",
-          "why": "Looks better is a personal judgment that cannot be measured, so it is an opinion."
+          "why": "Saying a poster 'looks better' is how someone feels. A ruler or timer cannot measure that, so it is an opinion!"
         },
         {
           "id": "boring-rocks",
@@ -108,7 +108,7 @@
             "Written at the rock table."
           ],
           "bin": "opinion",
-          "why": "Boring is how one person feels, and a geologist would disagree, so it is an opinion."
+          "why": "Thinking rocks are boring is just one person's feeling, so it is an opinion."
         },
         {
           "id": "ramp-next",
@@ -118,7 +118,7 @@
             "The last three trials rolled farther each time."
           ],
           "bin": "prediction",
-          "why": "It tells what should happen next, based on the earlier trials, so it is a prediction."
+          "why": "Forecasting how far the car will roll based on earlier runs is a prediction."
         },
         {
           "id": "sunny-plant",
@@ -127,12 +127,12 @@
             "Written on Monday."
           ],
           "bin": "prediction",
-          "why": "It says what the student expects to see in the future, so it is a prediction."
+          "why": "Guessing how much taller the plant will grow by Friday is a prediction."
         }
       ]
     },
-    "debriefClosed": "Case closed. The fair notes are filed by kind, and every conclusion points back to its data.",
-    "debriefOpen": "Case stays open for now. Keep your notebook sharp; the fair committee needs clean facts before they hand out ribbons."
+    "debriefClosed": "Awesome job, Agent! The fair notes are sorted cleanly, and every conclusion is backed by real evidence.",
+    "debriefOpen": "This case stays open for now, Agent. Double-check your data notes and come back to help the judges!"
   },
   "items": [
     {
@@ -151,10 +151,10 @@
       ],
       "key": 0,
       "why": [
-        "Correct: both pots get 50 mL of water each day, so the water is kept the same.",
-        "Decoy: sunlight is the condition Kai changes on purpose, since one pot is in sun and one is in shade.",
-        "Decoy: the pots sit in different places, a sunny sill and a shady closet, so the place is not kept the same.",
-        "Decoy: plant height is the result Kai measures, and it may come out different for each plant."
+        "Spot on! Both pots get 50 mL of water each day, so the water is kept the same.",
+        "Not quite! Kai changed the sunlight on purpose. He put one pot in the sun and one in the shade.",
+        "The pots sit in different places, so where they are placed is changed on purpose.",
+        "Plant height is the result Kai measures at the end, not a condition he kept the same."
       ],
       "keyWords": [
         "keep the same",
@@ -189,10 +189,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: this is backward, since the cube on the sunny sidewalk melted first, in 8 minutes.",
-        "Correct: the warmer the place, the shorter the melting time, from 8 minutes on the sidewalk to more than 120 in the refrigerator.",
-        "Decoy: the times go from 8 minutes to more than 120 minutes, so they are not about the same.",
-        "Decoy: Rosa used the same size cube every time, so her data says nothing about size."
+        "Check the table again! The ice cube on the sunny sidewalk melted in just 8 minutes. That was the fastest time of all.",
+        "Spot on! The warmer the place, the faster the cube melted, from 8 minutes in the sun to over 120 in the fridge.",
+        "The times ranged from 8 minutes to more than 120 minutes, so they are not about the same.",
+        "Rosa used the same size cube every time, so her data does not compare cube sizes."
       ],
       "keyWords": [
         "same size ice cube",
@@ -241,7 +241,7 @@
       "category": "nature",
       "complexity": "high",
       "pool": "case",
-      "stem": "A class in Fort Pierce tests whether moving air helps wet paper towels dry faster. Towel 1 dries with a fan on high. Towel 2 dries with a fan on low. Both towels are the same size and get the same amount of water. Which setup should the class add as a control group?",
+      "stem": "Agent Sam and his class in Fort Pierce test whether moving air helps wet paper towels dry faster. Towel 1 dries with a fan on high. Towel 2 dries with a fan on low. Both towels are the same size and get the same amount of water. Which setup should the class add as a control group?",
       "options": [
         "a dry paper towel with the fan on high",
         "a wet paper towel with two fans on high",
@@ -250,10 +250,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: a towel that starts dry cannot show how long drying takes.",
-        "Decoy: two fans add more of the thing being tested, so this is not a control group.",
-        "Correct: a wet towel with no fan shows what happens without moving air, so the class has something to compare to.",
-        "Decoy: a cloth towel adds a second difference, so the test would no longer be fair."
+        "A towel that starts dry cannot show how long drying takes.",
+        "Adding two fans tests extra wind, but a control group needs normal room air.",
+        "Spot on! A wet towel without a fan shows what happens without moving air as a clear comparison.",
+        "A cloth towel adds another difference, so the test would no longer be fair."
       ],
       "keyWords": [
         "moving air",
@@ -306,10 +306,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: a balance measures mass, not volume.",
-        "Decoy: a thermometer measures temperature, not how much water there is.",
-        "Decoy: a ruler measures length, so it cannot give the volume in milliliters.",
-        "Correct: a graduated cylinder measures the volume of a liquid in milliliters."
+        "A balance measures mass, not liquid volume.",
+        "A thermometer measures temperature, not how much water there is.",
+        "A ruler measures length, so it cannot give the volume in milliliters.",
+        "Spot on! A graduated cylinder measures the volume of a liquid in milliliters."
       ],
       "keyWords": [
         "volume of water",
