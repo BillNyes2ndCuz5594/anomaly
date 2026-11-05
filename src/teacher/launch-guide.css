@@ -1,0 +1,27 @@
+.teacher .launch-guide {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.launch-guide > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.launch-guide ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.launch-guide .btn {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .teacher .launch-guide {
+    flex-direction: column;
+  }
+}

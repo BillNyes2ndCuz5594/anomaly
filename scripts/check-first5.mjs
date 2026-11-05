@@ -102,7 +102,78 @@ const port = await freePort()
 const { proc, base } = await startPreview(port)
 const browser = await launch()
 
+// PR 7: Local adult launch path and optional practice remain keyboard usable.
+async function tabTo(page, selector) {
+  for (let i = 0; i < 180; i++) {
+    await page.keyboard.press('Tab')
+    if (await page.$eval(selector, (el) => el === document.activeElement)) return true
+  }
+  return false
+}
+
+async function checkLaunchGuide() {
+  for (const width of [1366, 1024]) {
+    const page = await browser.newPage()
+    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+    page.on('pageerror', (e) => errors.push(e.message))
+    await page.setViewport({ width, height: 768 })
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
+    await page.goto(base + '?tier=low#/', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="teacher-link"]')
+    check(`title adult link reachable by Tab (${width})`, await tabTo(page, '[data-testid="teacher-link"]'))
+    check(`adult link stays local (${width})`, await page.$eval('[data-testid="teacher-link"]', (el) => el.getAttribute('href') === './teacher.html'))
+    await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.keyboard.press('Enter')])
+    await page.waitForSelector('[data-testid="launch-guide"]')
+    check(`Teacher HQ opens locally (${width})`, page.url() === base + 'teacher.html')
+    const guide = await page.$eval('[data-testid="shift-explainer"]', (el) => el.textContent)
+    check(`launch guide covers class and home (${width})`, guide.includes('Your first 10 to 15 minute shift') && guide.includes('different roster number') && guide.includes("student's Results code") && guide.includes('without Canvas'))
+    const accuracyText = 'Percent of practice answers correct. It is not a diagnostic score or a daily mastery rating. Science stages grow as students revisit cases across days.'
+    check(`empty state explains practice accuracy (${width})`, await page.evaluate((text) => document.body.textContent.includes('Practice accuracy') && document.body.textContent.includes(text) && !document.body.textContent.includes('Average mastery'), accuracyText))
+    // Ignore offline precaching and inspect scripts actually loaded by Teacher HQ.
+    check(`teacher loads no 3D scripts (${width})`, await page.evaluate(() => !performance.getEntriesByType('resource').some((r) => /three|Stage|Scene/i.test(r.name) && r.initiatorType === 'script')))
+    check(`sample control reachable by Tab (${width})`, await tabTo(page, '[data-testid="load-sample"]'))
+    await page.keyboard.press('Enter')
+    await page.waitForSelector('[data-testid="stat-average"]')
+    check(`sample shows practice accuracy (${width})`, (await page.$eval('[data-testid="stat-average"]', (el) => el.textContent)).includes('Practice accuracy'))
+    check(`teacher has no horizontal overflow (${width})`, await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    check(`sample keeps accuracy explanation (${width})`, await page.evaluate((text) => document.body.textContent.includes(text), accuracyText))
+    check(`Play the game reachable by Tab (${width})`, await tabTo(page, '[data-testid="play-game"]'))
+    await Promise.all([page.waitForNavigation({ waitUntil: 'load' }), page.keyboard.press('Enter')])
+    await page.waitForSelector('[data-testid="title"]')
+    check(`Play the game returns locally (${width})`, new URL(page.url()).pathname === new URL(base).pathname)
+    await page.close()
+
+    const hub = await profilePage(browser, base, '?tier=low', { width, height: 768 }, errors)
+    await hub.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
+    await hub.evaluate(() => {
+      const raw = JSON.parse(localStorage.getItem('anomaly.v1'))
+      raw.state.lastCaseId = '02-2'
+      raw.state.settings.reducedMotion = true
+      localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+    })
+    await hub.reload({ waitUntil: 'load' })
+    await hub.waitForSelector('[data-testid="hub"]')
+    check(`hub keeps remembered case and Start case (${width})`, await hub.$eval('[data-testid="hub-quick-play"]', (el) => el.querySelector('.qp-kicker').textContent === 'Start case' && el.querySelector('.qp-title').textContent.includes('Unit 4')))
+    check(`hub keeps Unit 4 first and science progress (${width})`, await hub.evaluate(() => {
+      const current = document.querySelector('[data-testid="current-unit"]')
+      const other = document.querySelector('[data-testid="other-units"]')
+      return !!(current.compareDocumentPosition(other) & Node.DOCUMENT_POSITION_FOLLOWING) && document.body.textContent.includes('Your science progress')
+    }))
+    check(`optional practice grouped with rules (${width})`, await hub.$eval('[aria-label="More ways to practice"]', (el) => ['More ways to practice', 'Optional question practice with a different play style.', 'Defenses last one wave.', 'Correct answer lowers instability by 2.'].every((text) => el.textContent.includes(text))))
+    for (const id of ['hub-quick-play', 'gold-rush-launch', 'containment-launch', 'reactor-launch']) {
+      check(`keyboard reaches ${id} (${width})`, await tabTo(hub, `[data-testid="${id}"]`))
+      check(`focused ${id} fits viewport (${width})`, await hub.$eval(`[data-testid="${id}"]`, (el) => {
+        const r = el.getBoundingClientRect()
+        return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight
+      }))
+    }
+    check(`hub has no horizontal overflow (${width})`, await hub.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    await hub.close()
+  }
+}
+
 try {
+  await checkLaunchGuide()
   const initialVp = VIEWPORTS[0]
   const page = await profilePage(browser, base, '?tier=low', { width: initialVp.width, height: initialVp.height }, errors)
   await toCaseStep(page, 'briefing')

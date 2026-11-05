@@ -12,6 +12,9 @@ describe('BedrockModes', () => {
   it('renders only for case 02-2', () => {
     expect(renderToStaticMarkup(createElement(BedrockModes, { caseId: '03-1' }))).toBe('')
     const markup = renderToStaticMarkup(createElement(BedrockModes, { caseId: '02-2' }))
+    expect(markup).toContain('More ways to practice')
+    expect(markup).toContain('Defenses last one wave.')
+    expect(markup).toContain('Correct answer lowers instability by 2.')
     expect(markup).toContain('Gold Rush')
     expect(markup).toContain('Containment Rush')
     expect(markup).toContain('Reactor Stabilizer')
@@ -24,7 +27,7 @@ describe('BedrockModes', () => {
     const location = { hash: '#/hub' }
     vi.stubGlobal('window', { location })
     const tree = BedrockModes({ caseId: '02-2' })!
-    const children = tree.props.children as any[]
+    const children = tree.props.children[1].props.children as any[]
     // containment button
     children[1].props.onClick()
     expect(getLastBedrockMode()).toBe('containment')

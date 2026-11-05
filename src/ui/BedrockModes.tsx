@@ -25,30 +25,37 @@ export default function BedrockModes({ caseId }: { caseId: string }) {
   if (caseId !== '02-2') return null
 
   return (
-    <div className="bedrock-modes-group" data-testid="bedrock-modes">
-      <GoldRushButton caseId={caseId} />
-      <button
-        type="button"
-        className="btn primary"
-        data-testid="containment-launch"
-        onClick={() => {
-          setLastBedrockMode('containment')
-          navigate(`/containment/${caseId}`)
-        }}
-      >
-        Containment Rush
-      </button>
-      <button
-        type="button"
-        className="btn primary"
-        data-testid="reactor-launch"
-        onClick={() => {
-          setLastBedrockMode('reactor')
-          navigate(`/reactor/${caseId}`)
-        }}
-      >
-        Reactor Stabilizer
-      </button>
-    </div>
+    <section aria-label="More ways to practice">
+      <h4>More ways to practice</h4>
+      <div className="bedrock-modes-group" data-testid="bedrock-modes">
+        <GoldRushButton caseId={caseId} />
+        <button
+          type="button"
+          className="btn primary"
+          style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center' }}
+          data-testid="containment-launch"
+          onClick={() => {
+            setLastBedrockMode('containment')
+            navigate(`/containment/${caseId}`)
+          }}
+        >
+          <span>Containment Rush</span>
+          <span className="small-print">Defenses last one wave.</span>
+        </button>
+        <button
+          type="button"
+          className="btn primary"
+          style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'center' }}
+          data-testid="reactor-launch"
+          onClick={() => {
+            setLastBedrockMode('reactor')
+            navigate(`/reactor/${caseId}`)
+          }}
+        >
+          <span>Reactor Stabilizer</span>
+          <span className="small-print">Correct answer lowers instability by 2.</span>
+        </button>
+      </div>
+    </section>
   )
 }
