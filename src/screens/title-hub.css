@@ -68,7 +68,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.title-screen .title-actions .title-browse:hover {
+.title-screen .title-actions .title-browse:hover,
+.title-screen .title-actions .title-browse:focus-visible {
   background: rgba(14, 34, 56, 0.85);
   color: var(--text);
   border-color: rgba(62, 230, 255, 0.55);

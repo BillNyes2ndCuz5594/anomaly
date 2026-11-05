@@ -40,14 +40,27 @@ export default function TitleScreen() {
   const mode = useMotionMode()
   const [charging, setCharging] = useState(false)
   const timer = useRef<number | undefined>(undefined)
+  const busy = useRef(false)
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  async function openCase() {
+    if (busy.current) return
+    busy.current = true
+    try {
+      await loadPack(chosen)
+      navigate(startDestination('play', chosen))
+    } catch {
+      navigate('/hub')
+    } finally {
+      busy.current = false
+    }
+  }
 
   async function go(targetIntent: StartIntent) {
     setCharging(false)
     if (profile) {
       if (targetIntent === 'play') {
-        await loadPack(chosen)
-        navigate(startDestination('play', chosen))
+        await openCase()
       } else {
         navigate('/hub')
       }
@@ -58,9 +71,9 @@ export default function TitleScreen() {
   }
 
   function start(targetIntent: StartIntent) {
-    setIntent(targetIntent)
     if (mode === 'still') return go(targetIntent)
     if (charging) return
+    setIntent(targetIntent)
     setCharging(true)
     timer.current = window.setTimeout(() => go(targetIntent), 250)
   }
@@ -105,7 +118,11 @@ export default function TitleScreen() {
             className="link-btn"
             data-testid="resume-code"
             data-pressed={resumePress.pressed ? 'yes' : 'no'}
-            onClick={() => setModal('resume')}
+            onClick={() => {
+              window.clearTimeout(timer.current)
+              setCharging(false)
+              setModal('resume')
+            }}
             {...resumePress.bind}
           >
             Use a saved code
@@ -128,8 +145,7 @@ export default function TitleScreen() {
             armCodenameDecode()
             setModal(null)
             if (intent === 'play') {
-              await loadPack(chosen)
-              navigate(startDestination('play', chosen))
+              await openCase()
             } else {
               navigate('/hub')
             }
