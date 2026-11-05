@@ -3,7 +3,7 @@ import { caseById, codexById, content, loadPack } from '../content'
 import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
-import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
+import { dronePaintColor, findDronePaint, MASTERY_LABEL, MASTERY_STAGES, rankFor, unlockedDronePaintOptions, useGame, type MasteryStage } from '../state/store'
 import { orderCasesForHub, unitNumber, validCaseId } from '../state/startChoice'
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
@@ -112,6 +112,9 @@ export default function HubScreen() {
   const mastery = useGame((s) => s.mastery)
   const codex = useGame((s) => s.codex)
   const progress = useGame((s) => s.progress)
+  const paints = useGame((s) => s.paints)
+  const activePaint = useGame((s) => s.activePaint)
+  const setActivePaint = useGame((s) => s.setActivePaint)
   const cases = useGame((s) => s.cases)
   const lastCaseId = useGame((s) => s.lastCaseId)
   const due = useReviewDue()
@@ -181,6 +184,9 @@ export default function HubScreen() {
   const chosenCase = caseById(chosen) ?? content.cases[0]
   // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
   const groups = hubBenchmarkGroups(content.cases, Object.keys(progress), labelOf)
+  const unlockedPaints = unlockedDronePaintOptions(paints)
+  const activePaintDef = findDronePaint(activePaint)
+  const selectedPaintId = activePaintDef && unlockedPaints.some((p) => p.id === activePaintDef.id) ? activePaintDef.id : null
 
   return (
     <div className="screen hub-screen" data-testid="hub">
@@ -216,6 +222,51 @@ export default function HubScreen() {
             {profile.classCode ? <span className="tag">Class {profile.classCode}</span> : null}
           </p>
         </header>
+
+        <section
+          className="drone-paint-picker"
+          data-testid="drone-paint-picker"
+          data-active-paint={selectedPaintId ?? 'default'}
+          data-active-color={dronePaintColor(activePaint, paints)}
+          aria-labelledby="drone-paint-h"
+        >
+          <h3 id="drone-paint-h" className="section-title">
+            Drone paint
+          </h3>
+          {unlockedPaints.length === 0 ? (
+            <p className="muted drone-paint-empty">
+              Move any science skill up a stage on a mission to unlock drone paint colors.
+            </p>
+          ) : (
+            <div className="drone-paint-list" role="group" aria-labelledby="drone-paint-h">
+              {unlockedPaints.map((paint) => {
+                const selected = selectedPaintId === paint.id
+                return (
+                  <button
+                    key={paint.id}
+                    type="button"
+                    className={selected ? 'btn small drone-paint-swatch is-selected' : 'btn small drone-paint-swatch'}
+                    data-testid={`drone-paint-${paint.id}`}
+                    data-paint={paint.label}
+                    data-paint-id={paint.id}
+                    data-paint-color={paint.color}
+                    data-selected={selected ? 'yes' : 'no'}
+                    aria-pressed={selected}
+                    onClick={() => setActivePaint(paint.label)}
+                  >
+                    <span className="drone-paint-chip" style={{ backgroundColor: paint.color }} aria-hidden="true" />
+                    <span className="drone-paint-name">{paint.label}</span>
+                    {selected ? (
+                      <span className="drone-paint-marker" data-testid={`drone-paint-marker-${paint.id}`}>
+                        <span aria-hidden="true">{'\u2714'}</span> Active
+                      </span>
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </section>
 
         <section aria-labelledby="dispatch-h">
           <h3 id="dispatch-h" className="section-title">

@@ -148,11 +148,41 @@ async function checkLaunchGuide() {
     await hub.evaluate(() => {
       const raw = JSON.parse(localStorage.getItem('anomaly.v1'))
       raw.state.lastCaseId = '02-2'
+      raw.state.paints = ['Sky', 'Orange']
+      raw.state.activePaint = null
       raw.state.settings.reducedMotion = true
       localStorage.setItem('anomaly.v1', JSON.stringify(raw))
     })
     await hub.reload({ waitUntil: 'load' })
+    await hub.waitForSelector('[data-testid="drone-paint-picker"]')
+    check(`keyboard reaches Sky swatch (${width})`, await tabTo(hub, '[data-testid="drone-paint-sky"]'))
+    check(`keyboard reaches Orange swatch (${width})`, await tabTo(hub, '[data-testid="drone-paint-orange"]'))
+    await hub.keyboard.press('Enter')
+    check(`Orange swatch selected with noncolor marker and locked paints hidden (${width})`, await hub.evaluate(() => {
+      const sky = document.querySelector('[data-testid="drone-paint-sky"]')
+      const orange = document.querySelector('[data-testid="drone-paint-orange"]')
+      const locked = document.querySelector('[data-testid="drone-paint-bluish-green"]')
+      const marker = document.querySelector('[data-testid="drone-paint-marker-orange"]')
+      return sky?.getAttribute('aria-pressed') === 'false' &&
+        orange?.getAttribute('aria-pressed') === 'true' &&
+        orange?.textContent?.includes('Orange') &&
+        marker?.textContent?.includes('Active') &&
+        !locked
+    }))
+    await hub.reload({ waitUntil: 'load' })
     await hub.waitForSelector('[data-testid="hub"]')
+    check(`Orange paint survives reload in reduced motion 2D fallback without panel overflow (${width})`, await hub.evaluate(() => {
+      const orange = document.querySelector('[data-testid="drone-paint-orange"]')
+      const picker = document.querySelector('[data-testid="drone-paint-picker"]')
+      const panel = document.querySelector('.hub-panel')
+      const saved = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')?.state?.activePaint
+      return orange?.getAttribute('aria-pressed') === 'true' &&
+        picker?.getAttribute('data-active-paint') === 'orange' &&
+        saved === 'Orange' &&
+        document.documentElement.dataset.reducedMotion === 'true' &&
+        document.documentElement.dataset.tier === 'low' &&
+        !!panel && panel.scrollWidth <= panel.clientWidth
+    }))
     check(`hub keeps remembered case and Start case (${width})`, await hub.$eval('[data-testid="hub-quick-play"]', (el) => el.querySelector('.qp-kicker').textContent === 'Start case' && el.querySelector('.qp-title').textContent.includes('Unit 4')))
     check(`hub keeps Unit 4 first and science progress (${width})`, await hub.evaluate(() => {
       const current = document.querySelector('[data-testid="current-unit"]')

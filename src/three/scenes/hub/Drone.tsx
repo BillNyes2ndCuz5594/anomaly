@@ -4,7 +4,7 @@ import * as THREE from 'three/webgpu'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { atan, attribute, color, cos, float, fract, length, mix, oneMinus, positionLocal, pow, sin, smoothstep, step, time, uniform, vec2, vertexColor } from 'three/tsl'
 import { STILL } from '../../../lib/flags'
-import { useGame } from '../../../state/store'
+import { DEFAULT_DRONE_PAINT_COLOR, dronePaintColor, useGame } from '../../../state/store'
 import { useMotionMode } from '../../../ui/useMotionMode'
 import { claimFlourish, FLOURISH_DELAY_MS, FLOURISH_MS, glowAmount, rollAngle, type Flourish } from './paintFlourish'
 import { sceneCalm } from './markerMotion'
@@ -225,6 +225,30 @@ const EDGE_PTS: V[] = [
  * fans are blurred discs with counter rotating streaks driven by one phase uniform. A small cool fill light rides with
  * the drone (Medium and High) so the far fans read. Static parts are merged per material: 5 draw calls.
  */
+export const DEFAULT_DRONE_SHELL_COLOR = DEFAULT_DRONE_PAINT_COLOR
+
+export function createDroneShellMaterial(
+  activePaint: string | null = null,
+  unlockedPaints?: readonly string[],
+): THREE.MeshStandardNodeMaterial {
+  return new THREE.MeshStandardNodeMaterial({
+    color: dronePaintColor(activePaint, unlockedPaints),
+    roughness: 0.5,
+    metalness: 0.3,
+  })
+}
+
+export function applyDroneShellPaint(
+  shellMat: THREE.MeshStandardNodeMaterial,
+  activePaint: string | null,
+  unlockedPaints?: readonly string[],
+): string {
+  const hex = dronePaintColor(activePaint, unlockedPaints)
+  shellMat.color.set(hex)
+  shellMat.needsUpdate = true
+  return hex
+}
+
 export default function Drone({ reduced, position, scale = 1 }: { reduced: boolean; position: [number, number, number]; scale?: number }) {
   const root = useRef<THREE.Group>(null)
   const tier = useTier()
@@ -306,7 +330,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     // blurred rotor discs: one disc per fan, spin direction in the ctr attribute
     const blur: Part[] = FAN_SPOTS.map(([x, z], i): Part => ({ geo: new THREE.CircleGeometry(ROTOR_R, 40), pos: [x, DUCT_Y + 0.01, z], rot: [-Math.PI / 2, 0, 0], ctr: [x, i % 2 === 0 ? 1 : -1, z] }))
 
-    const shellMat = new THREE.MeshStandardNodeMaterial({ color: '#738193', roughness: 0.5, metalness: 0.3 })
+    const shellMat = createDroneShellMaterial(useGame.getState().activePaint, useGame.getState().paints)
     const compMat = new THREE.MeshStandardNodeMaterial({ color: '#1c2634', roughness: 0.46, metalness: 0.4 })
     const metalMat = new THREE.MeshStandardNodeMaterial({ color: '#9aa9bd', roughness: 0.32, metalness: 0.65 })
 
@@ -343,7 +367,7 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
     blurMat.depthWrite = false
     blurMat.side = THREE.DoubleSide
 
-    return { box, ductG, hullG, geos: [bake(shell), bake(composite), bake(metal), bake(lights), bake(blur)], mats: [shellMat, compMat, metalMat, lightMat, blurMat], phase, blinkOn, glow }
+    return { box, ductG, hullG, shellMat, geos: [bake(shell), bake(composite), bake(metal), bake(lights), bake(blur)], mats: [shellMat, compMat, metalMat, lightMat, blurMat], phase, blinkOn, glow }
   }, [])
 
   useEffect(
@@ -362,7 +386,12 @@ export default function Drone({ reduced, position, scale = 1 }: { reduced: boole
   const probe = useMemo(() => new THREE.Vector3(), [])
   const calm = sceneCalm(reduced, STILL)
   const mode = useMotionMode()
-  const paintCount = useGame((s) => s.paints.length)
+  const paints = useGame((s) => s.paints)
+  const activePaint = useGame((s) => s.activePaint)
+  const paintCount = paints.length
+  useEffect(() => {
+    applyDroneShellPaint(built.shellMat, activePaint, paints)
+  }, [built.shellMat, activePaint, paints])
   // A newly unlocked paint plays one flourish. The start time is set once per unlock and read in the frame loop.
   const flourish = useRef<{ kind: Flourish; at: number }>({ kind: 'none', at: 0 })
   useEffect(() => {

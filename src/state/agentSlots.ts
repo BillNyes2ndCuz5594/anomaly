@@ -1,6 +1,6 @@
 import { clampAgentNumber, sanitizeClassCode } from '../lib/codename'
 import type { BenchmarkRecord, MasteryStage } from './mastery'
-import { makeProfile, useGame, type CaseStatus, type GameState, type ItemHistoryEntry, type Profile } from './store'
+import { makeProfile, resolveUnlockedPaint, useGame, type CaseStatus, type GameState, type ItemHistoryEntry, type Profile } from './store'
 
 export interface AgentSlotSnapshot {
   v: 1
@@ -13,6 +13,7 @@ export interface AgentSlotSnapshot {
   codex: string[]
   intel: number
   paints: string[]
+  activePaint?: string | null
   cases: Record<string, CaseStatus>
   lastCaseId: string | null
 }
@@ -36,6 +37,7 @@ export function snapshotFromGameState(state: GameState): AgentSlotSnapshot | nul
     codex: [...state.codex],
     intel: state.intel,
     paints: [...state.paints],
+    activePaint: state.activePaint ?? null,
     cases: { ...state.cases },
     lastCaseId: state.lastCaseId,
   }
@@ -190,6 +192,11 @@ export function switchToAgent(
   // 3. Check for existing slot for target agent
   const existing = loadAgentSlot(n, code, store)
   if (existing) {
+    const paints = Array.isArray(existing.paints) ? existing.paints : []
+    const resolvedPaint = typeof existing.activePaint === 'string' ? resolveUnlockedPaint(existing.activePaint, paints) : null
+    const activePaint = resolvedPaint
+      ? (typeof existing.activePaint === 'string' && paints.includes(existing.activePaint) ? existing.activePaint : resolvedPaint)
+      : null
     useGame.setState({
       profile: existing.profile ?? makeProfile(n, code),
       mastery: existing.mastery ?? {},
@@ -197,7 +204,8 @@ export function switchToAgent(
       itemHistory: existing.itemHistory ?? [],
       codex: existing.codex ?? [],
       intel: existing.intel ?? 0,
-      paints: existing.paints ?? [],
+      paints,
+      activePaint,
       cases: existing.cases ?? {},
       lastCaseId: existing.lastCaseId ?? null,
     })
@@ -214,6 +222,7 @@ export function switchToAgent(
     codex: [],
     intel: 0,
     paints: [],
+    activePaint: null,
     cases: {},
     lastCaseId: null,
   })
