@@ -23,16 +23,16 @@
       "lon": -80.19,
       "lat": 25.77
     },
-    "dispatchHook": "Weather station scramble in Miami. Rain is falling before the clouds form.",
+    "dispatchHook": "Weather alert in Miami! Rain is reported falling before clouds even form.",
     "briefing": [
-      "Agent, a Miami weather station sent a forecast with its steps out of order.",
-      "It says rain falls before clouds form, and calls today's afternoon storm a mystery.",
-      "Put the water cycle back in order, then read the instruments yourself.",
-      "The instruments still work; it is the order that broke."
+      "Agent, a Miami weather station sent out a forecast with its steps completely jumbled!",
+      "It says rain falls before clouds form, and calls today's afternoon storm a total mystery.",
+      "Put the water cycle back in order, then read the station instruments for yourself.",
+      "Our tools are ready, Agent. Let's get Miami's forecast back on track!"
     ],
     "lab": {
       "kind": "order",
-      "intro": "The station lost the order of the water cycle. Put the steps back so the water gets from the ocean to the rain.",
+      "intro": "The station scrambled its water cycle sequence! Put the steps in order so water gets from the ocean into the clouds and falls as rain.",
       "prompt": "Put the steps of the water cycle in order, starting at the ocean.",
       "steps": [
         {
@@ -61,10 +61,10 @@
           "card": "Drops join, grow heavy, and fall back to Earth."
         }
       ],
-      "why": "The Sun's heat turns ocean water into water vapor, the vapor rises and cools into cloud drops, and the drops fall as rain that can flow back to the ocean."
+      "why": "The Sun warms ocean water into vapor. The vapor rises and cools into cloud drops, and drops fall as rain!"
     },
-    "debriefClosed": "Case closed. The station runs in order again, and the afternoon storm is back on the forecast.",
-    "debriefOpen": "Case stays open for now. Watch the barometers; that stormy front is still rolling across the coast."
+    "debriefClosed": "Awesome job, Agent! Miami's station is back in order, and the afternoon storm is tracked on radar.",
+    "debriefOpen": "This case stays open for now, Agent. Keep an eye on the barometer clues and come back soon!"
   },
   "items": [
     {
@@ -74,7 +74,7 @@
       "category": "earth",
       "complexity": "low",
       "pool": "case",
-      "stem": "Over the Atlantic, tiny water drops in a cloud join together and grow heavy. Then they fall to the ground as rain. Which part of the water cycle is this?",
+      "stem": "Agent Maya watches a cloud over the Atlantic. Tiny water drops in the cloud join together and grow heavy. Then they fall to the ground as rain. Which part of the water cycle is this?",
       "options": [
         "evaporation",
         "condensation",
@@ -83,10 +83,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: evaporation is liquid water changing into water vapor, not drops falling.",
-        "Decoy: condensation makes the cloud drops, but falling rain is the next step.",
-        "Correct: water that falls from clouds as rain is precipitation.",
-        "Decoy: freezing turns liquid water into ice, and these drops fall as liquid rain."
+        "Evaporation is liquid water changing into water vapor, not drops falling.",
+        "Condensation makes the cloud drops, but falling rain is the next step.",
+        "Spot on! Water that falls from clouds as rain is precipitation.",
+        "Freezing turns liquid water into ice, and these drops fall as liquid rain."
       ],
       "keyWords": [
         "grow heavy",
@@ -151,7 +151,7 @@
       "category": "earth",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "After an afternoon storm in Orlando, puddles cover a paved parking lot. By the next afternoon, the puddles are gone. What happened to most of the water?",
+      "stem": "Agent Leo checks a paved Orlando parking lot after a rainstorm. By the next afternoon, the puddles are gone. What happened to most of the water?",
       "options": [
         "The Sun's heat destroyed the water.",
         "The water froze and turned into ice.",
@@ -160,10 +160,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: water does not disappear, because it changes state and moves into the air.",
-        "Decoy: a warm Orlando afternoon is far too hot for puddles to freeze.",
-        "Decoy: condensation is water vapor turning into liquid, the opposite of what happened.",
-        "Correct: the Sun's heat changed the liquid water into water vapor, a gas that mixed into the air."
+        "Water does not disappear. It changes state and moves into the air.",
+        "A warm Orlando afternoon is far too hot for puddles to freeze.",
+        "Condensation is water vapor turning into liquid, the opposite of what happened.",
+        "Spot on! The Sun's heat changed liquid water into water vapor that mixed into the air."
       ],
       "keyWords": [
         "puddles are gone",
@@ -262,7 +262,7 @@
       "category": "earth",
       "complexity": "high",
       "pool": "cold",
-      "stem": "A student builds a water cycle model. She sets an empty cup in the middle of a bowl of warm salt water, covers the bowl with plastic wrap, and puts it in the sun. Water drops form on the underside of the wrap and drip into the cup. Which part of the water cycle do the drops forming on the wrap show?",
+      "stem": "Agent Rosa builds a water cycle model. She sets a cup in a bowl of warm salt water under plastic wrap in the sun. Water drops form on the underside of the wrap and drip into the cup. Which part of the water cycle do the drops forming on the wrap show?",
       "options": [
         "evaporation",
         "precipitation",
@@ -271,10 +271,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: evaporation happens at the warm water, before the drops form.",
-        "Decoy: precipitation is the drops falling into the cup, which comes after they form.",
-        "Correct: water vapor cools on the wrap and changes back into liquid drops, just like a cloud forming.",
-        "Decoy: melting turns a solid into a liquid, and there is no ice in this model."
+        "Evaporation happens at the warm water surface before drops form.",
+        "Precipitation is drops falling into the cup after they form.",
+        "Spot on! Water vapor cools on the wrap and turns into liquid drops, just like a cloud.",
+        "Melting turns a solid into a liquid, and there is no ice in this model."
       ],
       "keyWords": [
         "drops form on the underside",
@@ -322,10 +322,10 @@
       ],
       "key": 1,
       "why": [
-        "Decoy: a thermometer measures air temperature.",
-        "Correct: a rain gauge collects and measures how much rain falls.",
-        "Decoy: a barometer measures air pressure.",
-        "Decoy: a wind vane shows which way the wind blows."
+        "A thermometer measures air temperature.",
+        "Spot on! A rain gauge collects and measures how much rain falls.",
+        "A barometer measures air pressure.",
+        "A wind vane shows which way the wind blows."
       ],
       "keyWords": [
         "how much rain fell",
@@ -352,7 +352,7 @@
       "category": "earth",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "A student in Miami reads the school weather station three times on a summer day. Which pair of changes in her data most likely means a thunderstorm is coming?",
+      "stem": "Agent Sam in Miami reads the school weather station three times on a summer day. Which pair of changes in his data most likely means a thunderstorm is coming?",
       "options": [
         "Air pressure rises and humidity falls.",
         "Air pressure stays steady and the sky stays clear.",
@@ -361,10 +361,10 @@
       ],
       "key": 3,
       "why": [
-        "Decoy: rising air pressure and drier air usually mean fair weather.",
-        "Decoy: the data show the pressure falling and clouds building, so nothing stayed steady.",
-        "Decoy: humidity went up in the data, not down.",
-        "Correct: falling air pressure and more water vapor in the air are signs that a storm is on the way."
+        "Rising air pressure and drier air usually mean fair weather.",
+        "The station data show pressure falling and clouds building, so nothing stayed steady.",
+        "Humidity went up in the table, not down.",
+        "Spot on! Falling air pressure and rising humidity show a storm is on the way."
       ],
       "keyWords": [
         "pair of changes",
@@ -470,7 +470,7 @@
       "category": "earth",
       "complexity": "moderate",
       "pool": "case",
-      "stem": "On many summer days in Florida, mornings are sunny and hot. By mid-afternoon, tall dark clouds build and a thunderstorm brings heavy rain. Which condition helps these storms form?",
+      "stem": "Agent Maya tracks Florida summer weather. Mornings are sunny and hot, but by mid-afternoon tall dark clouds build and bring rain. Which condition helps these storms form?",
       "options": [
         "Cold, dry air sinks and stops clouds from forming.",
         "Air pressure rises quickly every afternoon.",
@@ -479,10 +479,10 @@
       ],
       "key": 2,
       "why": [
-        "Decoy: sinking dry air keeps the sky clear instead of building storms.",
-        "Decoy: rising air pressure usually brings fair weather, not storms.",
-        "Correct: the Sun heats moist air, the air rises and cools, and its water vapor condenses into tall storm clouds.",
-        "Decoy: the Moon moves the tides, but it does not lift water into clouds."
+        "Sinking dry air keeps the sky clear instead of building storms.",
+        "Rising air pressure usually brings fair weather, not storms.",
+        "Spot on! Warm, humid air rises and cools into tall storm clouds.",
+        "The Moon moves tides, but it does not lift water into clouds."
       ],
       "keyWords": [
         "sunny and hot",
