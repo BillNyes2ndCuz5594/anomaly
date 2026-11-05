@@ -20,6 +20,15 @@ describe('questionAccess speech builder', () => {
     expect(desc).toContain('4°C (39°F)')
   })
 
+  it('pairs every table cell with its column heading', () => {
+    const v = tempItem.visual
+    if (v.kind !== 'table') throw new Error('expected a table item')
+    const desc = formatVisualDescription(tempItem)
+    for (const row of v.rows) {
+      row.forEach((cell, j) => expect(desc).toContain(`${v.columns[j]}: ${cell}`))
+    }
+  })
+
   it('buildQuestionSpeech includes stem, all four temperatures, and choices without leaking correct key', () => {
     const spoken = buildQuestionSpeech(tempItem)
     expect(spoken.text).toContain(tempItem.stem)

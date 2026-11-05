@@ -51,6 +51,12 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
   }, [c.briefing])
   const current = ra.speaking && ra.charIndex >= 0 ? wordAt(layout.starts, ra.charIndex) : -1
   const press = usePressed()
+  const storyRef = useRef<HTMLDivElement>(null)
+  // Keep the word being read aloud inside the story scroller (auto, so it stays reduced motion safe).
+  useEffect(() => {
+    if (current < 0) return
+    storyRef.current?.querySelector('.rw.on')?.scrollIntoView({ block: 'nearest', behavior: 'auto' })
+  }, [current])
 
   // B2: the hook types in word by word over 600 ms (CSS) and the longest word glitches amber. The full text stays in the DOM.
   const hookWords = useMemo(() => c.dispatchHook.split(' '), [c.dispatchHook])
@@ -115,6 +121,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
         <div
           className="briefing-story"
           data-testid="briefing-story"
+          ref={storyRef}
           tabIndex={0}
           role="region"
           aria-label="Case briefing story"
@@ -122,8 +129,10 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             const el = e.currentTarget
             if (e.key === 'ArrowDown') {
               el.scrollTop += 40
+              e.preventDefault()
             } else if (e.key === 'ArrowUp') {
               el.scrollTop -= 40
+              e.preventDefault()
             } else if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
               el.scrollTop += el.clientHeight * 0.8
               e.preventDefault()
