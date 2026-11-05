@@ -38,6 +38,15 @@ const SAMPLE_MS = 500
 /** Ignore FPS for this long after mount or a tier change (shader compiles, window refill). */
 const GRACE_MS = 2500
 
+/** Update clear transparency on the renderer that R3F retains across route changes. */
+function ClearAlpha({ transparent }: { transparent: boolean }) {
+  const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
+  useEffect(() => {
+    gl.setClearAlpha(transparent ? 0 : 1)
+  }, [gl, transparent])
+  return null
+}
+
 /** Measures fps, runs the Auto tier controller, exposes window.__anomaly. Renders nothing. */
 function Runtime() {
   const stamps = useRef<number[]>([])
@@ -274,9 +283,10 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
         },
         false,
         onLost,
-        transparent,
+        // Context attributes cannot change when the persistent Stage returns to the title.
+        true,
       ),
-    [onLost, transparent],
+    [onLost],
   )
 
   const camera = useMemo(() => ({ fov: 40, near: 0.1, far: 200, position: [0, 3, 12] as [number, number, number] }), [])
@@ -297,6 +307,7 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       style={{ position: 'absolute', inset: 0 }}
     >
       <TextureLimitGuard wanted={dpr} />
+      <ClearAlpha transparent={transparent} />
       {transparent ? null : <color attach="background" args={['#070c17']} />}
       <Runtime />
       <ViewOffset insets={insets} />

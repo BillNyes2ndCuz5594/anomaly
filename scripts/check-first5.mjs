@@ -249,6 +249,34 @@ async function checkTitleAttract() {
     check(`title usable: ${mode}`, true)
     await page.close()
   }
+
+  // Settings creates the persistent renderer with an opaque clear. Returning to the
+  // title must make that same canvas transparent so the DOM poster and video show through.
+  const page = await browser.newPage()
+  await page.setBypassServiceWorker(true)
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.evaluateOnNewDocument(() => {
+    localStorage.setItem('anomaly.v1', JSON.stringify({ state: { settings: { reducedMotion: false } }, version: 1 }))
+  })
+  await page.goto(base + '?backend=webgl2&tier=low#/settings', { waitUntil: 'load' })
+  await page.waitForSelector('[data-testid="settings-back"]')
+  await page.waitForFunction(() => window.__anomaly?.backend === 'webgl2' && window.__anomaly.frame > 2)
+  await page.evaluate(() => {
+    window.__settingsCanvas = document.querySelector('.stage-layer canvas')
+    window.__settingsFrame = window.__anomaly.frame
+  })
+  await page.click('[data-testid="settings-back"]')
+  await page.waitForFunction(() => document.querySelector('.title-backdrop img')?.naturalWidth > 0 &&
+    window.__anomaly?.frame > window.__settingsFrame + 2)
+  check('settings Back makes the persistent title canvas transparent', await page.evaluate(() => {
+    const canvas = document.querySelector('.stage-layer canvas')
+    const gl = canvas?.getContext('webgl2')
+    return canvas === window.__settingsCanvas && gl?.getContextAttributes().alpha === true &&
+      gl.getParameter(gl.COLOR_CLEAR_VALUE)[3] === 0 && window.__anomaly.triangles > 0 &&
+      document.querySelector('.title-backdrop img').naturalWidth > 0 && !document.querySelector('.title-backdrop video')
+  }))
+  await page.close()
 }
 
 async function checkLaunchGuide() {
