@@ -77,10 +77,10 @@ export default function ModeMedia({
             onEnded={handleEnded}
             onError={handleError}
           >
-            {introWebm && !failedSources[introWebm] && (
+            {introWebm && (
               <source src={introWebm} type="video/webm" onError={() => handleSourceError(introWebm)} />
             )}
-            {introMp4 && !failedSources[introMp4] && (
+            {introMp4 && (
               <source src={introMp4} type="video/mp4" onError={() => handleSourceError(introMp4)} />
             )}
           </video>

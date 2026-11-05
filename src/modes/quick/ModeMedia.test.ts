@@ -20,8 +20,9 @@ function setupMockDom() {
       // oxlint-disable-next-line typescript/no-explicit-any
       const el: any = {
         nodeType: 1, tagName: tag.toUpperCase(), nodeName: tag.toUpperCase(), style: {}, attributes: {} as Record<string, string>,
-        children: [] as any[], parentNode: null, ownerDocument: doc,
-        get textContent() { return this.children.map((c: any) => c.textContent ?? c.nodeValue ?? '').join('') },
+        children: [] as any[], parentNode: null, ownerDocument: doc, _tc: '',
+        get textContent() { return this._tc || this.children.map((c: any) => c.textContent ?? c.nodeValue ?? '').join('') },
+        set textContent(v: string) { this._tc = String(v); this.children = [] },
         setAttribute(k: string, v: unknown) { this.attributes[k] = String(v) },
         getAttribute(k: string) { return this.attributes[k] ?? null },
         removeAttribute(k: string) { delete this.attributes[k] },
@@ -221,9 +222,8 @@ describe('ModeMedia interaction tests', () => {
     expect(introEnded).toBe(false)
 
     // Second source fails
-    const sourcesAfterFirst = dom.container.children[0].children[0].children[0].children.filter((c: any) => c.tagName === 'SOURCE')
     act(() => {
-      sourcesAfterFirst[0]._l?.error?.forEach((fn: any) => fn({ type: 'error' }))
+      sources[1]._l?.error?.forEach((fn: any) => fn({ type: 'error', target: sources[1], currentTarget: sources[1] }))
     })
 
     // Fallback triggered: video unmounted, poster img rendered, onIntroEnd fired
