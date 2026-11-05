@@ -112,7 +112,7 @@ export interface MarkerPlace extends MarkerSpot {
 }
 
 /** Smallest gap between two markers, in degrees (about 0.4 world units on the table). */
-export const MARKER_MIN_SEP = 0.6
+export const MARKER_MIN_SEP = 0.8
 /** Markers east of this longitude put their label on the left, away from the side panel. */
 export const MARKER_LABEL_FLIP_LON = -81.0
 const HEIGHTS = [1.75, 1.35, 2.15] as const

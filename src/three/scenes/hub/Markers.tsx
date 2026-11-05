@@ -162,10 +162,10 @@ function Marker({ registry, priority, id, lon, lat, height, hex, title, sub, to,
     }
   }, -2)
 
-  useFrame((_, dt) => {
+  useFrame(({ size }, dt) => {
     const mix = calm ? 1 : 1 - Math.exp(-dt / 0.15)
     // Attention labels stay readable even if several attention targets compete.
-    const target = entry.visible || hover || focused || pressed ? 1 : 0
+    const target = (entry.visible && size.width > 900 && priority >= 47) || id === 'cold' || hover || focused || pressed ? 1 : 0
     label.mat.opacity += (target - label.mat.opacity) * mix
     if (labelMesh.current) {
       labelMesh.current.visible = label.mat.opacity >= 0.02

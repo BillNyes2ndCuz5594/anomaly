@@ -19,10 +19,12 @@
   flex-shrink: 0;
 }
 
-.briefing-screen .dispatch-lines {
-  flex: 1 1 auto;
+.briefing-screen .dispatch-lines,
+.dispatch-lines {
+  flex: 1 0 auto;
   min-height: 0;
   overflow-y: auto;
+  padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: rgba(62, 230, 255, 0.4) transparent;
 }
@@ -308,7 +310,7 @@
   }
 }
 
-@media (max-width: 600px) and (orientation: portrait) {
+@media (max-width: 900px) and (orientation: portrait) {
   .briefing-screen .dispatch-key {
     display: none;
   }
@@ -454,9 +456,17 @@
   }
 }
 
+@media (max-width: 900px) {
+  .lab-b .lab-body,
+  .labb-screen .match-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
 .briefing-poster {
   position: relative;
-  width: min(100%, 220px);
+  width: 100%;
+  max-height: 168px;
   aspect-ratio: 16 / 9;
   flex: none;
   overflow: hidden;
@@ -481,7 +491,6 @@
 
 @media (max-height: 800px) {
   .briefing-poster {
-    max-height: 90px;
-    width: auto;
+    max-height: 168px;
   }
 }
