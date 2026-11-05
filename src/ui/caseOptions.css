@@ -1,0 +1,58 @@
+.case-top-controls {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.case-top-controls .btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+[data-testid='case-options-dialog'] {
+  width: min(620px, calc(100vw - 32px));
+  gap: 12px;
+}
+
+[data-testid='case-options-dialog'] .help-level-picker {
+  margin: 0;
+  padding: 8px;
+}
+
+[data-testid='case-options-dialog'] .help-level-option {
+  flex-basis: 140px;
+  gap: 8px;
+  padding: 8px;
+}
+
+.case-options-reading {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.case-options-reading label,
+.case-options-volume {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.case-options-reading select {
+  width: 100%;
+  min-height: 44px;
+}
+
+@media (max-width: 600px) {
+  .case-top {
+    gap: 6px;
+  }
+
+  .case-top-controls {
+    gap: 4px;
+  }
+
+  .case-top .case-top-controls .btn {
+    padding: 0 8px;
+  }
+}

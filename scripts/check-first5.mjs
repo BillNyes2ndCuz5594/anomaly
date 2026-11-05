@@ -41,6 +41,63 @@ async function setGameSettings(page, settings) {
   await sleep(250)
 }
 
+// Exercise the real modal without navigating or replacing any case nodes.
+async function checkCaseOptions(page, label, change = false) {
+  await page.evaluate(() => {
+    window.__optionsCase = document.querySelector('[data-testid="lab-generic"], [data-testid="item-player"], [data-testid="briefing"]')
+    window.__optionsRoute = location.hash
+    window.__optionsMixture = document.querySelector('[data-testid="lab-current-mixture"]')?.textContent
+  })
+  await page.focus('[data-testid="case-options"]')
+  await page.keyboard.press('Enter')
+  await page.waitForSelector('[data-testid="case-options-dialog"]')
+  check(`Options has a labelled modal dialog: ${label}`, await page.$eval('[data-testid="case-options-dialog"]', (el) =>
+    el.getAttribute('role') === 'dialog' && el.getAttribute('aria-modal') === 'true' &&
+    document.getElementById(el.getAttribute('aria-labelledby'))?.textContent === 'Options'))
+  // Done is last and receives initial focus. Tab wraps to the first control.
+  await page.keyboard.press('Tab')
+  check(`Tab wraps inside Options: ${label}`, await page.$eval('[data-testid="case-options-dialog"]', (el) => el.contains(document.activeElement)))
+  check(`Tab reaches the checked help radio: ${label}`, await page.evaluate(() =>
+    document.activeElement?.matches('[data-testid="help-level-picker"] input:checked')))
+  await page.keyboard.press('Tab')
+  check(`Tab reaches Text size: ${label}`, await page.$eval('[data-testid="case-text-size"]', (el) => el === document.activeElement))
+  await page.keyboard.down('Shift')
+  await page.keyboard.press('Tab')
+  await page.keyboard.up('Shift')
+  check(`Shift Tab returns to the checked help radio: ${label}`, await page.evaluate(() =>
+    document.activeElement?.matches('[data-testid="help-level-picker"] input:checked')))
+  await page.keyboard.down('Shift')
+  await page.keyboard.press('Tab')
+  await page.keyboard.up('Shift')
+  check(`Shift Tab wraps to Done: ${label}`, await page.$eval('[data-testid="case-options-close"]', (el) => el === document.activeElement))
+  if (change) {
+    await page.select('[data-testid="case-text-size"]', '2')
+    await page.select('[data-testid="case-line-spacing"]', '2')
+    await page.click('[data-testid="case-sound"]')
+    await page.focus('[data-testid="case-volume"]')
+    await page.keyboard.press('Home')
+    await page.keyboard.press('ArrowRight')
+    check(`reading and sound persist immediately: ${label}`, await page.evaluate(() => {
+      const s = JSON.parse(localStorage.getItem('anomaly.v1')).state.settings
+      return s.textSize === 2 && s.lineSpacing === 2 && !s.sound && s.soundVolume === 0.05 &&
+        document.documentElement.style.getPropertyValue('--text-scale') === '1.3'
+    }))
+  }
+  const layout = await page.$eval('[data-testid="case-options-dialog"]', (el) => {
+    const r = el.getBoundingClientRect()
+    const targets = [...el.querySelectorAll('select, .toggle, .range, button, .help-level-option')]
+    return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight &&
+      el.scrollWidth <= el.clientWidth && targets.every((t) => t.getBoundingClientRect().height >= 44)
+  })
+  check(`Options fits with 44px targets: ${label}`, layout)
+  await page.keyboard.press('Escape')
+  await page.waitForSelector('[data-testid="case-options-dialog"]', { hidden: true })
+  check(`Escape restores Options focus and keeps the case mounted: ${label}`, await page.evaluate(() =>
+    document.activeElement?.getAttribute('data-testid') === 'case-options' &&
+    window.__optionsCase?.isConnected && location.hash === window.__optionsRoute &&
+    document.querySelector('[data-testid="lab-current-mixture"]')?.textContent === window.__optionsMixture))
+}
+
 const port = await freePort()
 const { proc, base } = await startPreview(port)
 const browser = await launch()
@@ -179,6 +236,8 @@ try {
   // 4. Keyboard navigation: Tab reaches story and both actions, Enter activates focused action
   await page.focus('[data-testid="back-to-hub-top"]')
   await page.keyboard.press('Tab')
+  check('Tab reaches case Options beside Hub', await page.evaluate(() => document.activeElement?.getAttribute('data-testid') === 'case-options'))
+  await page.keyboard.press('Tab')
   const f1 = await page.evaluate(() => document.activeElement?.getAttribute('data-testid'))
   check('Tab reaches briefing-story', f1 === 'briefing-story', `focused ${f1}`)
 
@@ -233,6 +292,50 @@ try {
     await targetPage.waitForSelector('[data-testid="item-player"]', { timeout: 15000 })
     await sleep(300)
   }
+
+  // Options also works when title Play starts a case without visiting Hub.
+  await page.evaluate(() => {
+    // Start fresh rather than resuming the lab reached by the earlier keyboard check.
+    for (const key of Object.keys(sessionStorage)) if (key.startsWith('anomaly.case.')) sessionStorage.removeItem(key)
+    location.hash = '#/'
+  })
+  await page.waitForSelector('[data-testid="title-quick-play"]')
+  await page.click('[data-testid="title-quick-play"]')
+  await page.waitForSelector('[data-testid="briefing"]')
+  await checkCaseOptions(page, 'title Play')
+
+  // A displayed question snapshots help rules. Only the next question changes.
+  await setToCaseItems(page, { settings: { helpLevel: 'regular', textSize: 0, lineSpacing: 0 } })
+  // Keys on Done must not select answers, toggle crossing out, or spend hints and Intel.
+  const questionState = () => page.evaluate(() => JSON.stringify({
+    options: document.querySelector('.options')?.innerHTML,
+    crossout: document.querySelector('[data-testid="crossout-toggle"]')?.outerHTML,
+    status: document.querySelector('[data-testid="crossout-status"]')?.textContent,
+    dispatch: document.querySelector('[data-testid="dispatch-msg"]')?.textContent,
+    chips: [...document.querySelectorAll('[data-lit]')].map((el) => el.outerHTML),
+  }))
+  for (const crossingOut of [false, true]) {
+    if (crossingOut) await page.click('[data-testid="crossout-toggle"]')
+    const before = await questionState()
+    await page.click('[data-testid="case-options"]')
+    await page.waitForSelector('[data-testid="case-options-dialog"]')
+    await page.focus('[data-testid="case-options-close"]')
+    for (const key of ['2', 'b', 'x', '1', 'x', '3']) await page.keyboard.press(key)
+    await page.keyboard.press('Escape')
+    check(`Options blocks question shortcuts with crossing out ${crossingOut}`, before === await questionState())
+  }
+  await page.click('[data-testid="crossout-toggle"]')
+  await checkCaseOptions(page, 'Regular question')
+  await page.click('[data-testid="case-options"]')
+  await page.click('[data-testid="help-level-challenge"]')
+  await page.keyboard.press('Escape')
+  check('changing help leaves the displayed question unchanged', !!(await page.$('[data-testid="crossout-toggle"]')))
+  await page.click('[data-testid="option-0"]')
+  await page.click('[data-testid="lock-in"]')
+  await page.waitForSelector('[data-testid="next-item"]')
+  await page.click('[data-testid="next-item"]')
+  await page.waitForFunction(() => !document.querySelector('[data-testid="crossout-toggle"]'))
+  check('next question uses the new help level', !(await page.$('[data-testid="crossout-toggle"]')))
 
   // 1. First-question guide: nonmodal, required copy, only on question 1
   await page.setViewport({ width: 1366, height: 768, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
@@ -820,6 +923,12 @@ try {
       report.current.includes('Gravel and sand') && report.feedback.includes('Correct') && report.minDescription >= 16)
   }
 
+  for (const vp of VIEWPORTS.slice(1)) {
+    await labPage.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
+    await checkCaseOptions(labPage, vp.name, vp.name === '1366x768')
+    check(`first lab match survives Options: ${vp.name}`, (await labPage.$eval('[data-testid="lab-current-mixture"]', (el) => el.textContent)).includes('Gravel and sand'))
+  }
+
   await labPage.setViewport({ width: 810, height: 1080, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
   await sleep(500)
   await labPage.tap('[data-testid="lab-right-screen"]')
@@ -853,6 +962,7 @@ try {
     return [...calls].reverse().find((call) => call.type === 'speak')
   })
   check('reduced motion preserves match logic and speech', reducedSpeech?.text.includes('Iron filings and sand') && reducedSpeech?.local === true)
+  await checkCaseOptions(labPage, 'reduced motion')
 
   await labPage.click('[data-testid="read-aloud-lab"]')
   await sleep(100)
