@@ -4,6 +4,7 @@ import type { Category } from '../content/schema'
 import { CATALOG_BENCHMARKS } from '../lib/catalog.generated'
 import { navigate } from '../lib/router'
 import { MASTERY_LABEL, MASTERY_STAGES, rankFor, useGame, type MasteryStage } from '../state/store'
+import { orderCasesForHub, validCaseId } from '../state/startChoice'
 import { useRuntime } from '../state/runtime'
 import { resolveTier } from '../state/quality'
 import GoldRushButton from '../ui/GoldRushButton'
@@ -103,6 +104,7 @@ export default function HubScreen() {
   const codex = useGame((s) => s.codex)
   const progress = useGame((s) => s.progress)
   const cases = useGame((s) => s.cases)
+  const lastCaseId = useGame((s) => s.lastCaseId)
   const due = useReviewDue()
   const [openGroups, setOpenGroups] = useState<Partial<Record<Category, boolean>>>({})
   const [startOpen] = useState(() => !phoneLike())
@@ -148,6 +150,9 @@ export default function HubScreen() {
   }, [])
   useDecode(codenameRef, profile?.codename ?? '', decode, mode)
   if (!profile) return null
+  const orderedCases = orderCasesForHub(content.cases)
+  const chosen = validCaseId(lastCaseId, content.cases.map((c) => c.id))
+  const chosenCase = caseById(chosen) ?? content.cases[0]
   // Every benchmark a case teaches, plus any other benchmark the agent has answered, by reporting category.
   const groups = hubBenchmarkGroups(content.cases, Object.keys(progress), labelOf)
 
@@ -182,10 +187,22 @@ export default function HubScreen() {
 
         <section aria-labelledby="dispatch-h">
           <h3 id="dispatch-h" className="section-title">
-            Dispatch
+            Pick a mission
           </h3>
+          <button
+            type="button"
+            data-testid="hub-quick-play"
+            className="btn primary big hub-quick-play"
+            onClick={async () => {
+              await loadPack(chosen)
+              navigate(`/case/${chosen}`)
+            }}
+          >
+            <span className="qp-kicker">{lastCaseId ? 'Keep going' : 'Today in class'}</span>
+            <span className="qp-title">{chosenCase.unitLabel}</span>
+          </button>
           <div className="case-list">
-            {content.cases.map((c) => {
+            {orderedCases.map((c) => {
               const st = caseStatus(cases[c.id])
               return (
                 <Fragment key={c.id}>

@@ -67,6 +67,31 @@
   text-shadow: 0 1px 0 #041018, 0 10px 22px rgba(0, 0, 0, 0.4);
 }
 
+.hub-screen .hub-quick-play {
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+}
+
+.hub-screen .hub-quick-play .qp-kicker {
+  font-size: var(--fs-fine);
+  font-variant: all-small-caps;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+
+.hub-screen .hub-quick-play .qp-title {
+  font-size: var(--fs-lead);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+}
+
 .hub-screen .hub-panel,
 .hub-screen .codex-panel {
   box-shadow:
