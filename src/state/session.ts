@@ -5,7 +5,7 @@ import { caseById, content, packLoaded, PACK_ORDER, vitalsCase } from '../conten
 import { QA_ITEMS } from '../lib/flags'
 import { pickEvidence } from '../lib/rkea'
 import { pickReview } from '../lib/scheduler'
-import { caseResumeOwner, clearCaseResume as clearStorageResume, loadCaseResume, saveCaseResume } from './caseResume'
+import { caseResumeOwner, clearCaseResume as clearStorageResume, loadCaseResume, resumeFeedback, saveCaseResume, type CaseResume } from './caseResume'
 import { toISODate } from './mastery'
 import { useGame } from './store'
 
@@ -74,6 +74,9 @@ interface SessionState {
   /** Benchmarks this case covers, for the results bars. */
   benchmarks: string[]
   answers: AnswerRecord[]
+  lab: CaseResume['lab']
+  pendingFeedback: AnswerRecord | null
+  saveLab: (lab: CaseResume['lab']) => void
   /** Stage per benchmark when the case started, for the results bars. */
   stagesBefore: Record<string, string>
   stageUps: number
@@ -120,6 +123,8 @@ function persist(s: SessionState) {
     stagesBefore: s.stagesBefore,
     stageUps: s.stageUps,
     paint: s.paint,
+    lab: s.lab,
+    pendingFeedback: s.pendingFeedback ? { itemId: s.pendingFeedback.itemId, picked: s.pendingFeedback.picked } : null,
   })
 }
 
@@ -132,6 +137,9 @@ export const useSession = create<SessionState>((set, get) => ({
   itemIndex: 0,
   benchmarks: [],
   answers: [],
+  lab: null,
+  pendingFeedback: null,
+  saveLab: (lab) => { set({ lab }); persist(get()) },
   stagesBefore: {},
   stageUps: 0,
   paint: null,
@@ -148,10 +156,12 @@ export const useSession = create<SessionState>((set, get) => ({
         const items = saved.itemIds.map((id) => itemMap.get(id))
         const known = stepsFor(kind, caseDef).some((st) => st.id === saved.step)
         if (known && items.every((it): it is Item => it != null)) {
-          const itemIndex = Math.max(saved.itemIndex, saved.answers.length)
+          const pendingFeedback = resumeFeedback(saved, items)
+          const itemIndex = pendingFeedback ? saved.itemIndex : Math.max(saved.itemIndex, saved.answers.length)
           const step = saved.step === 'items' && itemIndex >= items.length ? 'debrief' : saved.step
           set({
-            caseId, caseDef, kind, step, items, itemIndex,
+            caseId, caseDef, kind, step, items, itemIndex, pendingFeedback,
+            lab: step === 'lab' ? saved.lab ?? null : null,
             benchmarks: saved.benchmarks, answers: saved.answers,
             stagesBefore: saved.stagesBefore, stageUps: saved.stageUps, paint: saved.paint,
           })
@@ -170,19 +180,21 @@ export const useSession = create<SessionState>((set, get) => ({
     const benchmarks = kind === 'cold' ? [...new Set(items.map((i) => i.benchmark))] : (caseDef ?? vitalsCase).benchmarks
     const before: Record<string, string> = {}
     for (const b of benchmarks) before[b] = st.progress[b]?.stage ?? 'unseen'
-    set({ caseId, caseDef, kind, step: 'briefing', items, itemIndex: 0, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
+    set({ caseId, caseDef, kind, step: 'briefing', items, itemIndex: 0, lab: null, pendingFeedback: null, benchmarks, answers: [], stagesBefore: before, stageUps: 0, paint: null })
   },
-  go: (step) => { set({ step }); persist(get()) },
+  go: (step) => { set({ step, pendingFeedback: step === 'items' ? get().pendingFeedback : null }); persist(get()) },
   next: () => {
     const steps = stepsFor(get().kind, get().caseDef)
     const i = steps.findIndex((s) => s.id === get().step)
     set({ step: steps[Math.min(i + 1, steps.length - 1)].id })
     persist(get())
   },
-  setItemIndex: (itemIndex) => { set({ itemIndex }); persist(get()) },
+  setItemIndex: (itemIndex) => { set({ itemIndex, pendingFeedback: null }); persist(get()) },
   addAnswer: (a, stageUp, paint) => {
+    if (get().answers.some((answer) => answer.itemId === a.itemId)) return
     set((s) => ({
       answers: [...s.answers, a],
+      pendingFeedback: a,
       stageUps: s.stageUps + (stageUp ? 1 : 0),
       paint: paint ?? s.paint,
     }))
