@@ -110,19 +110,47 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
             </li>
           </ul>
         )}
-        <div className="dispatch-lines" data-testid="briefing-text">
-          {layout.lines.map((words, li) => (
-            <p key={li}>
-              {words.map(({ w, i }, k) => (
-                <span key={i} className={i === current ? 'rw on' : 'rw'}>
-                  {w}
-                  {k < words.length - 1 ? ' ' : ''}
-                </span>
-              ))}
-            </p>
-          ))}
+        <div
+          className="briefing-story"
+          data-testid="briefing-story"
+          tabIndex={0}
+          role="region"
+          aria-label="Case briefing story"
+          onKeyDown={(e) => {
+            const el = e.currentTarget
+            if (e.key === 'ArrowDown') {
+              el.scrollTop += 40
+            } else if (e.key === 'ArrowUp') {
+              el.scrollTop -= 40
+            } else if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+              el.scrollTop += el.clientHeight * 0.8
+              e.preventDefault()
+            } else if (e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+              el.scrollTop -= el.clientHeight * 0.8
+              e.preventDefault()
+            } else if (e.key === 'Home') {
+              el.scrollTop = 0
+              e.preventDefault()
+            } else if (e.key === 'End') {
+              el.scrollTop = el.scrollHeight
+              e.preventDefault()
+            }
+          }}
+        >
+          <div className="dispatch-lines" data-testid="briefing-text">
+            {layout.lines.map((words, li) => (
+              <p key={li}>
+                {words.map(({ w, i }, k) => (
+                  <span key={i} className={i === current ? 'rw on' : 'rw'}>
+                    {w}
+                    {k < words.length - 1 ? ' ' : ''}
+                  </span>
+                ))}
+              </p>
+            ))}
+          </div>
         </div>
-        <div className="panel-actions col">
+        <footer className="panel-actions col briefing-actions" data-testid="briefing-actions">
           <div className="row">
             <button
               type="button"
@@ -143,7 +171,7 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
           <button type="button" className="btn primary big" data-testid={cold ? 'cold-continue' : 'briefing-continue'} {...press('next')} onClick={proceed}>
             {cold ? 'Open the evidence' : 'Enter the Field Lab'}
           </button>
-        </div>
+        </footer>
       </aside>
     </div>
   )
