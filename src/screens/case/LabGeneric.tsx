@@ -1,9 +1,10 @@
 import { LAB_CARD_ART } from '../../ui/labCardArt'
 import { useTapGuard } from '../../ui/useTapGuard'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { codexById } from '../../content'
 import { newSeed, useFx, useSession } from '../../state/session'
 import { useGame } from '../../state/store'
+import { cancelSpeech } from '../../lib/speech'
 import { clearFlyChips, flyChip } from '../../ui/flyChip'
 import { useMotionMode } from '../../ui/useMotionMode'
 import './lab-generic.css'
@@ -26,7 +27,6 @@ import {
 import { usePressed } from './pressable'
 import { CaseTop, PanelHead, ReadAloudButton, Verdict } from './ui'
 import { useCaseDef } from './useCaseDef'
-import { choiceArt } from './labToolArt'
 
 const TITLE: Record<GenericLab['kind'], string> = { sort: 'SORT', match: 'MATCH', order: 'ORDER' }
 const TARGETS_HEAD: Record<GenericLab['kind'], string> = { sort: 'Bins', match: 'Match it to', order: 'Pick the next step' }
@@ -35,6 +35,10 @@ const ASK: Record<GenericLab['kind'], string> = {
   match: 'Which card does this one go with?',
   order: 'Which step comes next?',
 }
+const MATCH_TASK = [
+  'Choose a tool for the mixture shown. Tap a tool name below.',
+  'A correct match moves to the next mixture on its own.',
+]
 
 /** Test id of a target button. */
 function targetTestId(kind: GenericLab['kind'], id: string): string {
@@ -46,6 +50,29 @@ function cardTestId(kind: GenericLab['kind'], id: string): string {
   return kind === 'match' ? `lab-left-${id}` : `lab-card-${id}`
 }
 
+/** The visible lab task in one speech payload, refreshed from the current card and available choices. */
+// oxlint-disable-next-line react/only-export-components -- helper export for speech tests
+export function labSpeechText(lab: GenericLab, st: LabState, caseId: string): string {
+  const current = st.current ? labCards(lab).find((c) => c.id === st.current) : undefined
+  const currentText = lab.kind === 'order' ? lab.prompt : current ? `${current.name}. ${current.lines.join(' ')}` : 'Lab complete.'
+  const tools = isComplete(lab, st) ? [] : visibleTargets(lab, st).filter((t) => targetOpen(lab, st, t.id))
+  const hint = st.feedback ? `${st.feedback.word} ${st.feedback.text}` : ASK[lab.kind]
+  return [
+    lab.intro,
+    ...(caseId === '04-1' ? MATCH_TASK : []),
+    currentText,
+    ...tools.map((t) => `${t.name}. ${t.sub ?? ''}`),
+    hint,
+  ].filter(Boolean).join(' ')
+}
+
+// oxlint-disable-next-line react/only-export-components -- helper export for speech tests
+export function advanceLab(lab: GenericLab, st: LabState, action: LabAction): LabState {
+  const after = labReduce(lab, st, action)
+  if (after !== st) cancelSpeech()
+  return after
+}
+
 /** One Field Lab for every case except VITALS: sort cards into bins, match pairs, or put steps in order. */
 export default function LabGeneric() {
   useEffect(() => clearFlyChips, [])
@@ -55,6 +82,8 @@ export default function LabGeneric() {
   const next = useSession((s) => s.next)
   const unlock = useGame((s) => s.unlockCodex)
   const [st, setSt] = useState<LabState>(() => initLab(lab, `${def.id}|${newSeed()}`))
+  const toolListRef = useRef<HTMLDivElement>(null)
+  const [moreTools, setMoreTools] = useState(false)
   const motion = useMotionMode()
   const press = usePressed()
   const hot = useFx((s) => s.hover)
@@ -69,7 +98,7 @@ export default function LabGeneric() {
 
   function act(action: LabAction) {
     if (action.type === 'place' && (!admit('feedback', 0) || !admit(`place:${st.current}:${slot}:${action.target}`, 450))) return
-    const after = labReduce(lab, st, action)
+    const after = advanceLab(lab, st, action)
     if (after === st) return
     setSt(after)
     const fb = after.feedback
@@ -115,7 +144,24 @@ export default function LabGeneric() {
   }, [onDais])
 
   const hoverTarget = (id: string | null) => useFx.getState().setHover(id === null ? null : order ? (slot ? `slot-${slot}` : null) : id)
-  const readText = order ? `${lab.intro} ${lab.prompt}` : lab.intro
+  const readText = labSpeechText(lab, st, def.id)
+  const updateToolOverflow = useCallback(() => {
+    const list = toolListRef.current
+    setMoreTools(Boolean(list && list.scrollHeight - list.clientHeight - list.scrollTop > 1))
+  }, [])
+  useLayoutEffect(() => {
+    const list = toolListRef.current
+    if (!list) return
+    updateToolOverflow()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateToolOverflow)
+    observer?.observe(list)
+    if (list.firstElementChild) observer?.observe(list.firstElementChild)
+    window.addEventListener('resize', updateToolOverflow)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', updateToolOverflow)
+    }
+  }, [lab, st, updateToolOverflow])
 
   return (
     <div className="screen case-screen" data-testid="lab-generic" data-kind={lab.kind}>
@@ -126,44 +172,58 @@ export default function LabGeneric() {
         <p className="intro strong">{lab.intro}</p>
         <ReadAloudButton text={readText} testId="read-aloud-lab" />
 
-        <div className="spec-card lab-card" data-testid="lab-card" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 11, 22, 0.94), rgba(5, 11, 22, 0.78)), url("${LAB_CARD_ART[def.category]}")` }}>
-          {order ? (
-            <>
-              <span className="mono label amber">{slot ? `STEP ${slot} OF ${total}` : 'ALL STEPS PLACED'}</span>
-              <h3 className="spec-name">{lab.prompt}</h3>
-            </>
-          ) : current ? (
-            <>
-              <span className="mono label amber">{lab.kind === 'match' ? 'MATCH CARD' : 'SAMPLE CARD'}</span>
-              <h3 className="spec-name" data-testid="lab-card-name">
-                {current.name}
-              </h3>
-              {current.lines.length ? (
-                <ul>
-                  {current.lines.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              ) : null}
-            </>
-          ) : (
-            <>
-              <span className="mono label amber">ALL CARDS PLACED</span>
-              <h3 className="spec-name">Lab complete</h3>
-            </>
-          )}
+        <div className="spec-card lab-card" data-testid="lab-card" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 11, 22, 0.97), rgba(5, 11, 22, 0.92)), url("${LAB_CARD_ART[def.category]}")` }}>
+          <div data-testid="lab-current-mixture">
+            {order ? (
+              <>
+                <span className="mono label amber">{slot ? `STEP ${slot} OF ${total}` : 'ALL STEPS PLACED'}</span>
+                <h3 className="spec-name">{lab.prompt}</h3>
+              </>
+            ) : current ? (
+              <>
+                <span className="mono label amber">{lab.kind === 'match' ? 'MATCH CARD' : 'SAMPLE CARD'}</span>
+                <h3 className="spec-name" data-testid="lab-card-name">
+                  {current.name}
+                </h3>
+                {current.lines.length ? (
+                  <ul>
+                    {current.lines.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <span className="mono label amber">ALL CARDS PLACED</span>
+                <h3 className="spec-name">Lab complete</h3>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="lab-targets">
           <h3 className="section-title mono">{TARGETS_HEAD[lab.kind]}</h3>
-          <div className={`target-grid n${targets.length}`} role="group" aria-label={TARGETS_HEAD[lab.kind]}>
+          {def.id === '04-1' ? (
+            <div className="lab-task-copy">
+              {MATCH_TASK.map((line) => <p key={line}>{line}</p>)}
+            </div>
+          ) : null}
+          <div
+            ref={toolListRef}
+            className={`target-grid n${targets.length}`}
+            data-testid="lab-tool-list"
+            role="group"
+            aria-label={TARGETS_HEAD[lab.kind]}
+            tabIndex={0}
+            onScroll={updateToolOverflow}
+          >
             {targets.map((t) => {
               const open = targetOpen(lab, st, t.id)
               const disabled = done || !open || (!order && !current)
               const count = lab.kind === 'sort' ? Object.values(st.placed).filter((b) => b === t.id).length : 0
               const used = !open
               const id = order ? `slot-${slot}` : t.id
-              const art = lab.kind === 'match' ? choiceArt(t.id) : undefined
               return (
                 <button
                   key={t.id}
@@ -179,12 +239,9 @@ export default function LabGeneric() {
                   onBlur={() => hoverTarget(null)}
                   {...press(t.id, disabled)}
                 >
-                  <span className="target-name" style={art ? { display: 'inline-flex', alignItems: 'center', gap: 8 } : undefined}>
-                    {art ? <img className="match-icon" src={art} alt="" aria-hidden="true" width={48} height={48} draggable={false} /> : null}
-                    <span>
-                      {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'\u2714 '}</span> : null}
-                      {t.name}
-                    </span>
+                  <span className="target-name">
+                    {used && lab.kind !== 'sort' ? <span aria-hidden="true">{'\u2714 '}</span> : null}
+                    {t.name}
                   </span>
                   {t.sub ? <span className="target-sub">{t.sub}</span> : null}
                   {count > 0 ? (
@@ -196,6 +253,7 @@ export default function LabGeneric() {
               )
             })}
           </div>
+          {moreTools ? <p className="lab-more-tools">More tools below</p> : null}
         </div>
       </aside>
 

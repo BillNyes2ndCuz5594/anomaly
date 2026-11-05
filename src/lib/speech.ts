@@ -14,6 +14,11 @@ export function cancelSpeech(): void {
   }
 }
 
+export function preferredEnglishVoice(voices: readonly SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined {
+  const english = voices.filter((v) => v.lang?.toLowerCase().startsWith('en'))
+  return english.find((v) => v.localService === true) ?? english[0]
+}
+
 export interface SpeakOptions {
   rate?: number
   onBoundary?: (charIndex: number) => void
@@ -30,8 +35,8 @@ export function speak(text: string, opts: SpeakOptions = {}): boolean {
     const u = new SpeechSynthesisUtterance(text)
     u.rate = Math.max(0.5, Math.min(1.6, opts.rate ?? 1))
     const voices = synth.getVoices?.() ?? []
-    const en = voices.find((v) => v.lang?.toLowerCase().startsWith('en'))
-    if (en) u.voice = en
+    const voice = preferredEnglishVoice(voices)
+    if (voice) u.voice = voice
     let ended = false
     let heard = false
     const finish = () => {

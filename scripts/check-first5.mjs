@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
 
-const SHOTS_DIR = '/workspace/anomaly-runs/first5/shots/merged'
+const SHOTS_DIR = 'artifacts/first5'
 mkdirSync(SHOTS_DIR, { recursive: true })
 
 const VIEWPORTS = [
@@ -447,7 +447,7 @@ try {
   await page.screenshot({ path: `${SHOTS_DIR}/pr2-question2-table-1024x768-xl.png` })
 
   // 7b. Real input: wheel the evidence column until the last table row is fully on screen, then check headings follow.
-  const mainBox = await page.$eval('.item-main', (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 40 } })
+  const mainBox = await page.$eval('.item-main .panel', (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + 40 } })
   await page.mouse.move(mainBox.x, mainBox.y)
   for (let i = 0; i < 30; i++) {
     await page.mouse.wheel({ deltaY: 120 })
@@ -483,6 +483,337 @@ try {
   }
 
   await page.close()
+
+  // =========================================================================
+  // PR 3: Make the first lab task visible, readable, and fully spoken
+  // =========================================================================
+
+  async function installSpeechProbe(targetPage) {
+    await targetPage.evaluate(() => {
+      const calls = []
+      const synth = {
+        speaking: false,
+        pending: false,
+        cancel() {
+          calls.push({ type: 'cancel' })
+          this.speaking = false
+        },
+        getVoices() {
+          return [
+            { name: 'Remote English', lang: 'en-US', localService: false },
+            { name: 'Local English', lang: 'en-GB', localService: true },
+          ]
+        },
+        speak(u) {
+          calls.push({ type: 'speak', text: u.text, voice: u.voice?.name, local: u.voice?.localService })
+          this.speaking = true
+          u.onstart?.({})
+        },
+      }
+      class SpeechProbeUtterance {
+        constructor(text) {
+          this.text = text
+          this.rate = 1
+          this.voice = null
+          this.onstart = null
+          this.onboundary = null
+          this.onend = null
+          this.onerror = null
+        }
+      }
+      Object.defineProperty(window, 'speechSynthesis', { value: synth, configurable: true })
+      Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: SpeechProbeUtterance, configurable: true })
+      window.__labSpeechCalls = calls
+    })
+  }
+
+  async function openSolventLab(targetPage) {
+    await targetPage.evaluate(() => { location.hash = '#/case/04-1' })
+    await targetPage.waitForSelector('[data-testid="briefing"]', { timeout: 15000 })
+    await sleep(500)
+    await targetPage.click('[data-testid="briefing-continue"]')
+    await targetPage.waitForSelector('[data-testid="lab-generic"][data-kind="match"]', { timeout: 15000 })
+    await sleep(700)
+  }
+
+  function labVisibility() {
+    const fullyVisible = (el) => {
+      if (!el) return false
+      const r = el.getBoundingClientRect()
+      const clip = { top: 0, right: innerWidth, bottom: innerHeight, left: 0 }
+      for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+        const style = getComputedStyle(parent)
+        const p = parent.getBoundingClientRect()
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+          clip.top = Math.max(clip.top, p.top + parent.clientTop)
+          clip.bottom = Math.min(clip.bottom, p.top + parent.clientTop + parent.clientHeight)
+        }
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+          clip.left = Math.max(clip.left, p.left + parent.clientLeft)
+          clip.right = Math.min(clip.right, p.left + parent.clientLeft + parent.clientWidth)
+        }
+      }
+      return r.width > 0 && r.height > 0 && r.top >= clip.top - 1 && r.right <= clip.right + 1 && r.bottom <= clip.bottom + 1 && r.left >= clip.left - 1
+    }
+    const list = document.querySelector('[data-testid="lab-tool-list"]')
+    const tools = [...document.querySelectorAll('[data-testid^="lab-right-"]')]
+    const descriptions = [...document.querySelectorAll('[data-testid^="lab-right-"] .target-sub')]
+    const heights = tools.map((el) => el.getBoundingClientRect().height)
+    const more = document.querySelector('.lab-more-tools')
+    const last = document.querySelector('[data-testid="lab-right-water-filter"]')
+    const lastRect = last?.getBoundingClientRect()
+    const hit = lastRect && document.elementFromPoint(lastRect.left + lastRect.width / 2, lastRect.top + lastRect.height / 2)
+    const hiddenBelow = !!list && list.scrollHeight - list.clientHeight - list.scrollTop > 1
+    return {
+      count: tools.length,
+      minDescription: Math.min(...descriptions.map((el) => parseFloat(getComputedStyle(el).fontSize))),
+      minTargetWidth: Math.min(...tools.map((el) => el.getBoundingClientRect().width)),
+      minTargetHeight: Math.min(...heights),
+      maxChoiceHeight: Math.max(...heights),
+      choiceFits: !!list && list.clientHeight >= Math.max(...heights),
+      textFits: tools.every((el) => el.scrollHeight <= el.clientHeight + 1),
+      columns: list ? getComputedStyle(list).gridTemplateColumns.split(' ').length : 0,
+      overflow: !!list && list.scrollHeight > list.clientHeight + 1,
+      hiddenBelow,
+      more: !!more,
+      moreVisible: !!more && fullyVisible(more),
+      listVisible: fullyVisible(list),
+      allVisible: tools.every(fullyVisible),
+      lastVisible: fullyVisible(last),
+      actionable: !!last && !last.disabled && fullyVisible(last) && (hit === last || last.contains(hit)),
+      atEnd: !!list && !hiddenBelow,
+      listHeight: list?.clientHeight ?? 0,
+      current: document.querySelector('[data-testid="lab-current-mixture"]')?.textContent || '',
+      feedback: document.querySelector('[data-testid="lab-feedback"]')?.textContent || '',
+      task: document.querySelector('.lab-task-copy')?.textContent || '',
+      icons: document.querySelectorAll('[data-testid="lab-tool-list"] img').length,
+      detail: `scroll=${list?.scrollTop}/${list?.scrollHeight}, client=${list?.clientHeight}, last=${lastRect?.top}..${lastRect?.bottom}`,
+    }
+  }
+
+  async function scrollLabTools(targetPage, mode) {
+    const atEnd = () => targetPage.$eval('[data-testid="lab-tool-list"]', (list) => list.scrollHeight - list.clientHeight - list.scrollTop <= 1)
+    if (mode === 'keyboard') await targetPage.focus('[data-testid="lab-tool-list"]')
+    if (mode !== 'keyboard') {
+      const point = await targetPage.$eval('[data-testid="lab-tool-list"]', (list) => {
+        const r = list.getBoundingClientRect()
+        return { x: r.left + r.width / 2, top: r.top + r.height * 0.25, bottom: r.top + r.height * 0.75 }
+      })
+      if (mode === 'wheel') await targetPage.mouse.move(point.x, point.bottom)
+      for (let i = 0; i < 12 && !(await atEnd()); i++) {
+        if (mode === 'wheel') await targetPage.mouse.wheel({ deltaY: 180 })
+        if (mode === 'touch') {
+          const touch = await targetPage.touchscreen.touchStart(point.x, point.bottom)
+          for (let step = 1; step <= 6; step++) await touch.move(point.x, point.bottom + (point.top - point.bottom) * step / 6)
+          await touch.end()
+        }
+        await sleep(150)
+      }
+      return
+    }
+    for (let i = 0; i < 12 && !(await atEnd()); i++) {
+      await targetPage.keyboard.press('PageDown')
+      await sleep(150)
+    }
+  }
+
+  async function labLayout(targetPage, name, mode = 'wheel') {
+    await targetPage.waitForSelector('[data-testid="lab-tool-list"]', { timeout: 15000 })
+    await targetPage.waitForFunction(() => {
+      const list = document.querySelector('[data-testid="lab-tool-list"]')
+      const hidden = !!list && list.scrollHeight - list.clientHeight - list.scrollTop > 1
+      return !!list && hidden === !!document.querySelector('.lab-more-tools')
+    }, { timeout: 3000 }).catch(() => {})
+    // Growing text may move the list below the panel fold. Reach it using
+    // real input on the panel padding, then exercise the inner choice list.
+    if (mode === 'keyboard') await targetPage.focus('[data-testid="lab-tool-list"]')
+    for (let i = 0; i < 16; i++) {
+      const panel = await targetPage.$eval('.side-panel', (el) => {
+        const r = el.getBoundingClientRect()
+        return { x: r.left + 4, top: r.top + 40, bottom: r.bottom - 40, end: el.scrollTop + el.clientHeight >= el.scrollHeight - 1 }
+      })
+      if (panel.end || mode === 'keyboard') break
+      if (mode === 'touch') {
+        const touch = await targetPage.touchscreen.touchStart(panel.x, panel.bottom)
+        await touch.move(panel.x, panel.top)
+        await touch.end()
+      } else {
+        await targetPage.mouse.move(panel.x, panel.bottom)
+        await targetPage.mouse.wheel({ deltaY: 240 })
+      }
+      await sleep(100)
+    }
+    const report = await targetPage.evaluate(labVisibility)
+    await scrollLabTools(targetPage, mode)
+    await targetPage.waitForFunction(() => {
+      const list = document.querySelector('[data-testid="lab-tool-list"]')
+      return !!list && list.scrollHeight - list.clientHeight - list.scrollTop <= 1 && !document.querySelector('.lab-more-tools')
+    }, { timeout: 3000 }).catch(() => {})
+    const end = await targetPage.evaluate(labVisibility)
+    return { ...report, lastVisible: end.lastVisible, actionable: end.actionable, atEnd: end.atEnd, endMore: end.more, endDetail: end.detail, name }
+  }
+
+  async function setLabSettings(targetPage, settings) {
+    await targetPage.evaluate((s) => {
+      const raw = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')
+      if (raw?.state) {
+        raw.state.settings = { ...raw.state.settings, ...s }
+        localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+      }
+    }, settings)
+    await targetPage.reload({ waitUntil: 'load' })
+    await targetPage.waitForSelector('[data-testid="lab-generic"][data-kind="match"]', { timeout: 15000 })
+    await sleep(400)
+  }
+
+  const labPage = await profilePage(browser, base, '?tier=low', { width: 810, height: 1080 }, errors)
+  await installSpeechProbe(labPage)
+  await openSolventLab(labPage)
+
+  await labPage.click('[data-testid="read-aloud-lab"]')
+  await sleep(120)
+  const initialSpeech = await labPage.evaluate(() => {
+    const calls = window.__labSpeechCalls || []
+    return [...calls].reverse().find((call) => call.type === 'speak')
+  })
+  const expectedSpeech = [
+    'The warehouse bins are all mixed up!',
+    'Choose a tool for the mixture shown. Tap a tool name below.',
+    'A correct match moves to the next mixture on its own.',
+    'Iron filings and sand',
+    'Gray metal bits mixed into beach sand',
+    'Hold a magnet over it',
+    'Pulls on anything made of iron',
+    'Shake it through a screen',
+    'Small pieces fall through the holes',
+    'Pick them out by color',
+    'Sort by what you see',
+    'Tilt the tray',
+    'Round things roll, flat sides stay put',
+    'Add water, then pour through a filter',
+    'One part dissolves and flows through',
+    'Which card does this one go with?',
+  ]
+  check('lab read aloud contains the visible task and every tool', !!initialSpeech && expectedSpeech.every((text) => initialSpeech.text.includes(text)))
+  check('lab read aloud chooses a local English voice', initialSpeech?.voice === 'Local English' && initialSpeech?.local === true)
+
+  for (const st of [
+    { label: 'normal', textSize: 0, lineSpacing: 0 },
+    { label: 'Extra large Loose', textSize: 2, lineSpacing: 2 },
+  ]) {
+    for (const vp of [
+      { name: '810x1080', width: 810, height: 1080 },
+      { name: '1920x1080', width: 1920, height: 1080 },
+      { name: '1366x768', width: 1366, height: 768 },
+      { name: '1024x768', width: 1024, height: 768 },
+    ]) {
+      await labPage.setViewport({ ...vp, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
+      await setLabSettings(labPage, { textSize: st.textSize, lineSpacing: st.lineSpacing })
+      if (st.textSize === 2) {
+        await labPage.evaluate(() => Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: undefined }))
+        await labPage.click('[data-testid="read-aloud-lab"]')
+        await labPage.waitForSelector('[data-testid="read-aloud-unavailable"]')
+      }
+      const report = await labLayout(labPage, `${vp.name}, ${st.label}`)
+      check(
+        `lab tools are readable at ${report.name}`,
+        report.count === 5 && report.minDescription >= 16 && report.minTargetWidth >= 44 && report.minTargetHeight >= 44 && report.textFits,
+        `description=${report.minDescription}px, target=${report.minTargetWidth}x${report.minTargetHeight}px`,
+      )
+      check(
+        `reachable choices and overflow label clear their clipping ancestors at ${report.name}`,
+        report.listVisible && report.choiceFits && report.hiddenBelow === report.more && (report.overflow ? report.moreVisible : report.allVisible),
+        `scrollport=${report.listHeight}px, choice=${report.maxChoiceHeight}px, overflow=${report.overflow}, more=${report.more}`,
+      )
+      check(`wheel reveals an actionable last choice at ${report.name}`, report.lastVisible && report.actionable && report.atEnd && !report.endMore, report.endDetail)
+      check(`lab task and current mixture are identifiable at ${report.name}`,
+        report.current.includes('Iron filings and sand') && report.task.includes('Choose a tool for the mixture shown.') && report.icons === 0)
+      if (vp.name === '810x1080') check(`tablet lab uses two columns at ${report.name}`, report.columns === 2, `columns=${report.columns}`)
+      if (vp.name === '1920x1080' && st.textSize === 0) await labPage.screenshot({ path: `${SHOTS_DIR}/pr3-lab-1920x1080.png` })
+    }
+  }
+
+  for (const vp of [{ width: 810, height: 1080 }, { width: 1024, height: 768 }, { width: 1366, height: 768 }]) for (const mode of ['wheel', 'touch', 'keyboard']) {
+    await labPage.setViewport({ ...vp, deviceScaleFactor: 1, isMobile: false, hasTouch: mode === 'touch' })
+    await setLabSettings(labPage, { textSize: 2, lineSpacing: 2 })
+    const report = await labLayout(labPage, `${vp.width}x${vp.height}, ${mode} activation`, mode)
+    if (mode === 'wheel') await labPage.click('[data-testid="lab-right-water-filter"]')
+    if (mode === 'touch') await labPage.tap('[data-testid="lab-right-water-filter"]')
+    if (mode === 'keyboard') {
+      await labPage.focus('[data-testid="lab-right-water-filter"]')
+      await labPage.keyboard.press('Enter')
+    }
+    await labPage.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'no')
+    check(`${mode} reveals and activates the last tool at ${vp.width}x${vp.height}, Extra large Loose`, report.lastVisible && report.actionable && report.atEnd && !report.endMore, report.endDetail)
+    if (mode === 'touch') await labPage.screenshot({ path: `${SHOTS_DIR}/pr3-lab-810x1080.png` })
+  }
+
+  await labPage.setViewport({ width: 810, height: 1080, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
+  await setLabSettings(labPage, { textSize: 0, lineSpacing: 0 })
+  await installSpeechProbe(labPage)
+  await sleep(500)
+  await labPage.click('[data-testid="read-aloud-lab"]')
+  await sleep(100)
+  const beforeAdvance = await labPage.evaluate(() => (window.__labSpeechCalls || []).length)
+  await labPage.click('[data-testid="lab-right-magnet"]')
+  await labPage.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'yes')
+  check('mouse completes a mixture match', (await labPage.$eval('[data-testid="lab-current-mixture"]', (el) => el.textContent))?.includes('Gravel and sand'))
+  const cancelOnAdvance = await labPage.evaluate((before) => (window.__labSpeechCalls || []).slice(before).some((call) => call.type === 'cancel'), beforeAdvance)
+  check('card advance cancels stale speech immediately', cancelOnAdvance)
+  await labPage.click('[data-testid="read-aloud-lab"]')
+  await sleep(120)
+  const advanceSpeech = await labPage.evaluate((before) => (window.__labSpeechCalls || []).slice(before).find((call) => call.type === 'speak' && call.text.includes('Gravel and sand')), beforeAdvance)
+  check('advanced speech names the new mixture and current hint', !!advanceSpeech && advanceSpeech.text.includes('A magnet attracts the iron bits'))
+
+  for (const vp of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }, { width: 1024, height: 768 }]) {
+    await labPage.setViewport({ ...vp, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
+    const report = await labLayout(labPage, `${vp.width}x${vp.height}`)
+    check(`selected mixture and feedback stay identifiable at ${vp.width}x${vp.height}`,
+      report.current.includes('Gravel and sand') && report.feedback.includes('Correct') && report.minDescription >= 16)
+  }
+
+  await labPage.setViewport({ width: 810, height: 1080, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
+  await sleep(500)
+  await labPage.tap('[data-testid="lab-right-screen"]')
+  await labPage.waitForFunction(() => document.querySelector('[data-testid="lab-current-mixture"]')?.textContent?.includes('Red and blue beads'))
+  check('touch completes a mixture match', (await labPage.$eval('[data-testid="lab-feedback"]', (el) => el.getAttribute('data-ok'))) === 'yes')
+
+  await sleep(500)
+  await labPage.focus('[data-testid="lab-right-by-color"]')
+  await labPage.keyboard.press('Enter')
+  await labPage.waitForFunction(() => document.querySelector('[data-testid="lab-current-mixture"]')?.textContent?.includes('Marbles and wooden cubes'))
+  check('keyboard completes a mixture match', (await labPage.$eval('[data-testid="lab-feedback"]', (el) => el.getAttribute('data-ok'))) === 'yes')
+
+  await labPage.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')
+    if (raw?.state) {
+      raw.state.settings = { ...raw.state.settings, reducedMotion: true }
+      localStorage.setItem('anomaly.v1', JSON.stringify(raw))
+    }
+  })
+  await labPage.reload({ waitUntil: 'load' })
+  await labPage.waitForSelector('[data-testid="lab-generic"][data-kind="match"]', { timeout: 15000 })
+  await installSpeechProbe(labPage)
+  await sleep(500)
+  check('reduced motion keeps the lab available', await labPage.evaluate(() => document.documentElement.dataset.reducedMotion === 'true'))
+  await labPage.click('[data-testid="read-aloud-lab"]')
+  await sleep(500)
+  await labPage.click('[data-testid="lab-right-magnet"]')
+  await labPage.waitForFunction(() => document.querySelector('[data-testid="lab-feedback"]')?.getAttribute('data-ok') === 'yes')
+  const reducedSpeech = await labPage.evaluate(() => {
+    const calls = window.__labSpeechCalls || []
+    return [...calls].reverse().find((call) => call.type === 'speak')
+  })
+  check('reduced motion preserves match logic and speech', reducedSpeech?.text.includes('Iron filings and sand') && reducedSpeech?.local === true)
+
+  await labPage.click('[data-testid="read-aloud-lab"]')
+  await sleep(100)
+  const beforeExit = await labPage.evaluate(() => (window.__labSpeechCalls || []).length)
+  await labPage.click('[data-testid="back-to-hub-top"]')
+  await labPage.waitForSelector('[data-testid="hub"]', { timeout: 15000 })
+  const exitCancel = await labPage.evaluate((before) => (window.__labSpeechCalls || []).slice(before).some((call) => call.type === 'cancel'), beforeExit)
+  check('leaving the lab cancels active speech', exitCancel)
+  await labPage.close()
 } finally {
   await browser.close()
   proc.kill()
