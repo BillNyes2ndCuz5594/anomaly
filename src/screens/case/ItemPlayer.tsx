@@ -7,6 +7,7 @@ import { wordAt, useReadAloud } from '../../lib/speech'
 import { useRuntime } from '../../state/runtime'
 import { useSession, type AnswerRecord } from '../../state/session'
 import { useGame } from '../../state/store'
+import { helpRules } from '../../state/helpLevel'
 import { useAnnounce } from '../../ui/announceBus'
 import { INTEL, codexIdsFor } from './itemPlayerRules'
 import { cleanWhy } from './resultsDebrief'
@@ -39,10 +40,12 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   }, [phrases])
 
   const motion = useMotionMode()
+  const helpLevel = useGame((s) => s.settings.helpLevel)
+  const [rules] = useState(() => helpRules(helpLevel, item.key))
   const [tagged, setTagged] = useState<Set<number>>(new Set())
   const [earnedPhrases, setEarned] = useState<Set<number>>(new Set())
   const [selected, setSelected] = useState<number | null>(null)
-  const [struck, setStruck] = useState<Set<number>>(new Set())
+  const [struck, setStruck] = useState<Set<number>>(() => (rules.autoStruck !== null ? new Set([rules.autoStruck]) : new Set()))
   const [elim, setElim] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -118,6 +121,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const strike = useCallback(
     (i: number) => {
       if (submitted.current) return
+      if (!rules.canEliminate || i === rules.autoStruck) return
       if (!admit(`strike:${i}`, 450)) return
       setAttempted(true)
       if (i === item.key) {
@@ -139,7 +143,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       }
       setSelected((s) => (s === i ? null : s))
     },
-    [item.key, struckEver, motion, admit],
+    [rules.canEliminate, rules.autoStruck, item.key, struckEver, motion, admit],
   )
 
   const choose = useCallback(
@@ -204,7 +208,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
       if (opt >= 0) {
         e.preventDefault()
         L.choose(opt)
-      } else if (k === 'x') {
+      } else if (k === 'x' && rules.canEliminate) {
         e.preventDefault()
         setElim((v) => !v)
       } else if (k === ' ' && (!onButton || onOption)) {
@@ -225,7 +229,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [rules.canEliminate])
 
   // Build the stem as segments so key phrases can wear a bracket around their words.
   const segments = useMemo(() => {
@@ -248,7 +252,7 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
   const chips = [
     { k: 'R', label: 'Read', on: readUsed },
     { k: 'K', label: 'Key words', on: anyTagged },
-    { k: 'E', label: 'Eliminate', on: attemptedStrike },
+    ...(rules.canEliminate ? [{ k: 'E', label: 'Eliminate', on: attemptedStrike }] : []),
     { k: 'A', label: 'Answer', on: selected !== null || locked },
   ]
 
@@ -398,15 +402,17 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
           <div className="item-actions">
             {!locked ? (
               <>
-                <button
-                  type="button"
-                  className={`btn${elim ? ' on' : ''}`}
-                  data-testid="eliminate-toggle"
-                  aria-pressed={elim}
-                  onClick={() => setElim((v) => !v)}
-                >
-                  <span aria-hidden="true">{'\u2716'}</span> Eliminate {elim ? 'on' : 'off'}
-                </button>
+                {rules.canEliminate ? (
+                  <button
+                    type="button"
+                    className={`btn${elim ? ' on' : ''}`}
+                    data-testid="eliminate-toggle"
+                    aria-pressed={elim}
+                    onClick={() => setElim((v) => !v)}
+                  >
+                    <span aria-hidden="true">{'\u2716'}</span> Eliminate {elim ? 'on' : 'off'}
+                  </button>
+                ) : null}
                 <button type="button" className="btn" data-testid="read-aloud" aria-pressed={ra.speaking} onClick={() => (ra.speaking ? ra.stop() : ra.start())}>
                   <span aria-hidden="true">{ra.speaking ? '\u25A0' : '\u25B6'}</span> {ra.speaking ? 'Stop' : 'Read aloud'}
                 </button>
@@ -420,12 +426,23 @@ function ItemBody({ item, index, total, onLocked, onNext, sideEl }: BodyProps & 
               </button>
             )}
           </div>
+          {rules.autoStruck !== null ? (
+            <p className="muted tiny" data-testid="help-level-extra-note">
+              Extra help crossed out one wrong answer. No points for that one.
+            </p>
+          ) : null}
           {ra.unavailable ? (
             <p className="muted tiny" role="status" data-testid="read-aloud-unavailable">
               Read aloud is not available on this device.
             </p>
           ) : null}
-          {!locked ? <p className="muted tiny kbd-hint">Keys: 1-4 or A-D choose, X eliminate, Space read aloud, Enter lock in.</p> : null}
+          {!locked ? (
+            <p className="muted tiny kbd-hint">
+              {rules.canEliminate
+                ? 'Keys: 1-4 or A-D choose, X eliminate, Space read aloud, Enter lock in.'
+                : 'Keys: 1-4 or A-D choose, Space read aloud, Enter lock in.'}
+            </p>
+          ) : null}
         </div>,
         sideEl,
       )}

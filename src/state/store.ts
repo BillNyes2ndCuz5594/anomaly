@@ -12,6 +12,7 @@ import {
   type MasteryStage,
 } from './mastery'
 import { defaultSettings, GAME_STORAGE_KEY, type Settings } from './settings'
+import { normalizeHelpLevel } from './helpLevel'
 
 export { MASTERY_STAGES }
 export type { MasteryStage }
@@ -175,11 +176,18 @@ export const useGame = create<GameState>()(
       // Fill any setting added in a later version with its default.
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GameState>
+        const savedSettings = (p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings))
+          ? (p.settings as Partial<Settings>)
+          : {}
         return {
           ...current,
           ...p,
           lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
-          settings: { ...current.settings, ...(p.settings ?? {}) },
+          settings: {
+            ...current.settings,
+            ...savedSettings,
+            helpLevel: normalizeHelpLevel(savedSettings.helpLevel),
+          },
         }
       },
     },
