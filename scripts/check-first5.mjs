@@ -247,7 +247,7 @@ async function checkStepExitBursts() {
       sessionStorage.removeItem(`anomaly.case.case.${id}`)
       location.hash = `#/case/${id}`
     }, caseId)
-    await page.waitForFunction((id) => document.querySelector('.dispatch-title')?.textContent?.startsWith(`CASE ${id} `), caseId)
+    await page.waitForFunction((id) => document.querySelector('.dispatch-title')?.textContent?.startsWith(`CASE ${id} `), {}, caseId)
     await burst('briefing-continue', 4)
     check(`rapid briefing taps stop at the next step: ${caseId}`, await screen() === expected, await screen())
   }
