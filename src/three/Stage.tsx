@@ -38,6 +38,15 @@ const SAMPLE_MS = 500
 /** Ignore FPS for this long after mount or a tier change (shader compiles, window refill). */
 const GRACE_MS = 2500
 
+/** Update clear transparency on the renderer that R3F retains across route changes. */
+function ClearAlpha({ transparent }: { transparent: boolean }) {
+  const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
+  useEffect(() => {
+    gl.setClearAlpha(transparent ? 0 : 1)
+  }, [gl, transparent])
+  return null
+}
+
 /** Measures fps, runs the Auto tier controller, exposes window.__anomaly. Renders nothing. */
 function Runtime() {
   const stamps = useRef<number[]>([])
@@ -177,6 +186,8 @@ const SHADOWS = { enabled: false, type: PCFShadowMap }
 export interface StageProps {
   children: ReactNode
   prefetch?: boolean
+  /** Let a screen-owned backdrop show through the decorative 3D foreground. */
+  transparent?: boolean
   /** Pixels reserved on the right for HUD panels when none is found in the DOM yet. */
   rightInset?: number
   /** Also measure the top bar and bottom dock (case steps), so models fit between them. */
@@ -213,7 +224,7 @@ function useDocumentHidden(): boolean {
 }
 
 /** Persistent R3F canvas running on WebGPURenderer (WebGL2 fallback). */
-export default function Stage({ children, rightInset = 0, verticalInsets = false, portraitTopInset = 0, prefetch = false }: StageProps) {
+export default function Stage({ children, rightInset = 0, verticalInsets = false, portraitTopInset = 0, prefetch = false, transparent = false }: StageProps) {
   const insets = useHudInsets(rightInset, verticalInsets, portraitTopInset)
   const quality = useGame((s) => s.settings.quality)
   const autoTier = useRuntime((s) => s.autoTier)
@@ -272,6 +283,8 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
         },
         false,
         onLost,
+        // Context attributes cannot change when the persistent Stage returns to the title.
+        true,
       ),
     [onLost],
   )
@@ -294,10 +307,11 @@ export default function Stage({ children, rightInset = 0, verticalInsets = false
       style={{ position: 'absolute', inset: 0 }}
     >
       <TextureLimitGuard wanted={dpr} />
-      <color attach="background" args={['#070c17']} />
+      <ClearAlpha transparent={transparent} />
+      {transparent ? null : <color attach="background" args={['#070c17']} />}
       <Runtime />
       <ViewOffset insets={insets} />
-      {isPostTier(tier) ? <PostFX tier={tier} /> : null}
+      {isPostTier(tier) ? <PostFX tier={tier} transparent={transparent} /> : null}
       <InsetsContext.Provider value={insets}>{children}</InsetsContext.Provider>
     </Canvas>
   )

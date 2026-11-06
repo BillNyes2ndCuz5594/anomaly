@@ -24,7 +24,7 @@ import { TIER_CONFIG, type Tier } from '../state/quality'
  * Renders at priority 1, which tells R3F not to render the scene itself (no double render).
  * Low tier never mounts this component.
  */
-export default function PostFX({ tier }: { tier: Tier }) {
+export default function PostFX({ tier, transparent = false }: { tier: Tier; transparent?: boolean }) {
   const gl = useThree((s) => s.gl) as unknown as THREE.WebGPURenderer
   const scene = useThree((s) => s.scene)
   const camera = useThree((s) => s.camera)
@@ -34,10 +34,13 @@ export default function PostFX({ tier }: { tier: Tier }) {
     const scenePass = pass(scene, camera)
     const sceneColor = scenePass.getTextureNode('output')
     let out = sceneColor.rgb
+    let alpha = sceneColor.a
 
     if (cfg.bloom) {
       const glow = bloom(sceneColor, 0.5, 0.5, 0.75)
       out = out.add(glow.rgb)
+      // Keep bloom around bright foreground geometry without painting an opaque sky.
+      if (transparent) alpha = max(alpha, max(glow.r, max(glow.g, glow.b)))
     }
     if (cfg.vignette) {
       const d = screenUV.sub(0.5).length()
@@ -53,9 +56,9 @@ export default function PostFX({ tier }: { tier: Tier }) {
     }
 
     const rp = new THREE.RenderPipeline(gl)
-    rp.outputNode = vec4(out, 1)
+    rp.outputNode = vec4(out, transparent ? alpha : 1)
     return rp
-  }, [gl, scene, camera, cfg.bloom, cfg.vignette, cfg.grain])
+  }, [gl, scene, camera, cfg.bloom, cfg.vignette, cfg.grain, transparent])
 
   useEffect(() => () => pipeline.dispose(), [pipeline])
 

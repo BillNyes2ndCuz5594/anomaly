@@ -366,3 +366,8 @@ export function widthFit(halfWidth: number, distance: number, aspect: number, ba
   const tanHave = Math.tan((fovDeg * Math.PI) / 360)
   return { fovDeg, distanceScale: Math.max(1, tanWanted / tanHave) }
 }
+
+/** Fits world width inside a horizontal fraction of the full camera projection. */
+export function framedWidthFit(halfWidth: number, distance: number, aspect: number, frameWidth: number, baseFovDeg: number, maxFovDeg: number, margin = 0.08): { fovDeg: number; distanceScale: number } {
+  return widthFit(halfWidth, distance, aspect * frameWidth, baseFovDeg, maxFovDeg, margin)
+}

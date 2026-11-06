@@ -31,6 +31,8 @@ import creekPoster from '../../assets/video/backdrop-creek.webp?url'
 // first frame of the loop, precached) shows first and the video crossfades in after its first decoded frame, so
 // there is no flash or black frame. Low tier and reduced motion get the poster only, with no video element.
 
+// The title-attract replacement is a continuous 4 s, silent 960x540 take.
+// TitleScreen uses this same contract for its poster-first, cover-cropped backdrop.
 export type LoopClip = 'swamp' | 'cells' | 'canopy' | 'water' | 'frost' | 'title' | 'debrief' | 'creek'
 
 export const CLIPS: Record<LoopClip, { webm: string; mp4: string; poster: string }> = {

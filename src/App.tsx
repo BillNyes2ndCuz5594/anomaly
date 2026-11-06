@@ -219,7 +219,7 @@ export default function App() {
       <div className={ready && !hubWaiting ? 'stage-layer ready' : 'stage-layer'}>
         <StageBoundary>
           <Suspense fallback={null}>
-            <Stage prefetch={route.name !== 'title' && (route.name !== 'hub' || (hubReady && phase === 'idle'))} verticalInsets={route.name === 'hub' || route.name === 'case' || route.name === 'cold'} portraitTopInset={route.name === 'hub' ? 192 : 0} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
+            <Stage transparent={route.name === 'title'} prefetch={route.name !== 'title' && (route.name !== 'hub' || (hubReady && phase === 'idle'))} verticalInsets={route.name === 'hub' || route.name === 'case' || route.name === 'cold'} portraitTopInset={route.name === 'hub' ? 192 : 0} rightInset={route.name === 'hub' ? HUB_PANEL_WIDTH : route.name === 'case' || route.name === 'cold' ? caseInset(step) : 0}>
               <Suspense fallback={null}>
                 <SceneFor key={route.name} route={route} />
               </Suspense>
