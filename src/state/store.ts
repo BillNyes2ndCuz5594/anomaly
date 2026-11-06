@@ -282,7 +282,9 @@ export const useGame = create<GameState>()(
       },
       // Fill any setting added in a later version with its default.
       merge: (persisted, current) => {
-        const p = (persisted ?? {}) as Partial<GameState>
+        const p = (persisted && typeof persisted === 'object' && !Array.isArray(persisted))
+          ? (persisted as Partial<GameState>)
+          : {}
         const savedSettings = (p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings))
           ? (p.settings as Partial<Settings>)
           : {}
@@ -293,15 +295,29 @@ export const useGame = create<GameState>()(
           : null
         return {
           ...current,
-          ...p,
-          paints,
-          activePaint,
-          lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
           settings: {
             ...current.settings,
             ...savedSettings,
             helpLevel: normalizeHelpLevel(savedSettings.helpLevel),
           },
+          profile: (p.profile === null || (p.profile && typeof p.profile === 'object'))
+            ? (p.profile as Profile | null)
+            : current.profile,
+          mastery: (p.mastery && typeof p.mastery === 'object' && !Array.isArray(p.mastery))
+            ? p.mastery
+            : current.mastery,
+          progress: (p.progress && typeof p.progress === 'object' && !Array.isArray(p.progress))
+            ? p.progress
+            : current.progress,
+          itemHistory: Array.isArray(p.itemHistory) ? p.itemHistory : current.itemHistory,
+          codex: Array.isArray(p.codex) ? p.codex : current.codex,
+          intel: typeof p.intel === 'number' ? p.intel : current.intel,
+          paints,
+          activePaint,
+          cases: (p.cases && typeof p.cases === 'object' && !Array.isArray(p.cases))
+            ? p.cases
+            : current.cases,
+          lastCaseId: typeof p.lastCaseId === 'string' ? p.lastCaseId : null,
         }
       },
     },
