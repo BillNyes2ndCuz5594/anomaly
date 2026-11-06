@@ -23,7 +23,7 @@ import { glintProgress, revealProgress, takeReveal } from './titleFx'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
-import { widthFit } from '../fit'
+import { framedWidthFit } from '../fit'
 import { ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { makeRadialTexture } from './radialTexture'
 import { FloorPool, NightBody, SkyBand, SubjectLights } from './grade'
@@ -81,7 +81,7 @@ function useTitleCameraFit(space: BrandSpace, logoHalf: number): { current: numb
   useLayoutEffect(() => {
     const width = Math.max(1, space.width)
     const height = Math.max(1, space.height)
-    const fit = widthFit(logoHalf, CAMERA_DISTANCE, width / height, BASE_FOV, 66, 0.2)
+    const fit = framedWidthFit(logoHalf, CAMERA_DISTANCE, camera.aspect, width / size.width, BASE_FOV, 66, 0.2)
     const vertical = ((LOGO_H + 0.55) * 1.2) /
       (2 * CAMERA_DISTANCE * Math.tan((fit.fovDeg * Math.PI) / 360) * height / size.height)
     scale.current = Math.max(fit.distanceScale, vertical)

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { fillFraction, fitBox, fovToFitWidth, widthFit, fitPoints, hull2d, insideNdc, meanProjectedArea, outlinePoints, pointsBox, polygonArea, projectBox, projectPoints, ringPoints, sphereDirections, sweepPoints, sweepYaw, translateBox, unionBox, yawPoints, boxCorners, type Box, type V3 } from './fit'
+import { layoutLogo } from './data/logoShapes'
+import { fillFraction, fitBox, fovToFitWidth, framedWidthFit, widthFit, fitPoints, hull2d, insideNdc, meanProjectedArea, outlinePoints, pointsBox, polygonArea, projectBox, projectPoints, ringPoints, sphereDirections, sweepPoints, sweepYaw, translateBox, unionBox, yawPoints, boxCorners, type Box, type V3 } from './fit'
 
 const body: Box = { min: [-1.4, 0, -0.5], max: [1.4, 5.2, 0.5] }
 const ring: Box = { min: [-2, 0, -2], max: [2, 0.05, 2] }
@@ -200,5 +201,35 @@ describe('widthFit', () => {
     expect(r.distanceScale).toBeGreaterThan(1)
     const seen = Math.tan((r.fovDeg * Math.PI) / 360) * 0.46 * 16 * r.distanceScale
     expect(seen).toBeCloseTo(8 * 1.1, 5)
+  })
+})
+
+describe('title camera fit', () => {
+  const logoHalf = (layoutLogo('ANOMALY').width * 2.3 * 1.04) / 2
+  it.each([
+    { name: '390x844', width: 390, height: 844, availableWidth: 358, availableHeight: 472 },
+    { name: '810x1080', width: 810, height: 1080, availableWidth: 778, availableHeight: 604 },
+    { name: 'desktop', width: 1440, height: 900, availableWidth: 1376, availableHeight: 504 },
+  ])('keeps the complete word width inside the available rectangle at $name', ({ width, height, availableWidth, availableHeight }) => {
+    const aspect = width / height
+    const fit = framedWidthFit(logoHalf, 16, aspect, availableWidth / width, 40, 66, 0.2)
+    const vertical = ((2.3 + 0.55) * 1.2) /
+      (2 * 16 * Math.tan((fit.fovDeg * Math.PI) / 360) * availableHeight / height)
+    const scale = Math.max(fit.distanceScale, vertical)
+    const corners: V3[] = []
+    for (const x of [-logoHalf, logoHalf]) {
+      for (const y of [1.05, 3.35]) {
+        for (const z of [-0.046, 0.414]) corners.push([x, y, z])
+      }
+    }
+    const projected = projectPoints(corners, [0, 2.1 + 0.25 * scale, 16 * scale], [0, 2.1, 0], fit.fovDeg, aspect)
+    const left = (width - availableWidth) / 2
+    const right = left + availableWidth
+    const screenLeft = ((projected.minX + 1) * width) / 2
+    const screenRight = ((projected.maxX + 1) * width) / 2
+
+    expect(projected.behind).toBe(false)
+    expect(screenLeft).toBeGreaterThanOrEqual(left - 1e-6)
+    expect(screenRight).toBeLessThanOrEqual(right + 1e-6)
   })
 })
