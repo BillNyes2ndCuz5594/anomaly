@@ -51,6 +51,8 @@ function GoldGame({ caseId }: { caseId: string }) {
     if (typeof sessionStorage === 'undefined') return
     if (game.phase !== 'done') {
       saveGoldSession(sessionStorage, caseId, { game, reveal })
+    } else {
+      clearGoldSession(sessionStorage, caseId)
     }
   }, [caseId, game, reveal])
 
