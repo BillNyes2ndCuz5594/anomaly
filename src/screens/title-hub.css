@@ -79,6 +79,17 @@
     justify-content: center;
   }
 }
+/* Keep the adult link and saved agent in one reserved footer row. */
+.title-screen .title-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: 24px;
+  width: 100%;
+  min-height: 44px;
+}
+.title-screen .title-footer .small-print { margin: 0; }
 .title-screen .topbar {
   background: rgba(4, 12, 28, 0.94);
   border-radius: 8px;

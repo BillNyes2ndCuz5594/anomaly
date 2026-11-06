@@ -245,7 +245,10 @@ async function checkTitleAttract() {
     page.on('pageerror', (e) => errors.push(e.message))
     if (mode === 'os') await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
     await page.evaluateOnNewDocument((mode) => {
-      localStorage.setItem('anomaly.v1', JSON.stringify({ state: { settings: { reducedMotion: mode === 'saved' } }, version: 1 }))
+      const existing = JSON.parse(localStorage.getItem('anomaly.v1') || '{}')
+      if (mode !== 'still' || !existing.state?.profile) {
+        localStorage.setItem('anomaly.v1', JSON.stringify({ state: { settings: { reducedMotion: mode === 'saved' } }, version: 1 }))
+      }
       if (mode === '2d') {
         const get = HTMLCanvasElement.prototype.getContext
         HTMLCanvasElement.prototype.getContext = function (kind, ...args) {
@@ -295,6 +298,20 @@ async function checkTitleAttract() {
     }
     await page.click(play)
     await page.waitForSelector('[data-testid="firstrun-modal"]')
+    if (mode === 'still') {
+      await page.type('[data-testid="classcode-input"]', 'DEMO')
+      await page.click('[data-testid="agent-input"]', { clickCount: 3 })
+      await page.type('[data-testid="agent-input"]', '14')
+      await page.click('[data-testid="firstrun-confirm"]')
+      await page.waitForSelector('[data-testid="briefing"]')
+      await page.evaluate(() => { location.hash = '#/' })
+      await page.waitForSelector('[data-testid="title-agent"]')
+      await page.reload({ waitUntil: 'load' })
+      await page.waitForSelector('[data-testid="title-agent"]')
+      const savedLogo = await titleLogoVisibility(page)
+      check('title action panel leaves the 3D ANOMALY letters visible for a saved agent',
+        savedLogo.brandPixels > 10000 && savedLogo.coveredPixels / savedLogo.brandPixels < 0.01, JSON.stringify(savedLogo))
+    }
     check(`title usable: ${mode}`, true)
     await page.close()
   }

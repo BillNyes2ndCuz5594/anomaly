@@ -212,27 +212,29 @@ export default function TitleScreen() {
             Use a saved code
           </button>
         </div>
-        <a className="link-btn" href="./teacher.html" data-testid="teacher-link">
-          Teachers and parents
-        </a>
-        {profile ? (
-          <p className="muted small-print" data-testid="title-agent">
-            Playing as {profile.codename}{' '}
-            <button
-              type="button"
-              ref={newAgentRef}
-              className="link-btn"
-              style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
-              data-testid="new-agent"
-              onClick={() => {
-                cancelPendingNavigation()
-                setModal('switch-confirm')
-              }}
-            >
-              New agent
-            </button>
-          </p>
-        ) : null}
+        <div className="title-footer">
+          <a className="link-btn" href="./teacher.html" data-testid="teacher-link">
+            Teachers and parents
+          </a>
+          {profile ? (
+            <p className="muted small-print" data-testid="title-agent">
+              Playing as {profile.codename}{' '}
+              <button
+                type="button"
+                ref={newAgentRef}
+                className="link-btn"
+                style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
+                data-testid="new-agent"
+                onClick={() => {
+                  cancelPendingNavigation()
+                  setModal('switch-confirm')
+                }}
+              >
+                New agent
+              </button>
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <Presence show={modal === 'switch-confirm'}>
