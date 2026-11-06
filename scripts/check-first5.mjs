@@ -333,8 +333,10 @@ try {
     }
   }
 
-  // Keep the remaining keyboard flow on the original case.
+  // Keep the remaining keyboard flow on the original case. A generic briefing
+  // selector can still match Unit 4 while the route transition is committing.
   await toCaseStep(page, 'briefing')
+  await page.waitForFunction(() => document.querySelector('.dispatch-title')?.textContent?.startsWith('CASE 03-1 '))
   await page.setViewport({ width: 1024, height: 768, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
 
   // 3. Reduced motion produces usable layout with actions inside viewport
