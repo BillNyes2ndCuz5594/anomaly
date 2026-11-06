@@ -158,7 +158,9 @@ async function titleLogoVisibility(page) {
     const left = Math.max(0, Math.floor(box.left * sx))
     const right = Math.min(current.width, Math.ceil(box.right * sx))
     const top = Math.max(0, Math.floor(box.top * sy))
-    const bottom = Math.min(current.height, Math.ceil(box.bottom * sy))
+    // Count only complete pixel rows inside the reserved brand box. Rounding the
+    // bottom up can sample the adjacent action panel and misreport it as occlusion.
+    const bottom = Math.min(current.height, Math.floor(box.bottom * sy))
     let brandPixels = 0
     let coveredPixels = 0
     let coveredMinY = Infinity
