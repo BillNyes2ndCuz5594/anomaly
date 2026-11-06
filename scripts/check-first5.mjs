@@ -111,6 +111,50 @@ async function tabTo(page, selector) {
   return false
 }
 
+// Compare the real composited page with the same frame exposed and without Three.
+// This catches an opaque HUD panel hiding the actual letters, which draw counts cannot detect.
+async function titleLogoVisibility(page) {
+  await page.waitForFunction(() => window.__anomaly?.frame > 8 &&
+    getComputedStyle(document.querySelector('.stage-layer')).opacity === '1')
+  const snap = () => page.screenshot({ encoding: 'base64' })
+  const actual = await snap()
+  await page.$eval('.title-bottom', (el) => { el.style.visibility = 'hidden' })
+  const exposed = await snap()
+  await page.$eval('.stage-layer', (el) => { el.style.visibility = 'hidden' })
+  const background = await snap()
+  await page.evaluate(() => {
+    document.querySelector('.title-bottom').style.visibility = ''
+    document.querySelector('.stage-layer').style.visibility = ''
+  })
+  return page.evaluate(async ([a, b, c]) => {
+    const decode = async (source) => {
+      const image = new Image()
+      image.src = 'data:image/png;base64,' + source
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.width
+      canvas.height = image.height
+      const context = canvas.getContext('2d')
+      context.drawImage(image, 0, 0)
+      return context.getImageData(0, 0, canvas.width, canvas.height)
+    }
+    const [current, clear, empty] = await Promise.all([decode(a), decode(b), decode(c)])
+    let brandPixels = 0
+    let coveredPixels = 0
+    for (let y = Math.floor(current.height * 0.12); y < Math.floor(current.height * 0.62); y++) {
+      for (let x = Math.floor(current.width * 0.1); x < Math.floor(current.width * 0.9); x++) {
+        const i = (y * current.width + x) * 4
+        const foreground = Math.abs(clear.data[i] - empty.data[i]) + Math.abs(clear.data[i + 1] - empty.data[i + 1]) + Math.abs(clear.data[i + 2] - empty.data[i + 2])
+        if (foreground < 60 || clear.data[i + 2] < 90 || clear.data[i + 1] < 70) continue
+        brandPixels++
+        const difference = Math.abs(current.data[i] - clear.data[i]) + Math.abs(current.data[i + 1] - clear.data[i + 1]) + Math.abs(current.data[i + 2] - clear.data[i + 2])
+        if (difference > 30) coveredPixels++
+      }
+    }
+    return { brandPixels, coveredPixels }
+  }, [actual, exposed, background])
+}
+
 // PR 10: Media never gates the first title action. Disable SW here to measure
 // page media requests separately from the required offline precache of every asset.
 async function checkTitleAttract() {
@@ -196,6 +240,7 @@ async function checkTitleAttract() {
   for (const mode of ['os', 'saved', 'fade', 'still', '2d', 'blocked']) {
     const page = await browser.newPage()
     await page.setBypassServiceWorker(true)
+    if (mode === 'still') await page.setViewport({ width: 1366, height: 768 })
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
     page.on('pageerror', (e) => errors.push(e.message))
     if (mode === 'os') await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
@@ -217,12 +262,16 @@ async function checkTitleAttract() {
     }, mode)
     const media = []
     page.on('request', (r) => { if (r.resourceType() === 'media' && /\.(webm|mp4)(\?|$)/.test(r.url())) media.push(r.url()) })
-    await page.goto(base + `?backend=webgl2&tier=${mode === 'fade' ? 'low' : 'high'}${mode === 'still' ? '&still=1' : ''}#/`, { waitUntil: 'load' })
+    await page.goto(base + `?backend=webgl2&tier=${['fade', 'still'].includes(mode) ? 'low' : 'high'}${mode === 'still' ? '&still=1' : ''}#/`, { waitUntil: 'load' })
     await page.waitForSelector(hook)
     await sleep(600)
     if (!['2d', 'blocked'].includes(mode)) {
       check(`title poster only, no video request: ${mode}`, media.length === 0 && !(await page.$('.title-backdrop video')))
       check(`title static scan: ${mode}`, await page.$eval('.title-scan', (el) => getComputedStyle(el).animationName === 'none'))
+    }
+    if (mode === 'still') {
+      const logo = await titleLogoVisibility(page)
+      check('title action panel leaves the 3D ANOMALY letters visible', logo.brandPixels > 10000 && logo.coveredPixels / logo.brandPixels < 0.01, JSON.stringify(logo))
     }
     if (mode === '2d') {
       await page.waitForSelector('.title-backdrop video[data-live="yes"]')
