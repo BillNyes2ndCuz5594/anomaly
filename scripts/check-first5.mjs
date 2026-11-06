@@ -1,6 +1,6 @@
 // Headless puppeteer proof for first 5 cases and access gates.
 // Serves built dist/ and asserts layout, scrolling, and access fixes.
-// Usage: timeout 400 node scripts/check-first5.mjs
+// Usage: timeout 180 node scripts/check-first5.mjs
 import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CONTENT, freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
@@ -18,6 +18,8 @@ const VIEWPORTS = [
 const SETTINGS = [
   { label: 'normal', textSize: 0, lineSpacing: 0 },
   { label: 'large', textSize: 1, lineSpacing: 0 },
+  { label: 'normal-loose', textSize: 0, lineSpacing: 2 },
+  { label: 'large-loose', textSize: 1, lineSpacing: 2 },
   { label: 'extra-large-loose', textSize: 2, lineSpacing: 2 },
 ]
 
@@ -39,6 +41,32 @@ async function setGameSettings(page, settings) {
   await page.reload({ waitUntil: 'load' })
   await page.waitForSelector('[data-testid="briefing"]')
   await sleep(250)
+}
+
+async function scrollRegion(targetPage, mode, selector) {
+  const atEnd = () => targetPage.$eval(selector, (list) => list.scrollHeight - list.clientHeight - list.scrollTop <= 1)
+  if (mode === 'keyboard') await targetPage.focus(selector)
+  if (mode !== 'keyboard') {
+    const point = await targetPage.$eval(selector, (list) => {
+      const r = list.getBoundingClientRect()
+      return { x: r.left + r.width / 2, top: r.top + r.height * 0.25, bottom: r.top + r.height * 0.75 }
+    })
+    if (mode === 'wheel') await targetPage.mouse.move(point.x, point.bottom)
+    for (let i = 0; i < 24 && !(await atEnd()); i++) {
+      if (mode === 'wheel') await targetPage.mouse.wheel({ deltaY: 180 })
+      if (mode === 'touch') {
+        const touch = await targetPage.touchscreen.touchStart(point.x, point.bottom)
+        await touch.move(point.x, point.top)
+        await touch.end()
+      }
+      await sleep(150)
+    }
+    return
+  }
+  for (let i = 0; i < 24 && !(await atEnd()); i++) {
+    await targetPage.keyboard.press('PageDown')
+    await sleep(150)
+  }
 }
 
 // Exercise the real modal without navigating or replacing any case nodes.
@@ -209,116 +237,105 @@ try {
   await toCaseStep(page, 'briefing')
   await page.waitForSelector('[data-testid="briefing"]')
 
-  // 1. Acceptance check across all 4 viewports and text/spacing settings:
-  // Both action rectangles are fully inside the viewport without initial scrolling.
-  for (const vp of VIEWPORTS) {
-    if (vp.mobile) {
-      await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
-    } else {
-      await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
-    }
-
-    for (const st of SETTINGS) {
-      await setGameSettings(page, { textSize: st.textSize, lineSpacing: st.lineSpacing })
-      await page.waitForSelector('[data-testid="briefing"]')
-      await sleep(200)
-
-      const bounds = await page.evaluate(() => {
-        const ra = document.querySelector('[data-testid="read-aloud"]')?.getBoundingClientRect()
-        const cont = document.querySelector('[data-testid="briefing-continue"]')?.getBoundingClientRect()
-        const actions = document.querySelector('[data-testid="briefing-actions"]')?.getBoundingClientRect()
-        const story = document.querySelector('[data-testid="briefing-story"]')?.getBoundingClientRect()
-        const vh = window.innerHeight
-        const vw = window.innerWidth
-        return {
-          ra: ra ? { top: ra.top, bottom: ra.bottom, left: ra.left, right: ra.right } : null,
-          cont: cont ? { top: cont.top, bottom: cont.bottom, left: cont.left, right: cont.right } : null,
-          actions: actions ? { top: actions.top, bottom: actions.bottom } : null,
-          story: story ? { top: story.top, bottom: story.bottom, height: story.height } : null,
-          vh,
-          vw,
-        }
+  // 1. Both the existing case and the real Unit 4 hub entry use the full matrix.
+  for (const caseId of ['03-1', '04-1']) {
+    if (caseId === '04-1') {
+      await page.focus('[data-testid="back-to-hub-top"]')
+      await page.keyboard.press('Enter')
+      await page.waitForFunction(() => {
+        const el = document.querySelector('[data-testid="case-marker-04-1"]')
+        el?.focus()
+        return !!el && document.activeElement === el
       })
+      await page.keyboard.press('Enter')
+      await page.waitForSelector('[data-testid="briefing"]')
+      check('Unit 4 hub entry opens its briefing', await page.evaluate(() => location.hash === '#/case/04-1'))
+    }
+    // Acceptance check across all 4 viewports and text/spacing settings:
+    // Both action rectangles are fully inside the viewport without initial scrolling.
+    for (const vp of VIEWPORTS) {
+      if (vp.mobile) {
+        await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
+      } else {
+        await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1, isMobile: false, hasTouch: true })
+      }
 
-      const raOk = bounds.ra && bounds.ra.top >= 0 && bounds.ra.bottom <= bounds.vh && bounds.ra.left >= 0 && bounds.ra.right <= bounds.vw
-      const contOk = bounds.cont && bounds.cont.top >= 0 && bounds.cont.bottom <= bounds.vh && bounds.cont.left >= 0 && bounds.cont.right <= bounds.vw
+      for (const st of SETTINGS) {
+        await setGameSettings(page, { textSize: st.textSize, lineSpacing: st.lineSpacing })
+        await page.waitForSelector('[data-testid="briefing"]')
+        const bounds = await page.evaluate(() => {
+          const ra = document.querySelector('[data-testid="read-aloud"]')?.getBoundingClientRect()
+          const cont = document.querySelector('[data-testid="briefing-continue"]')?.getBoundingClientRect()
+          const actions = document.querySelector('[data-testid="briefing-actions"]')?.getBoundingClientRect()
+          const story = document.querySelector('[data-testid="briefing-story"]')?.getBoundingClientRect()
+          const vh = window.innerHeight
+          const vw = window.innerWidth
+          return {
+            ra: ra ? { top: ra.top, bottom: ra.bottom, left: ra.left, right: ra.right } : null,
+            cont: cont ? { top: cont.top, bottom: cont.bottom, left: cont.left, right: cont.right } : null,
+            actions: actions ? { top: actions.top, bottom: actions.bottom } : null,
+            story: story ? { top: story.top, bottom: story.bottom, height: story.height } : null,
+            vh,
+            vw,
+          }
+        })
 
-      check(
-        `actions visible at ${vp.name} (${st.label})`,
-        raOk && contOk,
-        `ra bottom: ${bounds.ra?.bottom}px, cont bottom: ${bounds.cont?.bottom}px, vh: ${bounds.vh}px`,
-      )
+        const raOk = bounds.ra && bounds.ra.top >= 0 && bounds.ra.bottom <= bounds.vh && bounds.ra.left >= 0 && bounds.ra.right <= bounds.vw
+        const contOk = bounds.cont && bounds.cont.top >= 0 && bounds.cont.bottom <= bounds.vh && bounds.cont.left >= 0 && bounds.cont.right <= bounds.vw
 
-      if (st.label === 'extra-large-loose') {
-        await page.screenshot({ path: `${SHOTS_DIR}/pr1-briefing-${vp.name}-${st.label}.png` })
+        check(
+          `actions visible in ${caseId} at ${vp.name} (${st.label})`,
+          raOk && contOk,
+          `ra bottom: ${bounds.ra?.bottom}px, cont bottom: ${bounds.cont?.bottom}px, vh: ${bounds.vh}px`,
+        )
+
+        // Reset only to the start. Each method must reach the end with real input.
+        for (const mode of (vp.width === 1024 || st.label === 'extra-large-loose' ? ['wheel', 'touch', 'keyboard'] : [])) {
+          await page.$eval('[data-testid="briefing-story"]', (story) => { story.scrollTop = 0 })
+          await scrollRegion(page, mode, '[data-testid="briefing-story"]')
+          const end = await page.evaluate(() => {
+            const story = document.querySelector('[data-testid="briefing-story"]')
+            const last = story.querySelectorAll('.rw')
+            // Use a Range so the full final word, including wrapped text, must fit.
+            const range = document.createRange()
+            range.selectNodeContents(last[last.length - 1])
+            const rects = [...range.getClientRects()]
+            const footer = document.querySelector('[data-testid="briefing-actions"]').getBoundingClientRect()
+            const buttons = ['read-aloud', 'briefing-continue'].map((id) => document.querySelector(`[data-testid="${id}"]`).getBoundingClientRect())
+            let top = 0, bottom = Math.min(innerHeight, footer.top), left = 0, right = innerWidth
+            for (let el = story; el; el = el.parentElement) {
+              const r = el.getBoundingClientRect()
+              const style = getComputedStyle(el)
+              if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+                top = Math.max(top, r.top + el.clientTop)
+                bottom = Math.min(bottom, r.top + el.clientTop + el.clientHeight)
+              }
+              if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+                left = Math.max(left, r.left + el.clientLeft)
+                right = Math.min(right, r.left + el.clientLeft + el.clientWidth)
+              }
+            }
+            const fits = (r) => r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth
+            return {
+              atEnd: story.scrollHeight - story.clientHeight - story.scrollTop <= 1,
+              wordVisible: rects.length > 0 && rects.every((r) => r.width > 0 && r.height > 0 && r.top >= top && r.bottom <= bottom && r.left >= left && r.right <= right),
+              actionsVisible: fits(footer) && buttons.every(fits),
+              detail: `word=${last[last.length - 1]?.textContent.trim()}, bottom=${rects.at(-1)?.bottom}, clip=${top}..${bottom}, scroll=${story.scrollTop}/${story.scrollHeight - story.clientHeight}`,
+            }
+          })
+          check(`${mode} reaches the full final word above the footer: ${caseId}, ${vp.name}, ${st.label}`, end.atEnd && end.wordVisible && end.actionsVisible, end.detail)
+        }
+
+        if (st.label === 'extra-large-loose') {
+          await page.screenshot({ path: `${SHOTS_DIR}/pr1-briefing-${vp.name}-${st.label}.png` })
+        }
       }
     }
   }
 
-  // 2. Story scrolling test (wheel, touch, keyboard) on 1024x768 Extra large Loose
+  // Keep the remaining keyboard flow on the original case.
+  await toCaseStep(page, 'briefing')
   await page.setViewport({ width: 1024, height: 768, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
-  await setGameSettings(page, { textSize: 2, lineSpacing: 2 })
-  await page.waitForSelector('[data-testid="briefing"]')
-  await sleep(250)
-
-  // Keyboard scrolling inside briefing-story:
-  await page.evaluate(() => {
-    const story = document.querySelector('[data-testid="briefing-story"]')
-    if (story) story.scrollTop = 0
-  })
-  await page.focus('[data-testid="briefing-story"]')
-  await page.keyboard.press('PageDown')
-  await sleep(200)
-  const keyScrollTop = await page.evaluate(() => document.querySelector('[data-testid="briefing-story"]')?.scrollTop ?? 0)
-  check('keyboard scrolling scrolls briefing-story', keyScrollTop > 0, `scrollTop=${keyScrollTop}`)
-
-  // Wheel scrolling inside briefing-story:
-  await page.evaluate(() => {
-    const story = document.querySelector('[data-testid="briefing-story"]')
-    if (story) story.scrollTop = 0
-  })
-  const storyCenter = await page.$eval('[data-testid="briefing-story"]', (el) => {
-    const r = el.getBoundingClientRect()
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
-  })
-  await page.mouse.move(storyCenter.x, storyCenter.y)
-  await sleep(100)
-  await page.mouse.wheel({ deltaY: 200 })
-  await sleep(300)
-  let wheelScrollTop = await page.evaluate(() => document.querySelector('[data-testid="briefing-story"]')?.scrollTop ?? 0)
-  if (wheelScrollTop === 0) {
-    await page.mouse.wheel({ deltaY: 200 })
-    await sleep(300)
-    wheelScrollTop = await page.evaluate(() => document.querySelector('[data-testid="briefing-story"]')?.scrollTop ?? 0)
-  }
-  check('wheel scrolling scrolls briefing-story', wheelScrollTop > 0, `scrollTop=${wheelScrollTop}`)
-
-  // Scroll to bottom and verify the final paragraph is reached and footer remains visible
-  await page.evaluate(() => {
-    const story = document.querySelector('[data-testid="briefing-story"]')
-    if (story) story.scrollTop = story.scrollHeight
-  })
-  await sleep(150)
-  const reachEnd = await page.evaluate(() => {
-    const story = document.querySelector('[data-testid="briefing-story"]')
-    const actions = document.querySelector('[data-testid="briefing-actions"]')
-    const lastP = story?.querySelector('p:last-of-type')
-    const cont = document.querySelector('[data-testid="briefing-continue"]')
-    const storyRect = story?.getBoundingClientRect()
-    const lastRect = lastP?.getBoundingClientRect()
-    const actionsRect = actions?.getBoundingClientRect()
-    const contRect = cont?.getBoundingClientRect()
-    const vh = window.innerHeight
-    return {
-      lastPTopInsideStory: lastRect ? lastRect.top < (storyRect?.bottom ?? 0) : false,
-      footerInsideViewport: actionsRect ? actionsRect.top >= 0 && actionsRect.bottom <= vh : false,
-      buttonInsideViewport: contRect ? contRect.top >= 0 && contRect.bottom <= vh : false,
-    }
-  })
-  check('scrolling reaches final paragraph of story', reachEnd.lastPTopInsideStory)
-  check('footer remains visible when story is scrolled to bottom', reachEnd.footerInsideViewport)
-  check('continue button remains inside viewport when story is scrolled', reachEnd.buttonInsideViewport)
-  await page.screenshot({ path: `${SHOTS_DIR}/pr1-briefing-story-scrolled.png` })
 
   // 3. Reduced motion produces usable layout with actions inside viewport
   await setGameSettings(page, { reducedMotion: true, textSize: 0, lineSpacing: 0 })
@@ -843,32 +860,6 @@ try {
     }
   }
 
-  async function scrollLabTools(targetPage, mode) {
-    const atEnd = () => targetPage.$eval('[data-testid="lab-tool-list"]', (list) => list.scrollHeight - list.clientHeight - list.scrollTop <= 1)
-    if (mode === 'keyboard') await targetPage.focus('[data-testid="lab-tool-list"]')
-    if (mode !== 'keyboard') {
-      const point = await targetPage.$eval('[data-testid="lab-tool-list"]', (list) => {
-        const r = list.getBoundingClientRect()
-        return { x: r.left + r.width / 2, top: r.top + r.height * 0.25, bottom: r.top + r.height * 0.75 }
-      })
-      if (mode === 'wheel') await targetPage.mouse.move(point.x, point.bottom)
-      for (let i = 0; i < 12 && !(await atEnd()); i++) {
-        if (mode === 'wheel') await targetPage.mouse.wheel({ deltaY: 180 })
-        if (mode === 'touch') {
-          const touch = await targetPage.touchscreen.touchStart(point.x, point.bottom)
-          for (let step = 1; step <= 6; step++) await touch.move(point.x, point.bottom + (point.top - point.bottom) * step / 6)
-          await touch.end()
-        }
-        await sleep(150)
-      }
-      return
-    }
-    for (let i = 0; i < 12 && !(await atEnd()); i++) {
-      await targetPage.keyboard.press('PageDown')
-      await sleep(150)
-    }
-  }
-
   async function labLayout(targetPage, name, mode = 'wheel') {
     await targetPage.waitForSelector('[data-testid="lab-tool-list"]', { timeout: 15000 })
     await targetPage.waitForFunction(() => {
@@ -896,7 +887,7 @@ try {
       await sleep(100)
     }
     const report = await targetPage.evaluate(labVisibility)
-    await scrollLabTools(targetPage, mode)
+    await scrollRegion(targetPage, mode, '[data-testid="lab-tool-list"]')
     await targetPage.waitForFunction(() => {
       const list = document.querySelector('[data-testid="lab-tool-list"]')
       return !!list && list.scrollHeight - list.clientHeight - list.scrollTop <= 1 && !document.querySelector('.lab-more-tools')
