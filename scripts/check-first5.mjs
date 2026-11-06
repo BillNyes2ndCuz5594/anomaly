@@ -2,6 +2,7 @@
 // Serves built dist/ and asserts layout, scrolling, and access fixes.
 // Usage: timeout 180 node scripts/check-first5.mjs
 import { mkdirSync } from 'node:fs'
+import { setMotionFixture } from './lib/motionFixture.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CONTENT, freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
 
@@ -340,7 +341,7 @@ try {
   await page.setViewport({ width: 1024, height: 768, deviceScaleFactor: 1, isMobile: false, hasTouch: false })
 
   // 3. Reduced motion produces usable layout with actions inside viewport
-  await setGameSettings(page, { reducedMotion: true, textSize: 0, lineSpacing: 0 })
+  await setMotionFixture(page)
   await page.waitForSelector('[data-testid="briefing"]')
   const reducedCheck = await page.evaluate(() => {
     const cont = document.querySelector('[data-testid="briefing-continue"]')?.getBoundingClientRect()
