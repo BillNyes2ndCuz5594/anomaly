@@ -161,12 +161,15 @@ export default function TitleScreen() {
   return (
     <div className="screen title-screen" data-testid="title">
       <TitleBackdrop />
-      <h1 className="sr-only title-brand">ANOMALY</h1>
       <div className="topbar">
         <span className="label">FIELD UNIT // FLORIDA</span>
         <button type="button" className="btn small ghost" onClick={() => navigate('/settings')}>
           Settings
         </button>
+      </div>
+
+      <div className="title-brand-space">
+        <h1 className="sr-only title-brand">ANOMALY</h1>
       </div>
 
       <div className="title-bottom">

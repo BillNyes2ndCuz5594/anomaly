@@ -1,5 +1,5 @@
-import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three/webgpu'
 import {
   abs,
@@ -23,13 +23,86 @@ import { glintProgress, revealProgress, takeReveal } from './titleFx'
 import { layoutLogo } from '../data/logoShapes'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createHologramMaterial } from '../materials/hologram'
-import { useWidthFit } from './case/sceneHelpers'
+import { widthFit } from '../fit'
 import { ConsoleRing, ContactShadow, DeckLights, DeckPlate, Dust, GridFloor } from './common'
 import { makeRadialTexture } from './radialTexture'
 import { FloorPool, NightBody, SkyBand, SubjectLights } from './grade'
 
 const LOGO_BASE_Y = 1.05
 const LOGO_H = 2.3
+const BASE_FOV = 40
+const CAMERA_DISTANCE = 16
+
+interface BrandSpace {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+/** Follows the actual flex reservation, including font, profile row, and safe area changes. */
+function useTitleBrandSpace(): BrandSpace {
+  const size = useThree((s) => s.size)
+  const [space, setSpace] = useState<BrandSpace>({ left: 0, top: size.height * 0.08, width: size.width, height: size.height * 0.56 })
+  useEffect(() => {
+    const brand = document.querySelector<HTMLElement>('.title-brand-space')
+    if (!brand) return
+    let frame = 0
+    const read = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const r = brand.getBoundingClientRect()
+        const next = { left: r.left, top: r.top, width: r.width, height: r.height }
+        setSpace((old) => Object.keys(next).some((key) => Math.abs(old[key as keyof BrandSpace] - next[key as keyof BrandSpace]) > 0.5) ? next : old)
+      })
+    }
+    const observer = new ResizeObserver(read)
+    observer.observe(brand)
+    for (const selector of ['.title-screen .topbar', '.title-screen .title-bottom']) {
+      const element = document.querySelector(selector)
+      if (element) observer.observe(element)
+    }
+    window.addEventListener('resize', read)
+    read()
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+      window.removeEventListener('resize', read)
+    }
+  }, [])
+  return space
+}
+
+/** Fits both axes inside the reserved DOM rectangle and shifts the projection, not the DOM panel. */
+function useTitleCameraFit(space: BrandSpace, logoHalf: number): { current: number } {
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
+  const size = useThree((s) => s.size)
+  const scale = useRef(1)
+  useLayoutEffect(() => {
+    const width = Math.max(1, space.width)
+    const height = Math.max(1, space.height)
+    const fit = widthFit(logoHalf, CAMERA_DISTANCE, width / height, BASE_FOV, 66, 0.2)
+    const vertical = ((LOGO_H + 0.55) * 1.2) /
+      (2 * CAMERA_DISTANCE * Math.tan((fit.fovDeg * Math.PI) / 360) * height / size.height)
+    scale.current = Math.max(fit.distanceScale, vertical)
+    camera.fov = fit.fovDeg
+    camera.setViewOffset(
+      size.width,
+      size.height,
+      size.width / 2 - (space.left + space.width / 2),
+      size.height / 2 - (space.top + space.height / 2),
+      size.width,
+      size.height,
+    )
+    camera.updateProjectionMatrix()
+    return () => {
+      camera.clearViewOffset()
+      camera.fov = BASE_FOV
+      camera.updateProjectionMatrix()
+    }
+  }, [camera, size.width, size.height, space, logoHalf])
+  return scale
+}
 
 /** Beveled outline letters, merged into one mesh: dark metal body, glowing bevel edges, a slow light sweep. */
 function LogoLetters({ reduced }: { reduced: boolean }) {
@@ -195,14 +268,15 @@ export default function TitleScene() {
   const logo = useRef<THREE.Group>(null)
   // The logo is wider than a phone held upright: widen the view and back the camera off until it fits.
   const logoHalf = useMemo(() => (layoutLogo('ANOMALY').width * LOGO_H) / 2, [])
-  const fit = useWidthFit(logoHalf * 1.04, 16, 66, 0.2)
+  const brandSpace = useTitleBrandSpace()
+  const fit = useTitleCameraFit(brandSpace, logoHalf * 1.04)
 
   useFrame((state) => {
     const t = (performance.now() - start.current) / 1000
     const cam = state.camera
     const intro = calm ? 1 : 1 - Math.pow(1 - Math.min(1, t / 3), 3)
     const orbit = calm ? 0 : Math.sin(t * 0.09) * 0.22
-    const radius = 16 + (1 - intro) * 7
+    const radius = CAMERA_DISTANCE + (1 - intro) * 7
     const height = 2.35 + (calm ? 0 : Math.sin(t * 0.07) * 0.28) + (1 - intro) * 2
     const k = fit.current
     const aimY = LOGO_BASE_Y + 1.05

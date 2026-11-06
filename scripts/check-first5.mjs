@@ -114,19 +114,33 @@ async function tabTo(page, selector) {
 // Compare the real composited page with the same frame exposed and without Three.
 // This catches an opaque HUD panel hiding the actual letters, which draw counts cannot detect.
 async function titleLogoVisibility(page) {
-  await page.waitForFunction(() => window.__anomaly?.frame > 8 &&
+  await page.waitForFunction(() => window.__anomaly?.frame > 8 && window.__anomaly.triangles > 0 &&
     getComputedStyle(document.querySelector('.stage-layer')).opacity === '1')
+  await sleep(600)
+  const brand = await page.$eval('.title-brand-space', (el) => {
+    const r = el.getBoundingClientRect()
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
+  })
+  const settle = () => page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
   const snap = () => page.screenshot({ encoding: 'base64' })
+  const panel = (hidden) => page.$eval('.title-bottom', (el, value) => { el.style.visibility = value ? 'hidden' : '' }, hidden)
+  await panel(true)
+  await settle()
+  const exposedBefore = await snap()
+  await panel(false)
+  await settle()
   const actual = await snap()
-  await page.$eval('.title-bottom', (el) => { el.style.visibility = 'hidden' })
-  const exposed = await snap()
+  await panel(true)
+  await settle()
+  const exposedAfter = await snap()
   await page.$eval('.stage-layer', (el) => { el.style.visibility = 'hidden' })
+  await settle()
   const background = await snap()
   await page.evaluate(() => {
     document.querySelector('.title-bottom').style.visibility = ''
     document.querySelector('.stage-layer').style.visibility = ''
   })
-  return page.evaluate(async ([a, b, c]) => {
+  return page.evaluate(async ([a, b, c, d, box]) => {
     const decode = async (source) => {
       const image = new Image()
       image.src = 'data:image/png;base64,' + source
@@ -138,21 +152,45 @@ async function titleLogoVisibility(page) {
       context.drawImage(image, 0, 0)
       return context.getImageData(0, 0, canvas.width, canvas.height)
     }
-    const [current, clear, empty] = await Promise.all([decode(a), decode(b), decode(c)])
+    const [current, before, after, empty] = await Promise.all([decode(a), decode(b), decode(c), decode(d)])
+    const sx = current.width / innerWidth
+    const sy = current.height / innerHeight
+    const left = Math.max(0, Math.floor(box.left * sx))
+    const right = Math.min(current.width, Math.ceil(box.right * sx))
+    const top = Math.max(0, Math.floor(box.top * sy))
+    const bottom = Math.min(current.height, Math.ceil(box.bottom * sy))
     let brandPixels = 0
     let coveredPixels = 0
-    for (let y = Math.floor(current.height * 0.12); y < Math.floor(current.height * 0.62); y++) {
-      for (let x = Math.floor(current.width * 0.1); x < Math.floor(current.width * 0.9); x++) {
+    let coveredMinY = Infinity
+    let coveredMaxY = -1
+    for (let y = top; y < bottom; y++) {
+      for (let x = left; x < right; x++) {
         const i = (y * current.width + x) * 4
-        const foreground = Math.abs(clear.data[i] - empty.data[i]) + Math.abs(clear.data[i + 1] - empty.data[i + 1]) + Math.abs(clear.data[i + 2] - empty.data[i + 2])
-        if (foreground < 60 || clear.data[i + 2] < 90 || clear.data[i + 1] < 70) continue
+        let foreground = 0
+        let cyan = false
+        for (const exposed of [before, after]) {
+          foreground = Math.max(foreground, Math.abs(exposed.data[i] - empty.data[i]) + Math.abs(exposed.data[i + 1] - empty.data[i + 1]) + Math.abs(exposed.data[i + 2] - empty.data[i + 2]))
+          cyan ||= exposed.data[i + 2] >= 90 && exposed.data[i + 1] >= 70
+        }
+        if (foreground < 60 || !cyan) continue
         brandPixels++
-        const difference = Math.abs(current.data[i] - clear.data[i]) + Math.abs(current.data[i + 1] - clear.data[i + 1]) + Math.abs(current.data[i + 2] - clear.data[i + 2])
-        if (difference > 30) coveredPixels++
+        // Dust keeps moving in the WebGL scene. The real frame sits between two exposed frames,
+        // so only a difference outside both references can be a stationary DOM occlusion.
+        let difference = 0
+        for (let channel = 0; channel < 3; channel++) {
+          const lo = Math.min(before.data[i + channel], after.data[i + channel])
+          const hi = Math.max(before.data[i + channel], after.data[i + channel])
+          difference += current.data[i + channel] < lo ? lo - current.data[i + channel] : current.data[i + channel] > hi ? current.data[i + channel] - hi : 0
+        }
+        if (difference > 30) {
+          coveredPixels++
+          coveredMinY = Math.min(coveredMinY, y)
+          coveredMaxY = Math.max(coveredMaxY, y)
+        }
       }
     }
-    return { brandPixels, coveredPixels }
-  }, [actual, exposed, background])
+    return { brandPixels, coveredPixels, coveredY: coveredPixels ? [coveredMinY / sy, coveredMaxY / sy] : [] }
+  }, [actual, exposedBefore, exposedAfter, background, brand])
 }
 
 // PR 10: Media never gates the first title action. Disable SW here to measure
@@ -345,6 +383,69 @@ async function checkTitleAttract() {
   await page.close()
 }
 
+const TITLE_LOGO_CASES = [
+  { name: '844x390 fresh landscape', width: 844, height: 390 },
+  { name: '844x390 returning landscape', width: 844, height: 390, returning: true },
+  { name: '390x844 fresh portrait', width: 390, height: 844, touch: true },
+  { name: '390x844 returning portrait', width: 390, height: 844, returning: true, touch: true },
+  { name: '1024x768 fresh Extra large Loose', width: 1024, height: 768, textSize: 2, lineSpacing: 2 },
+  { name: '1024x768 returning Extra large Loose', width: 1024, height: 768, textSize: 2, lineSpacing: 2, returning: true },
+  { name: '810x1080 fresh tablet', width: 810, height: 1080 },
+  { name: '1280x800 fresh laptop', width: 1280, height: 800 },
+]
+
+/** Exercises the real composited letters against every formerly missed reservation shape. */
+async function checkTitleLogoReservations() {
+  for (const view of TITLE_LOGO_CASES) {
+    const page = await browser.newPage()
+    await page.setBypassServiceWorker(true)
+    await page.setViewport({ width: view.width, height: view.height, deviceScaleFactor: 1, hasTouch: !!view.touch })
+    page.on('console', (m) => m.type() === 'error' && errors.push(`${view.name}: ${m.text()}`))
+    page.on('pageerror', (e) => errors.push(`${view.name}: ${e.message}`))
+    await page.evaluateOnNewDocument((v) => {
+      localStorage.setItem('anomaly.v1', JSON.stringify({
+        state: {
+          settings: { textSize: v.textSize || 0, lineSpacing: v.lineSpacing || 0, reducedMotion: true },
+          profile: v.returning ? { classCode: 'DEMO', agentNumber: 14, codename: 'Nova Fox 14' } : null,
+        },
+        version: 1,
+      }))
+    }, view)
+    await page.goto(base + '?still=1&tier=low&backend=webgl2#/', { waitUntil: 'load' })
+    await page.waitForSelector('[data-testid="title-quick-play"]')
+    const logo = await titleLogoVisibility(page)
+    check(`3D ANOMALY is not occluded: ${view.name}`,
+      logo.brandPixels > 10000 && logo.coveredPixels / logo.brandPixels < 0.01, JSON.stringify(logo))
+    await page.screenshot({ path: `${SHOTS_DIR}/title-logo-${view.width}x${view.height}-${view.returning ? 'returning' : 'fresh'}-${view.textSize || 0}.png` })
+    const reservation = await page.evaluate(() => {
+      const brand = document.querySelector('.title-brand-space').getBoundingClientRect()
+      const panel = document.querySelector('.title-bottom').getBoundingClientRect()
+      const play = document.querySelector('[data-testid="title-quick-play"]').getBoundingClientRect()
+      return { brandBottom: brand.bottom, panelTop: panel.top, playTop: play.top, playBottom: play.bottom,
+        ok: brand.height >= 72 && brand.bottom <= panel.top + 1 && play.top >= 0 && play.bottom <= innerHeight }
+    })
+    check(`DOM reservation and immediate Play fit: ${view.name}`, reservation.ok, JSON.stringify(reservation))
+    const controls = ['.topbar button', '[data-testid="title-quick-play"]', '[data-testid="start-shift"]',
+      '[data-testid="resume-code"]', '[data-testid="teacher-link"]']
+    if (view.returning) controls.push('[data-testid="new-agent"]')
+    let reachable = true
+    for (const selector of controls) {
+      reachable = await tabTo(page, selector) && reachable
+      reachable = await page.$eval(selector, (el) => {
+        const r = el.getBoundingClientRect()
+        return r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth && r.height >= 44
+      }) && reachable
+    }
+    check(`all title controls stay keyboard and touch reachable: ${view.name}`, reachable)
+    if (view.touch && !view.returning) {
+      await page.tap('[data-testid="title-quick-play"]')
+      await page.waitForSelector('[data-testid="firstrun-modal"]')
+      check(`first Play is immediate on touch: ${view.name}`, true)
+    }
+    await page.close()
+  }
+}
+
 async function checkLaunchGuide() {
   for (const width of [1366, 1024]) {
     const page = await browser.newPage()
@@ -438,6 +539,7 @@ async function checkLaunchGuide() {
 
 try {
   await checkTitleAttract()
+  await checkTitleLogoReservations()
   if (process.argv.includes('--title-only')) {
     // The focused proof stops here; the finally block still closes the browser.
   } else {
