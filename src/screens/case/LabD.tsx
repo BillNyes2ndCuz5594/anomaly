@@ -69,6 +69,9 @@ export default function LabD() {
   const byId = new Map(cards.map((c) => [c.id, c]))
   const currentCard = sortState.current ? byId.get(sortState.current) : undefined
   const sortComplete = isComplete(sortLab, sortState)
+  const finish = () => {
+    if (admit('step-exit', Infinity)) next()
+  }
 
   function runMineralTest(testId: MineralTestId, cue: 'streak' | 'scratch' | 'press') {
     if (!admit(`test:${activeMineral}:${testId}`, 450)) return
@@ -697,7 +700,7 @@ export default function LabD() {
                     type="button"
                     className="btn primary"
                     data-testid="lab-next"
-                    onClick={next}
+                    onClick={finish}
                     autoFocus
                     {...press('lab-d-finish')}
                   >

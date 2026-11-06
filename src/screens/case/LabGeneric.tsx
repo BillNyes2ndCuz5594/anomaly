@@ -95,6 +95,9 @@ export default function LabGeneric() {
   const slot = nextSlot(lab, st)
   const current = st.current ? byId.get(st.current) : undefined
   const order = lab.kind === 'order'
+  const finish = () => {
+    if (admit('step-exit', Infinity)) next()
+  }
 
   function act(action: LabAction) {
     if (action.type === 'place' && (!admit('feedback', 0) || !admit(`place:${st.current}:${slot}:${action.target}`, 450))) return
@@ -318,7 +321,7 @@ export default function LabGeneric() {
               <p className="job-text">{ASK[lab.kind]}</p>
             )}
             {done ? (
-              <button type="button" className="btn primary" data-testid="lab-next" onClick={next} autoFocus {...press('next')}>
+              <button type="button" className="btn primary" data-testid="lab-next" onClick={finish} autoFocus {...press('next')}>
                 Finish lab
               </button>
             ) : null}

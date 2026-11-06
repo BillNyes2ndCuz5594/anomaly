@@ -9,6 +9,7 @@ import { useMotionMode } from '../../ui/useMotionMode'
 import { CaseTop } from './ui'
 import { useCaseDef } from './useCaseDef'
 import { usePressed } from './usePressed'
+import { useTapGuard } from '../../ui/useTapGuard'
 import './briefing-labb.css'
 
 const posters = import.meta.glob<string>([
@@ -64,13 +65,13 @@ export default function Briefing({ kind = 'case' }: { kind?: 'case' | 'cold' }) 
 
   // Cold case: "Open the evidence" pulls a canister first (500 ms in full motion), then the usual step change.
   const motion = useMotionMode()
-  const leaving = useRef(false)
+  const admit = useTapGuard()
   const timer = useRef(0)
   useEffect(() => () => window.clearTimeout(timer.current), [])
   const proceed = () => {
+    // A tap burst must not skip the lab or the questions that follow it.
+    if (!admit('step-exit', Infinity)) return
     if (!cold) return next()
-    if (leaving.current) return
-    leaving.current = true
     useRuntime.getState().pullCanister()
     const ms = motion === 'full' ? 500 : motion === 'fade' ? 250 : 0
     if (ms === 0) next()

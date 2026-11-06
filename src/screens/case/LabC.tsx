@@ -83,7 +83,10 @@ export default function LabC() {
   }
 
   function advance() {
-    if (allDone) return next()
+    if (allDone) {
+      if (admit('step-exit', Infinity)) next()
+      return
+    }
     const nextIdx = specimens.findIndex((s, i) => i > idx && !prog[s.id]?.group)
     const any = nextIdx >= 0 ? nextIdx : specimens.findIndex((s) => !prog[s.id]?.group)
     setIdx(any)

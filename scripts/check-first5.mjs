@@ -4,6 +4,8 @@
 import { mkdirSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { CONTENT, freePort, launch, profilePage, startPreview, toCaseStep } from './lib/drive.mjs'
+import { playGenericLab } from './lib/caseWalk.mjs'
+import { loadPacks } from './lib/content.mjs'
 
 const SHOTS_DIR = 'artifacts/first5'
 mkdirSync(SHOTS_DIR, { recursive: true })
@@ -230,7 +232,35 @@ async function checkLaunchGuide() {
   }
 }
 
+async function checkStepExitBursts() {
+  const page = await profilePage(browser, base, '?tier=low&still=1', { width: 1280, height: 800 }, errors)
+  const screen = () => page.evaluate(() => document.querySelector('[data-testid="lab-a"], [data-testid="lab-generic"], [data-testid="item-player"], [data-testid="debrief"]')?.getAttribute('data-testid'))
+  const burst = async (id, count) => {
+    await page.evaluate(({ id, count }) => {
+      const button = document.querySelector(`[data-testid="${id}"]`)
+      for (let i = 0; i < count; i++) button?.click()
+    }, { id, count })
+    await sleep(100)
+  }
+  for (const [caseId, expected] of [['03-1', 'lab-a'], ['04-1', 'lab-generic']]) {
+    await page.evaluate((id) => {
+      sessionStorage.removeItem(`anomaly.case.case.${id}`)
+      location.hash = `#/case/${id}`
+    }, caseId)
+    await page.waitForFunction((id) => document.querySelector('.dispatch-title')?.textContent?.startsWith(`CASE ${id} `), caseId)
+    await burst('briefing-continue', 4)
+    check(`rapid briefing taps stop at the next step: ${caseId}`, await screen() === expected, await screen())
+  }
+  const pack = loadPacks().find((p) => p.case.id === '04-1')
+  await playGenericLab(page, pack.case.lab)
+  await burst('lab-next', 4)
+  check('rapid Finish lab taps stop at the first question', await screen() === 'item-player' &&
+    (await page.$eval('[data-testid="item-count"]', (el) => el.textContent)).includes('EVIDENCE 1 OF 5'), await screen())
+  await page.close()
+}
+
 try {
+  await checkStepExitBursts()
   await checkLaunchGuide()
   const initialVp = VIEWPORTS[0]
   const page = await profilePage(browser, base, '?tier=low', { width: initialVp.width, height: initialVp.height }, errors)

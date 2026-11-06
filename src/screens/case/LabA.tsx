@@ -71,8 +71,9 @@ export default function LabA() {
     const fx = useFx.getState()
     fx.setLit([])
     fx.setHover(null)
-    if (last) next()
-    else {
+    if (last) {
+      if (admit('step-exit', Infinity)) next()
+    } else {
       setI(i + 1)
       setFb(null)
     }

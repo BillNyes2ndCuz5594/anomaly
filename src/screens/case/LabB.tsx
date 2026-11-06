@@ -147,8 +147,9 @@ export default function LabB() {
   const press = usePressed()
 
   function afterContrast() {
-    if (ci === lab.contrast.length - 1) next()
-    else {
+    if (ci === lab.contrast.length - 1) {
+      if (admit('step-exit', Infinity)) next()
+    } else {
       setCi(ci + 1)
       setTried([])
       setCDone(false)
