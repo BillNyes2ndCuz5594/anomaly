@@ -953,7 +953,21 @@ try {
 
   async function openSolventLab(targetPage) {
     await targetPage.evaluate(() => { location.hash = '#/case/04-1' })
-    await targetPage.waitForSelector('[data-testid="briefing"]', { timeout: 15000 })
+    try {
+      await targetPage.waitForSelector('[data-testid="briefing"]', { timeout: 15000 })
+    } catch (error) {
+      const state = await targetPage.evaluate(() => ({
+        hash: location.hash,
+        route: document.querySelector('.app')?.getAttribute('data-route'),
+        phase: document.querySelector('.handoff')?.getAttribute('data-phase'),
+        testids: [...document.querySelectorAll('[data-testid]')].map((el) => el.getAttribute('data-testid')),
+        text: document.body.innerText.slice(0, 1000),
+        session: Object.fromEntries(Object.keys(sessionStorage).map((key) => [key, sessionStorage.getItem(key)])),
+        resources: performance.getEntriesByType('resource').slice(-12).map((entry) => ({ name: entry.name, duration: entry.duration })),
+      })).catch((probeError) => ({ probeError: String(probeError) }))
+      console.error('openSolventLab failure state:', JSON.stringify(state, null, 2), errors)
+      throw error
+    }
     await sleep(500)
     await targetPage.click('[data-testid="briefing-continue"]')
     await targetPage.waitForSelector('[data-testid="lab-generic"][data-kind="match"]', { timeout: 15000 })
