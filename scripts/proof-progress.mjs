@@ -57,7 +57,7 @@ try {
       throw new Error(`Expected ${regularCases.length} Standards details, found ${standardsDetails.length}`)
     }
 
-    // For each regular case, verify closed initially and summary labeled 'Standards'
+    // For each regular case, verify closed initially and summary labeled 'Science goals'
     for (const c of regularCases) {
       const detailsSel = `[data-testid="case-standards-${c.id}"]`
       const isOpen = await page.$eval(detailsSel, (el) => el.hasAttribute('open'))
@@ -65,8 +65,8 @@ try {
         throw new Error(`Expected standards details for case ${c.id} to be closed initially`)
       }
       const sumText = await page.$eval(`${detailsSel} summary`, (el) => el.textContent?.trim())
-      if (sumText !== 'Standards') {
-        throw new Error(`Expected summary text to be 'Standards', got '${sumText}'`)
+      if (sumText !== 'Science goals') {
+        throw new Error(`Expected summary text to be 'Science goals', got '${sumText}'`)
       }
     }
 

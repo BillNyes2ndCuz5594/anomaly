@@ -20,8 +20,8 @@ import { CaseTop } from './ui'
 import { useCaseDef } from './useCaseDef'
 import './results-debrief.css'
 
-function dueLabel(iso: string | null | undefined): string {
-  if (!iso) return 'No review scheduled yet'
+export function dueLabel(iso: string | null | undefined): string {
+  if (!iso) return 'No review yet'
   return new Date(parseISO(iso)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })
 }
 

@@ -265,7 +265,7 @@ export default function HubScreen() {
           </h3>
           {unlockedPaints.length === 0 ? (
             <p className="muted drone-paint-empty">
-              Move any science skill up a stage on a mission to unlock drone paint colors.
+              Grow any science skill by one stage on a mission. Then your drone gets new paint colors!
             </p>
           ) : (
             <div className="drone-paint-list" role="group" aria-labelledby="drone-paint-h">
@@ -337,7 +337,7 @@ export default function HubScreen() {
             </p>
           ) : null}
           <HelpLevelPicker />
-          {([['current-unit', 'Your unit right now: Unit 4', currentCases], ['other-units', 'Other units', otherCases]] as const).map(([testId, title, list]) => (
+          {([['current-unit', "You're in Unit 4", currentCases], ['other-units', 'Other units', otherCases]] as const).map(([testId, title, list]) => (
           <div key={testId} data-testid={testId} className="case-group">
             <h4 className="case-group-title">{title}</h4>
             <div className="case-list case-grid">
@@ -363,7 +363,7 @@ export default function HubScreen() {
                       }
                     />
                     <details className="case-standards" data-testid={`case-standards-${c.id}`}>
-                      <summary>Standards</summary>
+                      <summary>Science goals</summary>
                       <ul>
                         {c.benchmarks.map((code) => (
                           <li key={code}>
@@ -475,4 +475,3 @@ export default function HubScreen() {
     </div>
   )
 }
-
