@@ -197,6 +197,54 @@ describe('Gold Rush', () => {
     map.set('anomaly:gold:02-2', JSON.stringify({ game: 'not an object' }))
     expect(loadGoldSession(storage, '02-2')).toBeNull()
   })
+  it('strictly validates hostile sessions on loadGoldSession (B4)', () => {
+    const map = new Map<string, string>()
+    const storage = {
+      getItem: (k: string) => map.get(k) ?? null,
+      setItem: (k: string, v: string) => { map.set(k, v) },
+      removeItem: (k: string) => { map.delete(k) },
+    }
+    const base = {
+      game: startGold('seed-test'),
+      reveal: null,
+    }
+
+    const testLoad = (payload: unknown) => {
+      map.set('anomaly:gold:02-2', JSON.stringify(payload))
+      return loadGoldSession(storage, '02-2')
+    }
+
+    // Legit round-trip
+    expect(testLoad(base)).toEqual(base)
+
+    // Reject null entry in bots
+    expect(testLoad({ ...base, game: { ...base.game, bots: [null] } })).toBeNull()
+
+    // Reject bots with missing name or non-finite intel
+    expect(testLoad({ ...base, game: { ...base.game, bots: [{ name: 123, intel: 10 }] } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, bots: [{ name: 'A', intel: 'ten' }] } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, bots: [{ name: 'A', intel: Number.NaN }] } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, bots: [{ name: 'A', intel: Number.POSITIVE_INFINITY }] } })).toBeNull()
+
+    // Reject non-finite player intel
+    expect(testLoad({ ...base, game: { ...base.game, intel: Number.NaN } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, intel: Number.POSITIVE_INFINITY } })).toBeNull()
+
+    // Reject invalid phase enum
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'exploit' } })).toBeNull()
+
+    // Question index bounds per phase
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'question', question: 10 } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'crate', question: 10 } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'next', question: 10 } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'question', question: 9 } })).not.toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'question', question: -1 } })).toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'question', question: 1.5 } })).toBeNull()
+
+    // done phase allows 10
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'done', question: 10 } })).not.toBeNull()
+    expect(testLoad({ ...base, game: { ...base.game, phase: 'done', question: 11 } })).toBeNull()
+  })
   it('maps raw crate tokens to kid-friendly labels', () => {
     expect(crateLabel(20)).toBe('+20 intel!')
     expect(crateLabel(10)).toBe('+10 intel!')

@@ -134,8 +134,29 @@ export function getContainmentStats(state: ContainmentState) {
 }
 
 export function validateContainmentSession(value: unknown): ContainmentState | null {
-  const session = validateModeSession<ContainmentResources, BoardEntity[]>(value, { mode: 'containment', caseId: '02-2' })
+  const session = validateModeSession<ContainmentResources, BoardEntity[]>(value, {
+    mode: 'containment',
+    caseId: '02-2',
+    validateBoard: (board) => {
+      if (!Array.isArray(board)) return false
+      return board.every((e) => {
+        if (!e || typeof e !== 'object' || Array.isArray(e)) return false
+        const t = (e as Record<string, unknown>).type
+        if (t === undefined || t === 'anomaly') return true
+        return typeof t === 'string' && Object.prototype.hasOwnProperty.call(DEFENSE_DESCRIPTIONS, t)
+      })
+    },
+  })
   if (!session) return null
+
+  // Active question phases index into the 10-item question pool (indices 0..9).
+  // Only terminal 'done' phase is allowed to have questionIndex === 10.
+  if (session.phase === 'done') {
+    if (session.questionIndex < 0 || session.questionIndex > 10) return null
+  } else {
+    if (session.questionIndex < 0 || session.questionIndex > 9) return null
+  }
+
   const s = value as Record<string, unknown>
   const qa = typeof s.questionsAnswered === 'number' && Number.isInteger(s.questionsAnswered) && s.questionsAnswered >= 0 && s.questionsAnswered <= 10
     ? s.questionsAnswered : (s.questionsAnswered === undefined ? 0 : null)

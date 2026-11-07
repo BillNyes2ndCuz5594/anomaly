@@ -1,6 +1,7 @@
 import { seeded } from '../../lib/rkea'
 
 export const GOLD_CASES: ReadonlySet<string> = new Set(['02-2'])
+export const GOLD_PHASES: readonly string[] = ['question', 'crate', 'next', 'done']
 
 export type Crate = 10 | 20 | 40 | 'double' | 'glitch' | 'swap' | 'steal'
 export interface Rival { name: string; intel: number }
@@ -70,7 +71,9 @@ export function nextGold(s: GoldRush): GoldRush {
   return { ...s, question: s.question + 1, phase: s.question === 9 ? 'done' : 'question', outcome: '' }
 }
 export function standings(s: GoldRush): Rival[] {
-  return [{ name: 'You', intel: s.intel }, ...s.bots].sort((a, b) => b.intel - a.intel)
+  const bots = Array.isArray(s?.bots) ? s.bots.filter((b): b is Rival => Boolean(b && typeof b === 'object' && typeof b.name === 'string' && typeof b.intel === 'number')) : []
+  const userIntel = typeof s?.intel === 'number' && Number.isFinite(s.intel) ? s.intel : 0
+  return [{ name: 'You', intel: userIntel }, ...bots].sort((a, b) => b.intel - a.intel)
 }
 export function rankOf(board: readonly Rival[], name: string): number {
   const target = board.find((r) => r.name === name)
@@ -90,28 +93,59 @@ export function loadGoldSession(
     const raw = storage.getItem(goldStorageKey(caseId))
     if (!raw) return null
     const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object') return null
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
     const g = parsed.game
-    if (
-      !g ||
-      typeof g !== 'object' ||
-      typeof g.seed !== 'string' ||
-      typeof g.question !== 'number' ||
-      typeof g.intel !== 'number' ||
-      typeof g.phase !== 'string' ||
-      !Array.isArray(g.bots)
-    ) {
-      return null
+    if (!g || typeof g !== 'object' || Array.isArray(g)) return null
+    if (typeof g.seed !== 'string' || !g.seed) return null
+
+    if (typeof g.intel !== 'number' || !Number.isFinite(g.intel)) return null
+    if (typeof g.phase !== 'string' || !GOLD_PHASES.includes(g.phase)) return null
+
+    if (typeof g.question !== 'number' || !Number.isSafeInteger(g.question)) return null
+    if (g.phase === 'done') {
+      if (g.question < 0 || g.question > 10) return null
+    } else {
+      if (g.question < 0 || g.question > 9) return null
     }
-    const reveal =
-      parsed.reveal &&
-      typeof parsed.reveal === 'object' &&
-      typeof parsed.reveal.index === 'number' &&
-      typeof parsed.reveal.contents === 'string' &&
-      typeof parsed.reveal.delta === 'number'
-        ? (parsed.reveal as GoldReveal)
-        : null
-    return { game: g as GoldRush, reveal }
+
+    if (!Array.isArray(g.bots)) return null
+    const validBots: Rival[] = []
+    for (const b of g.bots) {
+      if (!b || typeof b !== 'object' || Array.isArray(b)) return null
+      if (typeof b.name !== 'string' || typeof b.intel !== 'number' || !Number.isFinite(b.intel)) return null
+      validBots.push({ name: b.name, intel: b.intel })
+    }
+
+    const outcome = typeof g.outcome === 'string' ? g.outcome : ''
+
+    let reveal: GoldReveal | null = null
+    if (parsed.reveal !== null && parsed.reveal !== undefined) {
+      const r = parsed.reveal
+      if (
+        !r ||
+        typeof r !== 'object' ||
+        Array.isArray(r) ||
+        typeof r.index !== 'number' ||
+        !Number.isSafeInteger(r.index) ||
+        typeof r.contents !== 'string' ||
+        typeof r.delta !== 'number' ||
+        !Number.isFinite(r.delta)
+      ) {
+        return null
+      }
+      reveal = { index: r.index, contents: r.contents, delta: r.delta }
+    }
+
+    const validGame: GoldRush = {
+      seed: g.seed,
+      question: g.question,
+      intel: g.intel,
+      bots: validBots,
+      phase: g.phase as GoldRush['phase'],
+      outcome,
+    }
+
+    return { game: validGame, reveal }
   } catch {
     return null
   }
