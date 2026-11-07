@@ -45,6 +45,7 @@ export default function TitleScreen() {
   const mode = useMotionMode()
   const [charging, setCharging] = useState(false)
   const timer = useRef<number | undefined>(undefined)
+  const busy = useRef(false)
   const navSeq = useRef(0)
 
   function cancelPendingNavigation() {
@@ -52,6 +53,7 @@ export default function TitleScreen() {
     setCharging(false)
     setLoadingCase(false)
     navSeq.current++
+    busy.current = false
     sharedLoadGate.settle('title:openCase')
   }
 
@@ -66,7 +68,8 @@ export default function TitleScreen() {
 
   async function openCase() {
     const gateKey = 'title:openCase'
-    if (!sharedLoadGate.admit(gateKey)) return
+    if (busy.current || !sharedLoadGate.admit(gateKey)) return
+    busy.current = true
     const seq = ++navSeq.current
     const initialProfile = useGame.getState().profile
     setLoadingCase(true)
@@ -86,8 +89,9 @@ export default function TitleScreen() {
       if (seq !== navSeq.current) return
       setLoadError('This case did not load. Tap to try again.')
     } finally {
-      sharedLoadGate.settle(gateKey)
       if (seq === navSeq.current) {
+        busy.current = false
+        sharedLoadGate.settle(gateKey)
         setLoadingCase(false)
       }
     }
@@ -110,7 +114,7 @@ export default function TitleScreen() {
 
   function start(targetIntent: StartIntent) {
     if (mode === 'still') return go(targetIntent)
-    if (charging || loadingCase) return
+    if (charging || loadingCase || busy.current) return
     setIntent(targetIntent)
     setCharging(true)
     timer.current = window.setTimeout(() => go(targetIntent), 250)
@@ -246,4 +250,3 @@ export default function TitleScreen() {
     </div>
   )
 }
-
