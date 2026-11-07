@@ -120,13 +120,15 @@ export default function Results() {
                 </span>
               </span>
             </strong>
+            <p className="muted tiny">Intel means clue points you collect as a science agent.</p>
             <span className="muted tiny">Total Intel: {intelTotal}</span>
           </div>
           <p className="rd-dispatch">{debriefLine(closed, cold, def.debriefClosed, def.debriefOpen)}</p>
         </section>
 
         <section className="panel brackets results-panel" aria-label="Mastery changes">
-          <h1 className="panel-title">Mastery update</h1>
+          <h1 className="panel-title">Your science skill progress</h1>
+          <p className="muted tiny results-panel-helper">See how your science skills are growing.</p>
           <ul className="bars" data-testid="mastery-bars">
             {rows.map((r) => {
               const frac = shown ? stageFraction(r.to) : stageFraction(r.from)
