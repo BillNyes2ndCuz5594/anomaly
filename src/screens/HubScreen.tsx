@@ -387,11 +387,11 @@ export default function HubScreen() {
               due={due ? 'yes' : 'no'}
               fx={due ? <ResidueAlert /> : undefined}
               to="/cold/cold-1"
-              code="COLD CASE RESIDUE"
+              code="COLD CASE REVIEW"
               sub={
                 due ? (
                   <>
-                    <span aria-hidden="true">{'\u25CF'}</span> <strong>Review due</strong> | earlier missions
+                    <span aria-hidden="true">{'\u25CF'}</span> <strong>Review due</strong>: time to check clues from earlier missions
                   </>
                 ) : (
                   'Revisit clues from earlier missions'

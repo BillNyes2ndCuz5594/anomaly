@@ -145,7 +145,7 @@ function ItemBody({ item, index, total, onLocked, onNext, restored, sideEl }: Bo
   )
 
   // A lock replaces the button under the pointer. Do not let the rest of a rapid tap burst
-  // activate Next item before the player has seen the feedback.
+  // activate Next question before the player has seen the feedback.
   const lockedAt = useRef<number | null>(null)
   const next = useCallback(() => {
     if (lockedAt.current !== null && performance.now() - lockedAt.current < 450) return
@@ -433,30 +433,30 @@ function ItemBody({ item, index, total, onLocked, onNext, restored, sideEl }: Bo
                   <span aria-hidden="true">{ra.speaking ? '\u25A0' : '\u25B6'}</span> {ra.speaking ? 'Stop' : 'Read aloud'}
                 </button>
                 <button type="button" className="btn primary" data-testid="lock-in" disabled={selected === null} onClick={lockIn}>
-                  Lock in
+                  Lock in answer
                 </button>
               </>
             ) : (
               <button type="button" className="btn primary big" data-testid="next-item" onClick={next} autoFocus>
-                {index + 1 >= total ? 'See debrief' : 'Next item'}
+                {index + 1 >= total ? 'Review answers' : 'Next question'}
               </button>
             )}
           </div>
           {rules.autoStruck !== null ? (
             <p className="muted tiny" data-testid="help-level-extra-note">
-              Extra help crossed out one wrong answer. No points for that one.
+              Extra help crossed out one wrong answer. This one adds no points. You can keep going.
             </p>
           ) : null}
           {ra.unavailable ? (
             <p className="muted tiny" role="status" data-testid="read-aloud-unavailable">
-              Read aloud is not available on this device.
+              Read aloud is not available on this device. You can still read the question and choose an answer.
             </p>
           ) : null}
           {!locked ? (
             <p className="muted tiny kbd-hint">
               {rules.canEliminate
-                ? 'Keys: 1-4 or A-D choose, X cross out, Space read aloud, Enter lock in.'
-                : 'Keys: 1-4 or A-D choose, Space read aloud, Enter lock in.'}
+                ? 'Keyboard: 1-4 or A-D chooses an answer. X crosses out an answer. Space reads aloud. Enter locks in your answer.'
+                : 'Keyboard: 1-4 or A-D chooses an answer. Space reads aloud. Enter locks in your answer.'}
             </p>
           ) : null}
         </div>,

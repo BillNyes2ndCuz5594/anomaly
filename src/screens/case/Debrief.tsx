@@ -111,14 +111,14 @@ export default function Debrief() {
             {closed ? <Burst spread={90} /> : null}
           </div>
           <div className="debrief-summary">
-            <p className="label amber">Shift result</p>
+            <p className="label amber">Mission clue check</p>
             <p className="debrief-score" data-testid="debrief-score">
               {score}
               {' OF '}
               {total}
               {' CORRECT'}
             </p>
-            <p className="debrief-line">Let's look over your clues together before we wrap up this mission!</p>
+            <p className="debrief-line">Great clue work. Let's check your answers together before we finish this mission!</p>
           </div>
           <button type="button" className="btn primary big" data-testid="debrief-continue" onClick={() => go('results')}>
             See results
