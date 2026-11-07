@@ -132,6 +132,43 @@ describe('Containment Rush rules', () => {
     }
   })
 
+  it('rejects board entries whose defense type is not in DEFENSE_DESCRIPTIONS (B2)', () => {
+    const s = startContainment('b2-test')
+    const validWithDefense = {
+      ...s,
+      board: [{ lane: 0, position: 0, type: 'magnet' }],
+    }
+    expect(validateContainmentSession(validWithDefense)).not.toBeNull()
+
+    const hostile = {
+      ...s,
+      board: [{ lane: 0, position: 0, type: 'unknown_laser' }],
+    }
+    expect(validateContainmentSession(hostile)).toBeNull()
+
+    const hostilePrototype = {
+      ...s,
+      board: [{ lane: 0, position: 0, type: 'toString' }],
+    }
+    expect(validateContainmentSession(hostilePrototype)).toBeNull()
+  })
+
+  it('rejects questionIndex out of range for the phase (B3)', () => {
+    const s = startContainment('b3-test')
+    // Active phase 'question' with questionIndex 10 indexes past 10-question pool
+    expect(validateContainmentSession({ ...s, questionIndex: 10, phase: 'question' })).toBeNull()
+    expect(validateContainmentSession({ ...s, questionIndex: 10, phase: 'action' })).toBeNull()
+    expect(validateContainmentSession({ ...s, questionIndex: 10, phase: 'resolved' })).toBeNull()
+    expect(validateContainmentSession({ ...s, questionIndex: 10, phase: 'wave' })).toBeNull()
+
+    // 0..9 are valid for active phases
+    expect(validateContainmentSession({ ...s, questionIndex: 9, phase: 'question' })).not.toBeNull()
+
+    // Terminal 'done' phase allows index 10
+    expect(validateContainmentSession({ ...s, questionIndex: 10, phase: 'done' })).not.toBeNull()
+    expect(validateContainmentSession({ ...s, questionIndex: 11, phase: 'done' })).toBeNull()
+  })
+
   it('produces deterministic spawns per wave', () => {
     expect(getSpawnsForWave(0, 'seed-1')).toEqual(getSpawnsForWave(0, 'seed-1'))
     expect(getSpawnsForWave(-1)).toEqual([])
