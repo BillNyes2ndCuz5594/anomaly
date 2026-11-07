@@ -186,6 +186,32 @@ export function rankFor(mastery: Record<string, MasteryStage>): string {
   return 'Recruit'
 }
 
+function safeLocalStorage() {
+  return {
+    getItem: (key: string): string | null => {
+      try {
+        return localStorage.getItem(key)
+      } catch {
+        return null
+      }
+    },
+    setItem: (key: string, value: string): void => {
+      try {
+        localStorage.setItem(key, value)
+      } catch {
+        // QuotaExceededError or security block: ignore and stay in memory.
+      }
+    },
+    removeItem: (key: string): void => {
+      try {
+        localStorage.removeItem(key)
+      } catch {
+        // Ignore deletion failures.
+      }
+    },
+  }
+}
+
 export const useGame = create<GameState>()(
   persist(
     (set, get) => ({
@@ -261,7 +287,7 @@ export const useGame = create<GameState>()(
     {
       name: STORAGE_KEY,
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeLocalStorage()),
       partialize: (s) => ({
         settings: s.settings,
         profile: s.profile,
