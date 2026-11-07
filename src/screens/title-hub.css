@@ -95,6 +95,36 @@
   box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.28);
 }
 
+.title-screen .new-agent-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.case-load-error {
+  color: var(--amber-bright, #ffd54f);
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+  line-height: var(--lh-tight, 1.3);
+}
+
+.title-screen .case-load-error {
+  font-size: 0.9rem;
+  margin: 8px 0 0;
+}
+
+.status-note {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-dim, #a7c0d0);
+  line-height: var(--lh-tight, 1.3);
+}
+
+.title-screen .status-note {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+}
+
 .hub-screen .codename {
   text-shadow: 0 1px 0 #041018, 0 10px 22px rgba(0, 0, 0, 0.4);
 }

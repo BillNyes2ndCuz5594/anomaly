@@ -20,6 +20,7 @@ import { useDecode } from '../ui/useDecode'
 import { useMotionMode } from '../ui/useMotionMode'
 import foilBadge from '../assets/textures/agent-badge-foil.webp?url'
 import { CASE_ART } from './hubArt'
+import { sharedLoadGate } from '../ui/loadGate'
 import './title-hub.css'
 
 import { HUB_PANEL_WIDTH } from './hubLayout'
@@ -61,36 +62,63 @@ function CaseButton({
 }) {
   const setFocused = useRuntime((s) => s.setFocusedMarker)
   const pressed = useSyncExternalStore(subscribeMarkerPressed, () => markerPressed(id), () => false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function activate() {
+    const gateKey = `case:${id}`
+    if (!sharedLoadGate.admit(gateKey)) return
+    setLoading(true)
+    setLoadError(null)
+    try {
+      if (caseById(id)) {
+        await loadPack(id)
+      }
+      if (resolveTier(useGame.getState().settings.quality, useRuntime.getState().autoTier) !== 'low') {
+        const def = caseById(id)
+        if (def) void import('../three/models/heroSpecimens').then((m) => m.prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))).catch(() => {})
+      }
+      navigate(to)
+    } catch {
+      setLoadError('This case did not load. Tap to try again.')
+    } finally {
+      sharedLoadGate.settle(gateKey)
+      setLoading(false)
+    }
+  }
+
   return (
-    <button
-      type="button"
-      className={className}
-      data-testid={testId}
-      data-pressed={pressed ? 'yes' : 'no'}
-      data-due={due}
-      data-status={status}
-      onClick={async () => {
-        if (caseById(id)) await loadPack(id)
-        if (resolveTier(useGame.getState().settings.quality, useRuntime.getState().autoTier) !== 'low') {
-          const def = caseById(id)
-          if (def) void import('../three/models/heroSpecimens').then((m) => m.prefetchCaseHeroes(def, content.items.filter((item) => def.benchmarks.includes(item.benchmark)))).catch(() => {})
-        }
-        navigate(to)
-      }}
-      onFocus={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
-      onBlur={() => setFocused(null)}
-      onMouseEnter={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
-      onMouseLeave={() => setFocused(null)}
-      onPointerDown={() => setMarkerPressed(id, true)}
-      onPointerUp={() => setMarkerPressed(id, false)}
-      onPointerCancel={() => setMarkerPressed(id, false)}
-      onPointerLeave={() => setMarkerPressed(id, false)}
-    >
-      {art ? <img className="case-art" src={art} alt="" aria-hidden="true" decoding="async" loading="lazy" width={160} height={100} /> : null}
-      {fx}
-      <span className="case-code">{code}</span>{' '}
-      <span className="case-sub">{sub}</span>
-    </button>
+    <>
+      <button
+        type="button"
+        className={className}
+        data-testid={testId}
+        data-pressed={pressed ? 'yes' : 'no'}
+        data-due={due}
+        data-status={status}
+        aria-busy={loading ? 'true' : undefined}
+        onClick={activate}
+        onFocus={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
+        onBlur={() => setFocused(null)}
+        onMouseEnter={() => { setFocused(id); if (caseById(id)) void loadPack(id).catch(() => {}) }}
+        onMouseLeave={() => setFocused(null)}
+        onPointerDown={() => setMarkerPressed(id, true)}
+        onPointerUp={() => setMarkerPressed(id, false)}
+        onPointerCancel={() => setMarkerPressed(id, false)}
+        onPointerLeave={() => setMarkerPressed(id, false)}
+      >
+        {art ? <img className="case-art" src={art} alt="" aria-hidden="true" decoding="async" loading="lazy" width={160} height={100} /> : null}
+        {fx}
+        <span className="case-code">{code}</span>{' '}
+        <span className="case-sub">{sub}</span>
+        {loading ? <span className="sr-only">Loading your case...</span> : null}
+      </button>
+      {loadError ? (
+        <p className="case-load-error" role="alert">
+          {loadError}
+        </p>
+      ) : null}
+    </>
   )
 }
 
@@ -120,6 +148,8 @@ export default function HubScreen() {
   const due = useReviewDue()
   const [openGroups, setOpenGroups] = useState<Partial<Record<Category, boolean>>>({})
   const [startOpen] = useState(() => !phoneLike())
+  const [quickPlayLoading, setQuickPlayLoading] = useState(false)
+  const [quickPlayError, setQuickPlayError] = useState<string | null>(null)
   const mode = useMotionMode()
   const codenameRef = useRef<HTMLHeadingElement>(null)
   const panelRef = useRef<HTMLElement>(null)
@@ -276,14 +306,36 @@ export default function HubScreen() {
             type="button"
             data-testid="hub-quick-play"
             className="btn primary big hub-quick-play"
+            aria-busy={quickPlayLoading ? 'true' : undefined}
             onClick={async () => {
-              await loadPack(chosen)
-              navigate(`/case/${chosen}`)
+              const gateKey = 'hub:quick-play'
+              if (!sharedLoadGate.admit(gateKey)) return
+              setQuickPlayLoading(true)
+              setQuickPlayError(null)
+              try {
+                await loadPack(chosen)
+                navigate(`/case/${chosen}`)
+              } catch {
+                setQuickPlayError('This case did not load. Tap to try again.')
+              } finally {
+                sharedLoadGate.settle(gateKey)
+                setQuickPlayLoading(false)
+              }
             }}
           >
             <span className="qp-kicker">Start case</span>
             <span className="qp-title">{chosenCase.unitLabel}</span>
           </button>
+          {quickPlayLoading ? (
+            <p className="status-note" aria-live="polite">
+              Loading your case...
+            </p>
+          ) : null}
+          {quickPlayError ? (
+            <p className="case-load-error" role="alert">
+              {quickPlayError}
+            </p>
+          ) : null}
           <HelpLevelPicker />
           {([['current-unit', 'Your unit right now: Unit 4', currentCases], ['other-units', 'Other units', otherCases]] as const).map(([testId, title, list]) => (
           <div key={testId} data-testid={testId} className="case-group">
@@ -423,3 +475,4 @@ export default function HubScreen() {
     </div>
   )
 }
+

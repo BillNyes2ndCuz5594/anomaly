@@ -10,6 +10,7 @@ import Presence from '../ui/Presence'
 import ResumeModal from '../ui/ResumeModal'
 import { useMotionMode } from '../ui/useMotionMode'
 import { playLabel, shortTopic, startDestination, type StartIntent } from './startFlow'
+import { sharedLoadGate } from '../ui/loadGate'
 import './title-hub.css'
 
 function usePressed() {
@@ -31,6 +32,8 @@ export default function TitleScreen() {
   const lastCaseId = useGame((s) => s.lastCaseId)
   const [modal, setModal] = useState<'firstrun' | 'resume' | 'switch-confirm' | null>(null)
   const [intent, setIntent] = useState<StartIntent>('play')
+  const [loadingCase, setLoadingCase] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const quickPress = usePressed()
   const browsePress = usePressed()
   const resumePress = usePressed()
@@ -48,8 +51,10 @@ export default function TitleScreen() {
   function cancelPendingNavigation() {
     window.clearTimeout(timer.current)
     setCharging(false)
+    setLoadingCase(false)
     navSeq.current++
     busy.current = false
+    sharedLoadGate.settle('title:openCase')
   }
 
   useEffect(() => () => {
@@ -62,10 +67,13 @@ export default function TitleScreen() {
   }
 
   async function openCase() {
-    if (busy.current) return
+    const gateKey = 'title:openCase'
+    if (busy.current || !sharedLoadGate.admit(gateKey)) return
+    busy.current = true
     const seq = ++navSeq.current
     const initialProfile = useGame.getState().profile
-    busy.current = true
+    setLoadingCase(true)
+    setLoadError(null)
     try {
       await loadPack(chosen)
       if (seq !== navSeq.current) return
@@ -79,10 +87,12 @@ export default function TitleScreen() {
       navigate(startDestination('play', chosen))
     } catch {
       if (seq !== navSeq.current) return
-      navigate('/hub')
+      setLoadError('This case did not load. Tap to try again.')
     } finally {
       if (seq === navSeq.current) {
         busy.current = false
+        sharedLoadGate.settle(gateKey)
+        setLoadingCase(false)
       }
     }
   }
@@ -104,7 +114,7 @@ export default function TitleScreen() {
 
   function start(targetIntent: StartIntent) {
     if (mode === 'still') return go(targetIntent)
-    if (charging) return
+    if (charging || loadingCase || busy.current) return
     setIntent(targetIntent)
     setCharging(true)
     timer.current = window.setTimeout(() => go(targetIntent), 250)
@@ -129,6 +139,8 @@ export default function TitleScreen() {
             data-testid="title-quick-play"
             data-pressed={quickPress.pressed ? 'yes' : 'no'}
             data-charging={charging && intent === 'play' ? 'yes' : 'no'}
+            aria-busy={loadingCase ? 'true' : undefined}
+            aria-disabled={loadingCase ? 'true' : undefined}
             onClick={() => start('play')}
             {...quickPress.bind}
           >
@@ -159,6 +171,16 @@ export default function TitleScreen() {
             Use a saved code
           </button>
         </div>
+        {loadingCase ? (
+          <p className="status-note" aria-live="polite">
+            Loading your case...
+          </p>
+        ) : null}
+        {loadError ? (
+          <p className="case-load-error" role="alert">
+            {loadError}
+          </p>
+        ) : null}
         <a className="link-btn" href="./teacher.html" data-testid="teacher-link">
           Teachers and parents
         </a>
@@ -168,8 +190,7 @@ export default function TitleScreen() {
             <button
               type="button"
               ref={newAgentRef}
-              className="link-btn"
-              style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
+              className="link-btn new-agent-btn"
               data-testid="new-agent"
               onClick={() => {
                 cancelPendingNavigation()
