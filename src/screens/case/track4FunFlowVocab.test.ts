@@ -38,7 +38,7 @@ describe('Track 4 Fun Flow Vocabulary Copy', () => {
   })
 
   it('FF-04: updates Results screen with Intel explanation and skill progress helper', () => {
-    expect(resultsSrc).toContain('Intel means clue points you collect as a science agent.')
+    expect(resultsSrc).toContain('Intel means mission points you collect as a science agent.')
     expect(resultsSrc).toContain('Your science skill progress')
     expect(resultsSrc).toContain('See how your science skills are growing.')
     expect(resultsSrc).toContain('data-testid="intel-earned"')

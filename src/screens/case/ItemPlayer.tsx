@@ -276,7 +276,7 @@ function ItemBody({ item, index, total, onLocked, onNext, restored, sideEl }: Bo
             {chips.map((c) => (
               <li key={c.k} className={c.on ? 'chip-r lit' : 'chip-r'} data-testid={`rkea-${c.label.toLowerCase().replace(' ', '-')}`} data-lit={c.on ? 'yes' : 'no'}>
                 <b className="mono">{c.k}</b> {c.label}
-                {c.on ? <span aria-hidden="true"> {'\u2714'}</span> : null}
+                {c.on ? <span aria-hidden="true"> {'\u2713'}</span> : null}
                 <span className="sr-only">{c.on ? ' (used)' : ' (not used yet)'}</span>
               </li>
             ))}

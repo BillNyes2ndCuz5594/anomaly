@@ -120,7 +120,7 @@ export default function Results() {
                 </span>
               </span>
             </strong>
-            <p className="muted tiny">Intel means clue points you collect as a science agent.</p>
+            <p className="muted tiny">Intel means mission points you collect as a science agent.</p>
             <span className="muted tiny">Total Intel: {intelTotal}</span>
           </div>
           <p className="rd-dispatch">{debriefLine(closed, cold, def.debriefClosed, def.debriefOpen)}</p>
