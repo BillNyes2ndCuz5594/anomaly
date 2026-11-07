@@ -60,6 +60,21 @@ describe('useGame persistence under QuotaExceededError', () => {
     expect(useGame.getState().cases['case_01']?.score).toBe(5)
 
     expect(() => {
+      st.setCaseStatus('03-1', 'done' as any)
+    }).not.toThrow()
+    expect(useGame.getState().cases['03-1']).toBe('done')
+
+    expect(() => {
+      st.recordItem('SC.5.L.14.1', 'item-x', true)
+    }).not.toThrow()
+    const state = useGame.getState()
+    expect(state.progress['SC.5.L.14.1']).toBeDefined()
+    expect(state.progress['SC.5.L.14.1'].attempts).toBe(1)
+    expect(state.progress['SC.5.L.14.1'].correct).toBe(1)
+    expect(state.mastery['SC.5.L.14.1']).toBeDefined()
+    expect(state.mastery['SC.5.L.14.1']).not.toBe('unseen')
+
+    expect(() => {
       st.unlockCodex(['entry_1', 'entry_2'])
     }).not.toThrow()
     expect(useGame.getState().codex).toEqual(['entry_1', 'entry_2'])
